@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.diagnostic.Logger
@@ -8,16 +7,17 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
+import com.intellij.ui.BadgeIconSupplier
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.{Log, scheduleIconUpdate}
+import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.Log
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
 
 import java.awt.event.{InputEvent, KeyEvent}
 import java.awt.{Component, Container, FocusTraversalPolicy}
 import java.util.concurrent.TimeUnit
-import javax.swing.{Icon, KeyStroke}
+import javax.swing.KeyStroke
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -25,6 +25,11 @@ import javax.swing.{Icon, KeyStroke}
   * This factory is registered in SBT.xml
   */
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
+  /**
+   * @note usage of "badge is originally inspired by "Build" tool window
+   *       (see [[com.intellij.build.BuildContentManagerImpl]])
+   */
+  private val ToolWindowIconSupplier = new BadgeIconSupplier(Icons.SBT_SHELL_TOOL_WINDOW)
 
   /**
    * NOTE: when a new project is created this returns false<br>
@@ -37,7 +42,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   override def init(toolWindow: ToolWindow): Unit = {
     Log.debug("init")
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
-    toolWindow.setIcon(Icons.SBT_SHELL_TOOL_WINDOW)
+    toolWindow.setIcon(ToolWindowIconSupplier.getOriginalIcon)
 
     val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
     val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolWindowId)
@@ -57,6 +62,17 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
     SbtProcessManager.forProject(project).initAndRunAsync()
   }
+
+  private def scheduleIconUpdate(project: Project, toolWindow: ToolWindow): Unit =
+    schedulePeriodicTask(500L, TimeUnit.MILLISECONDS, toolWindow.getContentManager) {
+      invokeLater {
+        if (!project.isDisposed) {
+          val isAlive = !project.isDisposed && SbtProcessManager.forProject(project).isAlive
+          val icon = ToolWindowIconSupplier.getLiveIndicatorIcon(isAlive)
+          toolWindow.setIcon(icon)
+        }
+      }
+    }
 
   private def addShortcuts(actionId: String): Unit = {
     val keymapManager = KeymapManager.getInstance()
@@ -99,24 +115,6 @@ object SbtShellToolWindowFactory {
 
     result
   }
-
-  private def currentIcon(project: Project): Icon = {
-    val baseIcon = Icons.SBT_SHELL_TOOL_WINDOW
-
-    def isAlive = SbtProcessManager.forProject(project).isAlive
-
-    if (!project.isDisposed && isAlive) ExecutionUtil.getLiveIndicator(baseIcon)
-    else baseIcon
-  }
-
-  private def scheduleIconUpdate(project: Project, toolWindow: ToolWindow): Unit =
-    schedulePeriodicTask(500L, TimeUnit.MILLISECONDS, toolWindow.getContentManager) {
-      invokeLater {
-        if (!project.isDisposed) {
-          toolWindow.setIcon(currentIcon(project))
-        }
-      }
-    }
 
   private class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
     override def getComponentAfter(aContainer: Container, aComponent: Component): Component =
