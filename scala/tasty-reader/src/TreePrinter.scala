@@ -364,20 +364,15 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         nameId = id(name)
         sb ++= nameId
       }
+      val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
+      val resultType = simple(remainder.headOption.map(textOfType(_)).getOrElse("")) // TODO implement
       val previousLength = sb.length
-      parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition)
+      parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition, resultType = Some(resultType))
       if (sb.length == previousLength && needsSpace(nameId)) {
         sb ++= " "
       }
       sb ++= ": "
-      val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
-      val tpe = remainder.headOption
-      tpe match {
-        case Some(t) =>
-          sb ++= simple(textOfType(t))
-        case None =>
-          sb ++= simple("") // TODO implement
-      }
+      sb ++= resultType
       val isDeclaration = remainder.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
         sb ++= " = "
@@ -669,7 +664,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     buffer.toSeq
   }
 
-  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), uniqueNames: Boolean = false): Unit = {
+  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), uniqueNames: Boolean = false, resultType: Option[String] = None): Unit = {
     val tps = target match {
       case Target.This => Seq.empty
       case Target.Definition => node.children
@@ -770,6 +765,9 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     var isImplicitClause = false
     var isGivenClause = false
 
+    val valueParameterStart = sb.length
+    var syntheticParameterNames = List.empty[(String, Int)]
+
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
         sb ++= "()"
@@ -828,6 +826,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
               sb ++= " "
             }
             sb ++= ": "
+          } else {
+            syntheticParameterNames ::= (name, sb.length)
           }
           sb ++= simple(tpe).stripSuffix(" @_root_.scala.annotation.internal.InlineParam")
           if (node.contains(HASDEFAULT)) {
@@ -847,6 +847,13 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         }
       }
       sb ++= ")"
+    }
+    val valueParameterText = sb.substring(valueParameterStart) // TODO Check nodes rather than text
+    syntheticParameterNames.foreach { (name, index) =>
+      if (valueParameterText.contains(name) || resultType.exists(_.contains(name))) {
+        val nameId = id(name)
+        sb.insert(index, name + (if (needsSpace(nameId)) " " else "") + ": ")
+      }
     }
     if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
       if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()") {
