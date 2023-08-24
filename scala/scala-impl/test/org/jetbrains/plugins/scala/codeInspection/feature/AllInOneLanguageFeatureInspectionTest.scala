@@ -33,7 +33,7 @@ final class AllInOneLanguageFeatureInspectionTest extends LanguageFeatureInspect
   def testAllInOne_LanguageWildcardCompilerSettingShouldEnableAllLanguageFeatures(): Unit = {
     val profile = getModule.scalaCompilerSettingsProfile
     val oldSettings = profile.getSettings
-    val newSettings = oldSettings.copy(languageWildcard = true)
+    val newSettings = oldSettings.copy(additionalCompilerOptions = oldSettings.additionalCompilerOptions :+ "-language:_")
     try {
       profile.setSettings(newSettings)
       checkTextHasNoErrors(AllInOneCode)

@@ -6,6 +6,9 @@ import com.intellij.util.xmlb.annotations.XCollection;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * NOTE, the class has some tests in `org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsTest`
+ */
 public final class ScalaCompilerSettingsState {
     public CompileOrder compileOrder = CompileOrder.Mixed;
     public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
@@ -20,7 +23,6 @@ public final class ScalaCompilerSettingsState {
     public boolean higherKinds = false;
     public boolean existentials = false;
     public boolean macros = false;
-    public boolean languageWildcard = false;
 
     public boolean experimental = false;
     public boolean warnings = true;
