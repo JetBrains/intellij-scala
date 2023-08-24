@@ -33,7 +33,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  deprecationWarnings: Boolean,
                                  uncheckedWarnings: Boolean,
                                  featureWarnings: Boolean,
-                                 strict: Boolean, // Scala 3 flag to enforce 3.1 features in 3.0
                                  optimiseBytecode: Boolean,
                                  explainTypeErrors: Boolean,
                                  specialization: Boolean,
@@ -46,11 +45,12 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
 
   import ScalaCompilerSettings.{DebuggingInfoLevelToScalacOption, ToggleOptions}
 
-  //The field exists only as performance optimisation, because it's supposed to be frequently used during the code analyses
-  //We don't have separate setting for "-language:_" on UI in the compiler profile settings
-  //and there is no need to have separate `languageWildcard` field in other places
+  //Fields defined here exist only as performance optimisation.
+  //They are supposed to be frequently used during the code analyses.
+  //For these settings we don't have separate setting on UI in the compiler profile settings
   //TODO: analyze other places which can call `additionalCompilerOptions` frequently and rewrite them as well to use cached value
   val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_")
+  val strict: Boolean = additionalCompilerOptions.contains("-strict")
 
   //TODO: SCL-16881 Support "Debugging info level" for dotty
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
@@ -85,7 +85,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
     state.deprecationWarnings = deprecationWarnings
     state.uncheckedWarnings = uncheckedWarnings
     state.featureWarnings = featureWarnings
-    state.strict = strict
     state.optimiseBytecode = optimiseBytecode
     state.explainTypeErrors = explainTypeErrors
     state.specialization = specialization
@@ -122,7 +121,6 @@ object ScalaCompilerSettings {
       deprecationWarnings = state.deprecationWarnings,
       uncheckedWarnings = state.uncheckedWarnings,
       featureWarnings = state.featureWarnings,
-      strict = state.strict,
       optimiseBytecode = state.optimiseBytecode,
       explainTypeErrors = state.explainTypeErrors,
       specialization = state.specialization,
@@ -190,7 +188,6 @@ object ScalaCompilerSettings {
     ("-deprecation", _.deprecationWarnings, _.deprecationWarnings = _),
     ("-unchecked", _.uncheckedWarnings, _.uncheckedWarnings = _),
     ("-feature", _.featureWarnings, _.featureWarnings = _),
-    ("-strict", _.strict, _.strict = _),
     ("-optimise", _.optimiseBytecode, _.optimiseBytecode = _),
     ("-explaintypes", _.explainTypeErrors, _.explainTypeErrors = _),
     ("-no-specialization", !_.specialization, (s, x) => s.specialization = !x),
