@@ -80,10 +80,6 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-feature");
     }
 
-    if (myState.strict) {
-      list.add("-strict");
-    }
-
     if (myState.optimiseBytecode) {
       list.add("-optimise");
     }

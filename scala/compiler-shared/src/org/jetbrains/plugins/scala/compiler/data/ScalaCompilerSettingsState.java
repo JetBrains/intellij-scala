@@ -20,14 +20,12 @@ public final class ScalaCompilerSettingsState {
     public boolean higherKinds = false;
     public boolean existentials = false;
     public boolean macros = false;
-    public boolean languageWildcard = false;
 
     public boolean experimental = false;
     public boolean warnings = true;
     public boolean deprecationWarnings = false;
     public boolean uncheckedWarnings = false;
     public boolean featureWarnings = false;
-    public boolean strict = false;
     public boolean optimiseBytecode = false;
     public boolean explainTypeErrors = false;
     public boolean specialization = true;
@@ -64,7 +62,6 @@ public final class ScalaCompilerSettingsState {
                 deprecationWarnings == that.deprecationWarnings &&
                 uncheckedWarnings == that.uncheckedWarnings &&
                 featureWarnings == that.featureWarnings &&
-                strict == that.strict &&
                 optimiseBytecode == that.optimiseBytecode &&
                 explainTypeErrors == that.explainTypeErrors &&
                 specialization == that.specialization &&
@@ -95,7 +92,6 @@ public final class ScalaCompilerSettingsState {
                 deprecationWarnings,
                 uncheckedWarnings,
                 featureWarnings,
-                strict,
                 optimiseBytecode,
                 explainTypeErrors,
                 specialization,
