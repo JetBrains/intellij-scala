@@ -50,7 +50,7 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
 
   private def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider): Unit = {
     val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.filter(_.hasRuntimeLibrary)
-    /** note: there is a possibility that in IDEA we will have projects with different subsystems (I think it is a very rare case
+    /* note: there is a possibility that in IDEA we will have projects with different subsystems (I think it is a very rare case
      but from a technical point of view it is possible). In such case we do not want to remove scala SDK kind from libraries that come from systems other than SBT.
      "sbt: scala-sdk" prefix is left because it indicates that this SDK comes from the new implementation of Scala SDK and shouldn't be removed.
      The only way I could find to check from which system the library comes from is com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isExternalSystemLibrary method, but
