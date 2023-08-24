@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollection
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 /**
- * See also `org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor`
+ * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter]]
+ * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._

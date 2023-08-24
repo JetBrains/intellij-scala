@@ -24,6 +24,9 @@ import java.{util => ju}
  *  and
  *  [[org.jetbrains.plugins.scalaDoc.highlighter]]
  *  packages
+ *
+ * @see [[org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator]]
+ * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaSyntaxHighlighter(
   scalaLexer: CustomScalaLexer,
