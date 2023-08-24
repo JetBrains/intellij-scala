@@ -121,35 +121,29 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
   }
 
   def testStringInterpolation(): Unit = {
-    val text =
-      """
-        |s"Hi ${System.currentTimeMillis()}"
+    testAllAnnotations(
+      """raw"Hi ${System.currentTimeMillis()}"
+        |""".stripMargin,
+      """Info((9,15),System,Scala Object)
+        |Info((16,33),currentTimeMillis,Scala Object method call)
         |""".stripMargin
-
-    testAnnotations(text, OBJECT,
-      """Info((8,14),System,Scala Object)
-        |""".stripMargin)
-    testAnnotations(text, OBJECT_METHOD_CALL,
-      """Info((15,32),currentTimeMillis,Scala Object method call)
-        |""".stripMargin)
+    )
   }
 
   def testStringInterpolation_2(): Unit = {
-    val text =
-      """
-        |case class Bar()
+    getFixture.addFileToProject("defs.scala",
+      """case class Bar()
         |def foo(b: Bar): Unit = ???
         |val bar = Bar()
-        |val str = s"one two ${foo(bar)} three"
+        |""".stripMargin)
+
+    testAllAnnotations(
+      """s"one two ${foo(bar)} three"
+        |""".stripMargin,
+      """Info((12,15),foo,Scala Local method call)
+        |Info((16,19),bar,Scala Local value)
         |""".stripMargin
-    testAnnotations(text, LOCAL_METHOD_CALL,
-      """Info((84,87),foo,Scala Local method call)
-        |""".stripMargin)
-    testAnnotations(text, LOCAL_VALUES,
-      """Info((50,53),bar,Scala Local value)
-        |Info((66,69),str,Scala Local value)
-        |Info((88,91),bar,Scala Local value)
-        |""".stripMargin)
+    )
   }
 
   def testLanguageInjection(): Unit = {
