@@ -6,9 +6,6 @@ import com.intellij.util.xmlb.annotations.XCollection;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * NOTE, the class has some tests in `org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsTest`
- */
 public final class ScalaCompilerSettingsState {
     public CompileOrder compileOrder = CompileOrder.Mixed;
     public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
@@ -29,7 +26,6 @@ public final class ScalaCompilerSettingsState {
     public boolean deprecationWarnings = false;
     public boolean uncheckedWarnings = false;
     public boolean featureWarnings = false;
-    public boolean strict = false;
     public boolean optimiseBytecode = false;
     public boolean explainTypeErrors = false;
     public boolean specialization = true;
@@ -66,7 +62,6 @@ public final class ScalaCompilerSettingsState {
                 deprecationWarnings == that.deprecationWarnings &&
                 uncheckedWarnings == that.uncheckedWarnings &&
                 featureWarnings == that.featureWarnings &&
-                strict == that.strict &&
                 optimiseBytecode == that.optimiseBytecode &&
                 explainTypeErrors == that.explainTypeErrors &&
                 specialization == that.specialization &&
@@ -97,7 +92,6 @@ public final class ScalaCompilerSettingsState {
                 deprecationWarnings,
                 uncheckedWarnings,
                 featureWarnings,
-                strict,
                 optimiseBytecode,
                 explainTypeErrors,
                 specialization,
