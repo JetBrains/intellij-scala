@@ -4,8 +4,13 @@ import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLev
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
- * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
- * @see `org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl`
+ * This class represents scala compiler settings which are supposed to be used
+ * in IntelliJ IDEA code analyses features via [[org.jetbrains.plugins.scala.project.ModuleExt.scalaCompilerSettings]]
+ *
+ * There are some other classes related to compiler settings, which serve different purposes:
+ *  - [[org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState]]
+ *  - [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable]]
+ *  - `org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl`
  */
 case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  nameHashing: Boolean,
@@ -21,7 +26,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  higherKinds: Boolean,
                                  existentials: Boolean,
                                  macros: Boolean,
-                                 languageWildcard: Boolean, //-language:_
                                  //language features end
 
                                  experimental: Boolean,
@@ -41,6 +45,12 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  plugins: Seq[String]) {
 
   import ScalaCompilerSettings.{DebuggingInfoLevelToScalacOption, ToggleOptions}
+
+  //The field exists only as performance optimisation, because it's supposed to be frequently used during the code analyses
+  //We don't have separate setting for "-language:_" on UI in the compiler profile settings
+  //and there is no need to have separate `languageWildcard` field in other places
+  //TODO: analyze other places which can call `additionalCompilerOptions` frequently and rewrite them as well to use cached value
+  val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_")
 
   //TODO: SCL-16881 Support "Debugging info level" for dotty
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
@@ -106,7 +116,6 @@ object ScalaCompilerSettings {
       higherKinds = state.higherKinds,
       existentials = state.existentials,
       macros = state.macros,
-      languageWildcard = state.languageWildcard,
 
       experimental = state.experimental,
       warnings = state.warnings,
@@ -176,7 +185,6 @@ object ScalaCompilerSettings {
     ("-language:higherKinds", _.higherKinds, _.higherKinds = _),
     ("-language:existentials", _.existentials, _.existentials = _),
     ("-language:experimental.macros", _.macros, _.macros = _),
-    ("-language:_", _.languageWildcard, _.languageWildcard = _),
     ("-Xexperimental", _.experimental, _.experimental = _),
     ("-nowarn", !_.warnings, (s, x) => s.warnings = !x),
     ("-deprecation", _.deprecationWarnings, _.deprecationWarnings = _),
