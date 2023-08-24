@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 object ScFunctionAnnotator extends ElementAnnotator[ScFunction] {
   override def annotate(function: ScFunction, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit =
     function.getContainingFile match {
-      case scFile: ScalaFile if scFile.isScala3OrSource3Enabled =>
+      case scFile: ScalaFile if scFile.isScala3File =>
         checkTransparentModifier(function)
         checkInlineArguments(function)
       case _ =>
