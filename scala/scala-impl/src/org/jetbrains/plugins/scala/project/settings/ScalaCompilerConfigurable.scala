@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import javax.swing.JPanel
 
+/**
+ * @see [[org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState]]
+ */
 class ScalaCompilerConfigurable(project: Project)
   extends SearchableConfigurable
     with Configurable.NoScroll
