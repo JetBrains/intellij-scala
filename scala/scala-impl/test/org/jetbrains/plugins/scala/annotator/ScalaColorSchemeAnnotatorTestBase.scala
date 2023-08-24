@@ -12,6 +12,13 @@ import org.junit.runner.RunWith
 
 import scala.collection.immutable.ListSet
 
+/**
+ * NOTE: This class only tests [[org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator]]<br>
+ * It doesn't test standard scala syntax highlighting [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter]]<br>
+ *
+ * Q: Maybe it would make sense to test all in combination?
+ * Because users can't see just highlighting from ScalaColorSchemeAnnotator, they see it on top of ScalaSyntaxHighlighter
+ */
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
@@ -66,14 +73,35 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
     filterAnnotationItems: Set[T],
     expectedAnnotationsText: String
   ): Unit = {
+    testAnnotationsMatchingCondition(
+      text,
+      a => filterAnnotationItems.contains(getFilterByField(a)),
+      expectedAnnotationsText
+    )
+  }
+
+  protected def testAllAnnotations(
+    text: String,
+    expectedAnnotationsText: String
+  ): Unit = {
+    testAnnotationsMatchingCondition(
+      text,
+      _ => true,
+      expectedAnnotationsText
+    )
+  }
+
+  private def testAnnotationsMatchingCondition(
+    text: String,
+    filterAnnotation: Message2 => Boolean,
+    expectedAnnotationsText: String
+  ): Unit = {
     val annotations = annotateWithColorSchemeAnnotator(text)
-    val annotationsWithMatchingMessage = annotations.filter { a =>
-      filterAnnotationItems.contains(getFilterByField(a))
-    }
+    val annotationsWithMatchingMessage = annotations.filter(filterAnnotation)
     val actualAnnotationsText = buildAnnotationsTestText(annotationsWithMatchingMessage)
 
     assertEquals(
-      s"Wrong annotations set for filtered message ${filterAnnotationItems.map(m => s"`$m`").mkString(", ")}",
+      s"Wrong annotations set for a given annotations filter",
       expectedAnnotationsText.trim,
       actualAnnotationsText.trim
     )

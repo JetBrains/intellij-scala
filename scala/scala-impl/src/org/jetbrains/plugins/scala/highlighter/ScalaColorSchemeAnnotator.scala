@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -22,7 +23,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollection
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 /**
- * See also `org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor`
+ * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter]]
+ * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._
@@ -162,6 +164,7 @@ object ScalaColorSchemeAnnotator {
 
   def highlightElement(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
     element match {
+      case _: ScInterpolatedExpressionPrefix =>
       case r: ScReference  => highlightReferenceElement(r)
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
