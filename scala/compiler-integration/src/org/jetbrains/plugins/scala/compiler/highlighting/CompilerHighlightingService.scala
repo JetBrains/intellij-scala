@@ -207,7 +207,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
-    FileEditorManager.getInstance(project).getSelectedFiles.flatMap { vf =>
+    val selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles
+    selectedFiles.flatMap { vf =>
       val (document, module, psiFile) = inReadAction {
         (
           FileDocumentManager.getInstance().getDocument(vf),
@@ -218,10 +219,13 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       // Filtering by the Scala language level also ensures that the module has a Scala SDK configured and that the
       // document compiler will not be called in modules which do not have Scala configured (or during project import).
       // The Scala language level of a module is derived from the configured SDK.
-      if ((module ne null) && module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
+      if (document == null || module == null || psiFile == null)
+        None
+      else if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
         val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
         Some((module, sourceScope, document, vf))
-      } else None
+      }
+      else None
     }.foreach { case (module, sourceScope, document, virtualFile) =>
       client match {
         case Some(c) =>
