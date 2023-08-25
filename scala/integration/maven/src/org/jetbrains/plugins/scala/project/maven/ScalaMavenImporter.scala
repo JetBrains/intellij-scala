@@ -123,7 +123,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
         .filterByType[LibraryOrderEntry]
         .filter(_.getScope == DependencyScope.COMPILE)
 
-      val libraries = compileTimeDependencies.map(_.getLibrary)
+      val libraries = compileTimeDependencies.map(_.getLibrary).filter(_ != null)
 
       val scalaLibrariesWithVersions: Seq[(Library, Version)] = libraries.flatMap { lib =>
         if (lib.getName.contains(expectedLibraryName))
