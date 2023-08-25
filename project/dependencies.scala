@@ -49,7 +49,7 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.9.2"
+    val latest_1_0 = "1.9.4"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -89,7 +89,7 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.1"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
