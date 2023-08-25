@@ -279,6 +279,14 @@ trait ScalaTypePresentation extends TypePresentation {
       s"${componentText(left, Associativity.Right)} $opRendered ${componentText(right, Associativity.Left)}"
     }
 
+    def textOf(params: Seq[ScType]) = params match {
+      case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
+      case Seq(tup@TupleType(_)) => innerTypeText(tup).parenthesize()
+      case Seq(mt: ScMatchType) => innerTypeText(mt).parenthesize()
+      case Seq(head) => innerTypeText(head)
+      case _ => typesText(params)
+    }
+
     def innerTypeText(
       t: ScType,
       needDotType: Boolean = true,
@@ -294,14 +302,11 @@ trait ScalaTypePresentation extends TypePresentation {
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
-        val paramsText = params match {
-          case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup@TupleType(_))     => innerTypeText(tup).parenthesize()
-          case Seq(mt: ScMatchType)        => innerTypeText(mt).parenthesize()
-          case Seq(head)                   => innerTypeText(head)
-          case _                           => typesText(params)
-        }
+        val paramsText = textOf(params)
         s"$paramsText ${ScalaPsiUtil.functionArrow} ${innerTypeText(ret)}"
+      case ContextFunctionType(ret, params) if !t.isAliasType =>
+        val paramsText = textOf(params)
+        s"$paramsText ${ScalaPsiUtil.contextFunctionArrow} ${innerTypeText(ret)}"
       case ScThisType(element) =>
         val prefix = element match {
           case clazz: ScTypeDefinition => clazz.name + "."

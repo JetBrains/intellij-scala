@@ -8,7 +8,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill" %% "quill-sql" % "4.6.0",
     "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
   ),
-  Seq("io.getquill"), Set("io.getquill.parser") /* ContextFunction */ , 619,
+  Seq("io.getquill"), Set.empty , 658,
   Set(
     "io.getquill.DynamicInsert", // No parentheses for repeated function type
     "io.getquill.EntityQueryModel", // No parentheses for repeated function type
@@ -57,12 +57,18 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
     "io.getquill.metaprog.Extractors", // Extension
     "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
-    "io.getquill.metaprog.TranspileConfigLiftable", // Extension, given, ContextFunction
+    "io.getquill.metaprog.TranspileConfigLiftable", // Extension, given
     "io.getquill.metaprog.TypeExtensions", // Extension
     "io.getquill.metaprog.etc.ColumnsFlicer", // Inline parameter
     "io.getquill.metaprog.etc.ListFlicer", // Inline parameter
     "io.getquill.metaprog.etc.MapFlicer", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
+    "io.getquill.parser.AstPicklers", // Given
+    "io.getquill.parser.Lifter", // Extension, given
+    "io.getquill.parser.OperationsParser", // TODO > symbol
+    "io.getquill.parser.OptionParser", // Extension
+    "io.getquill.parser.ParserHelpers", // TODO using(x: Int, Long)
+    "io.getquill.parser.Unlifter", // Extension, given
     "io.getquill.quat.QuatMakingBase", // Extension
     "io.getquill.util.CommonExtensions", // Extension
     "io.getquill.util.debug.PrintMac", // Inline parameter

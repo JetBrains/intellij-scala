@@ -121,6 +121,9 @@ object ScalaPsiUtil {
     if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
   }
 
+  def contextFunctionArrow(implicit project: ProjectContext): String =
+    "?" + functionArrow
+
   @tailrec
   def drvTemplate(elem: PsiElement): Option[ScTemplateDefinition] = {
     val template = PsiTreeUtil.getContextOfType(elem, true, classOf[ScTemplateDefinition])
