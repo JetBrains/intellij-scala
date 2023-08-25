@@ -317,7 +317,9 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         delimiterRequired = delimiterRequired || sb.length > previousLength
       }
       if (selfType.nonEmpty || sb.length > previousLength) {
-        sb ++= "\n"
+        if (sb.length > previousLength) {
+          sb ++= "\n"
+        }
         sb ++= indent
         sb ++= "}"
       } else {

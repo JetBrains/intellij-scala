@@ -17,7 +17,6 @@ class PlayTest extends TextToTextTestBase(
     "play.api.libs.Files", // Extra default arguments
     "play.api.libs.crypto.CSRFTokenSigner", // No @deprecated annotation
     "play.api.libs.json.EnumerationWrites", // Given
-    "play.api.libs.json.Json", // Empty line in {}
     "play.api.libs.json.jackson.PlayDeserializers", // FromJavaObject
     "play.api.libs.json.jackson.PlaySerializers", // FromJavaObject
     "play.api.mvc.ActionBuilder", // Extra [Nothing] type argument
