@@ -8,7 +8,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill" %% "quill-sql" % "4.6.0",
     "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
   ),
-  Seq("io.getquill"), Set("io.getquill.metaprog", "io.getquill.parser") /* Reflect, ContextFunction */ , 594,
+  Seq("io.getquill"), Set("io.getquill.parser") /* ContextFunction */ , 619,
   Set(
     "io.getquill.DynamicInsert", // No parentheses for repeated function type
     "io.getquill.EntityQueryModel", // No parentheses for repeated function type
@@ -45,7 +45,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.QueryExecutionBatchModel", // Given, non-canonical | type
     "io.getquill.context.QuerySingleAsQuery", // Inline parameter
     "io.getquill.context.ReflectivePathChainLookup", // Inline parameter
-    "io.getquill.context.StaticSpliceMacro", // Cannot resolve reference
+    "io.getquill.context.StaticSpliceMacro", // Extension
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.JdbcContext", // Inline parameter
@@ -55,11 +55,16 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.generic.ElaborateStructure", // No AnyKind upper type bound, extension
     "io.getquill.generic.TupleMember", // Inline parameter
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
+    "io.getquill.metaprog.Extractors", // Extension
+    "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
+    "io.getquill.metaprog.TranspileConfigLiftable", // Extension, given, ContextFunction
+    "io.getquill.metaprog.TypeExtensions", // Extension
+    "io.getquill.metaprog.etc.ColumnsFlicer", // Inline parameter
+    "io.getquill.metaprog.etc.ListFlicer", // Inline parameter
+    "io.getquill.metaprog.etc.MapFlicer", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
-    "io.getquill.quat.QuatMaking", // Cannot resolve reference
-    "io.getquill.quat.QuatMakingBase", // Cannot resolve reference
+    "io.getquill.quat.QuatMakingBase", // Extension
     "io.getquill.util.CommonExtensions", // Extension
-    "io.getquill.util.Load", // Cannot resolve reference
     "io.getquill.util.debug.PrintMac", // Inline parameter
   )
 )

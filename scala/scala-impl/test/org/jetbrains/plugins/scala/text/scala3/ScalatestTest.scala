@@ -14,11 +14,9 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.MessageRecordingInformer", // Extra default arguments
     "org.scalatest.Suite", // FromJavaObject
     "org.scalatest.diagrams.Diagrams", // Inline parameter
-    "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve reference
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
     "org.scalatest.matchers.CompileMacro", // Given definition
     "org.scalatest.matchers.Matcher", // Inline parameter
-    "org.scalatest.matchers.TypeMatcherMacro", // Cannot resolve reference
     "org.scalatest.matchers.dsl.MatchPatternWord", // Inline parameter
     "org.scalatest.matchers.dsl.MatcherFactory1", // Inline parameter
     "org.scalatest.matchers.dsl.MatcherFactory2", // Inline parameter
@@ -31,9 +29,7 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.matchers.dsl.NotWord", // Inline parameter
     "org.scalatest.matchers.dsl.ResultOfNotWordForAny", // Inline parameter
     "org.scalatest.matchers.must.Matchers", // No this. prefix
-    "org.scalatest.matchers.must.TypeMatcherMacro", // Cannot resolve reference
     "org.scalatest.matchers.should.Matchers", // No this. prefix
-    "org.scalatest.matchers.should.TypeMatcherMacro", // Cannot resolve reference
     "org.scalatest.tools.Framework", // Any
     "org.scalatest.tools.Runner", // FromJavaObject
     "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
