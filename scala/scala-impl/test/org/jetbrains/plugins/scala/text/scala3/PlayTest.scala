@@ -23,7 +23,6 @@ class PlayTest extends TextToTextTestBase(
     "play.api.mvc.DefaultActionBuilderImpl", // Extra [Nothing] type argument
     "play.api.mvc.DefaultMessagesActionBuilderImpl", // Extra [Nothing] type argument
     "play.api.mvc.MessagesRequest", // No _root_.play.api.mvc. qualifier
-    "play.api.mvc.macros.BinderMacros", // Non-canonical | type
     "play.core.j.JavaHttpErrorHandlerAdapter", // Extra default arguments
     "views.html.helper.form", // By-name function type parameter
     "views.html.helper.script", // By-name function type parameter

@@ -327,8 +327,14 @@ trait ScalaTypePresentation extends TypePresentation {
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Array[${innerTypeText(argument)}]" // SCL-21183
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
-      case ScAndType(lhs, rhs) => innerTypeText(lhs) + " & " + innerTypeText(rhs)
-      case ScOrType(lhs, rhs) => innerTypeText(lhs) + " | " + innerTypeText(rhs)
+      case ScAndType(lhs, rhs) =>
+        val l = innerTypeText(lhs)
+        val r = innerTypeText(rhs)
+        if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala.&[" + l + ", " + r + "]" else l + " & " + r // SCL-21559
+      case ScOrType(lhs, rhs) =>
+        val l = innerTypeText(lhs)
+        val r = innerTypeText(rhs)
+        if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala.|[" + l + ", " + r + "]" else l + " & " + r // SCL-21559
       case c: ScCompoundType =>
         compoundTypeText(c)
       case ex: ScExistentialType =>

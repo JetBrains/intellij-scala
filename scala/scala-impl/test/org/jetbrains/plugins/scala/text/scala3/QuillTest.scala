@@ -29,20 +29,20 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ast.EqualityOperator", // No case object _==
     "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
-    "io.getquill.context.BatchStatic", // Extension, non-canonical | type
+    "io.getquill.context.BatchStatic", // Extension
     "io.getquill.context.Context", // Extension
     "io.getquill.context.ContextTranslateMacro", // Inline parameter
     "io.getquill.context.ContextVerbPrepare", // Inline parameter
     "io.getquill.context.ContextVerbStream", // Inline parameter
     "io.getquill.context.DatasourceContextInjectionMacro", // Inline parameter
     "io.getquill.context.Execution", // Given
-    "io.getquill.context.InsertUpdateMacro", // Given, non-canonical | type
+    "io.getquill.context.InsertUpdateMacro", // Given
     "io.getquill.context.LiftMacro", // Function1
     "io.getquill.context.Particularize", // Extension, given
     "io.getquill.context.QueryExecution", // Inline parameter
-    "io.getquill.context.QueryExecutionBatch", // Inline parameter, non-canonical & type
-    "io.getquill.context.QueryExecutionBatchDynamic", // Extension, non-canonical & type
-    "io.getquill.context.QueryExecutionBatchModel", // Given, non-canonical | type
+    "io.getquill.context.QueryExecutionBatch", // Inline parameter
+    "io.getquill.context.QueryExecutionBatchDynamic", // Extension
+    "io.getquill.context.QueryExecutionBatchModel", // Given
     "io.getquill.context.QuerySingleAsQuery", // Inline parameter
     "io.getquill.context.ReflectivePathChainLookup", // Inline parameter
     "io.getquill.context.StaticSpliceMacro", // Extension
