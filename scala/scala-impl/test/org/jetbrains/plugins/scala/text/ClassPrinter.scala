@@ -187,6 +187,7 @@ private class ClassPrinter(isScala3: Boolean) {
       (if (ml.isAbstract && !ml.isOverride) "abstract " else "") +
       (if (ml.isLazy) "lazy " else "") +
       (if (ml.isTransparent) "transparent " else "") +
+      (if (ml.isOpaque) "opaque " else "") +
       (if (ml.isInline) "inline " else "") +
       (if (ml.isCase) "case " else "")
   }
