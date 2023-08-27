@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ShapelessForProduct extends ScalaMacroTypeable {
 
@@ -76,8 +75,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     }
 
   private[this] def productLikeType(genericClass: ScTypeDefinition,
-                                    expectedType: ScType)
-                                   (implicit context: ProjectContext) = for {
+                                    expectedType: ScType) = for {
     parameter <- genericClass.typeParameters.headOption
     undefinedType = UndefinedType(parameter)
     genericType = ScParameterizedType(ScDesignatorType(genericClass), Seq(undefinedType))
