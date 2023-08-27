@@ -4,6 +4,7 @@ package evaluation
 package evaluator
 
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expression}
+import com.intellij.openapi.project.Project
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
@@ -91,7 +92,7 @@ final class ScalaLiteralEvaluator private[evaluator] (value: AnyRef,
 
 object ScalaLiteralEvaluator {
 
-  def empty(implicit context: project.ProjectContext) =
+  def empty(implicit project: Project) =
     new ScalaLiteralEvaluator(null, api.Null)
 
   def apply(literal: ScLiteral,
