@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template._
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 sealed abstract class ScalaPrimaryConstructorMacro extends ScalaMacro {
   protected def parametersText(parameters: ScParameters): Option[String]
@@ -82,7 +83,7 @@ object ScalaPrimaryConstructorMacro {
     }
 
     private def createScParametersFromText(paramsText: String, context: ExpressionContext): Option[ScParameters] = {
-      implicit def projectContext: ProjectContext = context.getProject
+      implicit def project: Project = context.getProject
 
       val features =
         context
