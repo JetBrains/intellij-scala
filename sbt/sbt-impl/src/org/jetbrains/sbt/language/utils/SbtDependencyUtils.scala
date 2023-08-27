@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.SbtUtil.{getBuildModuleData, getSbtModuleData}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
@@ -607,7 +607,7 @@ object SbtDependencyUtils {
       ctx
     )(ctx)
 
-  private def generateNewLine(implicit ctx: ProjectContext): PsiElement =
+  private def generateNewLine(implicit ctx: Project): PsiElement =
     ScalaPsiElementFactory.createNewLine()
 
   def generateArtifactText(info: SbtArtifactInfo): String =
@@ -632,7 +632,7 @@ object SbtDependencyUtils {
   def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository, ctx: PsiElement): ScExpression =
     ScalaPsiElementFactory.createExpressionFromText(generateResolverText(unifiedDependencyRepository), ctx)(ctx)
 
-  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
+  def getRelativePath(elem: PsiElement)(implicit project: Project): Option[String] = {
     for {
       path <- Option(elem.getContainingFile.getVirtualFile.getCanonicalPath)
       if path.startsWith(project.getBasePath)
@@ -640,7 +640,7 @@ object SbtDependencyUtils {
       path.substring(project.getBasePath.length + 1)
   }
 
-  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyOrRepositoryPlaceInfo] = {
+  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: Project): Option[DependencyOrRepositoryPlaceInfo] = {
     val offset =
       elem match {
         case call: ScMethodCall =>
