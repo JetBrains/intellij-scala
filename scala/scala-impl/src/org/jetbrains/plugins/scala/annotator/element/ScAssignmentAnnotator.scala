@@ -12,13 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ExpectedTypeMismatch, MissedValueParameter, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
 
   override def annotate(element: ScAssignment, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = element
 
     val left = element.leftExpression
     val right = element.rightExpression
