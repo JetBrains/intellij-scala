@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
@@ -109,7 +109,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    implicit val ctx: ProjectContext = element
+    implicit val project: Project = element.getProject
 
     @tailrec
     def isInArgumentPosition(expr: ScExpression): Boolean =
