@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import scala.collection.mutable
 
@@ -63,7 +63,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
       expr.append(if (newlineBeforeElse) "\n" else " ")
         .append("else ").append(innerElseBranch.getText)
 
-    implicit val ctx: ProjectContext = project
+    implicit val ctx: Project = project
     implicit val features: ScalaFeatures = element
     val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element), recursive = true)
 
