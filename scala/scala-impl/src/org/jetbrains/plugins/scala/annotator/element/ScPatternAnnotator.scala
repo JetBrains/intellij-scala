@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
@@ -16,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentat
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TupleType, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -47,7 +47,6 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     */
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = pattern
     implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
 
     val dealiased = ScalaType.expandAliases(exprType).getOrElse(exprType)
@@ -83,6 +82,8 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         case _ => false
       }
     }
+
+    implicit val project: Project = pattern.getProject
 
     pattern match {
       case _: ScTypedPatternLike if Seq(Nothing, Null, AnyVal) contains patType =>
