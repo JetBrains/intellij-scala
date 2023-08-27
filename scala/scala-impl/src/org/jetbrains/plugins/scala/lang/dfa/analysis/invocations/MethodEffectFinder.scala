@@ -7,6 +7,7 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.registerParameterValues
@@ -16,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescript
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType, unknownDfaValue}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
 case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: DfaValueFactory) {
@@ -35,7 +35,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
   private def findCommonMethodEffect(invokedElement: InvokedElement,
                                      argumentValues: Map[Argument, DfaValue],
                                      stateBefore: DfaMemoryState): Option[MethodEffect] = {
-    implicit val context: ProjectContext = invokedElement.psiElement.getProject
+    implicit val context: Project = invokedElement.psiElement.getProject
     val commonHandler = findArgumentsPrimitiveType(argumentValues).flatMap { argumentsType =>
       invokedElement.qualifiedName
         .flatMap(CommonMethodsMapping.get(_, argumentsType))
