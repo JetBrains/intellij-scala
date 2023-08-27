@@ -5,8 +5,7 @@ import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
-import org.jetbrains.plugins.scala.project.ProjectContext.fromProject
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -31,7 +30,7 @@ object TypeConstruction {
     inProject: Project,
     textMode: Boolean,
   ): TypeNode = {
-    implicit val ctx: ProjectContext = inProject
+    implicit val ctx: Project = inProject
 
     val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
     //java Object should be treated as AnyRef, not Any
@@ -55,7 +54,7 @@ object TypeConstruction {
     buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])],
     textMode: Boolean
   )(
-    implicit ctx: ProjectContext
+    implicit ctx: Project
   ): TypeNode = {
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     scType match {
