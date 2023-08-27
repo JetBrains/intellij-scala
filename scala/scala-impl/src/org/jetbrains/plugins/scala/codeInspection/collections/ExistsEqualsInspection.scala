@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.ArraySeq
 
@@ -28,8 +27,6 @@ object ExistsEquals extends SimplificationType {
 
   def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression): Boolean = {
     if (qual == null) return false
-
-    implicit val ctx: ProjectContext = qual.projectContext
 
     val exprText = s"(${qual.getText}).contains(${arg.getText})"
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
