@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
@@ -46,7 +45,7 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    implicit val ctx: ProjectContext = project
+    implicit val ctx: Project = project
     //check for name conflicts
     for {
       doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
