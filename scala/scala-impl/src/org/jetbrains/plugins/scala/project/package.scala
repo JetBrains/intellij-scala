@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
@@ -356,6 +358,10 @@ package object project {
 
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
 
+  implicit class ProjectContextOwnerEx(val owner: ProjectContextOwner) extends AnyVal {
+    def getProject: Project = owner.projectContext.project
+  }
+
   implicit class ProjectExt(private val project: Project) extends AnyVal {
     def unloadAwareDisposable: Disposable =
       UnloadAwareDisposable.forProject(project)
@@ -429,6 +435,10 @@ package object project {
       val scalaVersions = modules.flatMap(_.scalaMinorVersion)
       scalaVersions.distinct
     }
+
+    def stdTypes: StdTypes = StdTypes.instance2(project)
+
+    def getScalaTypeSystem: ScalaTypeSystem = ScalaTypeSystem.instance2(project)
   }
 
   implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {

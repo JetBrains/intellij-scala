@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ElementText, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -98,7 +99,7 @@ package object statements {
     private def expandIncompleteIf(expression: ScExpression): Set[ScExpression] = {
       val extraExpressions = expression match {
         case ScIf(_, Some(thenBranch), None) =>
-          val UnitStdType = expression.projectContext.stdTypes.Unit
+          val UnitStdType = expression.getProject.stdTypes.Unit
           val canExpand = function.returnTypeElement match {
             case Some(Typeable(UnitStdType)) => true
             case _ if !function.hasAssign => true
@@ -223,8 +224,8 @@ package object statements {
     }
   }
 
-  private class TailReturnsOptimizableCollector(projectContext: ProjectContext) extends TailReturnsCollector {
-    private val booleanInstance = projectContext.stdTypes.Boolean
+  private class TailReturnsOptimizableCollector(project: Project) extends TailReturnsCollector {
+    private val booleanInstance = project.stdTypes.Boolean
 
     override def visitInfixExpression(infix: ScInfixExpr): Unit = infix match {
       case ScInfixExpr(Typeable(`booleanInstance`), ElementText("&&" | "||"), right@Typeable(`booleanInstance`)) =>

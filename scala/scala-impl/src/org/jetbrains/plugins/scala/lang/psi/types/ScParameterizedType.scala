@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
@@ -105,7 +106,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val Conformance: ScalaConformance = typeSystem
-    val Nothing = projectContext.stdTypes.Nothing
+    val Nothing = r.getProject.stdTypes.Nothing
 
     (this, r) match {
       case (ParameterizedType(Nothing, _), Nothing) => constraints

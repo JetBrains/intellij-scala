@@ -7,6 +7,7 @@ import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expressio
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.{lang => jl}
 
@@ -18,7 +19,7 @@ final class ScalaLiteralEvaluator private[evaluator] (value: AnyRef,
     case null => null
     case _ =>
       val vm = context.getDebugProcess.getVirtualMachineProxy
-      val types = `type`.projectContext.stdTypes
+      val types = `type`.getProject.stdTypes
       import types._
 
 

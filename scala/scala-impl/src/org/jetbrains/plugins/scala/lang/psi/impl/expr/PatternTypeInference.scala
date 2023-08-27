@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 
@@ -317,7 +318,8 @@ object PatternTypeInference {
   )(implicit
     ctx: ProjectContext
   ): Option[ScSubstitutor] = {
-    import ctx.stdTypes
+
+    val stdTypes = ctx.project.stdTypes
 
     constraints match {
       case ConstraintsResult.Left => None

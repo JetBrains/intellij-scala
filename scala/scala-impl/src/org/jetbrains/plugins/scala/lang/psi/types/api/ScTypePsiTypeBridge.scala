@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
@@ -62,7 +63,7 @@ trait PsiTypeBridge {
   def toPsiType(`type`: ScType, noPrimitives: Boolean = false): PsiType
 
   final def stdToPsiType(std: StdType, noPrimitives: Boolean = false): PsiType = {
-    val stdTypes = std.projectContext.stdTypes
+    val stdTypes = std.getProject.stdTypes
     import stdTypes._
 
     def javaObject = createJavaObject

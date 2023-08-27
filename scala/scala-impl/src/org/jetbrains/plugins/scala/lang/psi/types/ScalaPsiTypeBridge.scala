@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -162,7 +163,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     if (typeExpanded.isInstanceOf[NonValueType])
       return toPsiTypeInner(typeExpanded.inferValueType, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)
 
-    val qualNameToType = projectContext.stdTypes.QualNameToType
+    val qualNameToType = `type`.getProject.stdTypes.QualNameToType
 
     typeExpanded match {
       case ScCompoundType(Seq(typez, _*), _, _) =>
@@ -253,7 +254,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   private def expandIfAlias(scType: ScType): ScType = scType match {
     case AliasType(_: ScTypeAliasDefinition, _, upper) =>
       upper match {
-        case Failure(_) => projectContext.stdTypes.Any
+        case Failure(_) => scType.getProject.stdTypes.Any
         case Right(u)   => u
       }
     case _ => scType

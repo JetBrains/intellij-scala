@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 class CompoundTypeCheckSignatureProcessor(s: TermSignature,
                                           retType: ScType,
@@ -245,7 +246,7 @@ class CompoundTypeCheckTypeAliasProcessor(
           }
         case tdef: ScTypeAliasDefinition =>
           val enclosingClass = tp.parentOfType(classOf[ScTemplateDefinition])
-          val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.projectContext.stdTypes.Any)
+          val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.getProject.stdTypes.Any)
           val asSeenFrom     = subst(ScProjectionType(thisType, tp))
           val aliased        = subst(sign.upperBound)
           val conforms       = aliased.equiv(asSeenFrom, constraints)

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.annotation.tailrec
@@ -113,7 +114,7 @@ trait ScalaTypePresentation extends TypePresentation {
       val ScCompoundType(comps, signatureMap, typeMap) = compType
       def typeText0(tp: ScType) = innerTypeText(tp)
 
-      val componentsText = if (comps.isEmpty || comps == Seq(projectContext.stdTypes.AnyRef)) Nil else Seq(comps.map {
+      val componentsText = if (comps.isEmpty || comps == Seq(compType.getProject.stdTypes.AnyRef)) Nil else Seq(comps.map {
         case tp@FunctionType(_, _) => "(" + innerTypeText(tp) + ")"
         case tp => innerTypeText(tp)
       }.mkString(context.compoundTypeSeparatorText))
@@ -245,7 +246,7 @@ trait ScalaTypePresentation extends TypePresentation {
         case ScProjectionType.withActual(alias: ScTypeAliasDefinition, _) if alias.kindProjectorPluginEnabled =>
           proj.projected match {
             case ScCompoundType(comps, sigs, aliases) if
-              comps == Seq(projectContext.stdTypes.AnyRef) && sigs.isEmpty && aliases.contains(alias.name) =>
+              comps == Seq(proj.getProject.stdTypes.AnyRef) && sigs.isEmpty && aliases.contains(alias.name) =>
               Option(KindProjectorSimplifyTypeProjectionInspection.convertToKindProjectorSyntax(alias))
             case _ => None
           }

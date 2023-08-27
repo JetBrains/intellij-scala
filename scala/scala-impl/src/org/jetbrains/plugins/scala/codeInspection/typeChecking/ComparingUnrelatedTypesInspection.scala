@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -40,7 +41,7 @@ object ComparingUnrelatedTypesInspection {
 
   // see this check in scalac: https://github.com/scala/scala/blob/8c86b7d7136839538cca0ff8fca50f59437564c0/src/compiler/scala/tools/nsc/typechecker/RefChecks.scala#L968
   private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean): Comparability = {
-    val stdTypes = type1.projectContext.stdTypes
+    val stdTypes = type1.getProject.stdTypes
     import stdTypes._
 
     val types = Seq(type1, type2)
@@ -92,7 +93,7 @@ object ComparingUnrelatedTypesInspection {
   }
 
   private def isNumericType(`type`: ScType): Boolean = {
-    val stdTypes = `type`.projectContext.stdTypes
+    val stdTypes = `type`.getProject.stdTypes
     import stdTypes._
 
     `type` match {

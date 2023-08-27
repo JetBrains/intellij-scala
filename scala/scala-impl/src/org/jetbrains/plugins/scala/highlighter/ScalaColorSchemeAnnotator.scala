@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
@@ -71,7 +72,7 @@ object ScalaColorSchemeAnnotator {
     ScalaColorsSchemeUtils.textAttributesKey(
       resolvedElement,
       Some(refElement),
-      refElement.projectContext.stdTypes.QualNameToType
+      refElement.getProject.stdTypes.QualNameToType
     )
 
   //See tests in [[org.jetbrains.plugins.scala.annotator.CollectionByTypeAnnotatorTestBase]]

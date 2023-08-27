@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
@@ -22,6 +23,10 @@ final class ScalaTypeSystem private (implicit override val projectContext: Proje
 
 object ScalaTypeSystem {
   def instance(implicit projectContext: ProjectContext): ScalaTypeSystem = cachedInUserData("instance", projectContext.project, ProjectRootManager.getInstance(projectContext)) {
+    new ScalaTypeSystem
+  }
+
+  def instance2(implicit project: Project): ScalaTypeSystem = cachedInUserData("instance", project, ProjectRootManager.getInstance(project)) {
     new ScalaTypeSystem
   }
 }

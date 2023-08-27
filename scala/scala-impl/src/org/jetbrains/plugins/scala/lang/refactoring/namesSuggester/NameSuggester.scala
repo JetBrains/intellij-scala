@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.{GenericTypeNamesProvider, TypePluralNamesProvider}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -101,7 +102,7 @@ object NameSuggester {
       case _ => camelCaseNames(name)
     }
 
-    val stdTypes = `type`.projectContext.stdTypes
+    val stdTypes = `type`.getProject.stdTypes
     import stdTypes._
 
     def valTypeName(`type`: ValType): String = {

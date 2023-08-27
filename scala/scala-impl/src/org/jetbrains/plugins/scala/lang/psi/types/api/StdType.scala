@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.project.Project
 import com.intellij.psi.CommonClassNames._
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
@@ -154,6 +155,16 @@ object StdTypes {
     if (last != null && (last.projectContext == pc)) last
     else {
       val fromContainer = pc.getService(classOf[StdTypes])
+      current.compareAndSet(last, fromContainer)
+      fromContainer
+    }
+  }
+
+  def instance2(implicit project: Project): StdTypes = {
+    val last = current.get()
+    if (last != null && (last.projectContext.project == project)) last
+    else {
+      val fromContainer = project.getService(classOf[StdTypes])
       current.compareAndSet(last, fromContainer)
       fromContainer
     }

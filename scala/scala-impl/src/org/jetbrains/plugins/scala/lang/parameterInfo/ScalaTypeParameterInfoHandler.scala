@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.awt.Color
 
@@ -123,7 +124,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
         if (param.isContravariant) paramText.insert(0, "-")
         else if (param.isCovariant) paramText.insert(0, "+")
 
-        val stdTypes = param.projectContext.stdTypes
+        val stdTypes = param.getProject.stdTypes
         import stdTypes.{Any, Nothing}
 
         param.lowerBound foreach {

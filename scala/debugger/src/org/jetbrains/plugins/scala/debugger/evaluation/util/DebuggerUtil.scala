@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.JvmUtil.getJVMStringForType
 
 import scala.collection.immutable.ArraySeq
@@ -81,7 +81,7 @@ object DebuggerUtil {
   }
 
   def getJVMQualifiedName(tp: ScType): JVMName = {
-    val stdTypes = tp.projectContext.stdTypes
+    val stdTypes = tp.getProject.stdTypes
     import stdTypes._
 
     tp match {

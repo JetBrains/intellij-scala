@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.topLevelMemberClassName
 
@@ -49,7 +50,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 
   import ScalaEvaluatorBuilderUtil._
-  private val stdTypes = projectContext.stdTypes
+  private val stdTypes = codeFragment.getProject.stdTypes
   import stdTypes._
 
   def fileName: String = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull

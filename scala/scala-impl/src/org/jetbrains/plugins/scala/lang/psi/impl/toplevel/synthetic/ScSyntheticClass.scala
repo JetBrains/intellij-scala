@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 
 import javax.swing.Icon
@@ -231,7 +231,7 @@ final class SyntheticClasses(project: Project) {
   var file : PsiFile = _
 
   def registerClasses(): Unit = {
-    val stdTypes = ctx.stdTypes
+    val stdTypes = project.stdTypes
     import stdTypes._
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
@@ -539,7 +539,7 @@ object Unit
   }
 
   def op_type(ic1: StdType, ic2: StdType): ValType = {
-    val stdTypes = ic1.projectContext.stdTypes
+    val stdTypes = ic1.getProject.stdTypes
     import stdTypes._
     (ic1, ic2) match {
       case (_, Double) | (Double, _) => Double

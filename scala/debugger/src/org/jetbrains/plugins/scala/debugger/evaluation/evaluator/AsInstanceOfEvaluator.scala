@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
@@ -17,7 +18,7 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
 
     object NumericType {
       def unapply(tpe: ScType): Option[PrimitiveValue => Value] = {
-        val stdTypes = tpe.projectContext.stdTypes
+        val stdTypes = tpe.getProject.stdTypes
         import stdTypes._
         tpe match {
           case Byte => Some(pv => proxy.mirrorOf(pv.byteValue))
@@ -33,7 +34,7 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
     }
 
     val tpe = inReadAction(rawType.removeAliasDefinitions().widenIfLiteral)
-    val stdTypes = tpe.projectContext.stdTypes
+    val stdTypes = tpe.getProject.stdTypes
     import stdTypes._
 
     val value = operandEvaluator.evaluate(context).asInstanceOf[Value]

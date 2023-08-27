@@ -5,7 +5,7 @@ import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.project.ProjectContext.fromProject
 
 import scala.collection.mutable
@@ -60,14 +60,14 @@ object TypeConstruction {
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     scType match {
       case p@ParameterizedType(des, args) =>
-        val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(des, withPrefix = textMode))
+        val typeConstruction: IntermediateNode = TypeConstruction(scType.getProject.getScalaTypeSystem.presentableText(des, withPrefix = textMode))
         buffer += ((typeConstruction, p.extractClass.flatMap(el => Option(el.getQualifiedName))))
         val argsOnLevel = args.map(getParts(_, buffer, textMode))
         ParametrizedConstruction(typeConstruction, argsOnLevel)
       case JavaArrayType(argument) =>
         ArrayConstruction(getParts(argument, buffer, textMode))
       case otherType =>
-        val typeConstruction: TypeNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))
+        val typeConstruction: TypeNode = TypeConstruction(scType.getProject.getScalaTypeSystem.presentableText(otherType, withPrefix = textMode))
         buffer += ((typeConstruction, otherType.extractClass.flatMap(el => Option(el.getQualifiedName))))
         typeConstruction
     }

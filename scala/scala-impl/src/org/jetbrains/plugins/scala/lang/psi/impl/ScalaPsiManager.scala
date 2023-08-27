@@ -514,7 +514,7 @@ class ScalaPsiManager(implicit val project: Project) {
     )
 
   private def clearCaches(): Unit = {
-    new ProjectContext(project).typeSystem.clearCache()
+    project.getScalaTypeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
     PropertyMethods.clearCache()
     collectImplicitObjectsCache.clear()
@@ -586,7 +586,7 @@ class ScalaPsiManager(implicit val project: Project) {
     )
 
   private def andType(psiTypes: Seq[PsiType]): ScType =
-    new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
+    project.getScalaTypeSystem.andType(psiTypes.map(_.toScType()))
 
   def getStableTypeAliasesNames: Iterable[String] = {
     import ScalaIndexKeys._

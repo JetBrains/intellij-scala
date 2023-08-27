@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 package object result {
@@ -29,7 +29,7 @@ package object result {
 
     private def getOrApiType(apiType: StdTypes => ScType): ScType = result match {
       case Right(value) => value
-      case Left(failure) if apiType != null => apiType(failure.context.stdTypes)
+      case Left(failure) if apiType != null => apiType(failure.context.project.stdTypes)
       case _ => throw new NoSuchElementException("Failure.get")
     }
   }

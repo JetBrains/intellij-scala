@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.jdk.CollectionConverters._
 
@@ -38,7 +39,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
 
     object Primitive {
       def unapply(tpe: ScType): Option[Class[_]] = {
-        val stdTypes = tpe.projectContext.stdTypes
+        val stdTypes = tpe.getProject.stdTypes
         import stdTypes._
 
         tpe match {
@@ -80,7 +81,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
 
     val lhs = operandEvaluator.evaluate(context).asInstanceOf[Value]
     val tpe = inReadAction(rawType.removeAliasDefinitions())
-    val stdTypes = tpe.projectContext.stdTypes
+    val stdTypes = tpe.getProject.stdTypes
     import stdTypes._
 
     (lhs, tpe) match {

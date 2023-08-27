@@ -6,10 +6,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 private[scala] object JvmUtil {
   def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
-    val stdTypes = tp.projectContext.stdTypes
+    val stdTypes = tp.getProject.stdTypes
     import stdTypes._
 
     tp match {

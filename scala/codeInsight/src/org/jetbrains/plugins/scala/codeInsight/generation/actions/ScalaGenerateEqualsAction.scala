@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMe
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 
 final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
   new ScalaGenerateEqualsAction.Handler,
@@ -192,21 +192,21 @@ object ScalaGenerateEqualsAction {
         findClassAtCaret(editor, file).exists(!_.isCase)
 
     private def hasEquals(clazz: ScClass): Option[ScFunction] = {
-      val stdTypes = clazz.projectContext.stdTypes
+      val stdTypes = clazz.getProject.stdTypes
       import stdTypes.{Any, Boolean}
 
       findSuchMethod(clazz, "equals", Boolean, Seq(Any))
     }
 
     private def hasHashCode(clazz: ScClass): Option[ScFunction] = {
-      val stdTypes = clazz.projectContext.stdTypes
+      val stdTypes = clazz.getProject.stdTypes
       import stdTypes.Int
 
       findSuchMethod(clazz, "hashCode", Int, Seq.empty)
     }
 
     private def hasCanEqual(clazz: ScClass): Option[ScFunction] = {
-      val stdTypes = clazz.projectContext.stdTypes
+      val stdTypes = clazz.getProject.stdTypes
       import stdTypes.{Any, Boolean}
 
       findSuchMethod(clazz, "canEqual", Boolean, Seq(Any))

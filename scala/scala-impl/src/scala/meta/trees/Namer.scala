@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.language.postfixOps
@@ -91,7 +92,7 @@ trait Namer {
     var res: m.Type.Name = null
     val visitor = new ScalaTypeVisitor {
       override def visitStdType(x: StdType): Unit = {
-        val stdTypes = x.projectContext.stdTypes
+        val stdTypes = x.getProject.stdTypes
         import stdTypes._
 
         res = x match {

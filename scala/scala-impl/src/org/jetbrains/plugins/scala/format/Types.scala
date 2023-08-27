@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.format
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.{lang, util}
 
 object Types {
   def valueOf(aType: ScType): Any = {
-    val stdTypes = aType.projectContext.stdTypes
+    val stdTypes = aType.getProject.stdTypes
     import stdTypes._
 
     aType match {

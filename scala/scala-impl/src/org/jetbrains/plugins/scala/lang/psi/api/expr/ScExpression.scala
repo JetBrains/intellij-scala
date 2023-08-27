@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -168,8 +168,6 @@ object ScExpression {
 
   implicit class Ext(private val expr: ScExpression) extends AnyVal {
     private implicit def elementScope: ElementScope = expr.elementScope
-
-    private def project = elementScope.projectContext
 
     def contextFunctionParameters: Seq[LightContextFunctionParameter] =
       expr match {
@@ -344,7 +342,7 @@ object ScExpression {
         case _                         => return None
       }
 
-      val stdTypes = project.stdTypes
+      val stdTypes = valueType.getProject.stdTypes
       import stdTypes._
 
       (l, r) match {
@@ -369,7 +367,7 @@ object ScExpression {
     }
 
     private def getStdType(t: ScType): Option[StdType] = {
-      val stdTypes  = project.stdTypes
+      val stdTypes  = t.getProject.stdTypes
       val dealiased = t.widenIfLiteral.removeAliasDefinitions()
       import stdTypes._
 

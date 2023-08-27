@@ -25,7 +25,7 @@ package object types {
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
     private def projectContext = scType.projectContext
-    private def stdTypes = projectContext.stdTypes
+    private def stdTypes = scType.getProject.stdTypes
 
     def equiv(`type`: ScType): Boolean = {
       typeSystem.equiv(scType, `type`)
@@ -207,7 +207,7 @@ package object types {
           case AliasType(tdef: ScTypeAliasDefinition, _, _) if tdef.isOpaque => Stop
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
-            ReplaceWith(projectContext.stdTypes.Any)
+            ReplaceWith(tp.getProject.stdTypes.Any)
           case `type`@AliasType(ta: ScTypeAliasDefinition, _, Right(upper)) if needExpand(ta) =>
             if (visited.contains(`type`)) throw RecursionException
             val updated =
@@ -285,11 +285,11 @@ package object types {
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
     def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.glb(types, checkWeak)
+      project.project.getScalaTypeSystem.glb(types, checkWeak)
     }
 
     def lub(checkWeak: Boolean = true)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.lub(types, checkWeak)
+      project.project.getScalaTypeSystem.lub(types, checkWeak)
     }
   }
 

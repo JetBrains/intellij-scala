@@ -4,14 +4,14 @@ import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
-import org.jetbrains.plugins.scala.project.ProjectContextOwner
+import org.jetbrains.plugins.scala.project.{ProjectContextOwner, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.language.implicitConversions
 
 trait ScType extends ProjectContextOwner {
 
-  def typeSystem: api.TypeSystem = projectContext.typeSystem
+  def typeSystem: api.TypeSystem = this.getProject.getScalaTypeSystem
 
   private var aliasTypeInner: Option[AliasType] = _
 

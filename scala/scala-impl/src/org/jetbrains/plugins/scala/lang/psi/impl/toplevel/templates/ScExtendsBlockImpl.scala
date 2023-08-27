@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaLanguageLevel}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -64,7 +64,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def superTypes: List[ScType] = cachedInUserData("superTypes", this, ModTracker.libraryAware(this)) {
     val buffer = ArrayBuffer.empty[ScType]
 
-    val stdTypes = projectContext.stdTypes
+    val stdTypes = getProject.stdTypes
     import stdTypes._
 
     def addType(t: ScType): Unit = {
@@ -253,7 +253,7 @@ object ScExtendsBlockImpl {
   private val JavaLangObject    = "java.lang.Object"
 
   private def extractSupers(typeElements: Seq[ScTypeElement])
-                           (implicit project: ProjectContext): Seq[PsiClass] =
+                           /*(implicit project: ProjectContext)*/: Seq[PsiClass] =
     typeElements.flatMap {
       case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {

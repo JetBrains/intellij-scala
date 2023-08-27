@@ -56,7 +56,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
@@ -979,7 +979,7 @@ package object extensions {
     def toScType(paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
                 (implicit project: ProjectContext): ScType =
-      project.typeSystem.toScType(`type`, treatJavaObjectAsAny, paramTopLevel)
+      project.project.getScalaTypeSystem.toScType(`type`, treatJavaObjectAsAny, paramTopLevel)
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {

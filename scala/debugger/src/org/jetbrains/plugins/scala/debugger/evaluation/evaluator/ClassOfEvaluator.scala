@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 class ClassOfEvaluator(tpe: ScType) extends Evaluator {
 
@@ -20,7 +21,7 @@ class ClassOfEvaluator(tpe: ScType) extends Evaluator {
   private def prepareEvaluator(raw: ScType): EvaluationContextImpl => ClassObjectReference = {
     val tpe = inReadAction(raw.removeAliasDefinitions())
 
-    val stdTypes = tpe.projectContext.stdTypes
+    val stdTypes = tpe.getProject.stdTypes
     import stdTypes._
 
     tpe match {

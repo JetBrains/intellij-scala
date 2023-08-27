@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 final case class ScCompoundType private (
@@ -141,7 +141,7 @@ object ScCompoundType {
   )(implicit
     projectContext: ProjectContext
   ): ScCompoundType = {
-    val components1 = if (components.isEmpty) Seq(projectContext.stdTypes.AnyRef) else components
+    val components1 = if (components.isEmpty) Seq(projectContext.project.stdTypes.AnyRef) else components
 
     val signatureMapVal = signaturesFromPsi(decls)
 

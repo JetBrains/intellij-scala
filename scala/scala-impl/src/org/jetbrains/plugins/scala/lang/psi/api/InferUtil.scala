@@ -302,8 +302,7 @@ object InferUtil {
                                     expectedType: Option[ScType],
                                     expr: PsiElement,
                                     canThrowSCE: Boolean): ScType = {
-    implicit val ctx: ProjectContext = expr
-    val Unit = ctx.stdTypes.Unit
+    val Unit = expr.getProject.stdTypes.Unit
 
     val shouldTruncateImplicitParameters = expectedType match {
       case Some(ContextFunctionType(_, _)) => false
@@ -344,6 +343,8 @@ object InferUtil {
       val valueType = sameDepth.inferValueType
 
       val expectedParam = Parameter("", None, expected, expected)
+
+      implicit val ctx: ProjectContext = expr
       val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
       val inferredWithExpected =

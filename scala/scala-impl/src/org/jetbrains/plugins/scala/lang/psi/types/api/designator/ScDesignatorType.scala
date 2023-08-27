@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -63,7 +64,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
 
   def getValType: Option[StdType] = element match {
     case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
-      projectContext.stdTypes.QualNameToType.get(clazz.qualifiedName)
+      clazz.getProject.stdTypes.QualNameToType.get(clazz.qualifiedName)
     case _ => None
   }
 

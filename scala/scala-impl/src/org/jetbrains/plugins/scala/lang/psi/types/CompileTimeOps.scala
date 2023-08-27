@@ -14,7 +14,7 @@ import scala.annotation.switch
 private object CompileTimeOps {
   def apply(designator: ScType, arguments: Seq[ScType]): Option[ScLiteralType] = designator match {
     case ScProjectionType.withActual(alias: ScTypeAliasDeclaration, _) =>
-      implicit def project: Project = designator.projectContext.project
+      implicit def project: Project = designator.getProject
 
       val containingClassName = Option(alias.containingClass).map(_.qualifiedName).orNull
 

@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, Variance}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.jdk.CollectionConverters._
@@ -45,7 +46,7 @@ object ComparingUtil {
 
     // we already know that sup is not assignable to sub and vice versa
     // if sup is now also an AnyVal, sub cannot be a subtype of sup
-    val anyVal = sup.projectContext.stdTypes.AnyVal
+    val anyVal = sup.getProject.stdTypes.AnyVal
     if (sup.weakConforms(anyVal))
       return true
 

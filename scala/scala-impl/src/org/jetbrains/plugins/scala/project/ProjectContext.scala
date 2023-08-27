@@ -10,8 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{StdTypes, TypeSystem}
 import scala.language.implicitConversions
 
 class ProjectContext(val project: Project) extends AnyVal {
+
+  @deprecated("Use ProjectExt.stdTypes")
   def stdTypes: StdTypes = StdTypes.instance(this)
 
+  @deprecated("Use ProjectExt.getScalaTypeSystem")
   def typeSystem: TypeSystem = ScalaTypeSystem.instance(project)
 }
 
