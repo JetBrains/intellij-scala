@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package templates
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -252,8 +252,7 @@ object ScExtendsBlockImpl {
   private val ScalaReflectEnum  = "scala.reflect.Enum"
   private val JavaLangObject    = "java.lang.Object"
 
-  private def extractSupers(typeElements: Seq[ScTypeElement])
-                           /*(implicit project: ProjectContext)*/: Seq[PsiClass] =
+  private def extractSupers(typeElements: Seq[ScTypeElement]): Seq[PsiClass] =
     typeElements.flatMap {
       case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {
