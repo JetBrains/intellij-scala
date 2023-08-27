@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
@@ -38,7 +37,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val block = element.getParent.asInstanceOf[ScBlockExpr]
-    implicit val context: ProjectContext = block.getManager
+    implicit val context: Project = project
 
     for {
       statement <- singleExpressionStatement(block)
@@ -52,7 +51,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
   }
 
   private def buildNewArgumentsText(stmt: ScBlockStatement)
-                                   (implicit context: ProjectContext): Option[String] = stmt match {
+                                   (implicit context: Project): Option[String] = stmt match {
     case function: ScFunctionExpr =>
       buildNewFunctionalArguments(function)
     case expr: ScExpression =>
@@ -62,7 +61,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
   }
 
   private def buildNewFunctionalArguments(function: ScFunctionExpr)
-                                         (implicit context: ProjectContext): Option[String] = {
+                                         (implicit context: Project): Option[String] = {
     val params: ScParameters = function.params
     for {
       body <- function.result
