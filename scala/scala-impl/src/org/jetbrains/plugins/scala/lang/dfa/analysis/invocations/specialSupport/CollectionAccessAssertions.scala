@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport
 
 import com.intellij.codeInspection.dataFlow.java.inst.EnsureIndexInBoundsInstruction
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, Transformable}
@@ -10,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.createIntegerLiteralExpression
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 object CollectionAccessAssertions {
 
@@ -35,7 +35,7 @@ object CollectionAccessAssertions {
       invokedElement <- invocationInfo.invokedElement
       invokedName <- invokedElement.qualifiedName
     } yield {
-      implicit val context: ProjectContext = invokedElement.psiElement.getProject
+      implicit val context: Project = invokedElement.psiElement.getProject
       val properArgs = invocationInfo.properArguments.flatten
 
       invokedName match {
@@ -50,7 +50,7 @@ object CollectionAccessAssertions {
     accessInfo.flatten
   }
 
-  private def indexZero(implicit context: ProjectContext): Transformable = {
+  private def indexZero(implicit context: Project): Transformable = {
     new ExpressionTransformer(createIntegerLiteralExpression(0))
   }
 
