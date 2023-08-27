@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -49,7 +48,6 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    implicit val ctx: ProjectContext = project
 
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
@@ -79,6 +77,7 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
       newQual = argsBuilder.toString().drop(1).dropRight(1)
     }
 
+    implicit val ctx: Project = project
     val newQualExpr = createExpressionFromText(newQual, element)
 
     expr.append(methodCallExpr.args.getText).append(".").
