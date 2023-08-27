@@ -17,14 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.chaining.scalaUtilChainingOps
 
 abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
-  private implicit val ctx: ProjectContext = td.projectContext
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!td.isValid) return false
@@ -43,6 +41,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     val holder = anchor.getParent
     val hasMembers = holder.children.containsInstanceOf[ScMember]
 
+    implicit val project: Project = td.getProject
     val entity = holder.addAfter(createElementFromText(text, block), anchor)
     if (hasMembers) holder.addAfter(createNewLine(), entity)
 
