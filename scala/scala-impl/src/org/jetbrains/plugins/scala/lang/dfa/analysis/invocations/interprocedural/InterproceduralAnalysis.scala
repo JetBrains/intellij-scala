@@ -7,6 +7,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
@@ -22,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 object InterproceduralAnalysis {
 
@@ -109,7 +109,7 @@ object InterproceduralAnalysis {
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(newAnalysedInfo, factory, body)
 
     val endOffset = new DeferredOffset
-    implicit val context: ProjectContext = method.getProject
+    implicit val context: Project = method.getProject
     controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endOffset))
 
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
@@ -127,5 +127,5 @@ object InterproceduralAnalysis {
       isPure = true, handledSpecially = true, handledExternally = true))
   }
 
-  private def nopCodeBlock(implicit context: ProjectContext): ScExpression = code"()".asInstanceOf[ScExpression]
+  private def nopCodeBlock(implicit context: Project): ScExpression = code"()".asInstanceOf[ScExpression]
 }
