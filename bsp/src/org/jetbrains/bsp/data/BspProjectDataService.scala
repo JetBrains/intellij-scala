@@ -11,7 +11,6 @@ import com.intellij.openapi.vcs.roots.VcsRootDetector
 import com.intellij.openapi.vcs.{ProjectLevelVcsManager, VcsDirectoryMapping, VcsRoot}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, SdkReference, SdkUtils}
 import java.io.File
 import java.util
@@ -65,7 +64,7 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     }
   }
 
-  private def configureJdk(jdk: Option[SdkReference])(implicit project: ProjectContext): Unit = executeProjectChangeAction {
+  private def configureJdk(jdk: Option[SdkReference])(implicit project: Project): Unit = executeProjectChangeAction {
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
     val projectJdk =
       jdk
@@ -77,7 +76,7 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     setLanguageLevel(projectJdk, project)
   }
 
-  private def setLanguageLevel(projectJdk: Option[Sdk], project: ProjectContext): Unit = {
+  private def setLanguageLevel(projectJdk: Option[Sdk], project: Project): Unit = {
     projectJdk.foreach { jdk =>
       Option(LanguageLevel.parse(jdk.getVersionString)).foreach {
         languageLevel =>
