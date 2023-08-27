@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 case class ExtensionConversionData(place: ScExpression,
                                    ref: ScExpression,
@@ -72,8 +71,9 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult)
-                    (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
+  private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult): ScalaResolveResult = {
+
+    implicit val project: Project = candidate.getProject
 
     foundInType.resultUndef match {
       case Some(ConstraintSystem(substitutor)) =>
