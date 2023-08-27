@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -49,7 +49,7 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
     val start = infixExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
 
-    import infixExpr.projectContext
+    implicit val ctx: Project = project
     val newInfixExpr = createFlippedInfixExpr(baseText, operation, argumentText)(element)
 
     val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -
@@ -82,7 +82,7 @@ object FlipComparisonInInfixExprIntention {
 
   private def createFlippedInfixExpr(baseText: String, operation: ScReferenceExpression, argumentText: String)
                                     (features: ScalaFeatures)
-                                    (implicit ctx: ProjectContext): ScInfixExpr =
+                                    (implicit ctx: Project): ScInfixExpr =
     createExpressionFromText(s"($argumentText) ${Replacement(operation.refName)} ($baseText)", features)
       .asInstanceOf[ScInfixExpr]
       .tap { infix =>
