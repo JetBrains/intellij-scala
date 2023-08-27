@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.{PsiElement, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiElement, PsiManager, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -9,11 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext)
-  extends LightElement(pc, ScalaLanguage.INSTANCE) with ScTypeParam with PsiClassFake {
+class DummyLightTypeParam(override val name: String)(implicit project: Project)
+  extends LightElement(PsiManager.getInstance(project), ScalaLanguage.INSTANCE) with ScTypeParam with PsiClassFake {
 
   override def getIndex: Int = 0
 
