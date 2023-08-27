@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
@@ -15,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
@@ -124,7 +124,7 @@ object PatternTypeInference {
             val shouldSolveForMaxType = pattern.is[ScExtractorPattern]
             val typeVariablesNames    = pattern.typeVariables.map(_.name).toSet
 
-            implicit val ctx: ProjectContext = pattern.projectContext
+            implicit val project: Project = pattern.getProject
 
             val (classTypeParams, boundsSubst) =
               (for {
@@ -316,10 +316,10 @@ object PatternTypeInference {
     tvars:                 Seq[TypeParameter],
     enclosingTypeParams:   Seq[TypeParameter]
   )(implicit
-    ctx: ProjectContext
+    ctx: Project
   ): Option[ScSubstitutor] = {
 
-    val stdTypes = ctx.project.stdTypes
+    val stdTypes = ctx.stdTypes
 
     constraints match {
       case ConstraintsResult.Left => None
