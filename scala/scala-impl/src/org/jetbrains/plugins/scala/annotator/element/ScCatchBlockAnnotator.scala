@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -10,19 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTry}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 //https://youtrack.jetbrains.com/issue/SCL-3328
 object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
 
   override def annotate(element: ScCatchBlock, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = element
+
+    implicit val project: Project = element.getProject
 
     element.expression match {
       case Some(expr) =>
