@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeIsNotStable, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 // TODO move to org.jetbrains.plugins.scala.lang.psi.annotator
@@ -27,8 +26,6 @@ object AnnotatorUtils {
 
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = expression
-
     if (ScMethodType.hasMethodType(expression)) {
       return
     }
