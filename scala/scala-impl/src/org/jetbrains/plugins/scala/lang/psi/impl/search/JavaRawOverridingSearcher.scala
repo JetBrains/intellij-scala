@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
 import com.intellij.psi.impl.light.{LightMethod, LightParameter, LightParameterListBuilder}
@@ -9,12 +10,11 @@ import com.intellij.psi.search.searches.{AllOverridingMethodsSearch, OverridingM
 import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod, PsiUtil}
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiTypeExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiTypeExt, inReadAction}
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher._
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /*
@@ -107,7 +107,7 @@ private[search] object JavaRawOverridingSearcher {
     val paramType: PsiType = p.getType
     if (!isRaw(paramType)) return p
 
-    implicit val pc: ProjectContext = p.projectContext
+    implicit val pc: Project = p.getProject
     val typeFromScala = paramType.toScType().toPsiType
 
     new LightParameter(p.getName, typeFromScala, p.getDeclarationScope, ScalaLanguage.INSTANCE, p.isVarArgs)
