@@ -3,6 +3,7 @@ package language
 package completion
 
 import com.intellij.codeInsight.completion._
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -19,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 final class SbtCompletionContributor extends ScalaCompletionContributor {
 
@@ -27,7 +27,6 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
 
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      implicit val project: ProjectContext = parameters.getPosition.getProject
 
       val place     = positionFromParameters(parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
@@ -108,6 +107,8 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
           case ch: ScalaChainLookupElement => ch.getDelegate
           case _ => return
         }
+
+        implicit val project: Project = parameters.getPosition.getProject
 
         variant.getPsiElement match {
           case f: PsiField if f.getType.toScType().conforms(expectedType) =>
