@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 final class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
@@ -61,7 +60,6 @@ object StringToMultilineStringIntention {
     element.parentOfType(classOf[ScStringLiteral], strict = false)
 
   private def regularToMultiline(literal: ScStringLiteral, editor: Editor): Unit = {
-    import literal.projectContext
 
     val document = editor.getDocument
     val documentText = document.getImmutableCharSequence
@@ -102,13 +100,14 @@ object StringToMultilineStringIntention {
     val prefix = interpolatorPrefix(literal)
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
     val newLiteralText = s"$prefix$Quotes$content$Quotes"
+
+    implicit val ctx: Project = editor.getProject
     val newLiteral = createExpressionFromText(newLiteralText, literal)
     val replaced = literal.replace(newLiteral)
     addMargins(replaced, interpolatorLength = prefix.length, extraCaretOffset = 0)
   }
 
   private def multilineToRegular(literal: ScStringLiteral, editor: Editor): Unit = {
-    implicit val projectContext: ProjectContext = literal.projectContext
 
     val document = editor.getDocument
     val documentText = document.getImmutableCharSequence
@@ -161,6 +160,8 @@ object StringToMultilineStringIntention {
     }
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = false)
     val newLiteralText = s"$prefix$Quote$content$Quote"
+
+    implicit val project: Project = editor.getProject
     val newLiteral = createExpressionFromText(newLiteralText, literal)
     elementToReplace.replace(newLiteral)
     fixCaretPosition(prefix.length)
