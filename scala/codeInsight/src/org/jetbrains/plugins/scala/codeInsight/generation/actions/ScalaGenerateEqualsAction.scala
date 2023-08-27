@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMe
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaFeatures}
 
 final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
   new ScalaGenerateEqualsAction.Handler,
@@ -100,7 +100,7 @@ object ScalaGenerateEqualsAction {
       myHashCodeFields.clear()
     }
 
-    private def createHashCode(aClass: ScClass)(implicit ctx: ProjectContext, features: ScalaFeatures): ScFunction = {
+    private def createHashCode(aClass: ScClass)(implicit ctx: Project, features: ScalaFeatures): ScFunction = {
       val declText = "def hashCode(): Int"
       val signature = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
@@ -131,7 +131,7 @@ object ScalaGenerateEqualsAction {
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
-    private def createEquals(aClass: ScClass)(implicit ctx: ProjectContext, features: ScalaFeatures): ScFunction = {
+    private def createEquals(aClass: ScClass)(implicit ctx: Project, features: ScalaFeatures): ScFunction = {
       val thatValName = getUniqueLocalVarName("that")
       val otherParamName = getUniqueLocalVarName("other")
       val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == $thatValName.$name")
@@ -160,7 +160,7 @@ object ScalaGenerateEqualsAction {
         val isOk = chooseOriginalMembers(aClass)(project, editor)
         if (!isOk) return
 
-        implicit val projectContext: ProjectContext = project
+        implicit val context: Project = project
         implicit val features: ScalaFeatures = aClass
 
         inWriteAction {
