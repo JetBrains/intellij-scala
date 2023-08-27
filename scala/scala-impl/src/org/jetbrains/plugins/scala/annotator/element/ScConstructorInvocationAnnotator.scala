@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiComment, PsiNamedElement, PsiWhiteSpace}
@@ -17,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 // TODO unify with ScMethodInvocationAnnotator and ScReferenceAnnotator
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
@@ -74,7 +74,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
-        implicit val ctx: ProjectContext = constr
+        implicit val project: Project = constr.getProject
 
         val params = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
         val typeArgs = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
