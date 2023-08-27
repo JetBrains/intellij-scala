@@ -413,7 +413,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case gen: ScGenericCall =>
         val tpe = gen.arguments.head.`type`().getOrAny
         new ClassOfEvaluator(tpe)
-      case _ => ScalaLiteralEvaluator.empty
+      case _ => ScalaLiteralEvaluator.empty(ref.getProject)
     }
   }
 
@@ -429,7 +429,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def seqEvaluator: Evaluator = {
       val argTypes = exprsForP.map(_.`type`().getOrAny)
       val argType =
-        if (argTypes.isEmpty) expectedType else argTypes.lub()
+        if (argTypes.isEmpty) expectedType else argTypes.lub()(context.getProject)
       val argTypeText = argType.canonicalText
 
       val arguments = exprsForP.sortBy(_.startOffset).map { argExpr =>
@@ -717,7 +717,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val clName = c.name
             val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
             val text = s"new $clName($paramName).${call.getText}"
-            val expr = createExpressionFromText(text, call.getContext)
+            val expr = createExpressionFromText(text, call.getContext)(call.getProject)
             evaluatorFor(expr)
           case _ =>
             val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
@@ -1197,7 +1197,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val expr = createExpressionFromText(
             s"""Symbol("${symbol.name}")""",
             literal.getContext
-          )
+          )(literal.getProject)
           evaluatorFor(expr)
         case value =>
           ScalaLiteralEvaluator(literal, value)

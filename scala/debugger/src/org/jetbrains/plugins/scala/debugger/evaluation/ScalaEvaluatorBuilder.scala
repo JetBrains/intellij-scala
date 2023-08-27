@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 import org.jetbrains.plugins.scala.{NlsString, Scala3Language}
@@ -87,11 +86,9 @@ private[evaluation] class NeedCompilationException(@Nls message: String) extends
 
 private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment,
                                                 val position: SourcePosition)
-        extends ScalaEvaluatorBuilderUtil with SyntheticVariablesHelper with ProjectContextOwner {
+        extends ScalaEvaluatorBuilderUtil with SyntheticVariablesHelper {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
-
-  override implicit def projectContext: ProjectContext = codeFragment.projectContext
 
   val contextClass: PsiElement = {
     val maybeContextClass =
