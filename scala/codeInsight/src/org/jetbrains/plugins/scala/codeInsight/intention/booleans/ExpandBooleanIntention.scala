@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIf, ScParenthesisedExpr, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
@@ -42,7 +42,7 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     val start = statement.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>
-      implicit val context: ProjectContext = project
+      implicit val context: Project = project
       implicit val features: ScalaFeatures = element
       val replacementText = s"if ($expressionText) { return true } else { return false }"
       val replacement = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](replacementText, features), recursive = false)
