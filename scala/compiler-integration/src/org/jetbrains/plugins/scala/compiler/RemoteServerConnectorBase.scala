@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, VirtualFileExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, VirtualFileExt}
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.io.File
@@ -19,8 +19,6 @@ abstract class RemoteServerConnectorBase(
   protected val outputDir: File
 ) {
   filesToCompile.foreach(checkFilesToCompile)
-
-  implicit def projectContext: ProjectContext = module.getProject
 
   private val sbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
