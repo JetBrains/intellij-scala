@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaFeatures}
 
 /**
  * Can be used to reduce branching in places where there is a need to support both
@@ -31,12 +32,12 @@ object OptionalBracesCode {
   case object BlockEnd extends BlockEndLike
 
   implicit final class ScalaOptionalBracesCodeContext(delegate: StringContext)
-                                                     (implicit ctx: ProjectContext, features: ScalaFeatures) {
+                                                     (implicit ctx: Project, features: ScalaFeatures) {
     def optBraces(args0: Any*): String = {
       val parts = delegate.parts.iterator
       val args  = args0.iterator
 
-      val isBraceless = ctx.project.indentationBasedSyntaxEnabled(features)
+      val isBraceless = ctx.indentationBasedSyntaxEnabled(features)
 
       val sb = new StringBuilder(parts.next())
       while (args.hasNext) {
