@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
@@ -27,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, Parameteriz
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.util.{RichThreadLocal, ScEquivalenceUtil}
 
@@ -373,7 +373,7 @@ object MixinNodes {
 
       def returnType(e: PsiNamedElement): ScType = e match {
         case fn: ScFunction         => fn.returnType.getOrAny
-        case m: PsiMethod           => m.getReturnType.toScType()(e.projectContext)
+        case m: PsiMethod           => m.getReturnType.toScType()(e.getProject)
         case tpd: ScTypedDefinition => tpd.`type`().getOrAny
         case other                  => throw new IllegalArgumentException(s"Unexpected signature element of class ${other.getClass}")
       }
@@ -502,7 +502,7 @@ object MixinNodes {
             case _                    => default
           }
           val supers: Seq[ScType] = {
-            implicit val ctx: ProjectContext = clazz
+            implicit val ctx: Project = clazz.getProject
             clazz match {
               case td: ScTemplateDefinition => td.superTypes
               case clazz: PsiClass => clazz.getSuperTypes.map {
