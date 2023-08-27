@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypesExt
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait FunctionAnnotator {
   self: ScalaAnnotator =>
@@ -26,7 +25,6 @@ trait FunctionAnnotator {
 
   def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val projectContext: ProjectContext = function.projectContext
 
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
@@ -88,6 +86,9 @@ trait FunctionAnnotator {
       if (explicitReturn && hasAssign && !explicitType) needsTypeAnnotation()
 
       def needsTypeAnnotation(): Unit = {
+
+        implicit val project: Project = function.getProject
+
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         val returnTypes = returnUsages.collect {
           case retStmt: ScReturn  => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
