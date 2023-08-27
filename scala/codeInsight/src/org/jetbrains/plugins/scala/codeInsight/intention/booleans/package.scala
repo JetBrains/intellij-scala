@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object booleans {
 
@@ -27,7 +26,7 @@ package object booleans {
   }
 
   private def negateAndValidateExpressionImpl(infix: ScInfixExpr, text: String)
-                                             (implicit context: ProjectContext): (ScExpression, ScExpression, Int) = {
+                                             (implicit context: Project): (ScExpression, ScExpression, Int) = {
     val parent = infix.getParent match {
       case p: ScParenthesisedExpr => p.getParent
       case p => p
