@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
@@ -78,7 +78,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
     IntentionPreviewUtils.write { () =>
-      implicit val ctx: ProjectContext = element.getManager
+      implicit val ctx: Project = element.getProject
       implicit val features: ScalaFeatures = element
       val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element), recursive = true)
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
