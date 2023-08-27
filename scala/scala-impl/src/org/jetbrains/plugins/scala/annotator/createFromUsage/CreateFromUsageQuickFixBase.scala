@@ -8,13 +8,12 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 abstract class CreateFromUsageQuickFixBase(ref: ScReference)
-  extends IntentionAction with ProjectContextOwner {
+  extends IntentionAction {
 
-  override implicit val projectContext: ProjectContext = ref
+  implicit val project: Project = ref.getProject
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     if (file.is[ScalaCodeFragment]) false

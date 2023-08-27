@@ -161,7 +161,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
           new PsiTargetNavigator(siblings.toArray)
             .selection(selection)
             .presentationProvider(renderer)
-            .createPopup(projectContext.project, title, processor)
+            .createPopup(project, title, processor)
             .showInBestPositionFor(editor)
         }
     }
