@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, Physi
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -242,7 +241,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
   private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: TermSignature => Unit): Unit = {
     //some methods of java.lang.Object are available for value classes
-    val javaObject = ScalaPsiManager.instance(template.projectContext)
+    val javaObject = ScalaPsiManager.instance(template.getProject)
       .getCachedClass(template.resolveScope, "java.lang.Object")
 
     for (obj <- javaObject; method <- obj.getMethods) {
