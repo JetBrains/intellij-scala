@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import scala.annotation.tailrec
@@ -35,7 +34,6 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
   def annotateMethodInvocation(call: MethodInvocation, inDesugaring: Boolean = false)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 
     // this has to be checked in every case
