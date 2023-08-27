@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 import com.intellij.codeInsight.template.TemplateBuilder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 object CreateFromUsageUtil {
@@ -32,7 +32,7 @@ object CreateFromUsageUtil {
   def nameByType(tp: ScType): String = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
 
   private def nameAndTypeForArg(arg: PsiElement): (String, ScType) = {
-    implicit val project: ProjectContext = arg.projectContext
+    implicit val project: Project = arg.getProject
 
     arg match {
       case ScParenthesisedExpr(inner) =>
@@ -132,7 +132,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodText(pattern: ScPattern): String = {
-    import pattern.projectContext
+    implicit val project: Project = pattern.getProject
     val pType = pattern.expectedType.getOrElse(Any)
     val pName = nameByType(pType)
     s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
