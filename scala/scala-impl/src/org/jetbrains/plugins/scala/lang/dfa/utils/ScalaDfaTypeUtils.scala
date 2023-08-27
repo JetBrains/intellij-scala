@@ -6,6 +6,7 @@ import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -25,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
@@ -129,7 +129,7 @@ object ScalaDfaTypeUtils {
   }
 
   def resolveExpressionType(expression: ScExpression): ScType = {
-    implicit val context: ProjectContext = expression.getProject
+    implicit val context: Project = expression.getProject
     expression match {
       // A fix for very weird behaviour of literals in some specific cases
       case _: ScIntegerLiteral => code"0".asInstanceOf[ScExpression].`type`().getOrAny
