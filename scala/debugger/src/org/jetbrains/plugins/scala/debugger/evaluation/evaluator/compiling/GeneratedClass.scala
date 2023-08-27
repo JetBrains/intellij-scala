@@ -5,6 +5,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightUtilCore.findElementInRange
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtilCore.findModuleForPsiElement
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
@@ -16,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createNewLine, createTemplateDefinitionFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.{AnonymousFunction, IndentUtil}
 
 import scala.annotation.tailrec
@@ -130,7 +130,7 @@ private[evaluator] object GeneratedClass {
     val constructorInvocation =
       createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
-    implicit val ctx: ProjectContext = fragment.getProject
+    implicit val ctx: Project = fragment.getProject
 
     val classText = localClassText(fragment, generatedClassName, indentLevel)
     val classToInsert = createTemplateDefinitionFromText(classText, anchor.getContext, anchor).asInstanceOf[ScClass]
