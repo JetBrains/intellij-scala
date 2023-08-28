@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-
+import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
 %%
 
 %class _ScalaSplittingLexer
