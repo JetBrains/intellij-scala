@@ -105,6 +105,9 @@ UI Designer uses different border class in internal mode, see `com.intellij.uiDe
 4. **Unexpected local git changes in `uiDesigner.xml` or other files in .idea directory** \
       It may happen due to disable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) or by enabling it after/during setup. \
       The solution to this problem might be to revert these changes, enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) (if it has not already been done) and restart IntelliJ.
+5. **The Scala plugin is not loaded when running the `scalaCommunity` Run Configuration.** Unfortunately, there can be multiple reasons for this, like an improperly packaged plugin which cannot be loaded by IDEA at runtime. \
+   Check the list of project modules in `File > Project Structure...` and make sure that they don't have a name that starts with `scala.<module name>` (e.g. `scala.structure-view`). This is a bug in the sbt import process. \
+   If there are modules like this, then remove all modules from the project (in the same Project Structure window) and reimport the project `<sbt tab> > Reload All sbt Projects`.
 
 ## Other
 ### Investigation performance issues
