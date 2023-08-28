@@ -25,21 +25,16 @@ class ConvertJavaToScalaAction extends AnAction(
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
 
-    def setEnabled(value: Boolean): Unit = {
-      presentation.setEnabled(value)
-      presentation.setVisible(value)
-    }
-
     try {
       val elements = getElementsFromContext(e)
       val allElementsOkForConversion = elements.forall(isElementOkForConversion)
-      setEnabled(allElementsOkForConversion)
+      presentation.setEnabledAndVisible(allElementsOkForConversion)
     }
     catch {
       case c: ControlFlowException =>
         throw c
       case _: Exception =>
-        setEnabled(false)
+        presentation.setEnabledAndVisible(false)
     }
   }
 
