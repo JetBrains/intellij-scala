@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -60,6 +60,8 @@ private class ClassPrinter(isScala3: Boolean) {
         sb ++= textOf(v, indent)
       case t: ScTypeAlias =>
         sb ++= textOf(t, indent)
+      case t: ScExtension =>
+        sb ++= textOf(t, indent)
       case td: ScTypeDefinition =>
         printTo(sb, td, indent + "  ")
       case _ =>
@@ -104,6 +106,13 @@ private class ClassPrinter(isScala3: Boolean) {
     val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + ": " + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + "def " + name + tps + clauses + tpe + rhs + "\n"
+  }
+
+  private def textOf(e: ScExtension, indent: String): String = {
+    val tps = if (e.typeParameters.isEmpty) "" else e.typeParameters.map(textOf).mkString("[", ", ", "]")
+    val clauses = e.clauses.toSeq.flatMap(_.clauses).map(textOf).mkString
+    val methods = e.extensionMethods.map(textOf(_, indent + "  ")).mkString
+    "\n" + indent + "  " + "extension " + tps + clauses + methods
   }
 
   private def textOf(v: ScValueOrVariable, indent: String): String = {

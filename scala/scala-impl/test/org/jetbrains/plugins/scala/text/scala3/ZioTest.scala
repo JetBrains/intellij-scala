@@ -10,7 +10,7 @@ class ZioTest extends TextToTextTestBase(
   ),
   Seq("zio"), Set.empty, 225,
   Set(
-    "zio.Experimental", // Extension
+    "zio.Experimental", // Cannot resolve scala.runtime.$throws
     "zio.ProvideSomePartiallyApplied", // No inline parameter modifier
     "zio.WirePartiallyApplied", // No inline parameter modifier
     "zio.WireSomePartiallyApplied", // No inline parameter modifier

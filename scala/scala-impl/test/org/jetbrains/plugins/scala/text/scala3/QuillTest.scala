@@ -25,12 +25,10 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ToDynamicInsert", // Top-level definitions
     "io.getquill.ToDynamicQuery", // Top-level definitions
     "io.getquill.ToDynamicUpdate", // Top-level definitions
-    "io.getquill.extras", // Extension
     "io.getquill.ast.EqualityOperator", // No case object _==
     "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
-    "io.getquill.context.BatchStatic", // Extension
-    "io.getquill.context.Context", // Extension
+    "io.getquill.context.Context", // Inline parameter
     "io.getquill.context.ContextTranslateMacro", // Inline parameter
     "io.getquill.context.ContextVerbPrepare", // Inline parameter
     "io.getquill.context.ContextVerbStream", // Inline parameter
@@ -38,39 +36,31 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.Execution", // Given
     "io.getquill.context.InsertUpdateMacro", // Given
     "io.getquill.context.LiftMacro", // Function1
-    "io.getquill.context.Particularize", // Extension, given
+    "io.getquill.context.Particularize", // Given
     "io.getquill.context.QueryExecution", // Inline parameter
     "io.getquill.context.QueryExecutionBatch", // Inline parameter
-    "io.getquill.context.QueryExecutionBatchDynamic", // Extension
     "io.getquill.context.QueryExecutionBatchModel", // Given
     "io.getquill.context.QuerySingleAsQuery", // Inline parameter
-    "io.getquill.context.ReflectivePathChainLookup", // Inline parameter
-    "io.getquill.context.StaticSpliceMacro", // Extension
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.JdbcContext", // Inline parameter
     "io.getquill.context.qzio.ZioJdbcContext", // Inline parameter
     "io.getquill.context.qzio.ZioJdbcUnderlyingContext", // Inline parameter
     "io.getquill.dsl.InfixDsl", // No annotations
-    "io.getquill.generic.ElaborateStructure", // No AnyKind upper type bound, extension
     "io.getquill.generic.TupleMember", // Inline parameter
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
-    "io.getquill.metaprog.Extractors", // Extension
     "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
-    "io.getquill.metaprog.TranspileConfigLiftable", // Extension, given
-    "io.getquill.metaprog.TypeExtensions", // Extension
+    "io.getquill.metaprog.TranspileConfigLiftable", // Given
     "io.getquill.metaprog.etc.ColumnsFlicer", // Inline parameter
     "io.getquill.metaprog.etc.ListFlicer", // Inline parameter
     "io.getquill.metaprog.etc.MapFlicer", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
     "io.getquill.parser.AstPicklers", // Given
-    "io.getquill.parser.Lifter", // Extension, given
+    "io.getquill.parser.Lifter", // Given
     "io.getquill.parser.OperationsParser", // TODO > symbol
-    "io.getquill.parser.OptionParser", // Extension
     "io.getquill.parser.ParserHelpers", // TODO using(x: Int, Long)
-    "io.getquill.parser.Unlifter", // Extension, given
-    "io.getquill.quat.QuatMakingBase", // Extension
-    "io.getquill.util.CommonExtensions", // Extension
+    "io.getquill.parser.Unlifter", // Given
+    "io.getquill.quat.QuatMakingBase", // $1n in extension, SCL-21551
     "io.getquill.util.debug.PrintMac", // Inline parameter
   )
 )
