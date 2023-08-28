@@ -117,6 +117,11 @@ private class ClassPrinter(isScala3: Boolean) {
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
   }
 
+  def printTo(sb: StringBuilder, alias: ScTypeAlias): Unit = {
+    sb ++= textOf(alias, "").split("\n").map(_.stripPrefix("  ")).mkString("\n")
+    sb ++= "\n"
+  }
+
   private def textOf(t: ScTypeAlias, indent: String): String = {
     val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(t.getModifierList)

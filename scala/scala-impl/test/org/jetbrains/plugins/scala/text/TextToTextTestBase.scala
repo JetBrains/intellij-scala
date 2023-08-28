@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -91,11 +92,18 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
   }
 
   private def textOfCompilationUnit(cls: ScTypeDefinition): String = {
+    val packageName = cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.'))
+
+    val companionTypeAlias = ScalaPsiManager.instance(cls.getProject).getTopLevelDefinitionsByPackage(packageName, cls.getResolveScope).collect {
+      case a: ScTypeAlias if a.name == cls.name => a
+    }
+
     val sb = new StringBuilder()
 
-    sb ++= "package " + cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.')) + "\n"
+    sb ++= "package " + packageName + "\n"
 
     val printer = new ClassPrinter(scalaVersion.isScala3)
+    companionTypeAlias.foreach(printer.printTo(sb, _))
     printer.printTo(sb, cls)
     cls.baseCompanion.foreach(printer.printTo(sb, _))
 
