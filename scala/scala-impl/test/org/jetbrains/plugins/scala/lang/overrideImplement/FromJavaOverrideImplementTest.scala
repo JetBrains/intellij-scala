@@ -301,7 +301,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
   def testMap(): Unit = {
     val javaText = {
       """
-        |public interface Map<K,V>
+        |public interface Map<K,V> {
         |    void putAll(Map<? extends K, ? extends V> m);
         |}
       """.stripMargin
@@ -331,7 +331,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
 
       val javaText = {
         """
-          |public interface Map<K,V>
+          |public interface Map<K,V> {
           |    void putAll(Map<? extends K, ? extends V> m);
           |}
         """.stripMargin
