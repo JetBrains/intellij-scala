@@ -91,7 +91,7 @@ The full test suite isn't run to avoid really long build times.
 
 ## Common problems
 1. **Error `object BuildInfo is already defined ...` during compilation of the project** \
-   BuildInfo is an sbt plugin that exposes some of the sbt build metadata to the main project. We use it to forward some dependencies versions from the build sources to main project sources. Sometimes during import this generated source root is added to scala-impl module multiple times. Make sure it's only included once by removing duplicates.
+   BuildInfo is an sbt plugin that exposes some of the sbt build metadata to the main project. We use it to forward some dependencies versions from the build sources to main project sources. Sometimes during import this generated source root is added to the `bsp` and `sbt-impl` modules multiple times. Make sure it's only included once by removing duplicates. This can be done in `File > Project Structure...`.
 
 2. **Can't browse IntelliJ Platform sources** \
    When loading Scala Plugin project in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`.
