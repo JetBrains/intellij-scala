@@ -7,6 +7,7 @@ import static com.intellij.psi.TokenType.BAD_CHARACTER;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
 import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 
+@SuppressWarnings({"ALL"})
 %%
 
 %{

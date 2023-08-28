@@ -15,6 +15,7 @@ import static com.intellij.openapi.util.text.StringUtil.endsWith;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
+@SuppressWarnings({"ALL"})
 public class _ScalaCoreLexer implements FlexLexer {
 
   /** This character denotes the end of file */

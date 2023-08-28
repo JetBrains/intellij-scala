@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
+
+@SuppressWarnings({"ALL"})
 %%
 
 %class _ScalaSplittingLexer

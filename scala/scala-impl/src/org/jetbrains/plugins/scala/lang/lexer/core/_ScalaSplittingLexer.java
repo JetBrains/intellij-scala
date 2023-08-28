@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
 
+@SuppressWarnings({"ALL"})
+
 public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, ScalaDocTokenType {
 
   /** This character denotes the end of file */

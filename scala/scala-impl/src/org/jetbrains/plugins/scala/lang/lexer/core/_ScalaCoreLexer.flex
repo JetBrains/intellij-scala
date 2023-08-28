@@ -11,6 +11,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import static com.intellij.openapi.util.text.StringUtil.endsWith;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
+
+@SuppressWarnings({"ALL"})
 %%
 
 %class _ScalaCoreLexer

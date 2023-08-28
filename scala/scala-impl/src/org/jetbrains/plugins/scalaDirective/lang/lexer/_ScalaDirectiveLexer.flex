@@ -5,6 +5,7 @@ import com.intellij.psi.tree.IElementType;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
 
+@SuppressWarnings({"ALL"})
 %%
 
 %class _ScalaDirectiveLexer

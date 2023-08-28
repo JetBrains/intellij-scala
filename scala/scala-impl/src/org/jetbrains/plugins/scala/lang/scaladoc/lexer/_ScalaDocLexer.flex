@@ -19,6 +19,7 @@ import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
+@SuppressWarnings({"ALL"})
 %%
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
