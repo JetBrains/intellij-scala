@@ -22,7 +22,19 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     }
   }
 
-  def testWrapWithExpression(): Unit = {
+  def testExpression_ArrayAllocation(): Unit = {
+    val fromText =
+      s"""class MyClass {
+         |  ${Start}new double[]{1.0, 2, 3};$End
+         |}
+         |""".stripMargin
+
+    val expected = "Array[Double](1.0, 2, 3)"
+
+    doTestToEmptyFile(fromText, expected)
+  }
+
+  def testExpression_ArrayAllocation_TopLevel(): Unit = {
     val fromText = s"${Start}new double[]{1.0, 2, 3};$End"
 
     val expected = "Array[Double](1.0, 2, 3)"
@@ -30,7 +42,7 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     doTestToEmptyFile(fromText, expected)
   }
 
-  def testWrapWithFunction(): Unit = {
+  def testExpression_Assert(): Unit = {
     val fromText =
       s"""
          |${Start}assert true : "Invocation of 'paste' operation for specific caret is not supported";$End
@@ -41,7 +53,7 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     doTestToEmptyFile(fromText, expected)
   }
 
-  def testWrapWithClass(): Unit = {
+  def testFunction_TopLevel(): Unit = {
     val fromText =
       s"""
          |${Start}public void doExecute() {
@@ -57,7 +69,42 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     doTestToEmptyFile(fromText, expected)
   }
 
-  def testWrapWithClass2(): Unit = {
+  def testFunction_ClassMember(): Unit = {
+    val fromText =
+      s"""public class MyClass {
+         |  ${Start}public void doExecute() {
+         |     assert true : "Invocation of 'paste' operation for specific caret is not supported";
+         |  }$End
+         |}
+      """.stripMargin
+
+    val expected =
+      """def doExecute(): Unit = {
+        |  assert(true, "Invocation of 'paste' operation for specific caret is not supported")
+        |}""".stripMargin
+
+    doTestToEmptyFile(fromText, expected)
+  }
+
+
+  def testFunction_NonPublicClassMember(): Unit = {
+    val fromText =
+      s"""class MyClass {
+         |  ${Start}public void doExecute() {
+         |     assert true : "Invocation of 'paste' operation for specific caret is not supported";
+         |  }$End
+         |}
+      """.stripMargin
+
+    val expected =
+      """def doExecute(): Unit = {
+        |  assert(true, "Invocation of 'paste' operation for specific caret is not supported")
+        |}""".stripMargin
+
+    doTestToEmptyFile(fromText, expected)
+  }
+
+  def testMultipleMembers_TopLevel(): Unit = {
     val fromText =
       s"""
          |${Start}int i = 6;
@@ -68,6 +115,33 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     val expected =
       """val i: Int = 6
         |val a: Boolean = false
+        |val s: String = "false"""".stripMargin
+
+    doTestToEmptyFile(fromText, expected)
+  }
+
+  def testMultipleMembers_TopLevel_2(): Unit = {
+    val fromText =
+      s"""${Start}int i = 6;
+         |public void doExecute1() {
+         |    assert true : "message";
+         |}
+         |boolean a = false;
+         |public void doExecute2() {
+         |    assert true : "message";
+         |}
+         |String s = "false";$End
+      """.stripMargin
+
+    val expected =
+      """val i: Int = 6
+        |def doExecute1(): Unit = {
+        |  assert(true, "message")
+        |}
+        |val a: Boolean = false
+        |def doExecute2(): Unit = {
+        |  assert(true, "message")
+        |}
         |val s: String = "false"""".stripMargin
 
     doTestToEmptyFile(fromText, expected)

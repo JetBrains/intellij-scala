@@ -157,6 +157,9 @@ object JavaToScala {
       case f: PsiFile =>
         val children = f.getChildren.map(convertPsiToIntermediate(_, externalProperties)).toSeq
         MainConstruction(children)
+      case unnamedClass: PsiUnnamedClass =>
+        val children = unnamedClass.getChildren.map(convertPsiToIntermediate(_, externalProperties)).toSeq
+        MainConstruction(children)
       case e: PsiExpressionStatement => convertPsiToIntermediate(e.getExpression, externalProperties)
       case l: PsiLiteralExpression => LiteralExpression(l.getText)
       case n: PsiIdentifier =>
@@ -486,7 +489,8 @@ object JavaToScala {
             convertMethodReturnType
           )
         }
-      case c: PsiClass => createClass(c, externalProperties)
+      case c: PsiClass =>
+        createClass(c, externalProperties)
       case p: PsiParenthesizedExpression =>
         val expr = Option(p.getExpression).map(convertPsiToIntermediate(_, externalProperties))
         ParenthesizedExpression(expr)
