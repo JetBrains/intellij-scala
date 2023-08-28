@@ -3,7 +3,6 @@ package org.jetbrains.sbt.shell.grammar;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static com.intellij.psi.TokenType.BAD_CHARACTER;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
 import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 
@@ -12,7 +11,7 @@ import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 
 %{
   public _SbtShellLexer() {
-    this((java.io.Reader)null);
+    this(null);
   }
 
   public void resetCustom() {
@@ -49,5 +48,3 @@ ANYCHAR=[^;\s]
   {ANYCHAR}          { return ANYCHAR; }
 
 }
-
-[^] { return BAD_CHARACTER; }

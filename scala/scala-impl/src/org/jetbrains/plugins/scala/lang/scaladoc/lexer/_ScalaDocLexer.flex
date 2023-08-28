@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %{ // User code
 
   public _ScalaDocLexer() {
-    this((java.io.Reader)null);
+    this(null);
   }
 
   private boolean isOddItalicBold = false;;

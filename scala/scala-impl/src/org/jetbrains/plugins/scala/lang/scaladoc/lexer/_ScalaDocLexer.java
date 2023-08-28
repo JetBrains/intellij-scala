@@ -3695,7 +3695,7 @@ public class _ScalaDocLexer implements FlexLexer, ScalaDocTokenType, ScalaTokenT
   /* user code: */
 
   public _ScalaDocLexer() {
-    this((java.io.Reader)null);
+    this(null);
   }
 
   private boolean isOddItalicBold = false;;
