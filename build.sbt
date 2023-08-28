@@ -693,7 +693,7 @@ lazy val packageSearchIntegration =
       // The packageSearch plugin is no longer distributed with IDEA. It will soon be available on the plugin
       // marketplace once more and this workaround will be unnecessary.
       // TODO: use `intellijVersion_ForManagedIntellijDependencies` as version once the plugin is published properly
-      libraryDependencies += "com.jetbrains.intellij.packageSearch" % "package-search" % "232.6095.10-EAP-SNAPSHOT" % Provided notTransitive(),
+      libraryDependencies += "com.jetbrains.intellij.packageSearch" % "package-search" % "232.6095-EAP-CANDIDATE-SNAPSHOT" % Provided notTransitive(),
       resolvers += MavenRepository("intellij-repository-snapshots", "https://www.jetbrains.com/intellij-repository/snapshots"),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
