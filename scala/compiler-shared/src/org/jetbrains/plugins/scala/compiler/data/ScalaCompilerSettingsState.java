@@ -6,6 +6,9 @@ import com.intellij.util.xmlb.annotations.XCollection;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * @see ScalaCompilerSettingsStateBuilder
+ */
 public final class ScalaCompilerSettingsState {
     public CompileOrder compileOrder = CompileOrder.Mixed;
     public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
