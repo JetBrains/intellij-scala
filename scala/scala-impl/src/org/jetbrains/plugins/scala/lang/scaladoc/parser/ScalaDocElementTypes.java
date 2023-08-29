@@ -16,6 +16,9 @@ public interface ScalaDocElementTypes {
 
   /**
    * ScalaDoc comment
+   * <p>
+   * See similar element for Java: {@link com.intellij.psi.impl.source.tree.JavaDocElementType#DOC_COMMENT}
+   * (though it's implemented slightly differently at the moment, e.g., there is no separate JavaDocLanguage)
    */
   @NotNull
   ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaDocLanguage.INSTANCE) {
