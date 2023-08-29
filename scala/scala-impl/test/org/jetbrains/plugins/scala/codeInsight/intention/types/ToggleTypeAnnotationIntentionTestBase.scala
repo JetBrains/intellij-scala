@@ -235,6 +235,35 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
        |}
        |""".stripMargin
   )
+
+  def testRemoveBaseClassesSerializableAndProduct(): Unit = doTest(
+    s"""sealed trait MyTrait
+      |
+      |case object MyObject1 extends MyTrait
+      |
+      |case object MyObject2 extends MyTrait
+      |
+      |object Usage {
+      |  val map$caretTag = Map(
+      |    MyObject1 -> "111",
+      |    MyObject2 -> "222"
+      |  )
+      |}
+      |""".stripMargin,
+    s"""sealed trait MyTrait
+       |
+       |case object MyObject1 extends MyTrait
+       |
+       |case object MyObject2 extends MyTrait
+       |
+       |object Usage {
+       |  val map$caretTag: Map[MyTrait, String] = Map(
+       |    MyObject1 -> "111",
+       |    MyObject2 -> "222"
+       |  )
+       |}
+       |""".stripMargin
+  )
 }
 
 

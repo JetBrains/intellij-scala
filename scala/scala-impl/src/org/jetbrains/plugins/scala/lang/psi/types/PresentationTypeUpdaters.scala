@@ -9,6 +9,7 @@ object PresentationTypeUpdaters {
     CommonQualifiedNames.JavaLangObjectCanonical,
     CommonQualifiedNames.ProductCanonical,
     CommonQualifiedNames.ScalaSerializableCanonical,
+    CommonQualifiedNames.JavaIoSerializableCanonical,
     CommonQualifiedNames.AnyRefCanonical
   )
 
