@@ -80,7 +80,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     if (isUnderCaseClass && !isInDesugaredEnumCase) {
       buffer ++= scalaProduct
-      buffer ++= scalaSerializable
+      buffer ++= scalaSerializableBaseTypeForCaseClasses
     }
 
     if (isEnumDefinition) {
@@ -119,12 +119,13 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
 
-  private def scalaSerializableClass: Option[PsiClass] =
+  private def scalaSerializableBaseClassForCaseClasses: Option[PsiClass] =
     if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
       cachedClass(CommonQualifiedNames.JavaIoSerializableFqn)
-    else cachedClass(CommonQualifiedNames.ScalaSerializableFqn)
+    else
+      cachedClass(CommonQualifiedNames.ScalaSerializableFqn)
 
-  private def scalaSerializable: Option[ScType] = scalaSerializableClass.map(ScalaType.designator)
+  private def scalaSerializableBaseTypeForCaseClasses: Option[ScType] = scalaSerializableBaseClassForCaseClasses.map(ScalaType.designator)
 
   private def javaObjectClass: Option[PsiClass]        = cachedClass(CommonQualifiedNames.JavaLangObjectFqn)
   private def scalaReflectEnumClass: Option[PsiClass]  = cachedClass(CommonQualifiedNames.ScalaReflectEnumFqn)
@@ -159,7 +160,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     if (isUnderCaseClass) {
       buffer ++= scalaProductClass
-      buffer ++= scalaSerializableClass
+      buffer ++= scalaSerializableBaseClassForCaseClasses
     }
 
     if (isEnumDefinition) buffer ++= scalaReflectEnumClass
