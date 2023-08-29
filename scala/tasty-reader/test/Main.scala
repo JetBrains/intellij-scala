@@ -16,8 +16,8 @@ object Main {
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
   private val Libraries = Seq(
-    "org.scala-lang/scala3-library_3/jars/scala3-library_3-3.2.2.jar",
-    "org.scala-lang/scala3-compiler_3/jars/scala3-compiler_3-3.2.2.jar",
+    "org.scala-lang/scala3-library_3/jars/scala3-library_3-3.3.0.jar",
+    "org.scala-lang/scala3-compiler_3/jars/scala3-compiler_3-3.3.0.jar",
 
     "org.scalatest/scalatest-core_3/bundles/scalatest-core_3-3.2.14.jar",
     "org.scalatest/scalatest-diagrams_3/bundles/scalatest-diagrams_3-3.2.14.jar",
@@ -39,6 +39,7 @@ object Main {
 
     "dev.zio/zio_3/jars/zio_3-2.0.2.jar",
     "dev.zio/zio-streams_3/jars/zio-streams_3-2.0.2.jar",
+    "dev.zio/zio-stacktracer_3/jars/zio-stacktracer_3-2.0.2.jar",
 
     "org.typelevel/cats-core_3/jars/cats-core_3-2.8.0.jar",
     "org.typelevel/cats-effect_3/jars/cats-effect_3-3.3.14.jar",

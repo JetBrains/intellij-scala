@@ -45,6 +45,7 @@ object Main {
 
     "dev.zio/zio_2.13/jars/zio_2.13-2.0.2.jar",
     "dev.zio/zio-streams_2.13/jars/zio-streams_2.13-2.0.2.jar",
+    "dev.zio/zio-stacktracer_2.13/jars/zio-stacktracer_2.13-2.0.2.jar",
 
     "org.typelevel/cats-core_2.13/jars/cats-core_2.13-2.8.0.jar",
     "org.typelevel/cats-effect_2.13/jars/cats-effect_2.13-3.3.14.jar",
