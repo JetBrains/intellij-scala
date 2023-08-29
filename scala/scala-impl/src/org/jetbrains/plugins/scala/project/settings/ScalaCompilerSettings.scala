@@ -52,7 +52,7 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
 
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
     val state = toState
-    ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(state, forScala3Compiler)
+    ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(state, forScala3Compiler, canonisePath = false)
   }
 
   def toState: ScalaCompilerSettingsState = {

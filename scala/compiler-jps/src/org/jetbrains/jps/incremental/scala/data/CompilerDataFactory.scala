@@ -113,10 +113,10 @@ object CompilerDataFactory
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
     val modules = chunk.getModules.asScala.toSet
     val hasScala3 = CompilerDataFactory.hasScala3(modules)
-    val configuredOptions = compilerSettings.getCompilerOptionsAsStrings(hasScala3)
+    val configuredOptions = compilerSettings.getCompilerOptionsAsStrings(hasScala3).asScala.toSeq
 
     val bootOptions = bootClasspathOptions(hasOldScala(modules))
-    val semanticDBOptions = semanticDbOptionsFor(configuredOptions.toIndexedSeq, chunk)
+    val semanticDBOptions = semanticDbOptionsFor(configuredOptions, chunk)
     bootOptions ++ semanticDBOptions ++ configuredOptions
   }
 

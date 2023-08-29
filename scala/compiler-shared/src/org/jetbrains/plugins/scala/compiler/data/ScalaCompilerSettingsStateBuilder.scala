@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.data
 
+import com.intellij.openapi.util.io.FileUtil
+
 /**
  * @see [[ScalaCompilerSettingsState]]
  */
@@ -43,7 +45,8 @@ object ScalaCompilerSettingsStateBuilder {
 
   def getOptionsAsStrings(
     state: ScalaCompilerSettingsState,
-    forScala3Compiler: Boolean
+    forScala3Compiler: Boolean,
+    canonisePath: Boolean
   ): Seq[String] = {
     val toggledOptions: Seq[String] =
       ToggleOptions.collect {
@@ -56,7 +59,7 @@ object ScalaCompilerSettingsStateBuilder {
       if (!forScala3Compiler) DebuggingInfoLevelToScalacOption.get(state.debuggingInfoLevel)
       else None
 
-    val pluginOptions: Array[String] = state.plugins.map(path => "-Xplugin:" + path)
+    val pluginOptions: Array[String] = state.plugins.map(path => "-Xplugin:" + (if (canonisePath) FileUtil.toCanonicalPath(path) else path))
 
     toggledOptions ++ debuggingLevelOption ++ pluginOptions ++ state.additionalCompilerOptions
   }
