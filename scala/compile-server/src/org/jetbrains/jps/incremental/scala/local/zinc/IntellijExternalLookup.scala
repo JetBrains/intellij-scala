@@ -12,7 +12,7 @@ import xsbti.compile._
 
 import scala.jdk.CollectionConverters._
 
-case class IntellijExternalLookup(compilationData: CompilationData, client: Client, isCached: Boolean)
+case class IntellijExternalLookup(compilationData: CompilationData, client: Client)
   extends ExternalLookup {
 
   private val all: Set[VirtualFileRef] = compilationData.zincData.allSources
@@ -25,8 +25,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
   override def lookupAnalyzedClass(binaryClassName: String, file: Option[VirtualFileRef]): Option[AnalyzedClass] =
     EmptyProvenanceLookupAnalyzedClassResult // Keep the default behaviour of the lookupAnalyzedClass. SCL-18302
 
-  override def changedSources(previousAnalysis: CompileAnalysis): Option[Changes[VirtualFileRef]] =
-    if (isCached) None else {
+  override def changedSources(previousAnalysis: CompileAnalysis): Option[Changes[VirtualFileRef]] = {
     val previousSources = previousAnalysis.readStamps().getAllSourceStamps
       .keySet().asScala.toSet
 

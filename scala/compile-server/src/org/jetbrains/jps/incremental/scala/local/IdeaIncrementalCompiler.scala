@@ -20,7 +20,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   override def compile(compilationData: CompilationData, client: Client): Unit = {
     val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
-    val logger = getLogger(client, (_, _) => true)
+    val logger = getLogger(client)
     val clientCallback = new ClientCallback(client, compilationData.output.toPath)
 
     val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size

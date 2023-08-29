@@ -1,13 +1,12 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.function.Supplier
-
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import xsbti._
 import xsbti.compile._
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.function.Supplier
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
@@ -15,29 +14,29 @@ abstract class AbstractCompiler extends Compiler {
 
   def getReporter(client: Client): Reporter = new ClientReporter(client)
 
-  def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing
+  def getLogger(client: Client): Logger = new ClientLogger(client) with JavacOutputParsing
 
   def getProgress(client: Client, sourcesCount: Int): ClientProgress = new ClientProgress(client, sourcesCount)
 
-  private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
+  private class ClientLogger(val client: Client) extends Logger {
     override def error(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(MessageKind.Error, txt)) client.error(txt)
+      client.error(txt)
     }
 
     override def warn(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(MessageKind.Warning, txt)) client.warning(txt)
+      client.warning(txt)
     }
 
     override def info(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(MessageKind.Info, txt)) client.info(txt)
+      client.info(txt)
     }
 
     override def debug(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(MessageKind.Progress, txt)) client.internalInfo(txt)
+      client.internalInfo(txt)
     }
 
     override def trace(exception: Supplier[Throwable]): Unit = {

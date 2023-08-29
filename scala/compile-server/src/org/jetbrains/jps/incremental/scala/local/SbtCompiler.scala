@@ -35,16 +35,16 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     }
 
     val analysisStore = fileToStore(compilationData.cacheFile)
-    val zincMetadata = CompilationMetadata.load(analysisStore, client, compilationData)
+    val zincMetadata = CompilationMetadata.load(analysisStore)
     import zincMetadata._
 
     client.progress(CompileServerBundle.message("searching.for.changed.files"))
 
     val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
-    val logger = getLogger(client, zincLogFilter)
+    val logger = getLogger(client)
 
-    val intellijLookup = IntellijExternalLookup(compilationData, client, cacheDetails.isCached)
+    val intellijLookup = IntellijExternalLookup(compilationData, client)
     val intellijClassfileManager = new IntellijClassfileManager
 
     DefinesClassCache.invalidateCacheIfRequired(compilationData.zincData.compilationStartDate)
@@ -94,7 +94,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       client.progress(CompileServerBundle.message("collecting.incremental.compiler.data"))
       val result: CompileResult = incrementalCompiler.compile(inputs, logger)
 
-      if (result.hasModified || cacheDetails.isCached) {
+      if (result.hasModified) {
         analysisStore.set(AnalysisContents.create(result.analysis(), result.setup()))
 
         intellijClassfileManager.deletedDuringCompilation().foreach(_.foreach(client.deleted))
@@ -107,11 +107,6 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         }
 
         intellijClassfileManager.generatedDuringCompilation().flatten.foreach(processGeneratedFile)
-
-        if (cacheDetails.isCached)
-          previousAnalysis.stamps.allProducts.foreach { virtualFileRef =>
-            processGeneratedFile(virtualFileConverter.toPath(virtualFileRef).toFile)
-          }
       }
       result
     }
@@ -136,7 +131,5 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         val msg = CompileServerBundle.message("compilation.failed.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
         client.error(msg, None)
     }
-
-    zincMetadata.compilationFinished(compilationData, compilationResult, intellijClassfileManager, cacheDetails)
   }
 }

@@ -22,7 +22,7 @@ case class IntelljExternalHooks(lookup: IntellijExternalLookup,
   override def getExternalClassFileManager: Optional[ClassFileManager] = Optional.of(classFileManager)
 }
 
-class IntellijClassfileManager extends ClassFileManager with ClassfilesChanges {
+class IntellijClassfileManager extends ClassFileManager {
   private var _deleted: Seq[Array[File]] = Nil
   private var _generated: Seq[Array[File]] = Nil
 
@@ -52,7 +52,7 @@ class IntellijClassfileManager extends ClassFileManager with ClassfilesChanges {
       Utils.virtualFileConverter.toVirtualFile(file.toPath)
     })
 
-  override def deletedDuringCompilation(): Seq[Array[File]] = _deleted
+  def deletedDuringCompilation(): Seq[Array[File]] = _deleted
 
-  override def generatedDuringCompilation(): Seq[Array[File]] = _generated
+  def generatedDuringCompilation(): Seq[Array[File]] = _generated
 }
