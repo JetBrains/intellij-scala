@@ -75,7 +75,7 @@ object ScalaCompilerSettingsStateBuilder {
     options: Seq[String],
     compileOrder: CompileOrder
   ): Unit = {
-    val normalizedOptions = normalized(options)
+    val normalizedOptions = splitComaSeparatedOptionsValuesToSeparateOptions(options)
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
 
     optionToSetter.foreach {
@@ -100,14 +100,20 @@ object ScalaCompilerSettingsStateBuilder {
     state.compileOrder = compileOrder
   }
 
-  private def normalized(options: Seq[String]): Seq[String] = options.iterator.flatMap { option =>
-    if (option == "-language:macros")
-      Seq("-language:experimental.macros")
-    else if (option.startsWith("-language:"))
-      option.substring(10).split(",").map("-language:" + _)
-    else if (option.startsWith("-Xplugin:"))
-      option.substring(9).split(";").map("-Xplugin:" + _)
-    else
-      Seq(option)
-  }.toSeq
+  private def splitComaSeparatedOptionsValuesToSeparateOptions(options: Seq[String]): Seq[String] = {
+    val LanguagePrefix = "-language:"
+    val PluginPrefix = "-Xplugin:"
+    options.iterator.flatMap { option =>
+      if (option.startsWith(LanguagePrefix)) {
+        val values = option.substring(LanguagePrefix.length)
+        values.split(",").map(LanguagePrefix + _)
+      }
+      else if (option.startsWith(PluginPrefix)) {
+        val values = option.substring(PluginPrefix.length)
+        values.split(";").map(PluginPrefix + _)
+      }
+      else
+        Seq(option)
+    }.toSeq
+  }
 }

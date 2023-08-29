@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.scala.compiler.data.{ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
 import org.jetbrains.plugins.scala.project.settings.ReflectionTestUtils.assertEqualsWithFieldValuesDiff
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.{assertEquals, assertNotEquals}
 
 /**
  * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
@@ -79,6 +79,31 @@ class ScalaCompilerSettingsTest extends LightPlatformTestCase {
       "Calling ScalaCompilerSettingsStateBuilder.getOptionsAsStrings and then ScalaCompilerSettingsStateBuilder.stateFromOptions should return instance which is equal to the original state",
       stateBefore,
       stateAfter
+    )
+  }
+
+  def testScalaCompilerSettingsStateBuilder_StateFromOptions_SplitMultipleOptionValues(): Unit = {
+    val options = Seq(
+      "-language:dynamics,postfixOps,reflectiveCalls,implicitConversions,higherKinds,existentials,experimental.macros,someUnknownFeature",
+      "-Xplugin:plugin path 1;plugin path 2;plugin path 3"
+    )
+    val state = ScalaCompilerSettingsStateBuilder.stateFromOptions(options, CompileOrder.Mixed)
+    assertEquals(
+      Seq(
+        "-language:dynamics",
+        "-language:postfixOps",
+        "-language:reflectiveCalls",
+        "-language:implicitConversions",
+        "-language:higherKinds",
+        "-language:existentials",
+        "-language:experimental.macros",
+        "-g:vars",
+        "-Xplugin:plugin path 1",
+        "-Xplugin:plugin path 2",
+        "-Xplugin:plugin path 3",
+        "-language:someUnknownFeature"
+      ),
+      ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(state, forScala3Compiler = false, canonisePath = false)
     )
   }
 }

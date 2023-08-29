@@ -35,7 +35,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
       "-feature",
       "-language:higherKinds",
       "-language:implicitConversions",
-      "-language:macros",
+      "-language:experimental.macros",
       "-optimise",
       "-language:postfixOps",
       "-language:reflectiveCalls",
