@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SimpleUpdate
-import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 object PresentationTypeUpdaters {
 
-  private[this] val uselessTypeNames = Set(JavaObjectCanonical, ProductCanonical, SerializableCanonical, AnyRefCanonical)
+  private[this] val uselessTypeNames = Set(
+    CommonQualifiedNames.JavaLangObjectCanonical,
+    CommonQualifiedNames.ProductCanonical,
+    CommonQualifiedNames.ScalaSerializableCanonical,
+    CommonQualifiedNames.AnyRefCanonical
+  )
 
   val cleanUp: SimpleUpdate = SimpleUpdate {
     case tpe @ ScCompoundType(components, signatureMap, _) =>

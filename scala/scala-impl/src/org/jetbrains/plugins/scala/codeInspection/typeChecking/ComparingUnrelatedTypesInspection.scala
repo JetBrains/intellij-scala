@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -32,7 +33,13 @@ object ComparingUnrelatedTypesInspection {
   private val isIdentityFunction = Set("ne", "eq")
   private val isComparingFunctions = Set("==", "!=", "equals") | isIdentityFunction
   private val seqFunctions = ArraySeq("contains", "indexOf", "lastIndexOf")
-  private val uninterestingPsiBaseClass = ArraySeq("java.io.Serializable", "java.lang.Object", "java.lang.Comparable")
+
+  private val uninterestingPsiBaseClass = ArraySeq(
+    CommonQualifiedNames.JavaIoSerializableFqn,
+    CommonQualifiedNames.JavaLangObjectFqn,
+    CommonQualifiedNames.JavaLangComparableFqn
+  )
+
   private def isUninterestingBaseClass(typ: ScType): Boolean = {
     val text = typ.toPsiType.getCanonicalText
     uninterestingPsiBaseClass.exists(text.startsWith)

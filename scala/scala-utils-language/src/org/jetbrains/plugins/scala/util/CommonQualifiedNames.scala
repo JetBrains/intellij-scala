@@ -1,18 +1,29 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
+import com.intellij.psi.CommonClassNames
 
+//noinspection ScalaUnusedSymbol
 object CommonQualifiedNames {
 
   private final val Root = "_root_."
-  final val JavaObjectFqn = JAVA_LANG_OBJECT
-  final val JavaObjectCanonical = Root + JavaObjectFqn
+
+  final val JavaLangObjectFqn = CommonClassNames.JAVA_LANG_OBJECT
+  final val JavaLangObjectCanonical = Root + JavaLangObjectFqn
+
+  final val JavaLangComparableFqn = CommonClassNames.JAVA_LANG_COMPARABLE
+  final val JavaLangComparableCanonical = Root + JavaLangComparableFqn
+
+  final val JavaIoSerializableFqn = CommonClassNames.JAVA_IO_SERIALIZABLE
+  final val JavaIoSerializableCanonical = Root + JavaIoSerializableFqn
 
   final val ProductFqn = "scala.Product"
   final val ProductCanonical = Root + ProductFqn
 
-  final val SerializableFqn = "scala.Serializable"
-  final val SerializableCanonical = Root + SerializableFqn
+  final val ScalaSerializableFqn = "scala.Serializable"
+  final val ScalaSerializableCanonical = Root + ScalaSerializableFqn
+
+  def isProductOrScalaSerializableCanonical(canonicalFqn: String): Boolean =
+    canonicalFqn == ProductCanonical || canonicalFqn == ScalaSerializableCanonical
 
   final val AnyRefFqn = "scala.AnyRef"
   final val AnyRefCanonical = Root + AnyRefFqn
@@ -35,6 +46,10 @@ object CommonQualifiedNames {
   final val FunctionFqn = "scala.Function"
   final val FunctionCanonical = Root + FunctionFqn
 
+  //TODO: rename to StringContextFqn
   final val StringContext = "scala.StringContext"
   final val StringContextCanonical = Root + StringContext
+
+  final val ScalaReflectEnumFqn = "scala.reflect.Enum"
+  final val ScalaReflectEnumCanonical = Root + ScalaReflectEnumFqn
 }

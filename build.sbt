@@ -277,6 +277,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   )
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
+  .dependsOn(scalaLanguageUtils)
   .settings(
     name := "tasty-reader",
     organization := "JetBrains",
@@ -577,6 +578,7 @@ lazy val nailgunRunners =
 
 lazy val decompiler =
   newProject("decompiler", file("scala/decompiler"))
+    .dependsOn(scalaLanguageUtils)
     .settings(
       libraryDependencies ++= DependencyGroups.decompiler,
       packageMethod := PackagingMethod.Standalone("lib/scalap.jar")

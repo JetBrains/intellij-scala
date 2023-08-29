@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
-package templates
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -11,18 +10,18 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -118,17 +117,17 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def cachedClass(name: String): Option[PsiClass] =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
-  private def scalaProductClass: Option[PsiClass] = cachedClass(ScalaProduct)
+  private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
 
   private def scalaSerializableClass: Option[PsiClass] =
     if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
-      cachedClass(JavaSerializable)
-    else cachedClass(ScalaSerializable)
+      cachedClass(CommonQualifiedNames.JavaIoSerializableFqn)
+    else cachedClass(CommonQualifiedNames.ScalaSerializableFqn)
 
   private def scalaSerializable: Option[ScType] = scalaSerializableClass.map(ScalaType.designator)
 
-  private def javaObjectClass: Option[PsiClass]        = cachedClass(JavaLangObject)
-  private def scalaReflectEnumClass: Option[PsiClass]  = cachedClass(ScalaReflectEnum)
+  private def javaObjectClass: Option[PsiClass]        = cachedClass(CommonQualifiedNames.JavaLangObjectFqn)
+  private def scalaReflectEnumClass: Option[PsiClass]  = cachedClass(CommonQualifiedNames.ScalaReflectEnumFqn)
 
   private def scalaProduct: Option[ScType]         = scalaProductClass.map(ScalaType.designator)
   private def scalaReflectEnum: Option[ScType]     = scalaReflectEnumClass.map(ScalaType.designator)
@@ -243,14 +242,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def createEmptyTemplateBody: ScTemplateBody =
     add(ScalaPsiElementFactory.createTemplateBody(getParentByStub.is[ScGivenDefinition], this))
       .asInstanceOf[ScTemplateBody]
-}
+  }
 
 object ScExtendsBlockImpl {
-  private val ScalaProduct      = "scala.Product"
-  private val ScalaSerializable = "scala.Serializable"
-  private val JavaSerializable  = "java.io.Serializable"
-  private val ScalaReflectEnum  = "scala.reflect.Enum"
-  private val JavaLangObject    = "java.lang.Object"
 
   private def extractSupers(typeElements: Seq[ScTypeElement])
                            (implicit project: ProjectContext): Seq[PsiClass] =
