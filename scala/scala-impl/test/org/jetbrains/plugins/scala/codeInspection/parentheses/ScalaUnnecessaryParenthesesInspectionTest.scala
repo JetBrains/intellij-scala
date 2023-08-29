@@ -520,6 +520,15 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
       |}
       |""".stripMargin
   )
+
+  def test_nested_if_with_outer_else(): Unit =
+    checkTextHasNoErrors("object A { if (false) (if (true) println(1)) else println(2) }")
+
+  def test_nested_if_without_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (false) $START(if (true) println(1))$END }")
+
+  def test_nested_curly_braced_if_with_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (false) { $START(if (true) println(1))$END } else println(2) }")
 }
 
 class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryParenthesesInspectionTestBase {

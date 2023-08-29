@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScInfixElement, ScParenthesizedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScParenthesisedExpr, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 
@@ -68,7 +68,8 @@ object ParenthesizedElement {
       * without changing the semantics of the AST.
       */
     def isParenthesisNeeded: Boolean = parenthesized match {
-        case expr @ ScParenthesisedExpr(inner)                             => ScalaPsiUtil.needParentheses(expr, inner)
+        case expr@ScParenthesisedExpr(inner)                               =>
+          ScalaPsiUtil.needParentheses(expr, inner) || parenthesizedExprIsNestedIfWithOuterElse(expr, inner)
         case _ if parenthesized.innerElement.isEmpty                       => true
         case ScParenthesizedElement(inner) if containsSomethingElse(inner) => true
         case _ if isFunctionTupleParameter                                 => true
@@ -91,6 +92,28 @@ object ParenthesizedElement {
       case _: PsiWhiteSpace | _: PsiComment           => false
       case _                                          => true
     }
+
+    /**
+     * Determines whether we're dealing with a case like this:
+     * {{{
+     * object A { if (false) (if (true) println(1)) else println(2) }
+     * }}}
+     *
+     * More specifically, we are interested in testing whether parentheses are necessary around `if (true) println(1)`.
+     *
+     * In this specific case, `expr` is `(if (true) println(1))` and `inner` is `if (true) println(1)`.
+     *
+     * Note that there's only a risk of altered semantics when there is an else-clause in the outer if-statement.
+     *
+     * Also note that `ScIf` models the entire control flow construct. The exact span of `outerIf: ScIf` below is
+     * `if (false) (if (true) println(1)) else println(2)`, and the exact span of the anonymous inner `ScIf` is
+     * `if (true) println(1)`.
+     */
+    private def parenthesizedExprIsNestedIfWithOuterElse(expr: ScParenthesisedExpr, inner: ScExpression): Boolean =
+      (expr.getParent, inner) match {
+        case (outerIf: ScIf, _: ScIf) if outerIf.elseExpression.nonEmpty => true
+        case _ => false
+      }
 
     //shouldn't be called on expression
     private def parenthesesRedundant[Kind <: ScParenthesizedElement#Kind](parent: Kind, inner: Kind): Boolean =
