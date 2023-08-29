@@ -207,12 +207,21 @@ class ScalaInlineHandler extends InlineHandler {
   private def usedInSameClassOnly(named: ScNamedElement): Boolean = {
     named.nameContext match {
       case member: ScMember =>
+        val memberContainingClass = member.containingClass
+        //NOTE: it will return true for Scala 3 top-level definitions, this should be probably handled better ?
+        if (memberContainingClass == null)
+          return true
+
         val allReferences = ReferencesSearch.search(named, named.getUseScope)
-        val notInSameClass: Condition[PsiReference] =
-          ref => member.containingClass != null && !PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true)
+        val notInSameClass: Condition[PsiReference] = ref => {
+          val isInSameClass = PsiTreeUtil.isAncestor(memberContainingClass, ref.getElement, true)
+          !isInSameClass
+        }
 
         val notInSameClassQuery = new FilteredQuery[PsiReference](allReferences, notInSameClass)
-        notInSameClassQuery.findFirst() == null
+
+        val firstUsageOutsideClass = notInSameClassQuery.findFirst()
+        firstUsageOutsideClass == null
       case _ => true
     }
   }
