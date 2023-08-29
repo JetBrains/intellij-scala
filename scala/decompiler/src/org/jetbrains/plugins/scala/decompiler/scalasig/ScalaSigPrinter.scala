@@ -10,8 +10,8 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 
 import java.lang.StringBuilder
 import java.util.regex.Pattern
-
 import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
@@ -795,9 +795,13 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def simplify(symbol: Symbol, parents: Seq[String]): Seq[String] = {
-    val parents0 = parents.dropWhile(p => p == "_root_.scala.AnyRef" || p == "_root_.java.lang.Object")
-    val parents1 = if (symbol.isCase) parents0.filterNot(_ == "_root_.scala.Product").filterNot(_ == "_root_.scala.Serializable") else parents0
-    if (symbol.isModule) parents1.filterNot(_ == "_root_.java.io.Serializable") else parents1
+    val parents0 = parents.dropWhile(p => p == CommonQualifiedNames.AnyRefCanonical || p == CommonQualifiedNames.JavaLangObjectCanonical)
+    val parents1 =
+      if (symbol.isCase)
+        parents0.filterNot(CommonQualifiedNames.isProductOrScalaSerializableCanonical)
+      else
+        parents0
+    if (symbol.isModule) parents1.filterNot(_ == CommonQualifiedNames.JavaIoSerializableCanonical) else parents1
   }
 
   def getVariance(t: TypeSymbol): String = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
