@@ -27,7 +27,7 @@ object ScFunctionAnnotator extends ElementAnnotator[ScFunction] {
   private def checkInlineArguments(function: ScFunction)(implicit holder: ScalaAnnotationHolder): Unit = {
     val modifierList = function.getModifierList
     if (!modifierList.isInline) {
-      val inlineModifiersInParameters = function.parameters.flatMap(_.findFirstChildByType(ScalaTokenType.InlineKeyword))
+      val inlineModifiersInParameters = function.parameters.map(_.getModifierList).filter(_.isInline)
       inlineModifiersInParameters.foreach { inlineToken =>
         holder.createErrorAnnotation(inlineToken, ScalaBundle.message("only.inline.methods.may.have.inline.args"))
       }

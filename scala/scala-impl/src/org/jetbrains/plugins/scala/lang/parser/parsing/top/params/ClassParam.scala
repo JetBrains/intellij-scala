@@ -26,12 +26,10 @@ object ClassParam extends ParsingRule {
     while (Modifier()) {
       isModifier = true
     }
-    modifierMarker.done(ScalaElementType.MODIFIERS)
-
     if (builder.isScala3 && canFollowInlineKeyword(builder.lookAhead(1))) {
-      // It's syntactically allowed by the parser, though it is semantically not allowed
       builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
     }
+    modifierMarker.done(ScalaElementType.MODIFIERS)
 
     //Look for var or val
     builder.getTokenType match {

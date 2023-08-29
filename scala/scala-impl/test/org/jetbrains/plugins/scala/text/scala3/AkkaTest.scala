@@ -33,7 +33,6 @@ class AkkaTest extends TextToTextTestBase(
     "akka.http.scaladsl.server.util.BinaryPolyFunc", // Unknown
     "akka.io.TcpListener", // Cannot resolve Matchable
     "akka.io.UdpListener", // Cannot resolve Matchable
-    "akka.macros.LogHelperMacro", // Mo inline modifier
     "akka.persistence.PersistentImpl", // Extra default argument
     "akka.stream.Supervision", // Excessive parentheses in compound type
     "akka.stream.impl.ConstantFun", // scala.None without .type

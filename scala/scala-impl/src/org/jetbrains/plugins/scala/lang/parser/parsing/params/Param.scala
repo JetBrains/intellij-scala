@@ -17,13 +17,11 @@ object Param extends ParsingRule {
 
     Annotations()
 
-    //empty modifiers
     val modifiersMarker = builder.mark()
-    modifiersMarker.done(ScalaElementType.MODIFIERS)
-
     if (builder.isScala3 && builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)) {
       builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
     }
+    modifiersMarker.done(ScalaElementType.MODIFIERS)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>

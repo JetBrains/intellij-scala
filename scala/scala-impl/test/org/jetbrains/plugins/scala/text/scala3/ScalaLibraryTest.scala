@@ -7,7 +7,5 @@ class ScalaLibraryTest extends TextToTextTestBase(
   Seq("scala"), Set.empty, 91,
   Set(
     "scala.Tuple", // Top-level type alias
-    "scala.runtime.stdLibPatches.Predef", // Inline parameter
-    "scala.util.boundary", // Inline parameter
   )
 )

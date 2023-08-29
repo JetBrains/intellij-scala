@@ -82,8 +82,7 @@ ScalaFile
           AnnotationsList
             <empty list>
           Modifiers
-            <empty list>
-          PsiElement(inline)('inline')
+            PsiElement(inline)('inline')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('arg')
           PsiElement(:)(':')

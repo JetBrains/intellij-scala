@@ -78,8 +78,7 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |          AnnotationsList
       |            <empty list>
       |          Modifiers
-      |            <empty list>
-      |          PsiElement(inline)('inline')
+      |            PsiElement(inline)('inline')
       |          PsiWhiteSpace(' ')
       |          PsiElement(identifier)('i')
       |          PsiElement(:)(':')
@@ -131,8 +130,7 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |            AnnotationsList
       |              <empty list>
       |            Modifiers
-      |              <empty list>
-      |            PsiElement(inline)('inline')
+      |              PsiElement(inline)('inline')
       |            PsiWhiteSpace(' ')
       |            PsiElement(identifier)('x')
       |            PsiElement(:)(':')
@@ -224,8 +222,7 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |          AnnotationsList
       |            <empty list>
       |          Modifiers
-      |            <empty list>
-      |          PsiElement(inline)('inline')
+      |            PsiElement(inline)('inline')
       |          PsiWhiteSpace(' ')
       |          PsiElement(identifier)('inline')
       |          PsiElement(:)(':')

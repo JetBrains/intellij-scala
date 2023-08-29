@@ -15,7 +15,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.InfixInterpolator", // Top-level definitions
     "io.getquill.InjectableEagerPlanter", // Function1
     "io.getquill.Insert", // No parentheses for repeated function type
-    "io.getquill.MirrorContextBase", // Inline parameter
     "io.getquill.SqlInfixInterpolator", // Top-level definitions
     "io.getquill.ToDynamicAction", // Top-level definitions
     "io.getquill.ToDynamicActionReturning", // Top-level definitions
@@ -26,33 +25,18 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ast.EqualityOperator", // No case object _==
     "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
-    "io.getquill.context.Context", // Inline parameter
-    "io.getquill.context.ContextTranslateMacro", // Inline parameter
-    "io.getquill.context.ContextVerbPrepare", // Inline parameter
-    "io.getquill.context.ContextVerbStream", // Inline parameter
-    "io.getquill.context.DatasourceContextInjectionMacro", // Inline parameter
     "io.getquill.context.Execution", // Cannot resolve
     "io.getquill.context.InsertUpdateMacro", // Enum
     "io.getquill.context.LiftMacro", // Function1
-    "io.getquill.context.QueryExecution", // Inline parameter
-    "io.getquill.context.QueryExecutionBatch", // Inline parameter
-    "io.getquill.context.QuerySingleAsQuery", // Inline parameter
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
-    "io.getquill.context.jdbc.JdbcContext", // Inline parameter
-    "io.getquill.context.qzio.ZioJdbcContext", // Inline parameter
-    "io.getquill.context.qzio.ZioJdbcUnderlyingContext", // Inline parameter
+    "io.getquill.context.qzio.ZioJdbcContext", // Extra default arguments
+    "io.getquill.context.qzio.ZioJdbcUnderlyingContext", // Extra default arguments
     "io.getquill.dsl.InfixDsl", // No annotations
-    "io.getquill.generic.TupleMember", // Inline parameter
-    "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
     "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
-    "io.getquill.metaprog.etc.ColumnsFlicer", // Inline parameter
-    "io.getquill.metaprog.etc.ListFlicer", // Inline parameter
-    "io.getquill.metaprog.etc.MapFlicer", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
     "io.getquill.parser.OperationsParser", // TODO > symbol
     "io.getquill.parser.ParserHelpers", // TODO using(x: Int, Long)
     "io.getquill.quat.QuatMakingBase", // $1n in extension, SCL-21551
-    "io.getquill.util.debug.PrintMac", // Inline parameter
   )
 )

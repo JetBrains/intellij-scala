@@ -11,10 +11,6 @@ class ScalacticTest extends TextToTextTestBase(
   Set(
     "org.scalactic.Accumulation", // No parentheses in repeated function type
     "org.scalactic.FutureSugar", // No parentheses in repeated function type
-    "org.scalactic.Requirements", // Inline parameter
     "org.scalactic.TrySugar", // No parentheses for repeated function type
-    "org.scalactic.anyvals.NumericString", // Inline parameter
-    "org.scalactic.anyvals.PercentageInt", // Inline parameter
-    "org.scalactic.anyvals.RegexString", // Inline parameter
   )
 )
