@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
+import org.jetbrains.plugins.scala.compiler.data.{ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
 import org.jetbrains.plugins.scala.project.settings.ReflectionTestUtils.assertEqualsWithFieldValuesDiff
 import org.junit.Assert.assertNotEquals
 
@@ -11,7 +11,7 @@ import org.junit.Assert.assertNotEquals
  */
 class ScalaCompilerSettingsTest extends LightPlatformTestCase {
 
-  def testScalaCompilerSettings_ToStateShouldReturnSameInstanceAsWasPassedToFromState(): Unit = {
+  def testScalaCompilerSettings_ToState_ShouldReturnSameInstanceAsWasPassedTo_FromState(): Unit = {
     val stateWithNonDefaultFieldValues = ReflectionTestUtils.createInstanceWithNonDefaultValues(classOf[ScalaCompilerSettingsState])
 
     val settings = ScalaCompilerSettings.fromState(stateWithNonDefaultFieldValues)
@@ -24,7 +24,7 @@ class ScalaCompilerSettingsTest extends LightPlatformTestCase {
     )
   }
 
-  def testScalaCompilerSettingsPanel_GetStateShouldReturnSameInstanceAsWasPassedToSetState(): Unit = {
+  def testScalaCompilerSettingsPanel_GetState_ShouldReturnSameInstanceAsWasPassedTo_SetState(): Unit = {
     val stateWithNonDefaultFieldValues = ReflectionTestUtils.createInstanceWithNonDefaultValues(classOf[ScalaCompilerSettingsState])
 
     val panel = new ScalaCompilerSettingsPanel()
@@ -63,4 +63,22 @@ class ScalaCompilerSettingsTest extends LightPlatformTestCase {
     }
   }
 
+  def testScalaCompilerSettingsStateBuilder_StateFromOptions_From_GetOptionsAsStrings(): Unit = {
+    val stateBefore = ReflectionTestUtils.createInstanceWithNonDefaultValues(classOf[ScalaCompilerSettingsState])
+
+    val stateWithDefaultValues = new ScalaCompilerSettingsState
+    //These settings are not represented in scala compiler options, so resetting them to defaults
+    stateBefore.nameHashing = stateWithDefaultValues.nameHashing
+    stateBefore.recompileOnMacroDef = stateWithDefaultValues.recompileOnMacroDef
+    stateBefore.transitiveStep = stateWithDefaultValues.transitiveStep
+    stateBefore.recompileAllFraction = stateWithDefaultValues.recompileAllFraction
+
+    val optionsStrings = ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(stateBefore, forScala3Compiler = false, canonisePath = false)
+    val stateAfter = ScalaCompilerSettingsStateBuilder.stateFromOptions(optionsStrings, stateBefore.compileOrder)
+    assertEqualsWithFieldValuesDiff(
+      "Calling ScalaCompilerSettingsStateBuilder.getOptionsAsStrings and then ScalaCompilerSettingsStateBuilder.stateFromOptions should return instance which is equal to the original state",
+      stateBefore,
+      stateAfter
+    )
+  }
 }
