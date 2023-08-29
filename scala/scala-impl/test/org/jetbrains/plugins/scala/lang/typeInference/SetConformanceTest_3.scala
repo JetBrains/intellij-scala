@@ -1,23 +1,9 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.ScalaVersion
 
-class SetConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def shouldPass: Boolean = false
-
-  def testSCL4941(): Unit = checkTextHasNoErrors(
-    s"""
-       |def f(collect: Iterable[Int]): Unit = {
-       |  collect.zipWithIndex.foldLeft(mutable.LinkedHashMap.empty[Int, Set[Int]]) {
-       |    case (m, (t1, _)) => m += (t1 -> {
-       |      val s = m.getOrElse(t1, mutable.LinkedHashSet.empty)
-       |      s
-       |    })
-       |  }
-       |}
-       |//true
-    """.stripMargin)
+class SetConformanceTest_3 extends SetConformanceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   def testSCL11139(): Unit = checkTextHasNoErrors(
     s"""
@@ -41,20 +27,11 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
        |}
        |//true
     """.stripMargin)
+}
 
-  //component(3) = "thing" line makes the test fail with some exception from test framework, it has too many errors
-  def testSCL13432(): Unit = checkTextHasNoErrors(
-    s"""
-       |import scala.reflect.ClassTag
-       |import scala.collection.mutable
-       |
-       |def component[T: ClassTag]: mutable.HashMap[Int, T] = ???
-       |
-       |component.update(3, "thing")
-       |//component(3) = "thing"
-       |
-       |//true
-    """.stripMargin)
+
+class SetConformanceTest_3_Failing extends SetConformanceTestBase_Failing {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   def testSCL9738(): Unit = {
     checkTextHasNoErrors(
