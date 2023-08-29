@@ -15,12 +15,10 @@ class ZioTest extends TextToTextTestBase(
     "zio.WirePartiallyApplied", // No inline parameter modifier
     "zio.WireSomePartiallyApplied", // No inline parameter modifier
     "zio.ZIOAppVersionSpecific", // No inline parameter modifier
-    "zio.ZIOAppVersionSpecificMacros", // given
     "zio.ZIOVersionSpecific", // No inline parameter modifier
     "zio.json.EncoderLowPriority2", // Type lambda
     "zio.internal.stacktracer.Macros", // External library reference
-    "zio.internal.stacktracer.SourceLocation", // Given
-    "zio.internal.stacktracer.Tracer", // Given
+    "zio.internal.stacktracer.SourceLocation", // Given without a name
     "zio.metrics.jvm.BufferPools", // External library reference
     "zio.metrics.jvm.GarbageCollector", // External library reference
     "zio.metrics.jvm.MemoryAllocation", // External library reference

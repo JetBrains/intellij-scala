@@ -15,9 +15,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.InfixInterpolator", // Top-level definitions
     "io.getquill.InjectableEagerPlanter", // Function1
     "io.getquill.Insert", // No parentheses for repeated function type
-    "io.getquill.MirrorColumnResolving", // Given
     "io.getquill.MirrorContextBase", // Inline parameter
-    "io.getquill.OuterSelectWrap", // Given
     "io.getquill.SqlInfixInterpolator", // Top-level definitions
     "io.getquill.ToDynamicAction", // Top-level definitions
     "io.getquill.ToDynamicActionReturning", // Top-level definitions
@@ -33,13 +31,11 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.ContextVerbPrepare", // Inline parameter
     "io.getquill.context.ContextVerbStream", // Inline parameter
     "io.getquill.context.DatasourceContextInjectionMacro", // Inline parameter
-    "io.getquill.context.Execution", // Given
-    "io.getquill.context.InsertUpdateMacro", // Given
+    "io.getquill.context.Execution", // Cannot resolve
+    "io.getquill.context.InsertUpdateMacro", // Enum
     "io.getquill.context.LiftMacro", // Function1
-    "io.getquill.context.Particularize", // Given
     "io.getquill.context.QueryExecution", // Inline parameter
     "io.getquill.context.QueryExecutionBatch", // Inline parameter
-    "io.getquill.context.QueryExecutionBatchModel", // Given
     "io.getquill.context.QuerySingleAsQuery", // Inline parameter
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
@@ -50,16 +46,12 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.generic.TupleMember", // Inline parameter
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
     "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
-    "io.getquill.metaprog.TranspileConfigLiftable", // Given
     "io.getquill.metaprog.etc.ColumnsFlicer", // Inline parameter
     "io.getquill.metaprog.etc.ListFlicer", // Inline parameter
     "io.getquill.metaprog.etc.MapFlicer", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
-    "io.getquill.parser.AstPicklers", // Given
-    "io.getquill.parser.Lifter", // Given
     "io.getquill.parser.OperationsParser", // TODO > symbol
     "io.getquill.parser.ParserHelpers", // TODO using(x: Int, Long)
-    "io.getquill.parser.Unlifter", // Given
     "io.getquill.quat.QuatMakingBase", // $1n in extension, SCL-21551
     "io.getquill.util.debug.PrintMac", // Inline parameter
   )

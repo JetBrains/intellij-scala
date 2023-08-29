@@ -10,12 +10,10 @@ class ScalatestTest extends TextToTextTestBase(
   Seq("org.scalatest"), Set.empty, 660,
   Set(
     "org.scalatest.Assertions", // Inline parameter, anonymous using
-    "org.scalatest.CompileMacro", // Given definition
     "org.scalatest.MessageRecordingInformer", // Extra default arguments
     "org.scalatest.Suite", // FromJavaObject
     "org.scalatest.diagrams.Diagrams", // Inline parameter
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-    "org.scalatest.matchers.CompileMacro", // Given definition
     "org.scalatest.matchers.Matcher", // Inline parameter
     "org.scalatest.matchers.dsl.MatchPatternWord", // Inline parameter
     "org.scalatest.matchers.dsl.MatcherFactory1", // Inline parameter

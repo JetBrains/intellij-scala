@@ -9,9 +9,9 @@ class DoobieTest extends TextToTextTestBase(
   ),
   Seq("doobie"), Set.empty, 117,
   Set(
-    "doobie.util.GetPlatform", // Given
-    "doobie.util.PutPlatform", // Given
-    "doobie.util.ReadPlatform", // Given, EmptyTuple is Any
-    "doobie.util.WritePlatform", // Given, EmptyTuple is Any
+    "doobie.util.GetPlatform", // Cannot resolve p.MirroredElemTypes, scala.EmptyTuple
+    "doobie.util.PutPlatform", // Cannot resolve m.MirroredElemTypes, scala.EmptyTuple
+    "doobie.util.ReadPlatform", // EmptyTuple is Any
+    "doobie.util.WritePlatform", // EmptyTuple is Any
   )
 )

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierLi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -25,10 +25,15 @@ private class ClassPrinter(isScala3: Boolean) {
       case _: ScClass => "class"
       case _: ScObject => "object"
       case _: ScEnum => "enum"
+      case _: ScGiven => "given"
       case _ => ""
     }
 
-    val name = cls.name
+    val isGiven = cls.isInstanceOf[ScGiven]
+
+    val isAnonymous = isGiven && cls.name.startsWith("given_") // TODO .isAnonymous
+
+    val name = if (isAnonymous) "" else cls.name
 
     val tps = if (cls.typeParameters.isEmpty) "" else cls.typeParameters.map(textOf).mkString("[", ", ", "]")
 
@@ -36,12 +41,17 @@ private class ClassPrinter(isScala3: Boolean) {
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
-      if (superTypes.isEmpty) "" else " extends " + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3) ", " else " with ")
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
     }
 
     val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
 
-    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + parents + " {" + selfType
+    val givenClauses = cls match {
+      case g: ScGivenDefinition => g.clauses.map(_.clauses).getOrElse(Seq.empty).map(textOf).mkString
+      case _ => ""
+    }
+
+    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + (if (isGiven) " with" else "") + " {" + selfType
 
     val previousLength = sb.length
 
@@ -98,14 +108,17 @@ private class ClassPrinter(isScala3: Boolean) {
   }
 
   private def textOf(f: ScFunction, indent: String): String = {
+    val isGiven = f.isInstanceOf[ScGiven]
+    val isAnonymous = isGiven && f.name.startsWith("given_") // TODO .isAnonymous
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(f.getModifierList)
-    val name = f.name
+    val keyword = if (isGiven) "given " else "def "
+    val name = if (isAnonymous) "" else f.name
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + ": " + textOf(f.returnType)
+    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
-    annotations + "\n" + indent + "  " + modifiers + "def " + name + tps + clauses + tpe + rhs + "\n"
+    annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
   }
 
   private def textOf(e: ScExtension, indent: String): String = {
