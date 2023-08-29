@@ -28,4 +28,8 @@ final class ToggleTypeAnnotationIntentionTest_Scala2_13 extends ToggleTypeAnnota
        |}
        |""".stripMargin
   )
+
+  def testDummyFailing(): Unit = {
+    throw new AssertionError("dummy test")
+  }
 }
