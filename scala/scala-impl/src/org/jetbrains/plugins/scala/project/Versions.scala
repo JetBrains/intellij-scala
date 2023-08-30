@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.project
 
-import com.intellij.util.net.HttpConfigurable
+import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.LatestScalaVersions._
 import org.jetbrains.plugins.scala.{ScalaBundle, isInternalMode}
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
+import org.jetbrains.plugins.scala.util.HttpDownloadUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 
-import scala.io.Source
-import scala.util.Try
 import scala.util.matching.Regex
 
 case class Versions(defaultVersion: String,
@@ -20,8 +19,9 @@ object Versions {
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
     final def loadVersionsWithProgress(): Versions = {
-      val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this)) {
-        entities.flatMap(loadVersions)
+      val cancelable = true
+      val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
+           entities.flatMap(loadVersions(_, cancelable))
       }
       val versions = loaded
         .sorted
@@ -72,23 +72,13 @@ object Versions {
     )
   }
 
-  // TODO: this should not be a part of a Versions object
-  def loadLinesFrom(url: String): Try[Seq[String]] =
-    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
-      try {
-        val lines = Source.fromInputStream(connection.getInputStream).getLines().toVector
-        lines
-      } finally {
-        connection.disconnect()
-      }
-    }
-
-  private def loadVersions(entity: Entity): Seq[Version] = {
+  private def loadVersions(entity: Entity, cancelable: Boolean)
+                          (implicit indicatorOpt: Option[ProgressIndicator] = None): Seq[Version] = {
     entity match {
       case DownloadableEntity(url, minVersionStr, hardcodedVersions, versionPattern) =>
         val minVersion = Version(minVersionStr)
 
-        val lines = loadLinesFrom(url)
+        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable)
         val versionStrings = lines.fold(
           Function.const(hardcodedVersions),
           extractVersions(_, versionPattern)
@@ -105,9 +95,11 @@ object Versions {
       case pattern(number) => number
     }
 
-  def loadScala2Versions(): Seq[Version] = loadVersions(ScalaEntity)
+  def loadScala2Versions(cancelable: Boolean)
+                        (implicit indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, cancelable)
 
-  def loadSbt1Versions(): Seq[Version] = loadVersions(Sbt1Entity)
+  def loadSbt1Versions(cancelable: Boolean)
+                      (implicit indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, cancelable)
 
   private sealed trait Entity {
     def minVersion: String

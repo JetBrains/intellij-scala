@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.components.libextensions.JarPathStringExt
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template.Artifact
-import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.{HttpDownloadUtil, ScalaUtil}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
@@ -47,7 +47,8 @@ object ImportAmmoniteDependenciesFix {
            (implicit project: Project): Unit = {
     val manager = ProgressManager.getInstance
 
-    val task = new Task.Backgroundable(project, WorksheetBundle.message("ammonite.adding.dependencies.title"), false) {
+    val cancelable = false
+    val task = new Task.Backgroundable(project, WorksheetBundle.message("ammonite.adding.dependencies.title"), cancelable) {
 
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setText(WorksheetBundle.message("ammonite.loading.list.of.versions"))
@@ -66,7 +67,7 @@ object ImportAmmoniteDependenciesFix {
             )
           }
 
-        val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala)
+        val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala, cancelable)
 
         indicator.setText(WorksheetBundle.message("ammonite.extracting.info.from.sbt"))
 
@@ -162,20 +163,20 @@ object ImportAmmoniteDependenciesFix {
       case indicator => indicator
     }
 
-  private def detectAmmoniteVersion(forScala: MyScalaVersion): (String, String) = {
-    val scalaVersion = loadScalaVersions(forScala) match {
+  private def detectAmmoniteVersion(forScala: MyScalaVersion, cancelable: Boolean): (String, String) = {
+    val scalaVersion = loadScalaVersions(forScala, cancelable) match {
       case Success(Some(v)) => v.presentation
       case _ => DEFAULT_SCALA_VERSION
     }
 
-    val ammoniteVersion = loadAmmoniteVersion(scalaVersion).getOrElse(DEFAULT_AMMONITE_VERSION)
+    val ammoniteVersion = loadAmmoniteVersion(scalaVersion, cancelable).getOrElse(DEFAULT_AMMONITE_VERSION)
 
     (scalaVersion, ammoniteVersion)
   }
 
-  def loadAmmoniteVersion(scalaVersion: String): Try[String] = {
+  def loadAmmoniteVersion(scalaVersion: String, cancelable: Boolean): Try[String] = {
     val url = s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/"
-    val lines: Try[Seq[String]] = Versions.loadLinesFrom(url)
+    val lines: Try[Seq[String]] = HttpDownloadUtil.loadLinesFrom(url, cancelable)
 
     val versions = lines.map(detectAmmoniteVersions)
     val version = versions.map(chooseAmmoniteVersion)
@@ -203,9 +204,9 @@ object ImportAmmoniteDependenciesFix {
   }
 
   // TODO: why "versionS"?
-  def loadScalaVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
+  def loadScalaVersions(forScala: MyScalaVersion, cancelable: Boolean): Try[Option[Version]] = {
     val url = "https://repo1.maven.org/maven2/com/lihaoyi/"
-    val mavenInfoLines = Versions.loadLinesFrom(url)
+    val mavenInfoLines = HttpDownloadUtil.loadLinesFrom(url, cancelable)
     mavenInfoLines.map(detectScalaVersion(_, forScala))
   }
 

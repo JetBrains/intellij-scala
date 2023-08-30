@@ -5,7 +5,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.{JavaCodeStyleSettings, ReferenceAdjuster}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
