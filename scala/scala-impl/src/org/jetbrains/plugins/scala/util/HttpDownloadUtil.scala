@@ -1,23 +1,39 @@
-package org.jetbrains.sbt.project.template.techhub
+package org.jetbrains.plugins.scala.util
 
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.util.io.{FileUtil, StreamUtil}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.net.{HttpConfigurable, NetUtils}
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.plugins.scala.ScalaBundle
 
-import java.io._
-import java.net.HttpURLConnection
-import java.nio.charset.StandardCharsets
+import java.io.{BufferedOutputStream, File, FileOutputStream, IOException, OutputStream}
 import java.util
 import java.util.concurrent.Callable
-import scala.annotation.nowarn
-import scala.util.{Failure, Try}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.io.Source
+import scala.util.Try
 
-object TechHubDownloadUtil {
+object HttpDownloadUtil {
+
   private val CONTENT_LENGTH_TEMPLATE: String = "${content-length}"
+
+  def loadLinesFrom(url: String, cancelable: Boolean, timeout: FiniteDuration = 10.seconds)
+                   (implicit indicatorOpt: Option[ProgressIndicator] = None): Try[Seq[String]] =
+    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
+      try {
+        connection.setConnectTimeout(timeout.toMillis.toInt)
+        val lines = Source.fromInputStream(connection.getInputStream).getLines()
+          .map { line =>
+            if (cancelable) performCheckCanceled
+            line
+          }.toVector
+        lines
+      } finally {
+        connection.disconnect()
+      }
+    }
 
   def downloadContentToFile(url: String, outputFile: File): Unit = {
     val parentDirExists: Boolean = FileUtil.createParentDirs(outputFile)
@@ -32,7 +48,7 @@ object TechHubDownloadUtil {
   def download(progress: Option[ProgressIndicator], location: String, output: OutputStream): Unit = {
     val originalText: String = progress.map(_.getText).getOrElse("")
     substituteContentLength(progress, originalText, -1)
-    progress.foreach(p => p.setText2(SbtBundle.message("sbt.techhub.downloading.location", location)))
+    progress.foreach(p => p.setText2(ScalaBundle.message("downloading.location", location)))
 
     try {
       PooledThreadExecutor.INSTANCE.invokeAny(util.Arrays.asList(new Callable[Object] {
@@ -56,29 +72,28 @@ object TechHubDownloadUtil {
   }
 
   @RequiresBackgroundThread
-  def downloadString(url: String, timeoutMs: Int): Try[String] = {
-    val conf = HttpConfigurable.getInstance()
-    var connection: HttpURLConnection = null
-
-    try {
-      connection = conf.openHttpConnection(url)
-      connection.setConnectTimeout(timeoutMs)
-      connection.connect()
-
-      val status = connection.getResponseMessage
-
-      if (status == null)
-        Failure(new IOException(SbtBundle.message("sbt.techhub.no.response.status.from.connection.to.url", url)))
-      else if (status.trim.startsWith("OK"))
-        Try(StreamUtil.readText(connection.getInputStream, StandardCharsets.UTF_8): @nowarn("cat=deprecation"))
-      else
-        Failure(new IOException(SbtBundle.message("sbt.techhub.response.to.connection.to.url.was.status", url, status)))
-    } finally {
-      if (connection != null) {
+  def downloadString(url: String, timeoutMs: Int, cancelable: Boolean)
+                    (implicit indicatorOpt: Option[ProgressIndicator] = None): Try[String] =
+    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
+      try {
+        connection.setConnectTimeout(timeoutMs)
+        val status = connection.getResponseMessage
+        if (status == null) {
+          throw new IOException(ScalaBundle.message("no.response.status.from.connection.to.url", url))
+        } else if (status.trim.startsWith("OK")) {
+          Source.fromInputStream(connection.getInputStream)
+            .getLines()
+            .map { line =>
+              if (cancelable) performCheckCanceled
+              line
+            }.mkString
+        } else {
+          throw new IOException(ScalaBundle.message("response.to.connection.to.url.was.status", url, status))
+        }
+      } finally {
         connection.disconnect()
       }
     }
-  }
 
   private def substituteContentLength(progress: Option[ProgressIndicator], text: String, contentLengthInBytes: Int): Unit = {
     progress.foreach { prog =>
@@ -103,4 +118,11 @@ object TechHubDownloadUtil {
     else
       f", ${contentLengthInBytes / (1.0 * kilo * kilo)}%.1f MB"
   }
+
+  private def performCheckCanceled(implicit indicatorOpt: Option[ProgressIndicator] = None): Unit =
+    indicatorOpt match {
+      case Some(indicator) => indicator.checkCanceled()
+      case None => ProgressManager.checkCanceled()
+    }
+
 }
