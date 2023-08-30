@@ -69,6 +69,6 @@ trait ScalaBundleCoverageTestBase extends UsefulTestCase {
 
 final class ScalaBundleCoverageTest extends ScalaBundleCoverageTestBase {
   override val root = ScalaBundleSorting.communityDir
-  override val ignoreRoots = Nil
+  override val ignoreRoots = Seq(ScalaBundleSorting.integrationDir + "packagesearch/")
   override val definedModuleInfos = ScalaBundleSorting.allModuleInfos
 }
