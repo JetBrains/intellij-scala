@@ -4,6 +4,8 @@ import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.collection.immutable.SortedSet
+
 final class ScalaVersion(
   val languageLevel: ScalaLanguageLevel,
   val minorSuffix: String
@@ -57,6 +59,17 @@ object ScalaVersion {
         level.map(new ScalaVersion(_, z))
       case _                     => None
     }
+
+  val allTestVersions: SortedSet[ScalaVersion] = allTestVersionsFor(LatestScalaVersions.all)
+
+  def allTestVersionsFor(scalaVersions: Seq[ScalaVersion]): SortedSet[ScalaVersion] = {
+    val allScalaMinorVersions = for {
+      latestVersion <- scalaVersions
+      minor <- 0 to latestVersion.minorSuffix.toInt
+    } yield latestVersion.withMinor(minor)
+
+    SortedSet.from(allScalaMinorVersions)
+  }
 }
 
 //NOTE: when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
@@ -83,6 +96,21 @@ object LatestScalaVersions {
     Scala_2_11,
     Scala_2_12,
     Scala_2_13,
+    Scala_3_0,
+    Scala_3_1,
+    Scala_3_2,
+    Scala_3_3,
+  )
+
+  val scala2: Seq[ScalaVersion] = Seq(
+    Scala_2_9,
+    Scala_2_10,
+    Scala_2_11,
+    Scala_2_12,
+    Scala_2_13
+  )
+
+  val scala3: Seq[ScalaVersion] = Seq(
     Scala_3_0,
     Scala_3_1,
     Scala_3_2,
