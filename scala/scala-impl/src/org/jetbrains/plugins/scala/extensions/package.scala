@@ -1460,13 +1460,17 @@ package object extensions {
     }
   }
 
-  def withProgressSynchronously[T](@Nls title: String)(body: => T): T = {
-    withProgressSynchronouslyTry[T](title)(_ => body) match {
+  /* If canBeCanceled is true, remember to call in a body com.intellij.openapi.progress.ProgressManager.checkCanceled or
+  directly com.intellij.openapi.progress.ProgressIndicator.checkCanceled in order to prevent UI from freezing */
+  def withProgressSynchronously[T](@Nls title: String, canBeCanceled: Boolean = false)(body: => T): T = {
+    withProgressSynchronouslyTry[T](title, canBeCanceled)(_ => body) match {
       case Success(result) => result
       case Failure(exception) => throw exception
     }
   }
 
+  /* If canBeCanceled is true, remember to call in a body com.intellij.openapi.progress.ProgressManager.checkCanceled or
+  directly com.intellij.openapi.progress.ProgressIndicator.checkCanceled in order to prevent UI from freezing */
   def withProgressSynchronouslyTry[T](@Nls title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
