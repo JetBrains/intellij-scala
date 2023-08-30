@@ -14,7 +14,7 @@ trait ParameterRendererLike {
   def render(buffer: StringBuilder, param: ScParameter): Unit
 }
 
-final class ParameterRenderer(
+class ParameterRenderer(
   typeRenderer: TypeRenderer,
   modifiersRenderer: ModifiersRendererLike, // only makes sense for class constructor parameters which declare fields at the same time
   typeAnnotationRenderer: TypeAnnotationRenderer,
@@ -58,7 +58,7 @@ final class ParameterRenderer(
     typeAnnotationRenderer.render(buffer, param)
   }
 
-  private def parameterAnnotations(buffer: StringBuilder, param: ScParameter): Unit = {
+  protected def parameterAnnotations(buffer: StringBuilder, param: ScParameter): Unit = {
     val isMember = param match {
       case c: ScClassParameter => c.isClassMember
       case _                   => false
@@ -78,7 +78,7 @@ final class ParameterRenderer(
 
 object ParameterRenderer {
 
-  private def keywordPrefix(param: ScParameter) =
+  def keywordPrefix(param: ScParameter) =
     param match {
       case c: ScClassParameter if c.isVal => "val "
       case c: ScClassParameter if c.isVar => "var "

@@ -34,7 +34,6 @@ class ModifiersRenderer(
   }
 }
 
-
 object ModifiersRenderer {
   val modifiers: Array[String] = Array(
     "abstract", "override", "final", "sealed", "implicit", "lazy",

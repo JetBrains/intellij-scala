@@ -84,7 +84,7 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case m: ScModifierListOwner =>
         val modifiersRendered = WithHtmlPsiLink.renderer.render(m)
-        if (modifiersRendered.nonEmpty) builder.appendKeyword(modifiersRendered)
+        if (modifiersRendered.nonEmpty) builder.append(modifiersRendered)
       case _ =>
     }
 
@@ -100,7 +100,7 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
         val renderedTypeParams = typeParamsRenderer.renderParams(tpeParamOwner)
-        if (renderedTypeParams.nonEmpty) builder.appendKeyword(renderedTypeParams)
+        if (renderedTypeParams.nonEmpty) builder.append(renderedTypeParams)
       case _ =>
     }
 
