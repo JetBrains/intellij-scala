@@ -25,6 +25,18 @@ trait Enum {
     case Case/**/ extends MultipleClauses(1)(2L)/**/
   }
 
+  enum MultipleClausesEmpty1()(y: Long) {
+    case Case/**/ extends MultipleClausesEmpty1()(2L)/**/
+  }
+
+  enum MultipleClausesEmpty2(x: Int)() {
+    case Case/**/ extends MultipleClausesEmpty2(1)()/**/
+  }
+
+  enum MultipleClausesEmpty3()() {
+    case Case/**/ extends MultipleClausesEmpty3()()/**/
+  }
+
   enum TypeAndValueParameters[A](x: Int) {
     case Case extends TypeAndValueParameters[Int]/**/(1)/**/
   }

@@ -15,5 +15,11 @@ trait Def {
 
   def multipleClauses(x: Int)(y: Long): Unit
 
+  def multipleClausesEmpty1()(y: Long): Unit
+
+  def multipleClausesEmpty2(x: Int)(): Unit
+
+  def multipleClausesEmpty3()(): Unit
+
   def typeAndValueParameters[A](x: Int): Unit
 }

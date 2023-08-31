@@ -21,9 +21,9 @@ object Main {
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/decompiler/target/comparison"
 
   private val Libraries = Seq(
-    "org.scala-lang/scala-library/jars/scala-library-2.13.10.jar",
-    "org.scala-lang/scala-reflect/jars/scala-reflect-2.13.10.jar",
-    "org.scala-lang/scala-compiler/jars/scala-compiler-2.13.10.jar",
+    "org.scala-lang/scala-library/jars/scala-library-2.13.11.jar",
+    "org.scala-lang/scala-reflect/jars/scala-reflect-2.13.11.jar",
+    "org.scala-lang/scala-compiler/jars/scala-compiler-2.13.11.jar",
 
     "org.scalatest/scalatest-core_2.13/bundles/scalatest-core_2.13-3.2.14.jar",
     "org.scalatest/scalatest-diagrams_2.13/bundles/scalatest-diagrams_2.13-3.2.14.jar",
@@ -70,11 +70,11 @@ object Main {
     "com.typesafe.akka/akka-remote_2.13/jars/akka-remote_2.13-2.7.0.jar",
     "com.typesafe.akka/akka-stream_2.13/jars/akka-stream_2.13-2.7.0.jar",
 
-    "com.typesafe.play/play_2.13/jars/play_2.13-2.9.0-M4.jar",
-    "com.typesafe.play/play-configuration_2.13/jars/play-configuration_2.13-2.9.0-M4.jar",
-    "com.typesafe.play/play-functional_2.13/jars/play-functional_2.13-2.10.0-RC7.jar",
-    "com.typesafe.play/play-json_2.13/jars/play-json_2.13-2.10.0-RC7.jar",
-    "com.typesafe.play/play-streams_2.13/jars/play-streams_2.13-2.9.0-M4.jar",
+    "com.typesafe.play/play_2.13/jars/play_2.13-2.8.19.jar",
+//    "com.typesafe.play/play-configuration_2.13/jars/play-configuration_2.13-2.9.0-M4.jar",
+    "com.typesafe.play/play-functional_2.13/jars/play-functional_2.13-2.8.2.jar",
+    "com.typesafe.play/play-json_2.13/jars/play-json_2.13-2.8.2.jar",
+    "com.typesafe.play/play-streams_2.13/jars/play-streams_2.13-2.8.19.jar",
 
     "co.fs2/fs2-core_2.13/jars/fs2-core_2.13-3.6.1.jar",
 

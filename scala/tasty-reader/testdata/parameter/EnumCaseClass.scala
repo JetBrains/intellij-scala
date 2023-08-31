@@ -25,6 +25,18 @@ trait EnumCaseClass {
     case Class(x: Int)(y: Long)
   }
 
+  enum MultipleClausesEmpty1 {
+    case Class()(y: Long)
+  }
+
+  enum MultipleClausesEmpty2 {
+    case Class(x: Int)()
+  }
+
+  enum MultipleClausesEmpty3 {
+    case Class()()
+  }
+
   enum TypeAndValueParameters {
     case Class[A](x: Int)
   }

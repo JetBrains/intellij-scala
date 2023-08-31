@@ -25,7 +25,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ast.EqualityOperator", // No case object _==
     "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
-    "io.getquill.context.Execution", // Cannot resolve
     "io.getquill.context.InsertUpdateMacro", // Enum
     "io.getquill.context.LiftMacro", // Function1
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this

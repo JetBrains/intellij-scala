@@ -13,5 +13,11 @@ trait Trait {
 
   trait MultipleClauses(x: Int)(y: Long)
 
+  trait MultipleClausesEmpty1()(y: Long)
+
+  trait MultipleClausesEmpty2(x: Int)()
+
+  trait MultipleClausesEmpty3()()
+
   trait TypeAndValueParameters[A](x: Int)
 }

@@ -776,6 +776,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
+        if (open) {
+          sb ++= ")"
+          open = false
+        }
         sb ++= "()"
       case Node1(SPLITCLAUSE) =>
         sb ++= ")"
@@ -862,7 +866,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       }
     }
     if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
-      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()") {
+      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
         sb.delete(sb.length - 2, sb.length())
       }
     }
