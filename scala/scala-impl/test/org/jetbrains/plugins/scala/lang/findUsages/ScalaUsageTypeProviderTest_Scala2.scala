@@ -131,7 +131,6 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
     )
   }
 
-
   //NOTE: this test covers current behaviour
   //It might not reflect the 100% desired behaviour
   //(e.g. maybe in the future we decide that find usage on class should also show apply methods invocations)
@@ -388,4 +387,849 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                Reference expression[x] -> Value read
       |""".stripMargin
   )
+
+  private val MyBaseClassWithFunctionDefinitions =
+    """class MyBaseClass[T <: AnyRef] {
+      |  def foo0: String = ???
+      |  def foo1(x: Int): String = ???
+      |  def foo2(t: T): String = ???
+      |  def foo3[E](e: E): String = ???
+      |  def foo4[E](e: E, t: T): String = ???
+      |}
+      |""".stripMargin
+
+  def testDelegateToSuperMethod_SameParameters(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_DelegateToSuper_SameParameters extends MyBaseClass[String] {
+         |  override def foo0 = super.foo0
+         |  override def foo1(x: Int) = super.foo1(x)
+         |  override def foo2(t: String) = super[MyBaseClass].foo2(t)
+         |  override def foo3[E](e: E) = super.foo3(e)
+         |  override def foo4[E](e: E, t: String) = super.foo4(e, t)
+         |}
+         |""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper_SameParameters]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        function definition[foo0] -> Value read
+        |          modifiers -> Value read
+        |          Reference expression[foo0] -> Delegate to super method
+        |            Super reference -> Delegate to super method
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[x] -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo2] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[t] -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo3] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[e] -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo4] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[e] -> Value read
+        |              Reference expression[t] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateToSuperMethod_DifferentParameters(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""|class MyChildClass_DelegateToSuper_DifferentParameters extends MyBaseClass[String] {
+         |  override def foo1(x: Int) = super.foo1(42)
+         |  override def foo2(t: String) = super.foo2("42")
+         |  override def foo3[E](e: E) = super.foo3(???)
+         |  override def foo4[E](e: E, t: String) = super.foo4(???, ???)
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper_DifferentParameters]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              IntegerLiteral -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo2] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              StringLiteral -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo3] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[???] -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo4] -> Delegate to super method
+        |              Super reference -> Delegate to super method
+        |            arguments of function -> Value read
+        |              Reference expression[???] -> Value read
+        |              Reference expression[???] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateToSuperMethod_DifferentMethod(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_DelegateToSuper_DifferentMethod extends MyBaseClass[String] {
+         |  override def foo0 = super.foo1(42)
+         |  override def foo1(x: Int) = super.foo0
+         |  override def foo2(t: String) = super.foo0
+         |  override def foo3[E](e: E) = super.foo0
+         |  override def foo4[E](e: E, t: String) = super.foo0
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper_DifferentMethod]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        function definition[foo0] -> Value read
+        |          modifiers -> Value read
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Super reference -> Value read
+        |            arguments of function -> Value read
+        |              IntegerLiteral -> Value read
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testCallViaSuperReference_FromAnotherMethod(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_CallViaSuperReference_FromAnotherMethod extends MyBaseClass[String] {
+         |  def bar0 = super.foo1(42)
+         |  def bar1(x: Int) = super.foo0
+         |  def bar2(t: String) = super.foo0
+         |  def bar3[E](e: E) = super.foo0
+         |  def bar4[E](e: E, t: String) = super.foo0
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_CallViaSuperReference_FromAnotherMethod]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        function definition[bar0] -> Value read
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Super reference -> Value read
+        |            arguments of function -> Value read
+        |              IntegerLiteral -> Value read
+        |        function definition[bar1] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[bar2] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[bar3] -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |        function definition[bar4] -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Super reference -> Value read
+        |""".stripMargin
+    )
+  }
+
+  //NOTE: The correct behaviour for deleting to other instances has not yet been implemented
+  //The expected data reflects current behaviour and not the desired one
+  def testDelegateToOtherInstance_SameParameters(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_DelegateToOtherInstance_SameParameters extends MyBaseClass[String] {
+         |  private val delegate: MyBaseClass[String] = ???
+         |  override def foo0 = delegate.foo0
+         |  override def foo1(x: Int) = delegate.foo1(x)
+         |  override def foo2(t: String) = delegate.foo2(t)
+         |  override def foo3[E](e: E) = delegate.foo3(e)
+         |  override def foo4[E](e: E, t: String) = delegate.foo4(e, t)
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToOtherInstance_SameParameters]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |            access modifier -> Access Modifier
+        |          pattern list -> Value read
+        |            reference pattern[delegate] -> Value read
+        |          type generic call -> Field declaration
+        |            simple type -> Field declaration
+        |              reference[MyBaseClass] -> Field declaration
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |          Reference expression[???] -> Value read
+        |        function definition[foo0] -> Value read
+        |          modifiers -> Value read
+        |          Reference expression[foo0] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[x] -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo2] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[t] -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo3] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[e] -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo4] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[e] -> Value read
+        |              Reference expression[t] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  //NOTE: The correct behaviour for deleting to other instances has not yet been implemented
+  //The expected data reflects current behaviour and not the desired one
+  def testDelegateToOtherInstance_DifferentParameters(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_DelegateToOtherInstance_DifferentParameters extends MyBaseClass[String] {
+         |  private val delegate: MyBaseClass[String] = ???
+         |  override def foo1(x: Int) = delegate.foo1(42)
+         |  override def foo2(t: String) = delegate.foo2("42")
+         |  override def foo3[E](e: E) = delegate.foo3(???)
+         |  override def foo4[E](e: E, t: String) = delegate.foo4(???, ???)
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToOtherInstance_DifferentParameters]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |            access modifier -> Access Modifier
+        |          pattern list -> Value read
+        |            reference pattern[delegate] -> Value read
+        |          type generic call -> Field declaration
+        |            simple type -> Field declaration
+        |              reference[MyBaseClass] -> Field declaration
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |          Reference expression[???] -> Value read
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              IntegerLiteral -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo2] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              StringLiteral -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo3] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[???] -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Method call -> Value read
+        |            Reference expression[foo4] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              Reference expression[???] -> Value read
+        |              Reference expression[???] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  //NOTE: The correct behaviour for deleting to other instances has not yet been implemented
+  //The expected data reflects current behaviour and not the desired one
+  def testDelegateToOtherInstance_DifferentMethod(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
+    doTest(
+      s"""class MyChildClass_DelegateToOtherInstance_DifferentMethod extends MyBaseClass[String] {
+         |  private val delegate: MyBaseClass[String] = ???
+         |  override def foo0 = delegate.foo1(42)
+         |  override def foo1(x: Int) = delegate.foo0
+         |  override def foo2(t: String) = delegate.foo0
+         |  override def foo3[E](e: E) = delegate.foo0
+         |  override def foo4[E](e: E, t: String) = delegate.foo0
+         |}
+         |""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToOtherInstance_DifferentMethod]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          type generic call -> Usage in extends/implements clause
+        |            simple type -> Usage in extends/implements clause
+        |              reference[MyBaseClass] -> Usage in extends/implements clause
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |            access modifier -> Access Modifier
+        |          pattern list -> Value read
+        |            reference pattern[delegate] -> Value read
+        |          type generic call -> Field declaration
+        |            simple type -> Field declaration
+        |              reference[MyBaseClass] -> Field declaration
+        |            type arguments -> Type parameter
+        |              simple type -> Type parameter
+        |                reference[String] -> Type parameter
+        |          Reference expression[???] -> Value read
+        |        function definition[foo0] -> Value read
+        |          modifiers -> Value read
+        |          Method call -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Reference expression[delegate] -> Value read
+        |            arguments of function -> Value read
+        |              IntegerLiteral -> Value read
+        |        function definition[foo1] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[x] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[Int] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        function definition[foo2] -> Value read
+        |          modifiers -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        function definition[foo3] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        function definition[foo4] -> Value read
+        |          modifiers -> Value read
+        |          type parameter clause -> Value read
+        |            type parameter[E] -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |              parameter[e] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[E] -> Method parameter declaration
+        |              parameter[t] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[String] -> Method parameter declaration
+        |          Reference expression[foo0] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  private val MyBaseClassWithFunctionDefinitionsForValOverriders =
+    """class MyBaseClass {
+      |  def foo1: Int = 1
+      |  def foo2: Int = 2
+      |}
+      |""".stripMargin
+
+  def testDelegateFromValToSuper(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitionsForValOverriders)
+    doTest(
+      s"""class MyChildClass_DelegateToSuper extends MyBaseClass {
+         |  override val foo1: Int = super.foo1
+         |  override lazy val foo2: Int = super.foo2
+         |}
+         |""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          simple type -> Usage in extends/implements clause
+        |            reference[MyBaseClass] -> Usage in extends/implements clause
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo1] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo1] -> Delegate to super method
+        |            Super reference -> Delegate to super method
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo2] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo2] -> Delegate to super method
+        |            Super reference -> Delegate to super method
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateFromValToSuper_DifferentMethod(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitionsForValOverriders)
+    doTest(
+      s"""class MyChildClass_DelegateToSuper_DifferentMethod extends MyBaseClass {
+         |  override val foo1: Int = super.foo2
+         |  override lazy val foo2: Int = super.foo1
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper_DifferentMethod]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          simple type -> Usage in extends/implements clause
+        |            reference[MyBaseClass] -> Usage in extends/implements clause
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo1] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo2] -> Value read
+        |            Super reference -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo2] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo1] -> Value read
+        |            Super reference -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateFromValToSuper_DifferentMethod_MultipleDefinitionInPattern(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitionsForValOverriders)
+    doTest(
+      s"""class MyChildClass_DelegateToSuper_DifferentMethod_MultipleValues extends MyBaseClass {
+         |  override val (foo1, foo2) = (super.foo1, super.foo2)
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToSuper_DifferentMethod_MultipleValues]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          simple type -> Usage in extends/implements clause
+        |            reference[MyBaseClass] -> Usage in extends/implements clause
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            Tuple Pattern -> Value read
+        |              patterns -> Value read
+        |                reference pattern[foo1] -> Value read
+        |                reference pattern[foo2] -> Value read
+        |          Tuple -> Value read
+        |            Reference expression[foo1] -> Value read
+        |              Super reference -> Value read
+        |            Reference expression[foo2] -> Value read
+        |              Super reference -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateFromValToOtherInstance(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitionsForValOverriders)
+    doTest(
+      s"""class MyChildClass_DelegateToOtherInstance extends MyBaseClass {
+         |  private val delegate: MyBaseClass = ???
+         |  override val foo1: Int = delegate.foo1
+         |  override lazy val foo2: Int = delegate.foo2
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToOtherInstance]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          simple type -> Usage in extends/implements clause
+        |            reference[MyBaseClass] -> Usage in extends/implements clause
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |            access modifier -> Access Modifier
+        |          pattern list -> Value read
+        |            reference pattern[delegate] -> Value read
+        |          simple type -> Field declaration
+        |            reference[MyBaseClass] -> Field declaration
+        |          Reference expression[???] -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo1] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo1] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo2] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo2] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testDelegateFromValToOtherInstance_DifferentMethod(): Unit = {
+    myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitionsForValOverriders)
+    doTest(
+      s"""class MyChildClass_DelegateToOtherInstance_DifferentMethod extends MyBaseClass {
+         |  private val delegate: MyBaseClass = ???
+         |  override val foo1: Int = delegate.foo2
+         |  override lazy val foo2: Int = delegate.foo1
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyChildClass_DelegateToOtherInstance_DifferentMethod]
+        |    extends block
+        |      template parents
+        |        constructor -> Usage in extends/implements clause
+        |          simple type -> Usage in extends/implements clause
+        |            reference[MyBaseClass] -> Usage in extends/implements clause
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |            access modifier -> Access Modifier
+        |          pattern list -> Value read
+        |            reference pattern[delegate] -> Value read
+        |          simple type -> Field declaration
+        |            reference[MyBaseClass] -> Field declaration
+        |          Reference expression[???] -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo1] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo2] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |        value definition -> Value read
+        |          modifiers -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[foo2] -> Value read
+        |          simple type -> Field declaration
+        |            reference[Int] -> Field declaration
+        |          Reference expression[foo1] -> Value read
+        |            Reference expression[delegate] -> Value read
+        |""".stripMargin
+    )
+  }
 }

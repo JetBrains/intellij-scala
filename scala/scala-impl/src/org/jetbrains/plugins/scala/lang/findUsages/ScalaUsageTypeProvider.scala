@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.usages.impl.rules.UsageType._
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -77,25 +79,57 @@ object ScalaUsageTypeProvider {
       case _                          => false
     }
 
-  def referenceExpressionUsageType(referenceExpr: ScReferenceExpression): UsageType = {
+  def referenceExpressionUsageType(referenceExpr: ScReferenceExpression): Option[UsageType] = {
     def resolvedElement(result: ScalaResolveResult) =
       result.innerResolveResult
         .getOrElse(result).element
 
     val referenceResolved: Option[PsiNamedElement] = referenceExpr.bind().map(resolvedElement)
-    referenceResolved.collect {
+    referenceResolved.flatMap {
       case function: ScFunction if function.isApplyMethod =>
-        MethodApply
+        Some(MethodApply)
       case _: ScPrimaryConstructor | AuxiliaryConstructor(_) =>
         //Handle Scala 3 "Universal Apply Methods" (https://docs.scala-lang.org/scala3/reference/other-new-features/creator-applications.html)
         //Even though there is no "new" keyword, it seems we should place usages in same group
         //So `new MyClass()` and `MyClass()` (when it's not invocation of apply method) should be placed in same group
         //Note, on UI it will be called "New instance creation", "new" keyword won't be mentioned
-        CLASS_NEW_OPERATOR
+        Some(CLASS_NEW_OPERATOR)
       case definition: ScFunctionDefinition if isAncestor(definition, referenceExpr, false) =>
-        RECURSION
-    }.orNull
+        Some(RECURSION)
+      case definition: ScFunctionDefinition =>
+        val qualifier = referenceExpr.qualifier
+        qualifier.flatMap {
+          case _: ScSuperReference =>
+            //NOTE: In Java they also support DELEGATE_TO_SUPER_PARAMETERS_CHANGED, DELEGATE_TO_ANOTHER_INSTANCE, DELEGATE_TO_ANOTHER_INSTANCE_PARAMETERS_CHANGED
+            //We don't do it here due to performance reasons. Implementation would require traversal of class signatures
+            //in many found places, in Scala it might cause some performance issues and should be done very carefully
+            val containerDefinition = PsiTreeUtil.getParentOfType(referenceExpr, classOf[ScFunctionDefinition], classOf[ScPatternDefinition])
+            val isDelegateToSuper = !containerDefinition.isLocal && hasSameName(definition, containerDefinition)
+            if (isDelegateToSuper) Some(DELEGATE_TO_SUPER) else None
+          case _ =>
+            None
+        }
+      case _ =>
+        None
+    }
   }
+
+  //TODO: handle @targetName in Scala 3?
+  private def hasSameName(baseMethod: ScFunctionDefinition, member: ScMember) =
+    member match {
+      case f: ScFunctionDefinition =>
+        f.name == baseMethod.name
+      case v: ScPatternDefinition =>
+        v.declaredNames match {
+          case Seq(singleName) => singleName == baseMethod.name
+          case _ =>
+            //NOTE: we ignore with multiple definitions in same pattern: `override val (foo1, foo2) = (super.foo1, super.foo2)`
+            // This is done for the simplicity of current implementation
+            false
+        }
+      case _ =>
+        false
+    }
 
   def patternUsageType(pattern: ScPattern): UsageType = {
     def isPatternAncestor(element: PsiElement) = isAncestor(element, pattern, false)
@@ -167,10 +201,9 @@ object ScalaUsageTypeProvider {
       case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
       case _: ScInterpolatedExpressionPrefix => PrefixInterpolatedString
-      case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
+      case expression: ScReferenceExpression => referenceExpressionUsageType(expression).orNull
       case expression: ScAnnotationExpr if existsAppropriate(expression.constructorInvocation.reference) => ANNOTATION
       case reference: ScThisReference if existsAppropriate(reference.reference) => ThisReference
-      case reference: ScSuperReference if existsAppropriate(reference.reference) => DELEGATE_TO_SUPER
       case _: ScAccessModifier => AccessModifier
       case packaging: ScPackaging if existsAppropriate(packaging.reference) => PackageClause
       case assignment: ScAssignment if isAppropriate(assignment.leftExpression) =>
