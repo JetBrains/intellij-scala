@@ -280,7 +280,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       val derived = definition match {
         case Some(node) => node.nextSiblings.take(2).toSeq match {
           case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _)) if name2 == name1 + "$" && node.name == name1 => cobj.firstChild.children.collect {
-            case Node2(VALDEF, Seq(name)) if name.startsWith("derived$") => name.substring(8)
+            case Node3(VALDEF, Seq(name), Seq(Node3(APPLIEDtpt | APPLIEDtype, _, Seq(tc, _: _*)), _: _*)) if name.startsWith("derived$") => textOfType(tc)
           }
           case _ => Seq.empty
         }
