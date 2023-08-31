@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.findUsages.factory
+package org.jetbrains.plugins.scala.findUsages.factory.dialog
 
 import com.intellij.find.FindBundle
 import com.intellij.find.findUsages._
@@ -7,10 +7,12 @@ import com.intellij.ui.{IdeBorderFactory, StateRestoringCheckBox}
 import com.intellij.util.ui.JBUI.Borders
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.findUsages.factory.ScalaTypeDefinitionFindUsagesOptions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 import javax.swing.{BoxLayout, JComponent, JPanel}
 
+private[findUsages]
 class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Project, findUsagesOptions: FindUsagesOptions,
                                       toShowInNewTab: Boolean, mustOpenInNewTab: Boolean, isSingleFile: Boolean,
                                       handler: FindUsagesHandler)

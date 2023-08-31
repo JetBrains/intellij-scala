@@ -4,7 +4,7 @@ import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.Parent
-import org.jetbrains.plugins.scala.findUsages.factory.dialog.ScalaOverridableMemberFindUsagesDialog
+import org.jetbrains.plugins.scala.findUsages.factory.dialog.{ScalaOverridableMemberFindUsagesDialog, ScalaTypeDefinitionUsagesDialog}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
