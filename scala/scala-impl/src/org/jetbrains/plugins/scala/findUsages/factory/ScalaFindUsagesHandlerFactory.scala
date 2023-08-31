@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -29,6 +29,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _: FakePsiMethod          => true
       case _: ScTypedDefinition      => true
       case _: ScTypeDefinition       => true
+      case _: ScTypeAlias            => true
       case _: ScPrimaryConstructor   => true
       case _: ScTypeParam            => true
       case _: PsiClassWrapper        => true
