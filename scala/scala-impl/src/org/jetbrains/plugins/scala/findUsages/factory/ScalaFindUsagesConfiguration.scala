@@ -32,6 +32,8 @@ final class ScalaFindUsagesConfiguration(project: Project) {
     compilerIndicesOptions = CompilerIndicesSettings(project)
   }
 
+  def getMemberOptions: ScalaMemberFindUsagesOptions = memberOptions
+
   def getFindUsagesOptions(element: PsiElement): Option[FindUsagesOptions] =
     element match {
       case _: ScTypeDefinition =>

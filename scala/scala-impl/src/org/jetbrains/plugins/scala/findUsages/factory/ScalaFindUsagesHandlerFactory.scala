@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -46,71 +43,57 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _                     => element
     }
 
+    val config = ScalaFindUsagesConfiguration.getInstance(project)
+
     val replaced =
       if (!forHighlightUsages) {
-        val maybeSuper             = suggestChooseSuper(unwrapped)
-        val settings               = CompilerIndicesSettings(project)
+        val maybeSuper = maybeChooseSuper(unwrapped, config)
+        val settings = CompilerIndicesSettings(project)
         val shouldSearchInBytecode = new ShouldBeSearchedInBytecode(settings)
         maybeSuper.flatMap {
           case shouldSearchInBytecode(target, usageType) =>
             val shouldProceed = doBeforeIndicesSearchAction(target, usageType)
             val isSAMSearch = usageType == UsageType.SAMInterfaceImplementation
             shouldProceed.option((target, !isSAMSearch))
-          case other => (other, false).toOption
+          case other =>
+            Some(other, false)
         }
-      } else Option((unwrapped, false))
+      }
+      else Some((unwrapped, false))
 
     replaced match {
       case Some((e, useCompilerIndices)) =>
-        val config = ScalaFindUsagesConfiguration.getInstance(project)
         if (useCompilerIndices) new CompilerIndicesFindUsagesHandler(e, config)
         else                    new ScalaFindUsagesHandler(e, config)
-      case None => FindUsagesHandler.NULL_HANDLER
+      case None =>
+        FindUsagesHandler.NULL_HANDLER
     }
   }
 
   private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement, usageType: UsageType): Boolean =
     ExternalSearchScopeChecker.checkSearchScopeIsSufficientExternally(target, usageType)
 
-  private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
-    def needToAsk(named: PsiNamedElement): Boolean = named match {
-      case fun: ScFunction
-          if fun.containingClass.qualifiedName.startsWith(FunctionType.TypeName) && fun.isApplyMethod =>
-        false
-      case _ => true
-    }
-
-    def showDialog(e: ScNamedElement): Option[PsiNamedElement] = {
-      import com.intellij.openapi.ui.Messages.{CANCEL, NO, YES}
-      val message = ScalaBundle.message("find.usages.member.has.supers", e.name)
-      val supers  = RenameSuperMembersUtil.allSuperMembers(e, withSelfType = true).filter(needToAsk)
-
-      val searchForSuperInstead =
-        if (supers.nonEmpty)
-          Messages.showYesNoCancelDialog(e.getProject, message, ScalaBundle.message("title.warning"), Messages.getQuestionIcon)
-        else NO
-
-      searchForSuperInstead match {
-        case `YES`    => Option(supers.last)
-        case `NO`     => Option(e)
-        case `CANCEL` => None
-      }
-    }
-
-    e match {
-      case named: ScNamedElement =>
-        showDialog(named)
-      case pc: ScPrimaryConstructor =>
-        Some(pc)
-      case _ =>
-        None
-    }
+  private def maybeChooseSuper(element: PsiElement, config: ScalaFindUsagesConfiguration) = element match {
+    case pc: ScPrimaryConstructor => Some(pc)
+    case named: ScNamedElement =>
+      if (config.getMemberOptions.isSearchForBaseMember)
+        Some(getDeepestSuperElement(named))
+      else
+        Some(named)
+    case _ =>
+      None
   }
-}
 
-object ScalaFindUsagesHandlerFactory {
-  def getInstance(project: Project): ScalaFindUsagesHandlerFactory = {
-    val extensions = FindUsagesHandlerFactory.EP_NAME.getExtensions(project)
-    ContainerUtil.findInstance(extensions, classOf[ScalaFindUsagesHandlerFactory])
+  private def getDeepestSuperElement(named: ScNamedElement): PsiNamedElement = {
+    val supersAll = RenameSuperMembersUtil.allSuperMembers(named, withSelfType = true)
+    val supers = supersAll.filter(isGoodSuperCandidate)
+    supers.lastOption.getOrElse(named)
+  }
+
+  private def isGoodSuperCandidate(named: PsiNamedElement): Boolean = named match {
+    case fun: ScFunction =>
+      val isFunctionApplyMethod = fun.containingClass.qualifiedName.startsWith(FunctionType.TypeName) && fun.isApplyMethod
+      !isFunctionApplyMethod
+    case _ => true
   }
 }

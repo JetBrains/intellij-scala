@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.findUsages.factory
 import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.findUsages.factory.dialog.ScalaOverridableMemberFindUsagesDialog
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
@@ -54,6 +56,27 @@ class ScalaFindUsagesHandlerBase(
           isSingleFile,
           this
         )
-      case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
+      case function: ScFunctionDefinition =>
+        new ScalaOverridableMemberFindUsagesDialog(
+          function,
+          getProject,
+          config.getMemberOptions,
+          toShowInNewTab,
+          mustOpenInNewTab,
+          isSingleFile,
+          this
+        )
+      case Parent(Parent(value: ScPatternDefinition)) =>
+        new ScalaOverridableMemberFindUsagesDialog(
+          value,
+          getProject,
+          config.getMemberOptions,
+          toShowInNewTab,
+          mustOpenInNewTab,
+          isSingleFile,
+          this
+        )
+      case _ =>
+        super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
     }
 }
