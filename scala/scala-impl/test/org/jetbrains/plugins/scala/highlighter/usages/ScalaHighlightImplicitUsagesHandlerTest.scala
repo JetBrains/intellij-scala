@@ -7,7 +7,10 @@ import org.junit.Assert
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCase {
+class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBase {
+
+  override def createHandler: HighlightUsagesHandlerBase[PsiElement] =
+    HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
 
   def testNoUsages(): Unit = {
     val code =
@@ -347,18 +350,4 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
 
     doTest(code, Seq("bToC", "5", "new A(5)", "new B(5, 5)"))
   }
-
-  def doTest(fileText: String, expected: Seq[String]): Unit = {
-    myFixture.configureByText("dummy.scala", fileText)
-    val handler = createHandler
-    val targets = handler.getTargets
-    Assert.assertEquals(1, targets.size())
-    handler.computeUsages(targets)
-    val actualUsages: Seq[String] = handler.getReadUsages.asScala.map(_.substring(getFile.getText)).toSeq
-    Assert.assertEquals(s"actual: $actualUsages, expected: $expected", expected, actualUsages)
-  }
-
-  def createHandler: HighlightUsagesHandlerBase[PsiElement] =
-    HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
-
 }

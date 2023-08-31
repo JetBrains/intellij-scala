@@ -1,18 +1,15 @@
-package org.jetbrains.plugins.scala
-package highlighter
-package usages
+package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.junit.Assert
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-import scala.jdk.CollectionConverters._
+class ScalaHighlightUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBase {
 
-class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_3_0
 
-  val | = CARET
+  override def createHandler: HighlightUsagesHandlerBase[PsiElement] =
+    HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
 
   def testReturn(): Unit = {
     val code =
@@ -20,7 +17,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
         |object AAA {
         |  def foo(): Int = {
         |    if (true) {
-        |      retu${|}rn 1
+        |      retu${CARET}rn 1
         |    }
         |    2
         |  }
@@ -33,7 +30,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object AAA {
-         |  de${|}f foo(): Int = {
+         |  de${CARET}f foo(): Int = {
          |    if (true) {
          |      return 1
          |    }
@@ -48,7 +45,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object AAA {
-         |  va${|}l foo: Int = {
+         |  va${CARET}l foo: Int = {
          |    if (true) 1
          |    else 2
          |  }
@@ -61,7 +58,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object AAA {
-         |  va${|}l (i, j) = (1, 2)
+         |  va${CARET}l (i, j) = (1, 2)
          |}
        """.stripMargin
     assertHandlerIsNull(code)
@@ -72,7 +69,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object Zoo {
-         |  va${|}r x = 10
+         |  va${CARET}r x = 10
          |}
        """.stripMargin
     doTest(code, Seq("10", "var"))
@@ -82,7 +79,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object Zoo {
-         |  v${|}ar (x, y) = (1, 2)
+         |  v${CARET}ar (x, y) = (1, 2)
          |}
        """.stripMargin
     assertHandlerIsNull(code)
@@ -93,7 +90,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
       s"""
          |object Koo {
          |  def foo(s: Any): Unit = s match {
-         |    ca${|}se _ =>
+         |    ca${CARET}se _ =>
          |      println(1)
          |      println(s)
          |    case _ => ()
@@ -107,7 +104,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object Koo {
-         |  def foo(s: Any): Unit = s m${|}atch {
+         |  def foo(s: Any): Unit = s m${CARET}atch {
          |    case _ =>
          |      println(1)
          |      println(s)
@@ -123,7 +120,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
       s"""
          |object Zoo {
          |  def foo(r: () => Unit): Unit = {
-         |    t${|}ry {
+         |    t${CARET}ry {
          |      r()
          |    } catch {
          |      case _: IndexOutOfBoundsException => println(":(")
@@ -139,7 +136,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
       s"""
          |object Zoo {
          |  def foo(s: Seq[String]): Unit = {
-         |    fo${|}r (a <- s) yield a
+         |    fo${CARET}r (a <- s) yield a
          |  }
          |}
        """.stripMargin
@@ -151,7 +148,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
       s"""
          |object Zoo {
          |  def foo(s: Seq[String]): Unit = {
-         |    i${|}f (s.isEmpty) println("empty")
+         |    i${CARET}f (s.isEmpty) println("empty")
          |    else println(s)
          |  }
          |}
@@ -164,7 +161,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
       s"""
          |object Zoo {
          |  def foo(s: Seq[String]): Unit = {
-         |    i${|}f (s.isEmpty)
+         |    i${CARET}f (s.isEmpty)
          |      println("empty")
          |  }
          |}
@@ -175,7 +172,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
     val code =
       s"""
          |object Zoo {
-         |  () =${|}> {
+         |  () =${CARET}> {
          |    println("A")
          |    1
          |  }
@@ -190,7 +187,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |object Zoo {
          |  () => {
          |    test {
-         |      case 3 =${|}>
+         |      case 3 =${CARET}>
          |    }
          |    1
          |  }
@@ -206,7 +203,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |object Zoo {
          |  () => {
          |    test {
-         |      case 3 =${|}>
+         |      case 3 =${CARET}>
          |        val x = 3
          |        x
          |    }
@@ -220,7 +217,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
   def testCompanionObject(): Unit = {
     val code =
       s"""
-         |o${|}bject Zoo
+         |o${CARET}bject Zoo
          |class Zoo
        """.stripMargin
     doTest(code, Seq("object", "class"))
@@ -229,7 +226,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
   def testCompanionClass(): Unit = {
     val code =
       s"""
-         |c${|}lass Zoo
+         |c${CARET}lass Zoo
          |object Zoo
        """.stripMargin
     doTest(code, Seq("class", "object"))
@@ -238,7 +235,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
   def testCompanionTrait(): Unit = {
     val code =
       s"""
-         |tra${|}it Zoo
+         |tra${CARET}it Zoo
          |object Zoo
          |}
        """.stripMargin
@@ -252,7 +249,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |  case Red
          |}
          |object A {
-         |  Color.Re${|}d
+         |  Color.Re${CARET}d
          |}
          |""".stripMargin
 
@@ -268,30 +265,10 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |}
          |
          |object A {
-         |  val n = println(Tree.No${|}de(1, Tree.Leaf, Tree.Leaf))
+         |  val n = println(Tree.No${CARET}de(1, Tree.Leaf, Tree.Leaf))
          |}
          |""".stripMargin
 
     doTest(code, Seq("Node", "Node"))
   }
-
-  def assertHandlerIsNull(fileText: String): Unit = {
-    myFixture.configureByText("dummy.scala", fileText)
-    assert(createHandler() == null)
-  }
-
-  def doTest(fileText: String, expected: Seq[String]): Unit = {
-    myFixture.configureByText("dummy.scala", fileText)
-    val handler = createHandler()
-    val targets = handler.getTargets
-//    Assert.assertEquals(1, targets.size())
-    handler.computeUsages(targets)
-    val actualUsages: Seq[String] = handler.getReadUsages.asScala.map(_.substring(getFile.getText)).toSeq
-    Assert.assertEquals(s"actual: $actualUsages, expected: $expected", expected, actualUsages)
-  }
-
-  def createHandler(): HighlightUsagesHandlerBase[PsiElement] = {
-    HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
-  }
-
 }
