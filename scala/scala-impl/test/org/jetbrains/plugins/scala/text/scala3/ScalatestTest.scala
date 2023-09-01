@@ -9,7 +9,6 @@ class ScalatestTest extends TextToTextTestBase(
   ),
   Seq("org.scalatest"), Set.empty, 660,
   Set(
-    "org.scalatest.MessageRecordingInformer", // Extra default arguments
     "org.scalatest.Suite", // FromJavaObject
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
     "org.scalatest.matchers.must.Matchers", // No this. prefix

@@ -193,7 +193,7 @@ private class ClassPrinter(isScala3: Boolean) {
     val tpe = textOf(p.`type`())
     val isAnonymous = isUsing && name == tpe // SCL-21204
     val repeated = if (p.isRepeatedParameter) "*" else ""
-    val default = if (p.isDefaultParam) " = ???" else ""
+    val default = if (p.baseDefaultParam) " = ???" else ""
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default
   }
 
