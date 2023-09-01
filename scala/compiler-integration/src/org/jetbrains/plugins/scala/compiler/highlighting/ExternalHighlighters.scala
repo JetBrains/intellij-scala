@@ -158,10 +158,8 @@ object ExternalHighlighters {
           } else standardBuilder
         } else standardBuilder
 
-      inReadAction {
-        val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
-        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
-      }
+      val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
+      fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
       highlightInfo.create()
     }
   }
@@ -232,10 +230,12 @@ object ExternalHighlighters {
     if (highlightInfoType != HighlightInfoType.WRONG_REF || DumbService.isDumb(file.getProject))
       return Seq.empty
 
-    val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
+    inReadAction {
+      val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
 
-    if (ref != null)
-      UnresolvedReferenceFixProvider.fixesFor(ref)
-    else Seq.empty
+      if (ref != null)
+        UnresolvedReferenceFixProvider.fixesFor(ref)
+      else Seq.empty
+    }
   }
 }
