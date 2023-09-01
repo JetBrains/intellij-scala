@@ -41,7 +41,7 @@ private class ClassPrinter(isScala3: Boolean) {
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
     }
 
     val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
@@ -116,7 +116,7 @@ private class ClassPrinter(isScala3: Boolean) {
     val name = if (isAnonymous) "" else f.name
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous) "" else ": ") + textOf(f.returnType)
+    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
   }
