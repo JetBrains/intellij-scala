@@ -882,7 +882,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case null                                    => "null"
       case value: String                           => quote(value, canUseMultiline = false)
       case Ref(Name(value))                        => quote(value, canUseMultiline = false)
-      case value: Char                             => "\'" + value + "\'"
+      case value: Char                             => "\'" + StringEscapeUtils.escapeJava(value.toString) + "\'"
       case value: Long                             => value.toString + "L"
       case value: Float                            => value.toString + "F"
       case value: Double                            => value.toString + "D"

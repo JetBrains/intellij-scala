@@ -586,11 +586,15 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case LONGconst => s"${node.value}L"
     case FLOATconst => s"${intBitsToFloat(node.value.toInt)}F"
     case DOUBLEconst => s"${longBitsToDouble(node.value)}D"
-    case CHARconst => "'" + node.value.toChar + "'"
-    case STRINGconst => "\"" + node.name.replace("\n", "\\n") + "\""
+    case CHARconst => "'" + escape(node.value.toChar.toString) + "'"
+    case STRINGconst => "\"" + escape(node.name) + "\""
     case NULLconst => "null"
     case _ => ""
   }
+
+  // TODO Complete
+  private def escape(s: String): String =
+    s.replace("\r", "\\r").replace("\n", "\\n")
 
   private def textOfArray(node: Node): String = node match {
     case Node3(APPLY, _, Seq(

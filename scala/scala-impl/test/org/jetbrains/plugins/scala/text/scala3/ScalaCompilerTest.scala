@@ -28,7 +28,6 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "dotty.tools.dotc.typer.OpenSearch", // TODO Parsing error
     "dotty.tools.dotc.typer.ProtoTypes", // Extra default argument
     "dotty.tools.dotc.typer.Synthesizer", // TODO Enum cases in companion object
-    "dotty.tools.dotc.util.Chars", // TODO As is \n char constant
     "dotty.tools.dotc.util.GenericHashMap", // Extra default argument
     "dotty.tools.dotc.util.HashSet", // Extra default argument
     "dotty.tools.dotc.util.WeakHashSet", // Extra default argument
