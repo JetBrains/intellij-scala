@@ -234,7 +234,7 @@ object ExternalHighlighters {
 
     val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
 
-    if (ref != null && ref.multiResolveScala(false).isEmpty)
+    if (ref != null)
       UnresolvedReferenceFixProvider.fixesFor(ref)
     else Seq.empty
   }
