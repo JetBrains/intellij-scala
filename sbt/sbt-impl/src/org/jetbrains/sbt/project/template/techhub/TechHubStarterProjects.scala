@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.jetbrains.plugins.scala.util.HttpDownloadUtil
 
 import java.io.{File, IOException}
+import scala.concurrent.duration.DurationInt
 import scala.util.Try
 
 case class IndexEntry(displayName: String, templateName: String, githubRepo: String, githubUrl: String,
@@ -24,7 +25,7 @@ private object TechHubStarterProjects {
   val dummyEntry: IndexEntry = IndexEntry("","","","","","","",Array.empty, Array.empty, EntryFeatured(0))
 
   def downloadIndex(): Try[Map[String, IndexEntry]] = {
-    val jsonTry = HttpDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5000, cancelable = false)
+    val jsonTry = HttpDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5.seconds, canBeCanceled = false, None)
     val gson = new Gson
 
     jsonTry.map { json =>
@@ -48,7 +49,7 @@ private object TechHubStarterProjects {
       // hack to pass required name param when necessary. currently only name param is ever required in the templates
       // _rawArchive=true gives us the template without any sbt launchers and scripts
       val url = s"${entry.downloadUrl}?name=$projectName&_rawArchive_=true"
-      HttpDownloadUtil.downloadContentToFile(url, pathTo)
+      TechHubDownloadUtil.downloadContentToFile(url, pathTo)
     } catch {
       case io: IOException =>
         onError(io.getMessage)

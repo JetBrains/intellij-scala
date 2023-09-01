@@ -176,7 +176,7 @@ object ImportAmmoniteDependenciesFix {
 
   def loadAmmoniteVersion(scalaVersion: String, cancelable: Boolean): Try[String] = {
     val url = s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/"
-    val lines: Try[Seq[String]] = HttpDownloadUtil.loadLinesFrom(url, cancelable)
+    val lines: Try[Seq[String]] = HttpDownloadUtil.loadLinesFrom(url, cancelable, None)
 
     val versions = lines.map(detectAmmoniteVersions)
     val version = versions.map(chooseAmmoniteVersion)
@@ -206,7 +206,7 @@ object ImportAmmoniteDependenciesFix {
   // TODO: why "versionS"?
   def loadScalaVersions(forScala: MyScalaVersion, cancelable: Boolean): Try[Option[Version]] = {
     val url = "https://repo1.maven.org/maven2/com/lihaoyi/"
-    val mavenInfoLines = HttpDownloadUtil.loadLinesFrom(url, cancelable)
+    val mavenInfoLines = HttpDownloadUtil.loadLinesFrom(url, cancelable, None)
     mavenInfoLines.map(detectScalaVersion(_, forScala))
   }
 
