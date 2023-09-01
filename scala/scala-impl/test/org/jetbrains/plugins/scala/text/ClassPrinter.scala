@@ -61,14 +61,6 @@ private class ClassPrinter(isScala3: Boolean) {
 
     val previousLength = sb.length
 
-    cls match {
-      case e: ScEnum =>
-        e.cases.foreach { c =>
-          sb ++= textOf(c, indent)
-        }
-      case _ =>
-    }
-
     cls.extendsBlock.members.foreach {
       case f: ScFunction =>
         sb ++= textOf(f, indent)
@@ -80,6 +72,14 @@ private class ClassPrinter(isScala3: Boolean) {
         sb ++= textOf(t, indent)
       case td: ScTypeDefinition =>
         printTo(sb, td, indent + "  ")
+      case _ =>
+    }
+
+    cls match {
+      case e: ScEnum =>
+        e.cases.foreach { c =>
+          sb ++= textOf(c, indent)
+        }
       case _ =>
     }
 
