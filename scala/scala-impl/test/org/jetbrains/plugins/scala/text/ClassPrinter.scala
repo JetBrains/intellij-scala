@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierLi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -44,6 +44,12 @@ private class ClassPrinter(isScala3: Boolean) {
       if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
     }
 
+    val derivations = {
+      val refs = cls.extendsBlock.derivesClause.map(_.derivedReferences).getOrElse(Seq.empty)
+      val fqns = refs.map(_.resolve()).collect { case f: ScTemplateDefinition => "_root_." + f.qualifiedName }
+      if (fqns.isEmpty) "" else " derives " + fqns.mkString(", ")
+    }
+
     val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
 
     val givenClauses = cls match {
@@ -51,7 +57,7 @@ private class ClassPrinter(isScala3: Boolean) {
       case _ => ""
     }
 
-    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + (if (isGiven) " with" else "") + " {" + selfType
+    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + derivations + (if (isGiven) " with" else "") + " {" + selfType
 
     val previousLength = sb.length
 
