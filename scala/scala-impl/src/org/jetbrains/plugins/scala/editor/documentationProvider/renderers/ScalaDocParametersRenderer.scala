@@ -26,7 +26,8 @@ final private [documentationProvider] class ScalaDocParameterRenderer(typeRender
   override def render(buffer: StringBuilder, param: ScParameter): Unit = {
     parameterAnnotations(buffer, param)
     WithHtmlPsiLink.renderer.render(buffer, param)
-    buffer.appendKeyword(keywordPrefix(param))
+    val keyword = keywordPrefix(param)
+    if (keyword.nonEmpty) buffer.appendKeyword(keyword)
     buffer.append(TextEscaper.Html.escape(param.name))
     typeAnnotationRenderer.render(buffer, param)
   }
