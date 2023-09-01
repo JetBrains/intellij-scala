@@ -158,7 +158,7 @@ object ExternalHighlighters {
           } else standardBuilder
         } else standardBuilder
 
-      val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
+      val fixes = findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
       fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
       highlightInfo.create()
     }
@@ -223,9 +223,9 @@ object ExternalHighlighters {
     if (lastLineSeparator > 0) trimmed.substring(lastLineSeparator).trim else ""
   }
 
-  private def findQuickFixes(file: PsiFile,
-                             range: TextRange,
-                             highlightInfoType: HighlightInfoType): Seq[IntentionAction] = {
+  private def findUnresolvedReferenceFixes(file: PsiFile,
+                                           range: TextRange,
+                                           highlightInfoType: HighlightInfoType): Seq[IntentionAction] = {
     // e.g. on opening project we are in dump mode, and can't do resolve to search quickfixes
     if (highlightInfoType != HighlightInfoType.WRONG_REF || DumbService.isDumb(file.getProject))
       return Seq.empty
