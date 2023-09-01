@@ -21,7 +21,7 @@ object Versions {
     final def loadVersionsWithProgress(): Versions = {
       val cancelable = true
       val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
-           entities.flatMap(loadVersions(_, cancelable))
+           entities.flatMap(loadVersions(_, cancelable, None))
       }
       val versions = loaded
         .sorted
@@ -72,13 +72,12 @@ object Versions {
     )
   }
 
-  private def loadVersions(entity: Entity, cancelable: Boolean)
-                          (implicit indicatorOpt: Option[ProgressIndicator] = None): Seq[Version] = {
+  private def loadVersions(entity: Entity, cancelable: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = {
     entity match {
       case DownloadableEntity(url, minVersionStr, hardcodedVersions, versionPattern) =>
         val minVersion = Version(minVersionStr)
 
-        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable)
+        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt)
         val versionStrings = lines.fold(
           Function.const(hardcodedVersions),
           extractVersions(_, versionPattern)
@@ -95,11 +94,9 @@ object Versions {
       case pattern(number) => number
     }
 
-  def loadScala2Versions(cancelable: Boolean)
-                        (implicit indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, cancelable)
+  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt)
 
-  def loadSbt1Versions(cancelable: Boolean)
-                      (implicit indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, cancelable)
+  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt)
 
   private sealed trait Entity {
     def minVersion: String
@@ -124,12 +121,12 @@ object Versions {
     val ScalaEntity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       minVersion = Scala_2_10.major + ".0",
-      hardcodedVersions = ScalaVersion.allTestVersionsFor(scala2).map(_.minor).toList
+      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala2).map(_.minor).toList
     )
     val Scala3Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
       minVersion = Scala_3_0.major + ".0",
-      hardcodedVersions = ScalaVersion.allTestVersionsFor(scala3).map(_.minor).toList
+      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala3).map(_.minor).toList
     )
 
     private val CandidateVersionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r

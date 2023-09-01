@@ -60,9 +60,7 @@ object ScalaVersion {
       case _                     => None
     }
 
-  val allTestVersions: SortedSet[ScalaVersion] = allTestVersionsFor(LatestScalaVersions.all)
-
-  def allTestVersionsFor(scalaVersions: Seq[ScalaVersion]): SortedSet[ScalaVersion] = {
+  def generateAllMinorScalaVersions(scalaVersions: Seq[ScalaVersion]): SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
       latestVersion <- scalaVersions
       minor <- 0 to latestVersion.minorSuffix.toInt
@@ -90,19 +88,7 @@ object LatestScalaVersions {
   val Scala_3: ScalaVersion = Scala_3_3
   val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "1-RC5")
 
-  val all: Seq[ScalaVersion] = Seq(
-    Scala_2_9,
-    Scala_2_10,
-    Scala_2_11,
-    Scala_2_12,
-    Scala_2_13,
-    Scala_3_0,
-    Scala_3_1,
-    Scala_3_2,
-    Scala_3_3,
-  )
-
-  val scala2: Seq[ScalaVersion] = Seq(
+  val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,
     Scala_2_10,
     Scala_2_11,
@@ -110,10 +96,13 @@ object LatestScalaVersions {
     Scala_2_13
   )
 
-  val scala3: Seq[ScalaVersion] = Seq(
+  val allScala3: Seq[ScalaVersion] = Seq(
     Scala_3_0,
     Scala_3_1,
     Scala_3_2,
     Scala_3_3,
   )
+
+  val all: Seq[ScalaVersion] = allScala2 ++ allScala3
+
 }

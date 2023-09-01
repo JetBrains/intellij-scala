@@ -124,8 +124,8 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
   // 2_12_7 => 2.12.7
   private def selectVersion(versionStr: String): Option[ScalaVersion] = {
     val versionStrWithDots = versionStr.replace('_', '.')
-    ScalaVersion.allTestVersions.find(_.minor == versionStrWithDots)
-      .orElse(ScalaVersion.allTestVersions.filter(_.major == versionStrWithDots).lastOption)
+    ScalaSdkOwner.allTestVersions.find(_.minor == versionStrWithDots)
+      .orElse(ScalaSdkOwner.allTestVersions.filter(_.major == versionStrWithDots).lastOption)
   }
 
   private def extractTextForCurrentVersion(text: String, version: ScalaVersion): String = {
@@ -150,7 +150,7 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
       val resultsWithVersions = resultList
         .flatMap {
           case (Some(v), text) => Some(v -> text)
-          case (None, text) => Some(ScalaVersion.allTestVersions.head -> text)
+          case (None, text) => Some(ScalaSdkOwner.allTestVersions.head -> text)
         }
 
       assert(resultsWithVersions.map(_._1).sliding(2).forall { case Seq(a, b) => a < b})

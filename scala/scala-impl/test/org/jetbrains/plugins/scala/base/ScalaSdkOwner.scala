@@ -19,7 +19,7 @@ trait ScalaSdkOwner extends Test
       case Some(exactVersion) =>
         exactVersion
       case None =>
-        val supportedVersions = ScalaVersion.allTestVersions.filter(supportedIn)
+        val supportedVersions = allTestVersions.filter(supportedIn)
         val defaultVersion = defaultVersionOverride.getOrElse(defaultSdkVersion)
         val selectedVersion = selectVersion(defaultVersion, supportedVersions)
         selectedVersion
@@ -88,6 +88,7 @@ object ScalaSdkOwner {
   //       that should already work in newest version (SCL-15634)
   val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_10 // ScalaVersion.default
   val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
+  val allTestVersions: SortedSet[ScalaVersion] = ScalaVersion.generateAllMinorScalaVersions(LatestScalaVersions.all)
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions0: SortedSet[ScalaVersion]): ScalaVersion = {
     val possibleVersions = possibleVersions0.iteratorFrom(wantedVersion).toSeq
@@ -114,10 +115,10 @@ object ScalaSdkOwner {
     val property = scala.util.Properties.propOrNone("scala.sdk.test.version")
       .orElse(scala.util.Properties.envOrNone("SCALA_SDK_TEST_VERSION"))
     property.map(
-      ScalaVersion.fromString(_).filter(ScalaVersion.allTestVersions.contains).getOrElse(
+      ScalaVersion.fromString(_).filter(allTestVersions.contains).getOrElse(
         throw new AssertionError(
           "Scala SDK Version specified in environment variable SCALA_SDK_TEST_VERSION is not one of "
-            + ScalaVersion.allTestVersions.mkString(", ")
+            + allTestVersions.mkString(", ")
         )
       )
     )
