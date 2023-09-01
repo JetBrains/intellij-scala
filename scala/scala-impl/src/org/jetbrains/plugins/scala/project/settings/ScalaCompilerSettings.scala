@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, ScalaCompilerSettingsState}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
@@ -43,8 +43,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  additionalCompilerOptions: Seq[String],
                                  plugins: Seq[String]) {
 
-  import ScalaCompilerSettings.{DebuggingInfoLevelToScalacOption, ToggleOptions}
-
   //Fields defined here exist only as performance optimisation.
   //They are supposed to be frequently used during the code analyses.
   //For these settings we don't have separate setting on UI in the compiler profile settings
@@ -52,18 +50,9 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
   val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_")
   val strict: Boolean = additionalCompilerOptions.contains("-strict")
 
-  //TODO: SCL-16881 Support "Debugging info level" for dotty
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
     val state = toState
-    val toggledOptions = ToggleOptions.collect {
-      case (option, getter, _) if getter(state) => option
-    }
-
-    val debuggingLevelOption = if (!forScala3Compiler) DebuggingInfoLevelToScalacOption.get(debuggingInfoLevel) else None
-
-    val pluginOptions = plugins.map(path => "-Xplugin:" + path)
-
-    toggledOptions ++ debuggingLevelOption ++ pluginOptions ++ additionalCompilerOptions
+    ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(state, forScala3Compiler, canonisePath = false)
   }
 
   def toState: ScalaCompilerSettingsState = {
@@ -130,79 +119,8 @@ object ScalaCompilerSettings {
       plugins = state.plugins.toSeq
     )
 
-  def fromOptions(options: collection.Seq[String], compileOrder: CompileOrder): ScalaCompilerSettings = {
-    val state = new ScalaCompilerSettingsState
-    val normalizedOptions = normalized(options)
-    val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
-
-    optionToSetter.foreach {
-      case (option, setter) => setter(state, normalizedOptions.contains(option))
-    }
-
-    state.debuggingInfoLevel = DebuggingOptions
-      .find(p => normalizedOptions.contains(p._1))
-      .map(_._2)
-      .getOrElse(DebuggingInfoLevel.Vars)
-
-    state.plugins = normalizedOptions.collect {
-      case PluginOptionPattern(path) => path
-    }.toArray
-
-    state.additionalCompilerOptions = normalizedOptions.filterNot { option =>
-      optionToSetter.keySet.contains(option) ||
-        DebuggingOptions.keySet.contains(option) ||
-        PluginOptionPattern.findFirstIn(option).isDefined
-    }.toArray
-
-    state.compileOrder = compileOrder
-
+  def fromOptions(options: Seq[String], compileOrder: CompileOrder): ScalaCompilerSettings = {
+    val state = ScalaCompilerSettingsStateBuilder.stateFromOptions(options, compileOrder)
     fromState(state)
   }
-
-  private def normalized(options: collection.Seq[String]): Seq[String] = options.iterator.flatMap {
-    case "-language:macros" =>
-      Seq("-language:experimental.macros")
-
-    case option if option.startsWith("-language:") =>
-      option.substring(10).split(",").map("-language:" + _)
-
-    case option if option.startsWith("-Xplugin:") =>
-      option.substring(9).split(";").map("-Xplugin:" + _)
-
-    case option => Seq(option)
-  }.toSeq
-
-  private type BoolGetter = ScalaCompilerSettingsState => Boolean
-  private type BoolSetter = (ScalaCompilerSettingsState, Boolean) => Unit
-
-  private val ToggleOptions: Seq[(String, BoolGetter, BoolSetter)] = Seq(
-    ("-language:dynamics", _.dynamics, _.dynamics = _),
-    ("-language:postfixOps", _.postfixOps, _.postfixOps = _),
-    ("-language:reflectiveCalls", _.reflectiveCalls, _.reflectiveCalls = _),
-    ("-language:implicitConversions", _.implicitConversions, _.implicitConversions = _),
-    ("-language:higherKinds", _.higherKinds, _.higherKinds = _),
-    ("-language:existentials", _.existentials, _.existentials = _),
-    ("-language:experimental.macros", _.macros, _.macros = _),
-    ("-Xexperimental", _.experimental, _.experimental = _),
-    ("-nowarn", !_.warnings, (s, x) => s.warnings = !x),
-    ("-deprecation", _.deprecationWarnings, _.deprecationWarnings = _),
-    ("-unchecked", _.uncheckedWarnings, _.uncheckedWarnings = _),
-    ("-feature", _.featureWarnings, _.featureWarnings = _),
-    ("-optimise", _.optimiseBytecode, _.optimiseBytecode = _),
-    ("-explaintypes", _.explainTypeErrors, _.explainTypeErrors = _),
-    ("-no-specialization", !_.specialization, (s, x) => s.specialization = !x),
-    ("-P:continuations:enable", _.continuations, _.continuations = _))
-
-  private val DebuggingOptions: Map[String, DebuggingInfoLevel] = Map(
-    "-g:none" -> DebuggingInfoLevel.None,
-    "-g:source" -> DebuggingInfoLevel.Source,
-    "-g:line" -> DebuggingInfoLevel.Line,
-    "-g:vars" -> DebuggingInfoLevel.Vars,
-    "-g:notailcalls" -> DebuggingInfoLevel.Notailcalls
-  )
-
-  private val DebuggingInfoLevelToScalacOption =
-    DebuggingOptions.map(_.swap)
-
-  private val PluginOptionPattern = "-Xplugin:(.+)".r
 }

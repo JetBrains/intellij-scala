@@ -276,6 +276,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   )
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
+  .dependsOn(scalaLanguageUtils)
   .settings(
     name := "tasty-reader",
     organization := "JetBrains",
@@ -312,6 +313,7 @@ lazy val scalaImpl: sbt.Project =
     .dependsOn(
       compilerShared % "test->test;compile->compile",
       scalaApi,
+      scalaLanguageUtils,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
@@ -345,6 +347,11 @@ lazy val scalaImpl: sbt.Project =
       )
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
+
+//The module is meant to keep utilities which only depend on Scala standard library
+//and do not depend on other libraries or IntelliJ SDK
+lazy val scalaLanguageUtils: sbt.Project =
+  newProject("scala-utils-language", file("scala/scala-utils-language"))
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
@@ -570,6 +577,7 @@ lazy val nailgunRunners =
 
 lazy val decompiler =
   newProject("decompiler", file("scala/decompiler"))
+    .dependsOn(scalaLanguageUtils)
     .settings(
       libraryDependencies ++= DependencyGroups.decompiler,
       packageMethod := PackagingMethod.Standalone("lib/scalap.jar")

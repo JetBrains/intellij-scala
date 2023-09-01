@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaLangObjectFqn}
 
 final class ImportImplicitInstanceFix private (notFoundImplicitParams: () => Seq[ScalaResolveResult],
                                                owner: ImplicitArgumentsOwner,
@@ -137,7 +137,7 @@ object ImportImplicitInstanceFix {
   }
 
   private[this] def isRootClass(qualifiedName: String) = qualifiedName match {
-    case AnyRefFqn | AnyFqn | JavaObjectFqn => true
+    case AnyRefFqn | AnyFqn | JavaLangObjectFqn => true
     case _ => false
   }
 

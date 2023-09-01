@@ -3,19 +3,17 @@ package org.jetbrains.plugins.scala.highlighter.usages
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.util.Markers
-import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
+import org.jetbrains.plugins.scala.util.MarkersUtils
+import org.junit.Assert.assertEquals
 
 abstract class ScalaHighlightConstructorInvocationUsagesTestBase
-  extends ScalaLightCodeInsightFixtureTestCase
-    with AssertionMatchers
-    with Markers {
+  extends ScalaLightCodeInsightFixtureTestCase {
 
-  protected val |< = startMarker
-  protected val >| = endMarker
+  protected val start = MarkersUtils.startMarker
+  protected val end = MarkersUtils.endMarker
 
   protected def doTest(fileText: String): Unit = {
-    val (fileTextWithoutMarkers, expectedRanges) = extractMarker(fileText, caretMarker = Some(CARET))
+    val (fileTextWithoutMarkers, expectedRanges) = MarkersUtils.extractMarker(fileText, caretMarker = Some(CARET))
     val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
     val finalFileText = file.getText
 
@@ -28,7 +26,7 @@ abstract class ScalaHighlightConstructorInvocationUsagesTestBase
     val expected = rangeSeqToComparableString(expectedRanges, finalFileText)
     val actual = rangeSeqToComparableString(actualRanges, finalFileText)
 
-    actual shouldBe expected
+    assertEquals(expected, actual)
   }
 
   private def rangeSeqToComparableString(ranges: Seq[TextRange], fileText: String): String =

@@ -136,4 +136,24 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
        |val x: MyClass = ???
        |""".stripMargin
   )
+
+  def testFindExtensionOverriders(): Unit = {
+    doTest(
+      s"""
+         |trait FindMyMembers {
+         |  extension (x: String) def ${CARET}findMyExtension: String
+         |  def methodInTrait(): Unit = {
+         |    println("findMyExtension = " + "42".${start}findMyExtension$end)
+         |  }
+         |}
+         |
+         |class FindMyMembersImpl extends FindMyMembers {
+         |  extension (x: String) override def findMyExtension: String = ???
+         |
+         |  def methodInImpl(): Unit = {
+         |    println("findMyExtension = " + "42".${start}findMyExtension$end)
+         |  }
+         |}
+      """.stripMargin)
+  }
 }

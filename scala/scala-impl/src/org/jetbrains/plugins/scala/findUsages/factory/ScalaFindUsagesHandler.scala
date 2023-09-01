@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -25,6 +25,9 @@ class ScalaFindUsagesHandler(
   element: PsiElement,
   config: ScalaFindUsagesConfiguration
 ) extends ScalaFindUsagesHandlerBase(element, config) {
+
+  override def findReferencesToHighlight(target: PsiElement, searchScope: SearchScope): java.util.Collection[PsiReference] =
+    super.findReferencesToHighlight(target, searchScope)
 
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getStringsToSearch(element)
 
@@ -72,16 +75,28 @@ class ScalaFindUsagesHandler(
     processor: Processor[_ >: UsageInfo],
     options:   FindUsagesOptions
   ): Boolean = {
+    if (!super.processElementUsages(element, processor, options))
+      return false
 
-    if (!super.processElementUsages(element, processor, options)) return false
+    options match {
+      case scalaOptions: ScalaFindUsagesOptionsBase =>
+        val continue = scalaOptions match {
+          case typeDefOptions: ScalaTypeDefinitionFindUsagesOptions =>
+            processMemberUsages(element, processor, typeDefOptions) &&
+              processCompanionUsages(element, processor, typeDefOptions) &&
+              processSamUsagesWithCompilerReferences(element, processor, typeDefOptions) &&
+              processImplementingTypeDefinitionsUsages(element, processor, typeDefOptions) &&
+              processOverridingMembers(element, processor, scalaOptions) //TODO: Where to do it? Here or later? (see 4 lines below)
+          case _ => true
+        }
 
-    val scalaOptions = options.asOptionOf[ScalaTypeDefinitionFindUsagesOptions].getOrElse(return true)
-
-    processMemberUsages(element, processor, scalaOptions) &&
-      processCompanionUsages(element, processor, scalaOptions) &&
-      processOverridingMembers(element, processor, scalaOptions)
-      processSamUsagesWithCompilerReferences(element, processor, scalaOptions) &&
-      processImplementingTypeDefinitionsUsages(element, processor, scalaOptions)
+        if (continue)
+          processOverridingMembers(element, processor, scalaOptions)
+        else
+          false
+      case _ =>
+        true
+    }
   }
 
   override def isSearchForTextOccurrencesAvailable(psiElement: PsiElement, isSingleFile: Boolean): Boolean = !isSingleFile
@@ -149,14 +164,17 @@ class ScalaFindUsagesHandler(
       case _ => true
     }
 
-  private def processOverridingMembers(element: PsiElement,
-                                       processor: Processor[_ >: UsageInfo],
-                                       options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
-    val overriding = inReadAction {
+  private def processOverridingMembers(
+    element: PsiElement,
+    processor: Processor[_ >: UsageInfo],
+    options: ScalaFindUsagesOptionsBase
+  ): Boolean = {
+    val overriding: Array[PsiNamedElement] = inReadAction {
       element match {
         case (named: ScNamedElement) & inNameContext(member: ScMember) if member.isDefinedInClass =>
           ScalaOverridingMemberSearcher.search(named)
-        case _ => Array.empty[PsiNamedElement]
+        case _ =>
+          Array.empty[PsiNamedElement]
       }
     }
     overriding.forall(super.processElementUsages(_, processor, options))

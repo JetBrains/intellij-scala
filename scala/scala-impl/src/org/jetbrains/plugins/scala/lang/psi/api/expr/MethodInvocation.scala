@@ -7,8 +7,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-// A common trait for Infix, Postfix and Prefix expressions
-// and Method calls to handle them uniformly
+/**
+ * A common trait for  Method calls, Infix, Postfix and Prefix expressions to handle them uniformly
+ */
 trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
    * @return expression that will be the this-ref of the call

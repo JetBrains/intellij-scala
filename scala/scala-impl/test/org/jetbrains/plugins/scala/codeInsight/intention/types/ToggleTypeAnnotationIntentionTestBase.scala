@@ -1,53 +1,12 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package types
+package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Assert.{assertNotNull, assertTrue, fail}
 
-final class ToggleTypeAnnotationIntentionTest_WithKindProjector extends ScalaIntentionTestBase {
-  override def familyName: String = ToggleTypeAnnotation.FamilyName
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
-
-  override def setUp(): Unit = {
-    super.setUp()
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
-    )
-    defaultProfile.setSettings(newSettings)
-  }
-
-  def testTypeLambdaInline(): Unit = doTest(
-    s"""
-       |def foo: ({type L[A] = Either[String, A]})#L
-       |val ${caretTag}v = foo
-     """.stripMargin,
-    s"""
-       |def foo: ({type L[A] = Either[String, A]})#L
-       |val ${caretTag}v: Either[String, ?] = foo
-     """.stripMargin
-  )
-
-  def testTypeLambda(): Unit = doTest(
-    s"""
-       |def foo: ({type L[F[_]] = F[Int]})#L
-       |val ${caretTag}v = foo
-     """.stripMargin,
-    s"""
-       |def foo: ({type L[F[_]] = F[Int]})#L
-       |val ${caretTag}v: Lambda[F[_] => F[Int]] = foo
-     """.stripMargin
-  )
-}
-
-sealed abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestBase {
+abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestBase {
   override def familyName: String = ToggleTypeAnnotation.FamilyName
 
   def testCollectionFactorySimplification(): Unit = doTest(
@@ -276,39 +235,41 @@ sealed abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntenti
        |}
        |""".stripMargin
   )
-}
 
-final class ToggleTypeAnnotationIntentionTest_Scala2 extends ToggleTypeAnnotationIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
-
-  def testCollectionFactoryNoSimplification(): Unit = doTest(
-    "val v = Seq.empty[String].to[Seq]",
-    "val v: Seq[String] = Seq.empty[String].to[Seq]"
-  )
-
-  def testOptionFactoryNoSimplification(): Unit = doTest(
-    "val v = Option.empty[String].to[Option]",
-    "val v: Option[String] = Option.empty[String].to[Option]"
-  )
-}
-
-final class ToggleTypeAnnotationIntentionTest_Scala3 extends ToggleTypeAnnotationIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
-
-  override def testAddTypeToMatchPattern(): Unit = doTest(
-    s"""
-       |object Test {
-       |  0 match {
-       |    case x$caretTag =>
-       |  }
-       |}
-       |""".stripMargin,
-    s"""
-       |object Test {
-       |  0 match {
-       |    case x$caretTag: 0 =>
-       |  }
+  def testRemoveBaseClassesSerializableAndProduct(): Unit = doTest(
+    s"""sealed trait MyTrait
+      |
+      |case object MyObject1 extends MyTrait
+      |
+      |case object MyObject2 extends MyTrait
+      |
+      |object Usage {
+      |  val map$caretTag = Map(
+      |    MyObject1 -> "111",
+      |    MyObject2 -> "222"
+      |  )
+      |}
+      |""".stripMargin,
+    s"""sealed trait MyTrait
+       |
+       |case object MyObject1 extends MyTrait
+       |
+       |case object MyObject2 extends MyTrait
+       |
+       |object Usage {
+       |  val map$caretTag: Map[MyTrait, String] = Map(
+       |    MyObject1 -> "111",
+       |    MyObject2 -> "222"
+       |  )
        |}
        |""".stripMargin
   )
 }
+
+
+
+
+
+
+
+

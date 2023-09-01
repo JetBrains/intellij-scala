@@ -5,8 +5,8 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Te${CARET}st${>|}
-         |  val x: ${|<}Test${>|} = new ${|<}Test${>|}
+         |  class ${start}Te${CARET}st$end
+         |  val x: ${start}Test$end = new ${start}Test$end
          |}
        """.stripMargin
     doTest(code)
@@ -16,9 +16,9 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|}
-         |  val x: Test = new ${|<}Te${CARET}st${>|}
-         |  new ${|<}Test${>|}
+         |  class ${start}Test$end
+         |  val x: Test = new ${start}Te${CARET}st$end
+         |  new ${start}Test$end
          |}
        """.stripMargin
     doTest(code)
@@ -49,10 +49,10 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|} {
-         |    def ${|<}this${>|}(i: Int) = this()
+         |  class ${start}Test$end {
+         |    def ${start}this$end(i: Int) = this()
          |  }
-         |  val x: Test = new ${|<}Te${CARET}st${>|}(3)
+         |  val x: Test = new ${start}Te${CARET}st$end(3)
          |  new Test
          |}
          |""".stripMargin
@@ -82,7 +82,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
 
   def testAuxiliaryConstructorInvocationUsage_3(): Unit = {
     val code =
-      s"""class ${start}MyClass${end}(s: String) {
+      s"""class ${start}MyClass$end(s: String) {
          |  def this(x: Int) = this(x.toString)
          |  def ${start}this$end(x: Short) = this(x.toInt)
          |}
@@ -106,9 +106,9 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
       s"""
          |object Obj {
          |  class Test {
-         |    def ${|<}th${CARET}is${>|}(i: Int) = this()
+         |    def ${start}th${CARET}is$end(i: Int) = this()
          |  }
-         |  val x: Test = new ${|<}Test${>|}(3)
+         |  val x: Test = new ${start}Test$end(3)
          |  new Test
          |}
          |""".stripMargin
@@ -119,9 +119,9 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|}
-         |  val x: ${|<}Te${CARET}st${>|} = new ${|<}Test${>|}
-         |  new ${|<}Test${>|}
+         |  class ${start}Test$end
+         |  val x: ${start}Te${CARET}st$end = new ${start}Test$end
+         |  new ${start}Test$end
          |}
        """.stripMargin
     doTest(code)
@@ -131,9 +131,9 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  trait ${|<}Test${>|}
-         |  val x: ${|<}Test${>|} = new ${|<}Te${CARET}st${>|} {}
-         |  new ${|<}Test${>|} {}
+         |  trait ${start}Test$end
+         |  val x: ${start}Test$end = new ${start}Te${CARET}st$end {}
+         |  new ${start}Test$end {}
          |}
        """.stripMargin
     doTest(code)

@@ -69,9 +69,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/mutable/TreeSet.scala" -> Set(
       (1914,1927), // Type mismatch, expected: mutable.RedBlackTree.Tree[A, Null], actual: mutable.RedBlackTree.Tree[Nothing, Null]
     ),
-    "scala/collection/mutable/WrappedArray.scala" -> Set(
-      (2182,2213), // Expression of type mutable.WrappedArray[Nothing] doesn't conform to expected type mutable.WrappedArray[T]
-    ),
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
       (36189,36191), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
     ),

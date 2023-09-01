@@ -175,7 +175,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       "-feature",
       "-language:higherKinds",
       "-language:implicitConversions",
-      "-language:macros",
+      "-language:experimental.macros",
       "-language:postfixOps",
       "-language:reflectiveCalls",
       "-no-specialization",

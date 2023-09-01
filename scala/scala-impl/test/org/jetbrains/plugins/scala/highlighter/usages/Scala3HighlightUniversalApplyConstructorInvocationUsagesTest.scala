@@ -10,8 +10,8 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Te${CARET}st${>|}
-         |  val x: ${|<}Test${>|} = ${|<}Test${>|}()
+         |  class ${start}Te${CARET}st$end
+         |  val x: ${start}Test$end = ${start}Test$end()
          |}
        """.stripMargin
     doTest(code)
@@ -21,10 +21,10 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|}
-         |  val x: Test = ${|<}Te${CARET}st${>|}()
-         |  ${|<}Test${>|}()
-         |  new ${|<}Test${>|}
+         |  class ${start}Test$end
+         |  val x: Test = ${start}Te${CARET}st$end()
+         |  ${start}Test$end()
+         |  new ${start}Test$end
          |}
        """.stripMargin
     doTest(code)
@@ -61,10 +61,10 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|} {
-         |    def ${|<}this${>|}(i: Int) = this()
+         |  class ${start}Test$end {
+         |    def ${start}this$end(i: Int) = this()
          |  }
-         |  val x: Test = ${|<}Te${CARET}st${>|}(3)
+         |  val x: Test = ${start}Te${CARET}st$end(3)
          |  Test()
          |}
          |""".stripMargin
@@ -74,7 +74,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
 
   def testAuxiliaryConstructorInvocationUsage_WithUniversalApplySyntax_2(): Unit = {
     val code =
-      s"""class ${start}MyClass${end}(s: String) {
+      s"""class ${start}MyClass$end(s: String) {
          |  def ${start}this$end(x: Int) = this(x.toString)
          |  def this(x: Short) = ${start}this$end(x.toInt)
          |}
@@ -101,7 +101,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
 
   def testAuxiliaryConstructorInvocationUsage_WithUniversalApplySyntax_3(): Unit = {
     val code =
-      s"""class ${start}MyClass${end}(s: String) {
+      s"""class ${start}MyClass$end(s: String) {
          |  def this(x: Int) = this(x.toString)
          |  def ${start}this$end(x: Short) = this(x.toInt)
          |}
@@ -131,9 +131,9 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
       s"""
          |object Obj {
          |  class Test {
-         |    def ${|<}th${CARET}is${>|}(i: Int) = this()
+         |    def ${start}th${CARET}is$end(i: Int) = this()
          |  }
-         |  val x: Test = ${|<}Test${>|}(3)
+         |  val x: Test = ${start}Test$end(3)
          |  Test()
          |}
          |""".stripMargin
@@ -206,9 +206,9 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Test${>|}
-         |  val x: ${|<}Te${CARET}st${>|} = ${|<}Test${>|}()
-         |  ${|<}Test${>|}()
+         |  class ${start}Test$end
+         |  val x: ${start}Te${CARET}st$end = ${start}Test$end()
+         |  ${start}Test$end()
          |}
        """.stripMargin
     doTest(code)

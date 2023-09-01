@@ -31,7 +31,6 @@ import scala.jdk.CollectionConverters._
 final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   import overrideImplement._
-  import ScalaOIUtil.getElementAtCaretAdjustedForIndentationBasedSyntax
 
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
     targetElements(file, editor).nonEmpty
@@ -207,7 +206,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def findClassAtCaret(file: PsiFile, editor: Editor): ScTemplateDefinition = {
-    val elementAtCaret = getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
+    val elementAtCaret = ScalaGenerateMembersUtil.getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
     PsiTreeUtil.getContextOfType(elementAtCaret, classOf[ScTemplateDefinition])
   }
 

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
-import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -9,8 +8,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.editor.enterHandler.EnterHandlerUtils
-import org.jetbrains.plugins.scala.editor.{ScalaEditorUtils, ScalaIndentationSyntaxUtils}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
@@ -90,47 +87,12 @@ object ScalaOIUtil {
     file: PsiFile,
     editor: Editor
   ): Option[ScTemplateDefinition] = {
-    val elementAtCaret = getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
+    val elementAtCaret = ScalaGenerateMembersUtil.getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
     val templateDefinition = elementAtCaret.parentOfType(classOf[ScTemplateDefinition])
     templateDefinition.map {
       case enumCase: ScEnumCase => enumCase.enumParent
       case td => td
     }
-  }
-
-  //TODO: find a better place for this method
-  def getElementAtCaretAdjustedForIndentationBasedSyntax(file: PsiFile, editor: Editor): PsiElement = {
-    val caretOffset = editor.getCaretModel.getOffset
-    val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
-    val elementAtCaretFixed = elementAtCaret match {
-      case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
-        // in case when caret is right after the error end offset
-        PsiTreeUtil.prevLeaf(ws)
-      case (_: PsiWhiteSpace) & PrevElement(colon@ElementType(ScalaTokenTypes.tCOLON) & Parent(body: ScTemplateBody))
-        if file.isScala3File && body.exprs.isEmpty =>
-        // in case when caret is inside an empty template body in Scala 3 indentation-based syntax
-        colon
-      case ws: PsiWhiteSpace if file.isScala3File =>
-        //When we are in the end of indentation-based syntax template body
-        //we need to take into account current current indentation level when choosing template definition
-        val adjusted = getPreviousElementInSameIndentationLevel(file, editor, caretOffset, elementAtCaret)
-        adjusted.getOrElse(ws)
-      case e => e
-    }
-    elementAtCaretFixed
-  }
-
-  private def getPreviousElementInSameIndentationLevel(
-    file: PsiFile,
-    editor: Editor,
-    caretOffset: Int,
-    elementAtCaret: PsiElement
-  ): Option[PsiElement] = {
-    val indentOptions = CodeStyle.getIndentOptions(file)
-    val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, editor.getDocument.getCharsSequence, indentOptions.TAB_SIZE)
-    val caretIndentSize = caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret isn't inside code indent
-    val prevElementWithSameIndent = ScalaIndentationSyntaxUtils.previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
-    prevElementWithSameIndent.map(_._1)
   }
 
   def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean)

@@ -375,8 +375,10 @@ object InferUtil {
     }
 
     val nonValueType = (_nonValueType, expectedType) match {
-      case (tpt: ScTypePolymorphicType, Some(expected)) if !expected.equiv(Unit) => doLocalTypeInference(tpt, expected)
-      case _                                                                     => _nonValueType
+      case (tpt: ScTypePolymorphicType, Some(expected)) if !expected.equiv(Unit) =>
+        doLocalTypeInference(tpt, expected)
+      case _                                                                     =>
+        _nonValueType
     }
 
     if (!expr.is[ScExpression])
@@ -480,9 +482,12 @@ object InferUtil {
 
     val withoutImplicits = withoutImplicitClause(tpe)
     expr match {
-      case _: ScPostfixExpr | _: ScInfixExpr => withoutImplicits
-      case inv: MethodInvocation             => removeNComponents(withoutImplicits, countParameterLists(inv))
-      case _                                 => withoutImplicits
+      case _: ScPostfixExpr =>
+        withoutImplicits //SCL-17198
+      case inv: MethodInvocation =>
+        removeNComponents(withoutImplicits, countParameterLists(inv))
+      case _ =>
+        withoutImplicits
     }
   }
 
