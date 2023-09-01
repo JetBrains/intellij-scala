@@ -18,7 +18,8 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
                                   packages: Seq[String], packageExceptions: Set[String], minClassCount: Int,
                                   classExceptions: Set[String],
                                   includeScalaReflect: Boolean = false,
-                                  includeScalaCompiler: Boolean = false)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
+                                  includeScalaCompiler: Boolean = false,
+                                  astLoadingFilter: Boolean = true)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
 
   override protected val includeCompilerAsLibrary = includeScalaCompiler
 
@@ -32,7 +33,11 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
   def testTextToText(): Unit = {
     try {
       ScalaApplicationSettings.PRECISE_TEXT = true
-      AstLoadingFilter.disallowTreeLoading { () =>
+      if (astLoadingFilter) {
+        AstLoadingFilter.disallowTreeLoading { () =>
+          doTestTextToText()
+        }
+      } else {
         doTestTextToText()
       }
     } finally {
@@ -59,7 +64,11 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     classes.zipWithIndex.foreach { case (cls, i) =>
       println(f"$i%04d/$total%s: ${cls.qualifiedName}")
 
-      val actual = textOfCompilationUnit(cls)
+      val actual = try {
+        textOfCompilationUnit(cls)
+      } catch {
+        case e: Throwable => e.toString
+      }
 
       val expected = {
         val s1 = cls.getContainingFile.getText

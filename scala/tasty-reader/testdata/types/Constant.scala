@@ -15,7 +15,11 @@ trait Constant {
 
   final val v7 = 'c'
 
+  final val v7a = '\n'
+
   final val v8 = "String"
+
+  final val v8a = "\n"
 
   val v9/**//*: Int*/ = /**/123/*???*/
 

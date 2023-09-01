@@ -1,11 +1,11 @@
 package typeDefinition
 
 trait Derivation {
-  class Single derives Show
+  class Single derives /**//*typeDefinition.*/Show
 
-  class Multiple derives Show, Eq
+  class Multiple derives /**//*typeDefinition.*/Show, /**//*typeDefinition.*/Eq
 
-  class Companion derives Show
+  class Companion derives /**//*typeDefinition.*/Show
 
   object Companion
 }/**/

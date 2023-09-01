@@ -254,7 +254,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       val it = c.infoType
       val cons =
         if (c.isCase) defaultConstructor
-        else if (defaultConstructor.startsWith("()")) defaultConstructor.substring(2)
+        else if (defaultConstructor == "()" || defaultConstructor.startsWith("()(implicit ")) defaultConstructor.substring(2)
         else if (defaultConstructor.startsWith(" private ()") && defaultConstructor.length > 11) " private " + defaultConstructor.substring(11)
         else if (defaultConstructor.startsWith(" protected ()") && defaultConstructor.length > 13) " protected " + defaultConstructor.substring(13)
         else defaultConstructor
@@ -886,7 +886,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case null                                    => "null"
       case value: String                           => quote(value, canUseMultiline = false)
       case Ref(Name(value))                        => quote(value, canUseMultiline = false)
-      case value: Char                             => "\'" + value + "\'"
+      case value: Char                             => "\'" + StringEscapeUtils.escapeJava(value.toString) + "\'"
       case value: Long                             => value.toString + "L"
       case value: Float                            => value.toString + "F"
       case value: Double                            => value.toString + "D"

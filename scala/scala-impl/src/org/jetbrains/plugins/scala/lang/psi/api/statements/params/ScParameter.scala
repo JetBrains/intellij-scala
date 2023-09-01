@@ -47,6 +47,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def isCallByNameParameter: Boolean
 
+  // TODO hasDeclaredDefaultArgument
   def baseDefaultParam: Boolean
 
   def getActualDefaultExpression: Option[ScExpression]
@@ -123,6 +124,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def getTypeNoResolve: PsiType = PsiTypeConstants.Void
 
+  // TODO hasDefaultArgument
   def isDefaultParam: Boolean = _isDefaultParam()
 
   private val _isDefaultParam = cached("isDefaultParam", BlockModificationTracker(this), () => {

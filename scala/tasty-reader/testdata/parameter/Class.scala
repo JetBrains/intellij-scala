@@ -13,5 +13,11 @@ trait Class {
 
   class MultipleClauses(x: Int)(y: Long)
 
+  class MultipleClausesEmpty1()(y: Long)
+
+  class MultipleClausesEmpty2(x: Int)()
+
+  class MultipleClausesEmpty3()()
+
   class TypeAndValueParameters[A](x: Int)
 }

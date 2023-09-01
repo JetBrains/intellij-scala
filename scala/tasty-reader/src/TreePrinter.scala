@@ -281,7 +281,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       val derived = definition match {
         case Some(node) => node.nextSiblings.take(2).toSeq match {
           case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _)) if name2 == name1 + "$" && node.name == name1 => cobj.firstChild.children.collect {
-            case Node2(VALDEF, Seq(name)) if name.startsWith("derived$") => name.substring(8)
+            case Node3(VALDEF, Seq(name), Seq(Node3(APPLIEDtpt | APPLIEDtype, _, Seq(tc, _: _*)), _: _*)) if name.startsWith("derived$") => textOfType(tc)
           }
           case _ => Seq.empty
         }
@@ -587,11 +587,15 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case LONGconst => s"${node.value}L"
     case FLOATconst => s"${intBitsToFloat(node.value.toInt)}F"
     case DOUBLEconst => s"${longBitsToDouble(node.value)}D"
-    case CHARconst => "'" + node.value.toChar + "'"
-    case STRINGconst => "\"" + node.name.replace("\n", "\\n") + "\""
+    case CHARconst => "'" + escape(node.value.toChar.toString) + "'"
+    case STRINGconst => "\"" + escape(node.name) + "\""
     case NULLconst => "null"
     case _ => ""
   }
+
+  // TODO Complete
+  private def escape(s: String): String =
+    s.replace("\r", "\\r").replace("\n", "\\n")
 
   private def textOfArray(node: Node): String = node match {
     case Node3(APPLY, _, Seq(
@@ -777,6 +781,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
+        if (open) {
+          sb ++= ")"
+          open = false
+        }
         sb ++= "()"
       case Node1(SPLITCLAUSE) =>
         sb ++= ")"
@@ -863,7 +871,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       }
     }
     if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
-      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()") {
+      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
         sb.delete(sb.length - 2, sb.length())
       }
     }

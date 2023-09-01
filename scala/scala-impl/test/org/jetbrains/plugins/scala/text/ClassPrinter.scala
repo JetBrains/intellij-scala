@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierLi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -41,7 +41,13 @@ private class ClassPrinter(isScala3: Boolean) {
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
+    }
+
+    val derivations = {
+      val refs = cls.extendsBlock.derivesClause.map(_.derivedReferences).getOrElse(Seq.empty)
+      val fqns = refs.map(_.resolve()).collect { case f: ScTemplateDefinition => "_root_." + f.qualifiedName }
+      if (fqns.isEmpty) "" else " derives " + fqns.mkString(", ")
     }
 
     val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
@@ -51,17 +57,9 @@ private class ClassPrinter(isScala3: Boolean) {
       case _ => ""
     }
 
-    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + (if (isGiven) " with" else "") + " {" + selfType
+    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + derivations + (if (isGiven) " with" else "") + " {" + selfType
 
     val previousLength = sb.length
-
-    cls match {
-      case e: ScEnum =>
-        e.cases.foreach { c =>
-          sb ++= textOf(c, indent)
-        }
-      case _ =>
-    }
 
     cls.extendsBlock.members.foreach {
       case f: ScFunction =>
@@ -74,6 +72,14 @@ private class ClassPrinter(isScala3: Boolean) {
         sb ++= textOf(t, indent)
       case td: ScTypeDefinition =>
         printTo(sb, td, indent + "  ")
+      case _ =>
+    }
+
+    cls match {
+      case e: ScEnum =>
+        e.cases.foreach { c =>
+          sb ++= textOf(c, indent)
+        }
       case _ =>
     }
 
@@ -116,7 +122,7 @@ private class ClassPrinter(isScala3: Boolean) {
     val name = if (isAnonymous) "" else f.name
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous) "" else ": ") + textOf(f.returnType)
+    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
   }
@@ -187,7 +193,7 @@ private class ClassPrinter(isScala3: Boolean) {
     val tpe = textOf(p.`type`())
     val isAnonymous = isUsing && name == tpe // SCL-21204
     val repeated = if (p.isRepeatedParameter) "*" else ""
-    val default = if (p.isDefaultParam) " = ???" else ""
+    val default = if (p.baseDefaultParam) " = ???" else ""
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default
   }
 

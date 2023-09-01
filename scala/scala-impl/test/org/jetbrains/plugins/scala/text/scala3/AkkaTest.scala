@@ -15,7 +15,6 @@ class AkkaTest extends TextToTextTestBase(
   Seq("akka"), Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */ , 2582,
   Set(
     "akka.actor.dungeon.Children", // Any
-    "akka.actor.typed.internal.adapter.ActorSystemAdapter", // Extra default arguments
     "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
     "akka.dispatch.CachingConfig", // java.util.Map$.Entry
     "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
@@ -28,12 +27,10 @@ class AkkaTest extends TextToTextTestBase(
     "akka.http.impl.model.parser.SimpleHeaders", // .Out
     "akka.http.impl.util.JavaMapping", // Cannot resolve S, J
     "akka.http.scaladsl.server.Directive", // By-name function type parameter
-    "akka.http.scaladsl.server.RequestContextImpl", // Extra default arguments
     "akka.http.scaladsl.server.directives.BasicDirectives",
     "akka.http.scaladsl.server.util.BinaryPolyFunc", // Unknown
     "akka.io.TcpListener", // Cannot resolve Matchable
     "akka.io.UdpListener", // Cannot resolve Matchable
-    "akka.persistence.PersistentImpl", // Extra default argument
     "akka.stream.Supervision", // Excessive parentheses in compound type
     "akka.stream.impl.ConstantFun", // scala.None without .type
     "akka.stream.javadsl.FlowWithContext", // GraphDelegate is Any

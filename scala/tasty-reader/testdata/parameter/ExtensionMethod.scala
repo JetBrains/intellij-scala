@@ -23,5 +23,14 @@ trait ExtensionMethod {
     def multipleClauses(x: Int)(y: Long): Unit
 
   extension (i: Int)
+    def multipleClausesEmpty1()(y: Long): Unit
+
+  extension (i: Int)
+    def multipleClausesEmpty2(x: Int)(): Unit
+
+  extension (i: Int)
+    def multipleClausesEmpty3()(): Unit
+
+  extension (i: Int)
     def typeAndValueParameters[A](x: Int): Unit
 }
