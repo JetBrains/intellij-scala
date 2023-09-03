@@ -45,25 +45,31 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
     val ascent = editorImpl.getAscent
     val descent = editorImpl.getDescent
     val g2d = g.asInstanceOf[Graphics2D]
+
     val attributes = getTextAttributes(editor)
     if (attributes != null) {
       val fontMetrics = getFontMetrics0(editor)
+
+      val widthMinusMargins = r.width - m.left - m.right
+      val xPlusLeftMargin = r.x + m.left
+
       val backgroundColor = attributes.getBackgroundColor
       if (backgroundColor != null) {
         val config = GraphicsUtil.setupAAPainting(g)
         GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
         g.setColor(backgroundColor)
         if (p.left == 0 && p.right == 0) {
-          g.fillRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height)
+          g.fillRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height)
         } else {
-          g.fillRoundRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height, 8, 8)
+          g.fillRoundRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height, 8, 8)
         }
         config.restore()
       }
+
       val foregroundColor = attributes.getForegroundColor
       if (foregroundColor != null) {
         val metrics = fontMetrics.getMetrics
-        var xStart = r.x + m.left + p.left
+        var xStart = xPlusLeftMargin + p.left
         val yStart = r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2)
 
         parts.foreach { text =>
@@ -88,7 +94,7 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
           val savedHint = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING)
           val savedClip = g.getClip
           g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AntialiasingType.getKeyForCurrentScope(false))
-          g.clipRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height)
+          g.clipRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height)
           g.drawString(text.string, xStart, yStart)
           g.setClip(savedClip)
           g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedHint)
