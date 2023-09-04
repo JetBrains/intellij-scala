@@ -97,5 +97,8 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
         </action>
+        <action id="Scala.ShowScalaCompilerTreeForFileAction"
+                class="org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction"
+                internal="true"/>
     </actions>
 </idea-plugin>

@@ -13,9 +13,9 @@ import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.util.TestUtils
 //noinspection ApiStatus
 import com.intellij.testFramework.common.ThreadLeakTracker
-import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -128,6 +128,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def compilerVmOptions: Option[String] = None
 
+  //TODO: set to "true" by default, because it reflects the default behaviour of IDEA
+  // (review extended classes and set to "false" where needed)
   protected def useCompileServer: Boolean = false
   protected def reuseCompileServerProcessBetweenTests: Boolean = false
 
