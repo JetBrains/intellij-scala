@@ -25,6 +25,7 @@ object HttpDownloadUtil {
       try {
         connection.setConnectTimeout(timeout.toMillis.toInt)
         connection.setReadTimeout(timeout.toMillis.toInt)
+        if (canBeCanceled) performCheckCanceled(indicatorOpt)
         val responseCode = connection.getResponseCode
         if (responseCode == -1) {
           throw new IOException(ScalaBundle.message("no.response.status.from.connection.to.url", url))
