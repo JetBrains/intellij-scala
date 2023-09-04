@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
 import com.intellij.ui.components.{JBLabel, JBPanel}
-import com.intellij.ui.{IdeBorderFactory, SideBorder}
+import com.intellij.ui.{IdeBorderFactory, JBColor, SideBorder}
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import org.jetbrains.annotations.NotNull
@@ -49,7 +49,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
   })
   addToRight(createActionToolbar())
   withMinimumHeight((2.5 * NormalFont.getSize).toInt)
-  configureBorder(this, Color.RED)
+  configureBorder(this, JBColor.RED)
 
   private def createActionToolbar(): JComponent = {
     val actionGroup = new DefaultActionGroup
@@ -74,7 +74,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
         new LegendItem("Memory", MemoryLineColor, isLine = true)
       )
       items.foreach(panel.add)
-      configureBorder(panel, Color.BLUE)
+      configureBorder(panel, JBColor.BLUE)
       panel
     }
 
@@ -85,7 +85,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
                              isLine: Boolean = false)
       extends JBPanel {
 
-      configureBorder(this, Color.RED)
+      configureBorder(this, JBColor.RED)
 
       private var initialized = false
 
