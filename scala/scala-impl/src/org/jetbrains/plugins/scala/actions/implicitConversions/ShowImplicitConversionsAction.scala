@@ -9,6 +9,7 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.util.Alarm
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -21,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
-import java.awt.Color
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing._
 import javax.swing.border.Border
@@ -191,7 +191,7 @@ final class ShowImplicitConversionsAction extends AnAction(
   class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, elements: Seq[PsiNamedElement]) extends JLabel {
     private final val INACTIVE_BORDER: Border = BorderFactory.createEmptyBorder(4, 4, 4, 4)
     private final val ACTIVE_BORDER: Border =
-      BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1),
+      BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JBColor.BLACK, 1),
         BorderFactory.createEmptyBorder(3, 3, 3, 3))
     private final val INDENT = 20
 

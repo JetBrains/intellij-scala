@@ -59,6 +59,7 @@ package object hints {
       val g = (c1.getGreen + c2.getGreen) / 2
       val b = (c1.getBlue + c2.getBlue) / 2
       val alpha = c1.getAlpha
+      //noinspection UseJBColor (we operate with attributes colors, which already take into account theme)
       new Color(r, g, b, alpha)
     }
 

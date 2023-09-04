@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.charts.ui
 
-import com.intellij.ui.Gray
+import com.intellij.ui.{Gray, JBColor}
 import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 import org.jetbrains.plugins.scala.compiler.charts.Memory
 import org.jetbrains.plugins.scala.compiler.charts.ui.Common._
@@ -93,7 +93,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
             ProgressRowHeight - SegmentGap - VerticalGap * 4
           )
           if (rectangle.width >= 1.0) {
-            graphics.setColor(if (darkTheme) Color.BLACK else Color.WHITE)
+            graphics.setColor(if (darkTheme) JBColor.BLACK else JBColor.WHITE)
             graphics.fill(rectangle)
           }
         }

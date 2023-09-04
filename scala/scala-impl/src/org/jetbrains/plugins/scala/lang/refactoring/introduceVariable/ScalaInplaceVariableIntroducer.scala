@@ -17,7 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
-import com.intellij.ui.NonFocusableCheckBox
+import com.intellij.ui.{JBColor, NonFocusableCheckBox}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -282,7 +282,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     }
 
     myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
-    myLabel.setForeground(Color.RED)
+    myLabel.setForeground(JBColor.RED)
     myLabelPanel.setLayout(new BoxLayout(myLabelPanel, BoxLayout.X_AXIS))
     myLabelPanel.add(Box.createHorizontalGlue())
     myLabelPanel.add(myLabel)
