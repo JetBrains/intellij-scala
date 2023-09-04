@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.charts.ui
 
-import com.intellij.ide.ui.laf.UIThemeBasedLookAndFeelInfo
 import com.intellij.ide.ui.{LafManager, UISettings}
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
@@ -8,7 +7,7 @@ import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.charts.ui.Common._
 import org.jetbrains.plugins.scala.compiler.charts.{CompilationProgressStateManager, CompileServerMetricsStateManager}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
@@ -284,9 +283,8 @@ object DiagramsComponent {
                                                 durationAxis: Double)
 
   private def isDarkTheme: Boolean =
-    Option(LafManager.getInstance.getCurrentLookAndFeel)
-      .flatMap(_.asOptionOf[UIThemeBasedLookAndFeelInfo])
-      .exists(_.getTheme.isDark) || StartupUiUtil.isUnderDarcula
+    Option(LafManager.getInstance.getCurrentUIThemeLookAndFeel)
+      .exists(_.getTheme.isDark) || StartupUiUtil.isDarkTheme
 
   private def stringifyForAxisLabel(duration: FiniteDuration): String = {
     val minutes = duration.toMinutes

@@ -483,7 +483,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   def clauseSeparatorColor: Color = {
     val background = getContentPane.getBackground
-    if (StartupUiUtil.isUnderDarcula) background.brighter.brighter else background.darker()
+    if (StartupUiUtil.isDarkTheme) background.brighter.brighter else background.darker()
   }
 
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None

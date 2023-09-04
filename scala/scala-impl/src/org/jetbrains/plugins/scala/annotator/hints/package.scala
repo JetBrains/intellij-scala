@@ -63,7 +63,7 @@ package object hints {
     }
 
     val result = attributes.clone()
-    if (StartupUiUtil.isUnderDarcula && result.getBackgroundColor != null) {
+    if (StartupUiUtil.isDarkTheme && result.getBackgroundColor != null) {
       val notSoBright = result.getBackgroundColor.brighter
       val tooBright = notSoBright.brighter
       result.setBackgroundColor(average(notSoBright, tooBright))

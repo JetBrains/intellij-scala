@@ -92,12 +92,12 @@ package object annotator {
 
     // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
     def red(htmlText: String) = {
-      val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
+      val color = if (StartupUiUtil.isDarkTheme) "FF6B68" else "red"
       "<font color='" + color + "'><b>" + htmlText + "</b></font>"
     }
 
     def underline(htmlText: String): String = {
-      val color = if (StartupUiUtil.isUnderDarcula) "#FF6B68" else "red"
+      val color = if (StartupUiUtil.isDarkTheme) "#FF6B68" else "red"
       s"<p style='border-bottom: 1px dotted $color;'>$htmlText</p>"
     }
 
