@@ -45,11 +45,11 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
                   UpdateHighlightersUtil.setHighlightersToEditor(
                     project, document,
                     0, document.getTextLength, Seq.empty.asJava,
-                    editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+                    editor.getColorsScheme, ExternalHighlightersService.ScalaCompilerPassId)
                 }
               }
               executeOnBackgroundThreadInNotDisposed(project) {
-                WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+                WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlightersService.instance(project))
               }
 
               if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {

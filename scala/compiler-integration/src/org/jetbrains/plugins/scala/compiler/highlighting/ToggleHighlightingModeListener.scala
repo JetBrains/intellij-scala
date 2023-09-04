@@ -40,7 +40,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           inReadAction(AnnotatorHints.clearIn(project))
         } else {
-          ExternalHighlighters.eraseAllHighlightings(project)
+          ExternalHighlightersService.instance(project).eraseAllHighlightings()
         }
         // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
         //  e.g. for Scala 2 projects where it's disabled by default
