@@ -223,15 +223,12 @@ object ScalaGoToDeclarationHandler {
 
   private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
     element match {
-      case ScPrimaryConstructor.ofClass(ScEnum.Original(enum)) => Seq(enum)
-      case ScEnum.Original(enum)                               => Seq(enum)
       case ScEnumCase.Original(enumCase)                       => Seq(enumCase)
       case ScGivenDefinition.DesugaredTypeDefinition(gvn)      => Seq(gvn)
       case function: ScFunction                                => Option(function.syntheticNavigationElement).toSeq
       case scObject: ScObject if scObject.isSyntheticObject    =>
         val companionClass = getCompanionModule(scObject)
         companionClass.collect {
-          case ScEnum.Original(enum) => enum
           case ScEnumCase.Original(enum) => enum
         }.orElse(companionClass).toSeq
       case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass).toSeq

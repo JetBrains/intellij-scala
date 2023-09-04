@@ -31,7 +31,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     val x: Seq[Option[PsiClass]] = cacheManager.getClassesByFQName(qualifiedName, scope).collect {
       case o: ScObject if !o.isPackageObject =>
         o.fakeCompanionClass
-      case e: ScEnum => e.syntheticClass
+      case e: ScEnum => Some(e)
     }
     val x$: Seq[Option[PsiClass]] = classesWoSuffix("$").collect {
       case c: ScTypeDefinition =>

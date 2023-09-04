@@ -6,24 +6,17 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 trait ScEnum extends ScConstructorOwner with ScDerivesClauseOwner {
   def cases: Seq[ScEnumCase]
-
-  def syntheticClass: Option[ScTypeDefinition]
 }
 
 object ScEnum {
-  object Original {
-    def unapply(cls: ScClass): Option[ScEnum] =
-      Option(cls.originalEnumElement)
+  object FromObject {
+    def unapply(obj: ScObject): Option[ScEnum] = obj.syntheticNavigationElement match {
+      case cls: ScEnum => Some(cls)
+      case _ => None
+    }
   }
 
-  object OriginalFromObject {
-    def unapply(obj: ScObject): Option[ScEnum] = Option(obj.syntheticNavigationElement) match {
-        case Some(cls: ScClass) => Original.unapply(cls)
-        case _ => None
-      }
-  }
-
-  object OriginalFromSyntheticMethod {
+  object FromSyntheticMethod {
     def unapply(functionDefinition: ScFunctionDefinition): Option[ScEnum] =
       if (ScalaUsageNamesUtil.enumSyntheticMethodNames.contains(functionDefinition.name))
         functionDefinition.context match {
@@ -36,7 +29,4 @@ object ScEnum {
         }
       else None
   }
-
-  def isDesugaredEnumClass(cls: ScTypeDefinition): Boolean =
-    cls.originalEnumElement ne null
 }

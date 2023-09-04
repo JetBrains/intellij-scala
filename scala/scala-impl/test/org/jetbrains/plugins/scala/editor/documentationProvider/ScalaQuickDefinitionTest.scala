@@ -124,12 +124,8 @@ class ScalaQuickDefinitionTest extends ScalaLightCodeInsightFixtureTestCase {
          |  /** Description of Bar 2 */
          |  case Bar2 extends ${CARET}Foo(1)
          |}""".stripMargin,
-
-      //TODO: this is a wrong expected result.
-      // When SCL-21381 is fixed this test is expected to fail.
-      // In that case adjust the expected result, which should contain auxiliary constructor definition text:
-      //  def this(x: Int) = this(x, 2)
-      """enum Foo(x: Int, y: Int) {""".stripMargin
+      """  /** Description 2 */
+        |  def this(x: Int) = this(x, 2)""".stripMargin
     )
 
   def testEnumCase(): Unit =

@@ -117,34 +117,28 @@ final class ScEnumCaseImpl(
     } else super.typeParameters
   }
 
-  private def syntheticEnumClass: Option[ScTypeDefinition] =
-    enumParent.syntheticClass
-
   override def superTypes: List[ScType] =
     if (extendsBlock.templateParents.nonEmpty) super.superTypes
     else {
-      syntheticEnumClass match {
-        case Some(cls) =>
-          val tps = cls.typeParameters
-          if (tps.isEmpty) List(ScalaType.designator(cls))
-          else {
-            if (constructor.isEmpty) {
-              val tpBounds = cls.typeParameters.map(tp =>
-                if (tp.isCovariant)          tp.lowerBound.getOrNothing
-                else if (tp.isContravariant) tp.upperBound.getOrAny
-                else                         Nothing
-              )
+      val cls = enumParent
+      val tps = enumParent.typeParameters
+      if (tps.isEmpty) List(ScalaType.designator(cls))
+      else {
+        if (constructor.isEmpty) {
+          val tpBounds = cls.typeParameters.map(tp =>
+            if (tp.isCovariant)          tp.lowerBound.getOrNothing
+            else if (tp.isContravariant) tp.upperBound.getOrAny
+            else                         Nothing
+          )
 
-              List(ParameterizedType(ScDesignatorType(cls), tpBounds))
-            } else List(ParameterizedType(ScDesignatorType(cls), typeParameters.map(TypeParameterType(_))))
-          }
-        case None => List.empty
+          List(ParameterizedType(ScDesignatorType(cls), tpBounds))
+        } else List(ParameterizedType(ScDesignatorType(cls), typeParameters.map(TypeParameterType(_))))
       }
     }
 
   override def supers: Seq[PsiClass] =
     if (extendsBlock.templateParents.nonEmpty) super.supers
-    else                                       syntheticEnumClass.toSeq
+    else                                       Seq(enumParent)
 
   override protected def targetTokenType: ScalaTokenType = kCASE
 
@@ -157,7 +151,7 @@ final class ScEnumCaseImpl(
     else ScEnumCaseKind.ClassCase
 
   override def getSyntheticCounterpart: ScNamedElement = {
-    val res = enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq
+    val res = ScalaPsiUtil.getCompanionModule(enumParent).toSeq
       .flatMap(_.syntheticMembers).collectFirst {
       case c: ScClass if c.name == name => c
       case p: ScPatternDefinition if p.declaredElements.exists(_.name == name) => p.declaredElements.find(_.name == name).get

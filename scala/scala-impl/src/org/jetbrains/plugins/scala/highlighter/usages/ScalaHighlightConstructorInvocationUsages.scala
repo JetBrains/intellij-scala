@@ -28,11 +28,7 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
         //case 2: creation of Java class (or other non-Scala language)
         (clazz, None)
       case ScalaResolveResult(Constructor(constructor), _) =>
-        val cls = constructor.containingClass match {
-          case ScEnum.Original(enum) => enum
-          case cls                   => cls
-        }
-        (cls, Some(constructor))
+        (constructor.containingClass, Some(constructor))
     }
 
   override def getTargets: util.List[PsiElement] = reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)

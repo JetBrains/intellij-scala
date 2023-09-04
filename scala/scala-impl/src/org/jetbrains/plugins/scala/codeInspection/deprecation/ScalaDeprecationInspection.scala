@@ -43,7 +43,6 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             case obj: ScObject =>
               obj.fakeCompanionClassOrCompanionClass match {
                 case enum: ScEnum if enum.isDeprecated => Option(obj)
-                case ScEnum.Original(enum) if enum.isDeprecated => Option(obj)
                 case _ => None
               }
             case _: ScFunction =>

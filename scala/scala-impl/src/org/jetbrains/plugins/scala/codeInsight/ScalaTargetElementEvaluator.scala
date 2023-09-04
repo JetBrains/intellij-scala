@@ -148,10 +148,6 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     targetElement match {
       case ScEnumCase.Original(enumCase) =>
         Some(enumCase)
-      case ScEnum.Original(enumDef) =>
-        Some(enumDef)
-      case ScalaConstructor.in(ScEnum.Original(enumDef)) =>
-        enumDef.constructor
       case _ =>
         None
     }

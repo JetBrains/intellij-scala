@@ -23,7 +23,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     def isDesignatedToEnumParent(tpe: ScType): Boolean = {
       val clazz = tpe.extractClass
       val td = clazz.filterByType[ScTypeDefinition]
-      td.exists(ScEnum.isDesugaredEnumClass)
+      td.contains(enumDef)
     }
 
     val nonVariantTypeParameter =

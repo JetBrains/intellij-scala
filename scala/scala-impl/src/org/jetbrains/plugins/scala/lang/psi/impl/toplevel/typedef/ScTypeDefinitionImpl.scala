@@ -222,7 +222,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def fakeCompanionModule: Option[ScObject] = this match {
     case ImplicitValueClassDumbMode(c) if !c.qualifiedName.startsWith("scala.Predef.") => calcFakeCompanionModule(true)
     case _: ScObject => None
-    case enm: ScEnum => enm.syntheticClass.flatMap(_.fakeCompanionModule)
     case _ =>
       baseCompanion match {
         case Some(_: ScObject)                                              => None

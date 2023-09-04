@@ -243,7 +243,7 @@ object ScalaOIUtil {
     // If the name of the method is `apply` or `canEqual`, we now need to search for a `ScTypeDefinition` which is
     // either a case class or an enum.
     def isCaseClassOrEnum(cls: PsiClass): Boolean = cls match {
-      case td: ScTypeDefinition => td.isCase || td.is[ScEnum] || ScEnum.isDesugaredEnumClass(td)
+      case td: ScTypeDefinition => td.isCase || td.is[ScEnum]
       case _ => false
     }
 

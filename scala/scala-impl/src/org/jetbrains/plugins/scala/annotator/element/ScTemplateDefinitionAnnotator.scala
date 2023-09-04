@@ -137,7 +137,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     holder: ScalaAnnotationHolder
   ): Unit = {
     superRefs(tdef).collect {
-      case (range, ScEnum.Original(enum)) =>
+      case (range, enum: ScEnum) =>
         tdef match {
           case cse: ScEnumCase if cse.enumParent eq enum => ()
           case _ =>
@@ -197,8 +197,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
     if (membersToImplement.isEmpty) return
 
-    val enumParents = enumCase.enumParent.syntheticClass
-      .fold(Set.empty[PsiClass])(_.getSupers.toSet)
+    val enumParents = enumCase.enumParent.getSupers.toSet
 
     val (canBeImplementedInEnum, cannotBeImplemented) = membersToImplement.partition {
       case ScMethodMember(signature, _) =>
@@ -322,15 +321,9 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
         def isInDifferentFile(tdef: ScTemplateDefinition): Boolean =
           tdef.getContainingFile.getNavigationElement != fileNavigationElement
 
-        def isEnumSyntheticClass(tdef: ScTemplateDefinition): Boolean =
-          tdef match {
-            case cls: ScClass => ScEnum.isDesugaredEnumClass(cls)
-            case _            => false
-          }
-
         references.collect {
           case (range, definition @ ErrorAnnotationMessage(message))
-              if isInDifferentFile(definition) && !isEnumSyntheticClass(definition) =>
+              if isInDifferentFile(definition) =>
             (range, message)
         }.foreach {
           case (range, message) =>
