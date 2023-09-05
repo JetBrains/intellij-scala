@@ -4,12 +4,11 @@ import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocParametersRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocParametersRenderer, ScalaDocTypeParamsRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
 import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
-import HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -84,23 +83,29 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case m: ScModifierListOwner =>
         val modifiersRendered = WithHtmlPsiLink.renderer.render(m)
-        if (modifiersRendered.nonEmpty) builder.appendKeyword(modifiersRendered)
+        if (modifiersRendered.nonEmpty) builder.append(modifiersRendered)
       case _ =>
     }
 
-    val keyword = ScalaDocumentationUtils.getKeyword(keywordOwner)
+    val (keyword, attrKey) = ScalaDocumentationUtils.getKeywordAndTextAttributesKey(keywordOwner)
+
     if (keyword.nonEmpty) builder.appendKeyword(keyword).append(" ")
 
-    append(element match {
-      case named: ScNamedElement => escapeHtml(named.name)
-      case value: ScValueOrVariable if value.declaredNames.nonEmpty => escapeHtml(value.declaredNames.head) // TODO
-      case _ => "_"
-    })
+    element match {
+      case named: ScNamedElement =>
+        val name = escapeHtml(named.name)
+        builder.appendAs(name, attrKey)
+      case value: ScValueOrVariable if value.declaredNames.nonEmpty =>
+        val name = escapeHtml(value.declaredNames.head)
+        builder.appendAs(name, attrKey)
+      case _ =>
+        builder.append("_")
+    }
 
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
         val renderedTypeParams = typeParamsRenderer.renderParams(tpeParamOwner)
-        if (renderedTypeParams.nonEmpty) builder.appendKeyword(renderedTypeParams)
+        if (renderedTypeParams.nonEmpty) builder.append(renderedTypeParams)
       case _ =>
     }
 
@@ -197,7 +202,7 @@ private class ScalaDocDefinitionGenerator private(
   private lazy val annotationsRenderer =
     new ScalaDocAnnotationRenderer(annotationsTypeRenderer)
   private lazy val typeParamsRenderer =
-    new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
+    new ScalaDocTypeParamsRenderer(typeRenderer)
   private lazy val definitionParamsRenderer: ParametersRenderer =
     ScalaDocParametersRenderer(typeRenderer, typeAnnotationRenderer)
 
