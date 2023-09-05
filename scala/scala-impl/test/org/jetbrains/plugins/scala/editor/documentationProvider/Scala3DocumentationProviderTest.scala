@@ -15,7 +15,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">inline</span><span style="color:#000080;font-weight:bold;">def</span>
-        |f:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |<span style="color:#000000;">f</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -29,7 +29,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
 
     val expectedContent =
       """
-        |<span style="color:#000080;font-weight:bold;">opaque</span><span style="color:#000080;font-weight:bold;">type</span>Foo =<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">opaque</span><span style="color:#000080;font-weight:bold;">type</span><span style="color:#20999d;">Foo</span>=<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -43,7 +43,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
 
     val expectedContent =
       """
-        |<span style="color:#000080;font-weight:bold;">transparent</span><span style="color:#000080;font-weight:bold;">trait</span>Foo
+        |<span style="color:#000080;font-weight:bold;">transparent</span><span style="color:#000080;font-weight:bold;">trait</span><span style="color:#000000;">Foo</span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -57,7 +57,8 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
 
     val expectedContent =
       """
-        |<span style="color:#000080;font-weight:bold;">open</span><span style="color:#000080;font-weight:bold;">class</span>Foo
+        |<span style="color:#000080;font-weight:bold;">open</span><span style="color:#000080;font-weight:bold;">class</span>
+        |<span style="color:#000000;">Foo</span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -74,7 +75,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
       """
         |<span style="color:#000080;font-weight:bold;">infix</span>
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |comp(str2:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>):
+        |<span style="color:#000000;">comp</span>(str2:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
         |""".stripMargin
 
@@ -91,7 +92,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |f()(<span style="color:#000080;font-weight:bold;">using</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
+        |<span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">using</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
@@ -108,7 +109,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">given</span>
-        |ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">ec</span>:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -123,7 +124,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |<span style="color:#000000;">foo</span>(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |(<span style="color:#000080;font-weight:bold;">using</span>c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
@@ -138,7 +139,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
        |$DefinitionStart
        |<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example"><code>example</code></a><br/>
        |<span style="color:#000080;font-weight:bold;">enum</span>
-       | TestEnum
+       | <span style="color:#000000;">TestEnum</span>
        |<span style="color:#000080;font-weight:bold;">extends </span>
        |<span style="color:#000000;"><a href="psi_element://java.io.Serializable"><code>Serializable</code></a></span>
        |$DefinitionEnd
@@ -196,7 +197,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
        |<icon src="AllIcons.Nodes.Package"/>
        | <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/>
        |<span style="color:#000080;font-weight:bold;">case</span>
-       | MyEnumCase1
+       | <span style="color:#000000;">MyEnumCase1</span>
        |$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1
@@ -249,7 +250,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
        |${DocHtmlHead(myFixture.getFile)}
        |$BodyStart
        |$DefinitionStart
-       |<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/><span style="color:#000080;font-weight:bold;">case</span> MyEnumCase2
+       |<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/><span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000000;">MyEnumCase2</span>
        |$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1, MyEnumCase2
@@ -310,7 +311,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
       """<icon src="AllIcons.Nodes.Package"/>
         |<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/>
         |<span style="color:#000080;font-weight:bold;">case</span>
-        |MyEnumCase1
+        |<span style="color:#000000;">MyEnumCase1</span>
         |<span style="color:#000080;font-weight:bold;">extends</span>
         |<span style="color:#000000;"><a href="psi_element://example.MyEnum"><code>MyEnum</code></a></span>
         |<span style="color:#000080;font-weight:bold;">with</span>

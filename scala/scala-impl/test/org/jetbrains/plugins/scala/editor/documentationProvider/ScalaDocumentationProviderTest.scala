@@ -13,7 +13,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |<icon src="AllIcons.Nodes.Package"/>
          |<a href="psi_element://a.b.c"><code>a.b.c</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">class</span> A
+         |<span style="color:#000080;font-weight:bold;">class</span><span style="color:#000000;">A</span>
          |""".stripMargin
     )
 
@@ -21,7 +21,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocDefinitionTest(
       s"""class ${|}A""",
       """
-         |<span style="color:#000080;font-weight:bold;">class</span> A
+         |<span style="color:#000080;font-weight:bold;">class</span><span style="color:#000000;">A</span>
          |""".stripMargin
     )
 
@@ -32,7 +32,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A extends Exception""".stripMargin,
       s"""
          |<icon src="AllIcons.Nodes.Package"/><a href="psi_element://a.b.c"><code>a.b.c</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">class</span>A
+         |<span style="color:#000080;font-weight:bold;">class</span><span style="color:#000000;">A</span>
          |<span style="color:#000080;font-weight:bold;">extends</span>
          |<span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |""".stripMargin
@@ -47,7 +47,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |<icon src="AllIcons.Nodes.Package"/>
          |<a href="psi_element://a.b.c"><code>a.b.c</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">trait</span>T
+         |<span style="color:#000080;font-weight:bold;">trait</span><span style="color:#000000;">T</span>
          |""".stripMargin
     )
 
@@ -59,7 +59,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""
          |<icon src="AllIcons.Nodes.Package"/><a href="psi_element://a.b.c"><code>a.b.c</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">object</span>O
+         |<span style="color:#000080;font-weight:bold;">object</span><span style="color:#000000;">O</span>
          |""".stripMargin
     )
 
@@ -70,7 +70,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin,
       s"""
          |<a href="psi_element://O"><code>O</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">type</span> MyType = <span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">type</span><span style="color:#20999d;">MyType</span>=<span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |""".stripMargin
     )
 
@@ -82,7 +82,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A extends Exception with T1 with T2""".stripMargin,
       s"""
          |<icon src="AllIcons.Nodes.Package"/><a href="psi_element://a.b.c"><code>a.b.c</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">class</span>A
+         |<span style="color:#000080;font-weight:bold;">class</span>
+         |<span style="color:#000000;">A</span>
          |<span style="color:#000080;font-weight:bold;">extends</span>
          |<span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |<span style="color:#000080;font-weight:bold;">with</span><span style="color:#000000;"><a href="psi_element://a.b.c.T1"><code>T1</code></a></span>
@@ -98,7 +99,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}B extends A
          |""".stripMargin,
       s"""
-         |<span style="color:#000080;font-weight:bold;">class</span>B
+         |<span style="color:#000080;font-weight:bold;">class</span><span style="color:#000000;">B</span>
          |<span style="color:#000080;font-weight:bold;">extends</span>
          |<span style="color:#000000;"><a href="psi_element://A"><code>A</code></a></span>
          |""".stripMargin
@@ -113,7 +114,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocDefinitionTest(
       s"""class ${|}B extends J""".stripMargin,
       s"""
-         |<span style="color:#000080;font-weight:bold;">class</span>B
+         |<span style="color:#000080;font-weight:bold;">class</span><span style="color:#000000;">B</span>
          |<span style="color:#000080;font-weight:bold;">extends</span><span style="color:#000000;"><a href="psi_element://J"><code>J</code></a></span>
          |""".stripMargin
     )
@@ -127,11 +128,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |<span style="color:#000080;font-weight:bold;">abstract</span>
          |<span style="color:#000080;font-weight:bold;">class</span>
-         |Class<span style="color:#000080;font-weight:bold;">[T &lt;:<span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>
-         |[_ &gt;:<span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>]]</span>
-         |<span style="color:#000080;font-weight:bold;">extends</span><span style="color:#000000;"><a href="psi_element://java.lang.Comparable"><code>Comparable</code></a></span>
-         |[_ &lt;:<span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>
-         |[_ &gt;:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>]]
+         |<span style="color:#000000;">Class</span>
+         |[<span style="color:#20999d;">T</span>&lt;:<span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[_ &gt;:<span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>]]
+         |<span style="color:#000080;font-weight:bold;">extends</span>
+         |<span style="color:#000000;"><a href="psi_element://java.lang.Comparable"><code>Comparable</code></a></span>
+         |[_ &lt;:<span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[_ &gt;:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>]]
          |""".stripMargin
     )
 
@@ -144,7 +145,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span> foo: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |$DefinitionEnd
          |${ContentStart}description of foo $ContentEnd
          |""".stripMargin
@@ -167,7 +168,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span> baseMethod: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |$DefinitionEnd
          |${ContentStart}description of base method from A $ContentEnd
          |""".stripMargin
@@ -191,8 +192,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span>
-         |<span style="color:#000080;font-weight:bold;">def</span> baseMethod: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
@@ -220,8 +220,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""$DefinitionStart
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span>
-         |<span style="color:#000080;font-weight:bold;">def</span> baseMethod: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
@@ -250,7 +249,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span><span style="color:#000080;font-weight:bold;">def</span> getModules: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">getModules</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
@@ -273,7 +272,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
          |<span style="color:#000080;font-weight:bold;">protected</span>
-         |<span style="color:#000080;font-weight:bold;">def</span>f1:
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">f1</span>:
          |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
@@ -286,8 +285,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">protected[this]</span>
-         |<span style="color:#000080;font-weight:bold;">def</span>f1:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">protected</span>[<span style="color:#000080;font-weight:bold;">this</span>]
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">f1</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -298,7 +297,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin,
       s"""
          |<a href="psi_element://O"><code>O</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>f<span style="color:#000080;font-weight:bold;">[A[_, B]]</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span>
+         |<span style="color:#000000;">f</span>
+         |[<span style="color:#20999d;">A</span>[<span style="color:#20999d;">_</span>,<span style="color:#20999d;">B</span>]]:
+         |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -307,7 +309,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""trait ${|}T[X[_, Y[_, Z]]]
          |""".stripMargin,
       s"""
-         |<span style="color:#000080;font-weight:bold;">trait</span>T<span style="color:#000080;font-weight:bold;">[X[_, Y[_, Z]]]</span>
+         |<span style="color:#000080;font-weight:bold;">trait</span>
+         |<span style="color:#000000;">T</span>
+         |[<span style="color:#20999d;">X</span>[<span style="color:#20999d;">_</span>,<span style="color:#20999d;">Y</span>[<span style="color:#20999d;">_</span>,<span style="color:#20999d;">Z</span>]]]
          |""".stripMargin
     )
 
@@ -320,7 +324,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc = {
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> x: <span style="color:#000000;"><a href="psi_element://Trait2"><code>Trait2</code></a></span>[_, _]
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#000000;"><a href="psi_element://Trait2"><code>Trait2</code></a></span>[_, _]
          |$DefinitionEnd
          |""".stripMargin
     }
@@ -353,7 +357,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""val ${|}v = 1""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">val</span> v: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -362,7 +366,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""var ${|}v = 1""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">var</span> v: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -371,7 +375,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""val (v1, ${|}v2) = (1, "str")""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">val</span> v2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
 
@@ -381,7 +385,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       // java.lang.String cause it's an inferred type
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">val</span> v2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
 
@@ -389,7 +393,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doValVarTest(
       s"""var (v1, ${|}v2) = (1, "str")""",
       s"""
-         |<a href="psi_element://X"><code>X</code></a><br/><span style="color:#000080;font-weight:bold;">var</span> v2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<a href="psi_element://X"><code>X</code></a><br/><span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
 
@@ -398,7 +402,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""var Tuple2(v1, ${|}v2) = (1, "str")""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">var</span> v2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
 
@@ -407,7 +411,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""val ${|}v: Int""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">val</span> v: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -416,7 +420,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""var ${|}v: Int""",
       s"""
          |<a href="psi_element://X"><code>X</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">var</span> v: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -427,7 +431,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |    println(${|}x + y)
          |}""".stripMargin,
       """
-        |Pattern: x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |Pattern: <span style="color:#008000;font-weight:bold;">x</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
     )
 
@@ -437,7 +441,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  def ${|}foo = 42
          |}""".stripMargin,
       """
-         |<span style="color:#000080;font-weight:bold;">def</span>foo:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">foo</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -511,7 +515,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">class</span> A
+         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
          |$DefinitionEnd
          |${ContentStart}Description $ContentEnd
          |""".stripMargin
@@ -665,7 +669,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |this is a boolean
@@ -711,7 +715,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">var</span> b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |this is a boolean
@@ -735,7 +739,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> v1: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v1</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |some description
@@ -756,7 +760,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart<u>xxx<sup>yyy<i>zzz</i>yyy</sup>xxx</u>$ContentEnd
          |""".stripMargin
@@ -793,7 +797,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<a href="http://example.org">http://example.org</a><br>
@@ -817,7 +821,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<a href="http://example.org">label</a><br>
@@ -845,7 +849,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc = {
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<a href="http://example.org"><b>label with markdown text</b></a><br>
@@ -871,7 +875,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
     val expectedDoc =
       s"""$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<sub><u><a href="http://example.org">http://example.org</a></u></sub><br>
@@ -1165,7 +1169,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |<sup>blah-blah  </sup>
@@ -1188,7 +1192,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">val</span> a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Note:</td>
@@ -1221,7 +1225,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://B"><code>B</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span><span style="color:#000080;font-weight:bold;">def</span> f: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |Child description
@@ -1251,8 +1255,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""$DefinitionStart
          |<a href="psi_element://B"><code>B</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span>
-         |<span style="color:#000080;font-weight:bold;">def</span> f: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |Child description
@@ -1279,8 +1282,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
        s"""
           |$DefinitionStart<a href="psi_element://B"><code>B</code></a><br/>
-          |<span style="color:#000080;font-weight:bold;">override </span>
-          |<span style="color:#000080;font-weight:bold;">def</span> f: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+          |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
           |$ContentStart
           |Extra child description
           |$ContentEnd
@@ -1308,7 +1310,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://B"><code>B</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span><span style="color:#000080;font-weight:bold;">def</span> f: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |Parent description
@@ -1350,8 +1352,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""$DefinitionStart
          |<a href="psi_element://B"><code>B</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span>
-         |<span style="color:#000080;font-weight:bold;">def</span> f(i: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>(i: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |The function f defined in B returns some integer without no special property. (previously defined in A)
@@ -1386,7 +1387,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc = {
       s"""
          |$DefinitionStart
-         |<span style="color:#000080;font-weight:bold;">class</span> ScalaClass
+         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">ScalaClass</span>
          |<span style="color:#000080;font-weight:bold;">extends </span>
          |<span style="color:#000000;"><a href="psi_element://JavaClass"><code>JavaClass</code></a></span>
          |$DefinitionEnd
@@ -1416,7 +1417,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""
          |$DefinitionStart<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span> boo(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |$DefinitionEnd
          |${ContentStart}Function defined in A $ContentEnd
          |""".stripMargin
@@ -1450,8 +1451,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""
          |$DefinitionStart
          |<a href="psi_element://C"><code>C</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">override </span>
-         |<span style="color:#000080;font-weight:bold;">def</span> boo(): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |$DefinitionEnd
          |$ContentStart
          |a VALUE1 b VALUE2 c $$KEY_UNREACHED
@@ -1592,7 +1592,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""
          |$DefinitionStart<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span> foo(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
          |$ContentStart<tt>None</tt>$ContentEnd
          |""".stripMargin
     )
@@ -1785,7 +1785,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |(<span style="color:#008000;font-weight:bold;">&quot;use 'foo' instead&quot;</span>,<span style="color:#008000;font-weight:bold;">&quot;1.2.3&quot;</span>)<br/>
          |<span style="color:#808000;">@</span>
          |<span style="color:#808000;"><a href="psi_element://scala.transient"><code>transient</code></a></span><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>boo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">boo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
@@ -1802,7 +1802,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<a href="psi_element://Outer"><code>Outer</code></a><br/>
          |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecatedName"><code>deprecatedName</code></a></span>
          |(<span style="color:#008000;font-weight:bold;">&quot;inner tags &lt;p&gt;example&lt;/p&gt;&quot;</span>,<span style="color:#008000;font-weight:bold;">&quot;since 2020&quot;</span>)<br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>boo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">boo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
@@ -1834,7 +1834,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<span style="color:#808000;"><a href="psi_element://scala.throws"><code>throws</code></a></span>
          |[<span style="color:#808000;"><a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a></span>]
          |(<span style="color:#008000;font-weight:bold;">&quot;reason 2&quot;</span>)<br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>goo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">goo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
@@ -1852,7 +1852,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<span style="color:#808000;">@</span>
          |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
          |(<span style="color:#008000;font-weight:bold;">s&quot;test ${42}&quot;</span>)<br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">foo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -1870,7 +1870,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<span style="color:#808000;">@</span>
          |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
          |(<span style="color:#0000ff;">42</span>)<br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span>
+         |<span style="color:#000000;">foo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -1888,7 +1889,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<span style="color:#808000;">@</span>
         |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
         |(<span style="color:#000080;font-weight:bold;">true</span>)<br/>
-        |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">foo</span>():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -1902,7 +1903,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin,
       s"""
          |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span>f(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |<span style="color:#000080;font-weight:bold;">def</span><span style="color:#000000;">f</span>(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |<span style="color:#000000;"><a href="psi_element://A.&lt;:&lt;"><code>&lt;:&lt;</code></a></span><span style="color:#000000;"><a href="psi_element://$stringClass"><code>String</code></a></span>):
          |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
@@ -2291,7 +2292,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocDefinitionTest(
       s"""class Test${|} extends""".stripMargin,
       """
-        |<span style="color:#000080;font-weight:bold;">class</span>Test
+        |<span style="color:#000080;font-weight:bold;">class</span>
+        |<span style="color:#000000;">Test</span>
         |""".stripMargin
     )
 
@@ -2338,7 +2340,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       """
         |<span style="color:#000080;font-weight:bold;">abstract</span>
         |<span style="color:#000080;font-weight:bold;">class</span>
-        |AbstractClass
+        |<span style="color:#000000;">AbstractClass</span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -2356,7 +2358,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<span style="color:#808000;">@</span>
         |<span style="color:#808000;"><a href="psi_element://scala.Any"><code>Any</code></a></span>
         |(url =<span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)<br/>
-        |<span style="color:#000080;font-weight:bold;">trait</span>Foo
+        |<span style="color:#000080;font-weight:bold;">trait</span><span style="color:#000000;">Foo</span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -2370,7 +2372,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedContent =
       """
-        |<span style="color:#000080;font-weight:bold;">val</span>f:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>=><span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">val</span>
+        |<span style="color:#660e7a;font-style:italic;">f</span>:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>=><span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -2386,7 +2389,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |f()(<span style="color:#000080;font-weight:bold;">implicit</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
+        |<span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">implicit</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
@@ -2402,7 +2405,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
+        |<span style="color:#000000;">foo</span>
+        |(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
@@ -2418,7 +2422,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
+        |<span style="color:#000000;">foo</span>
+        |(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
@@ -2434,7 +2439,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">def</span>
-        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |<span style="color:#000000;">foo</span>
+        |(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |(<span style="color:#000080;font-weight:bold;">implicit</span>c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
@@ -2448,7 +2454,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       """<span style="color:#000080;font-weight:bold;">case</span>
         |<span style="color:#000080;font-weight:bold;">class</span>
-        |MyCaseClass(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |<span style="color:#000000;">MyCaseClass</span>(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |""".stripMargin,
     )
   }
@@ -2461,7 +2467,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       """<span style="color:#000080;font-weight:bold;">case</span>
         |<span style="color:#000080;font-weight:bold;">class</span>
-        |MyCaseClass(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |<span style="color:#000000;">MyCaseClass</span>(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |<span style="color:#000080;font-weight:bold;">extends</span>
         |<span style="color:#000000;"><a href="psi_element://MyClass"><code>MyClass</code></a></span>
         |<span style="color:#000080;font-weight:bold;">with</span>
