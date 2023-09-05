@@ -40,6 +40,8 @@ object ScalastyleCodeInspection {
 
   def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
     val virtualFile = file.getVirtualFile
+    if (virtualFile == null)
+      return None
     val project = file.getProject
     val baseDir = for {
       basePath <- Option(project.getBasePath)
