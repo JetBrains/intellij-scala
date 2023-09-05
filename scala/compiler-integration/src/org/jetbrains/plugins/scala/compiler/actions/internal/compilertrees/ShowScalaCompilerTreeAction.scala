@@ -154,7 +154,10 @@ object ShowScalaCompilerTreeAction {
       val settings = super.compilerSettings
       val existingOptions = settings.additionalCompilerOptions
       //If there are already such compiler options on the project definition, ignore them, cause we are adding them manually
-      val existingOptionsFiltered = existingOptions.filterNot(o => o.startsWith("-Xprint") || o.startsWith("-Ystop-before"))
+      val existingOptionsFiltered = existingOptions.filterNot { o =>
+        o.startsWith("-Xprint:") || o.startsWith("-Yprint:") || //-Xprint: is alias to -Yprint
+          o.startsWith("-Ystop-before:")
+      }
       val scalacOptionsToPrintTrees = getScalacOptionsToPrintCompilerTrees(module.languageLevel)
       val optionsNew = existingOptionsFiltered ++ scalacOptionsToPrintTrees
       settings.copy(additionalCompilerOptions = optionsNew)
