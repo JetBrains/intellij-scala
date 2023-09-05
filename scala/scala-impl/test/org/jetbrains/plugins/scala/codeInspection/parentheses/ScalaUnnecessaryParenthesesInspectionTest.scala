@@ -522,14 +522,35 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   )
 
   def test_nested_if_with_outer_else(): Unit =
-    checkTextHasNoErrors("object A { if (false) (if (true) println(1)) else println(2) }")
+    checkTextHasNoErrors("object A { if (true) (if (true) println(1)) else println(2) }")
+
+  def test_nested_if_else_if_with_outer_else(): Unit =
+    checkTextHasNoErrors("object A { if (true) (if (true) println(1) else if (true) println(2)) else println(3) }")
+
+  def test_nested_if_else_if_else_if_with_outer_else(): Unit =
+    checkTextHasNoErrors("object A { if (true) (if (true) println(1) else if (true) println(2) else if (true) println(3)) else println(4) }")
+
+  def test_nested_if_else_with_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else println(2))$END else println(3) }")
+
+  def test_nested_if_else_if_else_with_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else println(3))$END else println(4) }")
+
+  def test_nested_if_else_if_else_if_else_with_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else if (true) println(3) else println(4))$END else println(5) }")
 
   def test_nested_if_without_outer_else(): Unit =
-    checkTextHasErrors(s"object A { if (false) $START(if (true) println(1))$END }")
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1))$END }")
+
+  def test_nested_if_else_if_without_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2))$END }")
+
+  def test_nested_if_else_if_else_if_without_outer_else(): Unit =
+    checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else if (true) println(3))$END }")
 
   def test_nested_curly_braced_if_with_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (false) { $START(if (true) println(1))$END } else println(2) }")
-  
+
   def test_case_clause_with_destructuring(): Unit =
     checkTextHasNoErrors(s"object A { 1 match { case (_: _) *: _ => } }")
 }
