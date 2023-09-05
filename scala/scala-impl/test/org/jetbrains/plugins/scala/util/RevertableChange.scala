@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
@@ -185,5 +188,22 @@ object RevertableChange {
 
     override def revertChange(): Unit =
       before.foreach(set(instance, _))
+  }
+
+  def withCompilerSettingsModified(
+    module: Module,
+    getModifiedCopy: ScalaCompilerSettings => ScalaCompilerSettings
+  ): RevertableChange = new RevertableChange {
+    private lazy val profile = module.scalaCompilerSettingsProfile
+    private lazy val oldSettings = profile.getSettings
+
+    override def applyChange(): Unit = {
+      val newSettings = getModifiedCopy(oldSettings)
+      profile.setSettings(newSettings)
+    }
+
+    override def revertChange(): Unit = {
+      profile.setSettings(oldSettings)
+    }
   }
 }
