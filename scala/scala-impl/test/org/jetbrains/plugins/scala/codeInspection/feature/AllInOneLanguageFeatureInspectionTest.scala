@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.feature
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.RevertableChange
 
 final class AllInOneLanguageFeatureInspectionTest extends LanguageFeatureInspectionTestBase {
 
@@ -30,15 +30,15 @@ final class AllInOneLanguageFeatureInspectionTest extends LanguageFeatureInspect
       |}
       |""".stripMargin
 
-  def testAllInOne_LanguageWildcardCompilerSettingShouldEnableAllLanguageFeatures(): Unit = {
-    val profile = getModule.scalaCompilerSettingsProfile
-    val oldSettings = profile.getSettings
-    val newSettings = oldSettings.copy(additionalCompilerOptions = oldSettings.additionalCompilerOptions :+ "-language:_")
-    try {
-      profile.setSettings(newSettings)
+  def testAllInOne_LanguageWildcardCompilerSettingShouldEnableAllLanguageFeatures_SingleDash(): Unit = {
+    RevertableChange.withCompilerSettingsModified(getModule, s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-language:_")) {
       checkTextHasNoErrors(AllInOneCode)
-    } finally {
-      profile.setSettings(oldSettings)
+    }
+  }
+
+  def testAllInOne_LanguageWildcardCompilerSettingShouldEnableAllLanguageFeatures_DoubleDash(): Unit = {
+    RevertableChange.withCompilerSettingsModified(getModule, s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "--language:_")) {
+      checkTextHasNoErrors(AllInOneCode)
     }
   }
 
