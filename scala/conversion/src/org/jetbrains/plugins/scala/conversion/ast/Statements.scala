@@ -50,6 +50,7 @@ case class SynchronizedStatement(lock: Option[IntermediateNode], body: Option[In
 
 case class SwitchLabelStatement(
   caseValues: Seq[IntermediateNode],
+  guardExpression: Option[IntermediateNode],
   arrow: String,
   body: Option[IntermediateNode] = None
 ) extends ExpressionsHolderNodeBase(caseValues ++ body)

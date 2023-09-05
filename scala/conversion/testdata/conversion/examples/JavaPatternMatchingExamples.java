@@ -69,6 +69,14 @@ public class JavaPatternMatchingExamples {
         };
     }
 
+    public void example_switch_record_pattern(Object obj) {
+        String formatter = switch (obj) {
+            case Box(String s) -> String.format("Box contains the string: %s", s);
+            case Box(Integer i) -> String.format("Box contains the integer: %i", i);
+            default -> String.format("Box contains something else: %s", obj);
+        };
+    }
+
     record Point(double x, double y) { }
     record Circle(Point center, double radius) { }
 
@@ -175,8 +183,16 @@ class JavaPatternMatchingExamples {
 
   def example_switch_guarded_pattern(obj: AnyRef): Unit = {
     val formatter: String = obj match {
-      case String s when ! s.isEmpty() => String.format("Non-empty string %s", s)
+      case String s if !s.isEmpty => String.format("Non-empty string %s", s)
       case Object o => String.format("Object %s", o.toString)
+    }
+  }
+
+  def example_switch_record_pattern(obj: AnyRef): Unit = {
+    val formatter: String = obj match {
+      case Box(String s) => String.format("Box contains the string: %s", s)
+      case Box(Integer i) => String.format("Box contains the integer: %i", i)
+      case _ => String.format("Box contains something else: %s", obj)
     }
   }
 
