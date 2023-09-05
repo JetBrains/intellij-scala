@@ -393,15 +393,32 @@ object ScalaPsiElementFactory {
     features:     ScalaFeatures
   )(implicit
     context: ProjectContext
-  ): ScExpression =
+  ): ScExpression = {
+    /**
+     * Use trimmed text in case it was called with extra new line(s): {{{
+     *   createExpressionFromText(
+     *     """if a then b
+     *       |else c
+     *       |""".stripMargin, features)
+     * }}} instead of {{{
+     *   createExpressionFromText(
+     *     """if a then b
+     *       |else c""".stripMargin, features)
+     * }}}
+     */
+    val TrimmedText = text.trim
     getExprFromFirstDef(s"val b = ($text)", features) match {
-      case ScParenthesisedExpr(e) => e
-      case e =>
+      case ScParenthesisedExpr(e@ElementText(TrimmedText)) => e
+      case _ =>
+        // Fallback for better Scala 3 indentation-based syntax support. See ScalaPsiElementFactoryTest, SCL-21596
         getExprFromFirstDef(s"val b = {\n$text\n}", features) match {
-          case ScBlockExpr.Expressions(e) => e
-          case _ => e
+          case ScBlockExpr.Expressions(e@ElementText(TrimmedText)) => e
+          case _ =>
+            // Throw exception early if can't create an expression
+            throw ScalaPsiElementCreationException("expression", text)
         }
     }
+  }
 
   def createReferenceExpressionFromText(
     @NonNls text: String
