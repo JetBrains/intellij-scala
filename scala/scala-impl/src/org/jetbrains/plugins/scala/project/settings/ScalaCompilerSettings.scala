@@ -49,7 +49,8 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
   //They are supposed to be frequently used during the code analyses.
   //For these settings we don't have separate setting on UI in the compiler profile settings
   //TODO: analyze other places which can call `additionalCompilerOptions` frequently and rewrite them as well to use cached value
-  val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_")
+  val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_") ||
+    additionalCompilerOptions.contains("--language:_")
   val strict: Boolean = additionalCompilerOptions.contains("-strict")
 
   //TODO: SCL-16881 Support "Debugging info level" for dotty
