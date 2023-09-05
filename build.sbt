@@ -690,7 +690,7 @@ lazy val mlCompletionIntegration =
     .settings(
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
-      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.3.2"
+      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
     )
 
 // SCL-20376 - The package search plugin will be replaced by a new one, requiring a rewrite of the integration code.
