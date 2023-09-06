@@ -10,10 +10,11 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction.compileFileAndGetCompilerMessages
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, RemoteServerConnectorBase, RemoteServerRunner}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, invokeLater, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.extensions.{OptionExt, invokeLater, withProgressSynchronouslyTry}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
@@ -25,28 +26,38 @@ import scala.collection.mutable
 final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBundle.message("show.scala.compiler.trees.action.title")) {
 
   override def update(e: AnActionEvent): Unit = {
-    val isScalaFile = e.getData(CommonDataKeys.PSI_FILE).is[ScalaFile]
-    e.getPresentation.setEnabledAndVisible(isScalaFile)
+    val data = getDataRequiredForAction(e)
+    e.getPresentation.setEnabledAndVisible(data.isDefined)
   }
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  private def getDataRequiredForAction(e: AnActionEvent): Option[ActionData] =
     for {
       scalaFile <- Option(e.getData(CommonDataKeys.PSI_FILE)).filterByType[ScalaFile]
-      if !scalaFile.isCompiled
-      virtualFile <- Option(scalaFile.getVirtualFile)
+      // - don't process compiled files
+      // - only process scala sources, ignore play templates, sbt, worksheets, etc...
+      if !scalaFile.isCompiled && scalaFile.getFileType == ScalaFileType.INSTANCE
+      physicalVirtualFile <- Option(scalaFile.getVirtualFile)
       module <- scalaFile.module
-    } {
-      FileDocumentManager.getInstance.saveAllDocuments()
-      CompileServerLauncher.ensureServerRunning(module.getProject)
+    } yield ActionData(scalaFile, physicalVirtualFile, module)
 
-      compileFileAndShowDialogWithResults(virtualFile, module)
+  private case class ActionData(scalaFile: ScalaFile, virtualFile: VirtualFile, module: Module)
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val actionData = getDataRequiredForAction(e) match {
+      case Some(d) => d
+      case _ => return
     }
+
+    compileFileAndShowDialogWithResults(actionData)
   }
 
-  private def compileFileAndShowDialogWithResults(
-    virtualFile: VirtualFile,
-    module: Module
-  ): Unit = {
+  private def compileFileAndShowDialogWithResults(actionData: ActionData): Unit = {
+    val virtualFile = actionData.virtualFile
+    val module = actionData.module
+
+    FileDocumentManager.getInstance.saveAllDocuments()
+    CompileServerLauncher.ensureServerRunning(module.getProject)
+
     withProgressSynchronouslyTry(CompilerIntegrationBundle.message("compiling.file", virtualFile.getName), canBeCanceled = true) { _ =>
       val compilerMessages = compileFileAndGetCompilerMessages(virtualFile, module)
 
