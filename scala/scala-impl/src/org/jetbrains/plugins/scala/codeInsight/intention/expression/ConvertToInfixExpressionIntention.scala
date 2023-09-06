@@ -8,109 +8,116 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInsight.intention.analyzeMethodCallArgs
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertToInfixExpressionIntention.{createInfix, qualifiedRef}
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
+import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-import scala.collection.mutable
-
-class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
+final class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.infix.expression")
 
   override def getText: String = getFamilyName
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (!IntentionAvailabilityChecker.checkIntention(this, element)) return false
-    val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
+    val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
-    val referenceExpr = methodCallExpr.getInvokedExpr match {
-      case ref: ScReferenceExpression => ref
-      case call: ScGenericCall => Option(call.referencedExpr) match { //if the expression has type args
-        case Some(ref: ScReferenceExpression) => ref
-        case _ => return false
-      }
+    val referenceExpr = qualifiedRef(methodCallExpr) match {
+      case Some(ref) => ref
       case _ => return false
     }
+
     val range: TextRange = referenceExpr.nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
-    if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-    if (referenceExpr.isQualified) return true
-    false
+    range.getStartOffset <= offset && offset <= range.getEndOffset
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    implicit val ctx: ProjectContext = project
-
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
-    val referenceExpr = methodCallExpr.getInvokedExpr match {
-      case ref: ScReferenceExpression => ref
-      case call: ScGenericCall => Option(call.referencedExpr) match { //if the expression has type args
-        case Some(ref: ScReferenceExpression) => ref
-        case _ => return
-      }
+    val referenceExpr = qualifiedRef(methodCallExpr) match {
+      case Some(ref) => ref
       case _ => return
     }
+
     val start = methodCallExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - referenceExpr.nameId.getTextRange.getStartOffset
 
-    var putArgsFirst = false
-    val argsBuilder = new mutable.StringBuilder
-    val invokedExprBuilder = new mutable.StringBuilder
+    createInfix(methodCallExpr).foreach { infix =>
+      val size = infix.operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
 
-    val qual = referenceExpr.qualifier.get
-    val operText = methodCallExpr.getInvokedExpr match {
-      case call: ScGenericCall => referenceExpr.nameId.getText ++ call.typeArgs.getText
-      case _ =>  referenceExpr.nameId.getText
+      IntentionPreviewUtils.write { () =>
+        methodCallExpr.replaceExpression(infix, removeParenthesis = true)
+        editor.getCaretModel.moveToOffset(start + diff + size)
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+      }
     }
-    val invokedExprText = methodCallExpr.getInvokedExpr.getText
-    val methodCallArgs = methodCallExpr.args
+  }
+}
 
-    if (invokedExprText.last == ':') {
-      putArgsFirst = true
-      invokedExprBuilder.append(operText).append(" ").append(qual.getText)
-    } else {
-      invokedExprBuilder.append(qual.getText).append(" ").append(operText)
-    }
-
-    argsBuilder.append(methodCallArgs.getText)
-
-    analyzeMethodCallArgs(methodCallArgs, argsBuilder)
-
-    var forA = qual.getText
-    if (forA.startsWith("(") && forA.endsWith(")")) {
-      forA = qual.getText.drop(1).dropRight(1)
+object ConvertToInfixExpressionIntention {
+  private def qualifiedRef(call: ScMethodCall): Option[ScReferenceExpression] =
+    call.getInvokedExpr match {
+      case ref: ScReferenceExpression =>
+        Option.when(ref.isQualified)(ref)
+      case call: ScGenericCall => // if the expression has type args
+        call.referencedExpr
+          .asOptionOf[ScReferenceExpression]
+          .filter(_.isQualified)
+      case _ => None
     }
 
-    var forB = argsBuilder.toString()
-    if (forB.startsWith("(") && forB.endsWith(")")) {
-      forB = argsBuilder.toString().drop(1).dropRight(1)
-    }
+  private def createInfix(call: ScMethodCall): Option[ScInfixExpr] = {
+    qualifiedRef(call) match {
+      case Some(referenceExpr@ScReferenceExpression.withQualifier(qualifier)) =>
+        import call.projectContext
 
-    val expr = if (putArgsFirst) {
-      argsBuilder.append(" ").append(invokedExprBuilder)
-    } else {
-      invokedExprBuilder.append(" ").append(argsBuilder)
-    }
-    val text = expr.toString()
+        val qualifierText = qualifier.getText
+        val refText = referenceExpr.nameId.getText
 
-    createExpressionFromText(text, element) match {
-      case infix@ScInfixExpr.withAssoc(base, operation, argument) =>
-        base.replaceExpression(createExpressionFromText(forA, element), removeParenthesis = true)
-        argument.replaceExpression(createExpressionFromText(forB, element), removeParenthesis = true)
-
-        val size = operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
-
-        IntentionPreviewUtils.write { () =>
-          methodCallExpr.replaceExpression(infix, removeParenthesis = true)
-          editor.getCaretModel.moveToOffset(start + diff + size)
-          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        val (operationText, argumentsFirst) = call.getInvokedExpr match {
+          case call: ScGenericCall =>
+            (refText + call.typeArgs.getText, false)
+          case ElementText(text) =>
+            (refText, text.endsWith(":"))
         }
-      case _ => throw new IllegalStateException(s"$text should be infix expression")
+
+        val argumentsText = (call.args match {
+          case ScArgumentExprList(expr) =>
+            expr match {
+              case block: ScBlockExpr if block.isEnclosedByColon =>
+                val statements = block.statements
+                if (statements.sizeIs == 1) statements.head
+                else ScalaPsiUtil.convertBlockToBraced(block)
+              case _ => expr
+            }
+          case args => args
+        }).getText
+
+        val text =
+          if (argumentsFirst)
+            s"($argumentsText) $operationText ($qualifierText)"
+          else
+            s"($qualifierText) $operationText ($argumentsText)"
+
+        createExpressionFromText(text, call)
+          .asOptionOf[ScInfixExpr]
+          .map { infix =>
+            stripUnnecessaryParentheses(infix.left)
+            stripUnnecessaryParentheses(infix.right)
+            infix
+          }
+      case _ => None
     }
+  }
+
+  private[this] def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
+    case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
+      e.doStripParentheses()
+    case _ =>
   }
 }
