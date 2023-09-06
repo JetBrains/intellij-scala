@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScOrType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
@@ -254,6 +254,8 @@ object ImplicitProcessor {
         case ScDesignatorType(v: ScFieldId)        => collectPartsTr(v.`type`())
         case ScDesignatorType(p: ScParameter)      => collectPartsTr(p.`type`())
         case ScCompoundType(comps, _, _)           => collectPartsIter(comps)
+        case ScAndType(lhs, rhs)                   => collectParts(lhs); collectParts(rhs)
+        case ScOrType(lhs, rhs)                    => collectParts(lhs); collectParts(rhs)
         case ScDesignatorType(alias: ScTypeAliasDefinition) if alias.isOpaque => parts += tp
         case ScDesignatorType(alias: ScTypeAliasDeclaration) if alias.isInScala3File => parts += tp
         case ParameterizedType(a: ScAbstractType, args) =>
