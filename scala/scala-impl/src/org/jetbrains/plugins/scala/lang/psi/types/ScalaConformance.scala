@@ -131,18 +131,18 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case _ =>
           (lhs, rhs) match {
             case (l: UndefinedType, r: UndefinedType) =>
-              val id = r.typeParameter.typeParamId
+              val lId = l.typeParameter.typeParamId
+              val rId = r.typeParameter.typeParamId
 
-              val (lower, upper) =
-                if (l.isWrappedExistential) {
-                  val typeParam = l.typeParameter
-                  (typeParam.lowerType, typeParam.upperType)
-                } else                        (l, l)
-
-            constraints =
-              constraints
-                .withUpper(id, upper)
-                .withLower(id, lower)
+              if (r.isWrappedExistential) {
+                constraints = constraints.withLower(lId, r.typeParameter.lowerType)
+              } else if (l.isWrappedExistential) {
+                constraints = constraints.withUpper(rId, l.typeParameter.upperType)
+              } else
+                constraints =
+                  if (r.level > l.level) constraints.withUpper(rId, l)
+                  else if (l.level > r.level) constraints.withUpper(lId, r)
+                  else constraints
             case (UndefinedType(typeParameter, _), rt) =>
               constraints = addParam(typeParameter, rt, constraints)
             case (lt, UndefinedType(typeParameter, _)) =>
