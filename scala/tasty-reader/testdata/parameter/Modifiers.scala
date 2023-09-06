@@ -27,9 +27,13 @@ trait Modifiers {
 
   class ClassUsingImplicitVal3(using implicit val x: Int, implicit val y: Int)
 
-  class ClassVal(val x: Int)
+  class ClassVal1(val x: Int)
 
-  class ClassVar(var x: Int)
+  class ClassVal2(x: Int)(val y: Int)
+
+  class ClassVar1(var x: Int)
+
+  class ClassVar2(x: Int)(var y: Int)
 
   class ClassPrivate(/**/private val /**/x: Int)
 

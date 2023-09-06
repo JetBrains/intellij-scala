@@ -773,6 +773,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     open = false
     next = false
 
+    var isFirstClause = true
     var isImplicitClause = false
     var isGivenClause = false
 
@@ -784,11 +785,13 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         if (open) {
           sb ++= ")"
           open = false
+          isFirstClause = false
         }
         sb ++= "()"
       case Node1(SPLITCLAUSE) =>
         sb ++= ")"
         open = false
+        isFirstClause = false
       case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && node.contains(IMPLICIT) && hasSingleArgument(children.head)) =>
         if (!open) {
           sb ++= "("
@@ -826,7 +829,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
                   if (valueParam.contains(MUTABLE)) {
                     sb ++= "var "
                   } else {
-                    if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
+                    if (!(isFirstClause && definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
                       sb ++= "val "
                     }
                   }
