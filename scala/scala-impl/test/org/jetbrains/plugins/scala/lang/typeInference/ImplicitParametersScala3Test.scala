@@ -37,4 +37,21 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |  ${START}summon[Main.T1 & Main.T2]$END
        |""".stripMargin
   )
+
+  def testSCL21488(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |object A {
+       |  class Constraint[A, C]
+       |  class UnionConstraint[A, C] extends Constraint[A, C]
+       |  class IsUnion[A]
+       |  class True
+       |
+       |  given[A]                        : Constraint[A, True] with {}
+       |  given[A, C](using u: IsUnion[C]): UnionConstraint[A, C] = ???
+       |  given[A]                        : IsUnion[A] = ???
+       |
+       |  ${START}summon[Constraint[String, True]]$END
+       |}
+       |""".stripMargin
+  )
 }
