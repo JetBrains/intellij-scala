@@ -221,14 +221,15 @@ class ScalaPsiManager(implicit val project: Project) {
       }
     )
 
-  private[psi] def noNamePackage: ScPackageImpl = _noNamePackage()
+  private[psi] def noNamePackage: ScPackageImpl = _noNamePackage().orNull
 
-  private val _noNamePackage: () => ScPackageImpl = cachedWithoutModificationCount(
-    "noNamePackage",
-    ValueWrapper.SofterReference[ScPackageImpl],
-    clearCacheOnTopLevelChange,
-    () => getCachedPackage("").map(ScPackageImpl(_)).orNull
-  )
+  private val _noNamePackage: () => Option[ScPackageImpl] =
+    cachedWithoutModificationCount(
+      "noNamePackage",
+      ValueWrapper.SofterReference[Option[ScPackageImpl]],
+      clearCacheOnTopLevelChange,
+      () => getCachedPackage("").map(ScPackageImpl(_))
+   )
 
   private[this] def isPackageOutOfScope(
     `package`: PsiPackage
