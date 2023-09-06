@@ -62,7 +62,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_aliasNew(): Unit = doTest("aliasNew", true)
   def test_and_inf(): Unit = doTest("and-inf", true) // #unionType
   def test_andtypes(): Unit = doTest("andtypes", true) // #unionType
-  def test_annot(): Unit = doTest("annot", true)
   def test_annot_bootstrap(): Unit = doTest("annot-bootstrap", true)
   def test_annot_inner(): Unit = doTest("annot-inner", true)
   def test_Annotations(): Unit = doTest("Annotations", true)
@@ -820,7 +819,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i7428(): Unit = doTest("i7428", true) // #enum
   def test_i7452(): Unit = doTest("i7452", true) // #typeLambda
   def test_i7458(): Unit = doTest("i7458", true) // #extension
-  def test_i7467(): Unit = doTest("i7467", true)
   def test_i7477(): Unit = doTest("i7477", true)
   def test_i7515(): Unit = doTest("i7515", true)
   def test_i7516(): Unit = doTest("i7516", false)
@@ -999,7 +997,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i9749(): Unit = doTest("i9749", true)
   def test_i9769(): Unit = doTest("i9769", true)
   def test_i9775(): Unit = doTest("i9775", true)
-  def test_i9780(): Unit = doTest("i9780", true)
   def test_i9781(): Unit = doTest("i9781", true)
   def test_i9782(): Unit = doTest("i9782", true)
   def test_i9788(): Unit = doTest("i9788", true) // #intersectionType
@@ -1432,7 +1429,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i16464(): Unit = doTest("i16464", true)
   def test_i16474(): Unit = doTest("i16474", true)
   def test_i16484(): Unit = doTest("i16484", false)
-  def test_i16486(): Unit = doTest("i16486", true) // #intersectionType
   def test_i16488(): Unit = doTest("i16488", true)
   def test_i16500(): Unit = doTest("i16500", true)
   def test_i16506(): Unit = doTest("i16506", true)
@@ -1535,7 +1531,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_KillLambdaLift(): Unit = doTest("KillLambdaLift", true)
   def test_kindPolySemiGroup(): Unit = doTest("kindPolySemiGroup", false) // #anykind
   def test_kinds(): Unit = doTest("kinds", true)
-  def test_kinzer(): Unit = doTest("kinzer", true)
   def test_ksbug1(): Unit = doTest("ksbug1", true)
   def test_Labels(): Unit = doTest("Labels", false)
   def test_lambda(): Unit = doTest("lambda", true)
@@ -1917,7 +1912,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_t284_pos(): Unit = doTest("t284-pos", true)
   def test_t287(): Unit = doTest("t287", true)
   def test_t289(): Unit = doTest("t289", true)
-  def test_t295(): Unit = doTest("t295", true)
   def test_t296(): Unit = doTest("t296", true)
   def test_t0301(): Unit = doTest("t0301", true)
   def test_t304(): Unit = doTest("t304", true)
@@ -2133,7 +2127,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_t2441pos(): Unit = doTest("t2441pos", true)
   def test_t2444(): Unit = doTest("t2444", true)
   def test_t2454(): Unit = doTest("t2454", true)
-  def test_t2484(): Unit = doTest("t2484", true)
   def test_t2486(): Unit = doTest("t2486", true)
   def test_t2500(): Unit = doTest("t2500", true)
   def test_t2503(): Unit = doTest("t2503", true)
@@ -2646,6 +2639,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_type_test_syntesize(): Unit = doTest("type-test-syntesize", false)
   def test_typealias_dubious(): Unit = doTest("typealias_dubious", true)
   def test_typealiases(): Unit = doTest("typealiases", true)
+  def test_typeclass_encoding(): Unit = doTest("typeclass-encoding", false) // #unionType
   def test_typeclass_encoding3(): Unit = doTest("typeclass-encoding3", false)
   def test_typedapply(): Unit = doTest("typedapply", true)
   def test_typedIdents(): Unit = doTest("typedIdents", true)
