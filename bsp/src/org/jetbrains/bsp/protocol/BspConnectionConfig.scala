@@ -20,8 +20,10 @@ object BspConnectionConfig {
 
   def workspaceConfigurationFiles(workspace: File): List[File] = {
     val bspDir = new File(workspace, BspWorkspaceConfigDirName)
-    if(bspDir.isDirectory)
-      bspDir.listFiles(file => file.getName.endsWith(".json")).toList
+    if(bspDir.isDirectory) {
+      val files = bspDir.listFiles(file => file.getName.endsWith(".json"))
+      if (files != null) files.toList else Nil
+    }
     else List.empty
   }
 
