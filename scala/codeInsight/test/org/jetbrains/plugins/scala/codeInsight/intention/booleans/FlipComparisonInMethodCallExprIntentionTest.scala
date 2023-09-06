@@ -1,16 +1,14 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package booleans
+package org.jetbrains.plugins.scala.codeInsight.intention.booleans
 
-import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class FlipComparisonInMethodCallExprIntentionTest extends intentions.ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
-
+abstract class FlipComparisonInMethodCallExprIntentionTestBase extends ScalaIntentionTestBase {
   override def familyName = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.method.call.expression")
+}
 
+final class FlipComparisonInMethodCallExprIntentionTest extends FlipComparisonInMethodCallExprIntentionTestBase {
   def testFlip1(): Unit = {
     val text = s"if (f.=$CARET=(false)) return"
     val resultText = s"if (false.=$CARET=(f)) return"
@@ -88,4 +86,72 @@ class FlipComparisonInMethodCallExprIntentionTest extends intentions.ScalaIntent
     doTest(text, resultText)
   }
 
+}
+
+final class FlipComparisonInMethodCallExprIntentionTest_FewerBraces extends FlipComparisonInMethodCallExprIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testFlip1(): Unit = {
+    val text =
+      s"""if (f.=$CARET= :
+         |  false) return""".stripMargin
+    val resultText = s"if (false.=$CARET=(f)) return"
+
+    doTest(text, resultText)
+  }
+
+  def testFlip2(): Unit = {
+    val text =
+      s"""if (a.equal${CARET}s:
+         |  b) return""".stripMargin
+    val resultText = s"if (b.equal${CARET}s(a)) return"
+
+    doTest(text, resultText)
+  }
+
+  def testFlip3(): Unit = {
+    val text =
+      s"""if (7.<$CARET :
+         |  7 + 8) return""".stripMargin
+    val resultText = s"if ((7 + 8).>$CARET(7)) return"
+
+    doTest(text, resultText)
+  }
+
+  def testFlip4(): Unit = {
+    val text =
+      s"""if ((7 + 8).<$CARET :
+         |  7) return""".stripMargin
+    val resultText = s"if (7.>$CARET(7 + 8)) return"
+
+    doTest(text, resultText)
+  }
+
+  def testFlip5(): Unit = {
+    val text =
+      s"""if (sourceClass == null || sourceClass.e${CARET}q:
+         |  clazz) return null""".stripMargin
+    val resultText = s"if (sourceClass == null || clazz.e${CARET}q(sourceClass)) return null"
+
+    doTest(text, resultText)
+  }
+
+  def testFlip6(): Unit = {
+    val text =
+      s"""if (sourceClass == null || sourceClass.e${CARET}q:
+         |  val cls =
+         |    if b then clazz1
+         |    else clazz2
+         |  cls) return null""".stripMargin
+    val resultText =
+      s"""if (sourceClass == null || {
+         |  val cls =
+         |    if b then clazz1
+         |    else clazz2
+         |  cls
+         |}.e${CARET}q(sourceClass)) return null""".stripMargin
+
+    doTest(text, resultText)
+  }
 }
