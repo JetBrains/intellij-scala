@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions with ScalaCodeParsing {
@@ -19,7 +18,6 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions with
   implicit def ctx: ProjectContext = fixture.getProject
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     fixture = createFixture()
     fixture.setUp()

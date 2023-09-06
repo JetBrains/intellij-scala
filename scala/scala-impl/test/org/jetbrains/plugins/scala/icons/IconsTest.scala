@@ -1,19 +1,12 @@
 package org.jetbrains.plugins.scala.icons
 
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 import org.junit.Assert.assertTrue
 
 import java.lang.reflect.Field
 
 class IconsTest extends UsefulTestCase {
-
-
-  override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
-    super.setUp()
-  }
 
   override def isIconRequired: Boolean = true
 

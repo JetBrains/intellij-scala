@@ -202,7 +202,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
         @Override
         protected void setUp() throws Exception {
-            TestUtils.optimizeSearchingForIndexableFiles();
             super.setUp();
             ScalaFileSetTestCase.this.setUp(getProject());
         }

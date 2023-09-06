@@ -10,7 +10,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
-import org.jetbrains.plugins.scala.util.TestUtils
 //noinspection ApiStatus
 import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
@@ -59,8 +58,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   }
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
-
     super.setUp()
 
     // uncomment to enable debugging of compile server in tests

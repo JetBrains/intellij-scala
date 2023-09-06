@@ -117,7 +117,6 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //end section: project descriptor
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     TestUtils.disableTimerThread()
   }

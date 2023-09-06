@@ -18,7 +18,6 @@ class ReachingDefsTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
