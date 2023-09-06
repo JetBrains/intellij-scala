@@ -1,12 +1,36 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.Lookup
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
-class ScalaAotCompletionTest extends ScalaCompletionTestBase {
+abstract class ScalaAotCompletionTestBase extends ScalaCompletionTestBase {
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
 
-  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
+  protected def doAotCompletionTest(fileText: String,
+                                  resultText: String,
+                                  lookupString: String,
+                                  itemText: String,
+                                  tailText: String = ScTypeDefinitionImpl.DefaultLocationString,
+                                  char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
+    val grayed = tailText != null
+    val fullTailText = if (grayed) " " + tailText else null
+
+    doRawCompletionTest(fileText, resultText, char) {
+      hasItemText(_, lookupString)(
+        itemText = itemText,
+        tailText = fullTailText,
+        grayed = grayed
+      )
+    }
+  }
+}
+
+class ScalaAotCompletionTest extends ScalaAotCompletionTestBase {
+
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
 
   def testParameterName(): Unit = doAotCompletionTest(
     fileText =
@@ -124,20 +148,6 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
       """.stripMargin,
     lookupString = "FooBarBaz",
     itemText = "barBaz: FooBarBaz"
-  )
-
-  def testImport(): Unit = doAotCompletionTest(
-    fileText =
-      s"""def foo(rectangle$CARET)
-       """.stripMargin,
-    resultText =
-      s"""import java.awt.Rectangle
-         |
-         |def foo(rectangle: Rectangle$CARET)
-      """.stripMargin,
-    lookupString = "Rectangle",
-    itemText = "rectangle: Rectangle",
-    tailText = "(java.awt)"
   )
 
   def testErasure(): Unit = doAotCompletionTest(
@@ -269,22 +279,26 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
   ) {
     hasItemText(_, "Foo")(itemText = "foo")
   }
+}
 
-  private def doAotCompletionTest(fileText: String,
-                                  resultText: String,
-                                  lookupString: String,
-                                  itemText: String,
-                                  tailText: String = ScTypeDefinitionImpl.DefaultLocationString,
-                                  char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
-    val grayed = tailText != null
-    val fullTailText = if (grayed) " " + tailText else null
+class ScalaAotCompletionJavaDesktopClassesTest extends ScalaAotCompletionTestBase {
+  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.desktop"))
 
-    doRawCompletionTest(fileText, resultText, char) {
-      hasItemText(_, lookupString)(
-        itemText = itemText,
-        tailText = fullTailText,
-        grayed = grayed
-      )
-    }
-  }
+  // The test project must not be shared with other clauses completion tests, otherwise the JDK will not be initialized
+  // with the correct classes for this test.
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+
+  def testImport(): Unit = doAotCompletionTest(
+    fileText =
+      s"""def foo(rectangle$CARET)
+       """.stripMargin,
+    resultText =
+      s"""import java.awt.Rectangle
+         |
+         |def foo(rectangle: Rectangle$CARET)
+      """.stripMargin,
+    lookupString = "Rectangle",
+    itemText = "rectangle: Rectangle",
+    tailText = "(java.awt)"
+  )
 }

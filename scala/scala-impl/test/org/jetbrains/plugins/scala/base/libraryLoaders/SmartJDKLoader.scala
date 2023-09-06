@@ -29,7 +29,7 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
   * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
   */
 case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
-  override protected def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
+  override def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
 }
 
 case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
@@ -67,30 +67,41 @@ object SmartJDKLoader {
     )
   }
 
-  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk = {
+  def getOrCreateFilteredJDK(jdkModuleNames: Seq[String], languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk = {
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
-    val jdkName = jdkVersion.getDescription
+    val jdkName = {
+      val description = jdkVersion.getDescription
+      if (jdkModuleNames.isEmpty) description else s"$description-${jdkModuleNames.mkString("{", ",", "}")}"
+    }
 
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     val registeredJdkFromTable = Option(jdkTable.findJdk(jdkName))
     registeredJdkFromTable.getOrElse {
       val jdk = createNewJdk(jdkVersion, jdkName)
       inWriteAction {
-        // Create a Java SDK that only contains the classes from the `java.base` JDK module. This module contains the
-        // well-known classes like `java.lang.Object`, `java.lang.String`, `java.util.List`, etc...
-        // This significantly speeds up SDK set up and indexing in tests.
-        val classesUrls = jdk.getRootProvider.getUrls(OrderRootType.CLASSES)
-        if (classesUrls.exists(_.endsWith("/java.base"))) {
-          val modificator = jdk.getSdkModificator
-          classesUrls.filterNot(_.endsWith("/java.base")).foreach(modificator.removeRoot(_, OrderRootType.CLASSES))
-          modificator.getUrls(OrderRootType.SOURCES).filterNot(_.endsWith("/java.base")).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
-          modificator.commitChanges()
+        // Create a Java SDK that only contains the classes from the JDK modules provided as a parameter to this method.
+        // E.g. the `java.base` JDK module contains the well-known classes such as `java.lang.Object`,
+        // `java.lang.String`, `java.util.List`, etc...
+        // Having a minimal number of classes in the created SDK significantly speeds up SDK set up and indexing in tests.
+        if (jdkModuleNames.nonEmpty) {
+          val modulePaths = jdkModuleNames.map(m => s"/$m")
+          val classesUrls = jdk.getRootProvider.getUrls(OrderRootType.CLASSES)
+          val filterFn = (url: String) => modulePaths.exists(url.endsWith)
+          if (classesUrls.exists(filterFn)) {
+            val modificator = jdk.getSdkModificator
+            classesUrls.filterNot(filterFn).foreach(modificator.removeRoot(_, OrderRootType.CLASSES))
+            modificator.getUrls(OrderRootType.CLASSES).filterNot(filterFn).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
+            modificator.commitChanges()
+          }
         }
         jdkTable.addJdk(jdk)
       }
       jdk
     }
   }
+
+  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk =
+    getOrCreateFilteredJDK(Seq.empty, languageLevel)
 
   private def createNewJdk(jdkVersion: JavaSdkVersion, jdkName: String): Sdk = {
     val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
