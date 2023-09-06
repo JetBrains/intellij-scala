@@ -959,18 +959,26 @@ object ScalaPsiUtil {
      * The second condition is less obvious, but becomes clear after considering that an
      * if-statement is essentially a tree that may have an if-statement as a child in the
      * else-expression. This form of recursion may continue indefinitely.
-     * To figure out if the inner if-tree needs the parentheses, we must determine
-     * whether the deepest if-child has an else-expression.
-     * If it does, we can remove the parentheses without changing semantics. If it doesn't,
-     * and the outer if-statement indeed has an else-expression, removing the parentheses
-     * would associate that else-expression with the inner if-tree.
+     *
+     * To figure out if the parenthesized if-expression needs those parentheses, we must
+     * determine whether that if-expression itself is complete, i.e. whether it ends with an
+     * else-expression. If that's the case, we can remove the parentheses without changing
+     * semantics. If not, and the outer if-statement indeed has an else-expression,
+     * removing the parentheses would associate that else-expression with the formerly
+     * parenthesized if-expression.
      */
     def innerIfNeedsParentheses(outerIf: ScIf, innerIf: ScIf): Boolean = {
+      @tailrec
+      def isCompleteExpression(expr: ScExpression): Boolean = expr match {
+        case ifExpr: ScIf =>
+          ifExpr.elseExpression match {
+            case Some(expr) => isCompleteExpression(expr)
+            case _ => false
+          }
+        case _ => true
+      }
 
-      def findDeepestIfChild(ifStatement: ScIf): ScIf =
-        ifStatement.elseExpression.collectFirst { case i: ScIf => findDeepestIfChild(i) }.getOrElse(ifStatement)
-
-      outerIf.elseExpression.nonEmpty && findDeepestIfChild(innerIf).elseExpression.isEmpty
+      outerIf.elseExpression.nonEmpty && !isCompleteExpression(innerIf)
     }
 
     if (parsedDifferently(from, expr)) true
