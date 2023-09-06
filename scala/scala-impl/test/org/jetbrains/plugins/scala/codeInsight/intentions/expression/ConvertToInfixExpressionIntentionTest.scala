@@ -186,4 +186,13 @@ final class ConvertToInfixExpressionIntentionTest_FewerBraces extends ConvertToI
     s"""List(1) m${CARET}ap ((x: Int) =>
        |  x + 1)""".stripMargin
   )
+
+  def testConvertToInfixExpression10(): Unit = doTest(
+    s"""List(1).m${CARET}ap: (x: Int) =>
+       |  val y = x + 1
+       |  x + y""".stripMargin,
+    s"""List(1) m${CARET}ap ((x: Int) =>
+       |  val y = x + 1
+       |  x + y)""".stripMargin
+  )
 }

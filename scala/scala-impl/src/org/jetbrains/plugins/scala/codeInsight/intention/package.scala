@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
@@ -76,6 +77,8 @@ package object intention {
   /**
     * The usages of this method need to be refactored to remove StringBuilder implementation
     */
+  @Deprecated(forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2024.1")
   def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: mutable.StringBuilder): Unit = {
     if (methodCallArgs.exprs.length == 1) {
       methodCallArgs.exprs.head match {
