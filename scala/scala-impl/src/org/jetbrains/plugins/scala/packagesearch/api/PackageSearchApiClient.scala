@@ -27,9 +27,11 @@ object PackageSearchApiClient {
   private[this] val byIdCache: AsyncExpirableCache[String, Option[ApiPackage]] =
     new AsyncExpirableCache(executor, searchById)
 
-  def searchByQuery(groupId: String, artifactId: String): CompletableFuture[Seq[ApiPackage]] = {
+  def searchByQuery(groupId: String, artifactId: String, useCache: Boolean = true): CompletableFuture[Seq[ApiPackage]] = {
     val query = queryCacheKey(groupId, artifactId)
-    byQueryCache.get(query)
+
+    if (useCache) byQueryCache.get(query)
+    else CompletableFuture.supplyAsync(() => searchByQuery(query), executor)
   }
 
   def searchById(groupId: String, artifactId: String): CompletableFuture[Option[ApiPackage]] = {
