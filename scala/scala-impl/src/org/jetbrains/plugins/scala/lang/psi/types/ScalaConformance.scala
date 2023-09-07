@@ -135,14 +135,20 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
               val rId = r.typeParameter.typeParamId
 
               if (r.isWrappedExistential) {
-                constraints = constraints.withLower(lId, r.typeParameter.lowerType)
+                constraints =
+                  constraints
+                    .withLower(lId, r.typeParameter.lowerType)
+                    .withUpper(lId, r.typeParameter.upperType)
               } else if (l.isWrappedExistential) {
-                constraints = constraints.withUpper(rId, l.typeParameter.upperType)
+                constraints =
+                  constraints
+                    .withLower(rId, l.typeParameter.lowerType)
+                    .withUpper(rId, l.typeParameter.upperType)
               } else
                 constraints =
-                  if (r.level > l.level) constraints.withUpper(rId, l)
+                  if (r.level > l.level)      constraints.withUpper(rId, l)
                   else if (l.level > r.level) constraints.withUpper(lId, r)
-                  else constraints
+                  else                        constraints
             case (UndefinedType(typeParameter, _), rt) =>
               constraints = addParam(typeParameter, rt, constraints)
             case (lt, UndefinedType(typeParameter, _)) =>
@@ -224,7 +230,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
 
     /*
-      Different checks from right type in order of appearence.
+      Different checks from right type in order of appearance.
       todo: It's seems it's possible to check order and simplify code in many places.
      */
     trait ValDesignatorSimplification extends ScalaTypeVisitor {
