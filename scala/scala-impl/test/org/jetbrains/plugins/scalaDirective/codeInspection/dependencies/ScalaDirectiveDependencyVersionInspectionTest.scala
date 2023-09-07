@@ -72,6 +72,40 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
     artifactId = fullScalaVersionArtifactId
   )
 
+  def testOutdatedDependencyWithoutVersionSuffix_InDoubleQuotes(): Unit = doTest(
+    text = s"""//> using dep $START"$groupId:$artifactId:$outdatedStableVersion"$END""",
+    expected = s"""//> using dep "$groupId:$artifactId:$latestStableVersion""""
+  )
+
+  def testOutdatedDependencyWithScalaVersionSuffix_InDoubleQuotes(): Unit = doTest(
+    text = s"""//> using dep $START"$groupId::$artifactId:$outdatedStableVersion"$END""",
+    expected = s"""//> using dep "$groupId::$artifactId:$latestStableVersion"""",
+    artifactId = scalaVersionArtifactId
+  )
+
+  def testOutdatedDependencyWithFullScalaVersionSuffix_InDoubleQuotes(): Unit = doTest(
+    text = s"""//> using dep $START"$groupId:::$artifactId:$outdatedStableVersion"$END""",
+    expected = s"""//> using dep "$groupId:::$artifactId:$latestStableVersion"""",
+    artifactId = fullScalaVersionArtifactId
+  )
+
+  def testOutdatedDependencyWithoutVersionSuffix_InBackticks(): Unit = doTest(
+    text = s"""//> using dep $START`$groupId:$artifactId:$outdatedStableVersion`$END""",
+    expected = s"""//> using dep `$groupId:$artifactId:$latestStableVersion`"""
+  )
+
+  def testOutdatedDependencyWithScalaVersionSuffix_InBackticks(): Unit = doTest(
+    text = s"""//> using dep $START`$groupId::$artifactId:$outdatedStableVersion`$END""",
+    expected = s"""//> using dep `$groupId::$artifactId:$latestStableVersion`""",
+    artifactId = scalaVersionArtifactId
+  )
+
+  def testOutdatedDependencyWithFullScalaVersionSuffix_InBackticks(): Unit = doTest(
+    text = s"""//> using dep $START`$groupId:::$artifactId:$outdatedStableVersion`$END""",
+    expected = s"""//> using dep `$groupId:::$artifactId:$latestStableVersion`""",
+    artifactId = fullScalaVersionArtifactId
+  )
+
   def testOutdatedDependencyWithUnstableVersion(): Unit = doTest(
     text = s"//> using dep $START$groupId:$artifactId:$outdatedUnstableVersion$END",
     expected = s"//> using dep $groupId:$artifactId:$latestStableVersion"
