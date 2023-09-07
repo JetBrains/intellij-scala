@@ -68,7 +68,8 @@ object CompilerTrees {
           flushNewPhaseTree()
           currentPhase = phase
         case _ =>
-          if (text.startsWith("package <empty> {")) {
+          //tree always starts with "package", if the package is empty it's "package <empty>"
+          if (currentPhase != null && text.startsWith("package")) {
             currentTreeText = text
           }
       }

@@ -14,9 +14,8 @@ import org.junit.ComparisonFailure
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
 
-//TODO: tests for all scala versions
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {
-  val WaitForCompileServerTimeout = 10.seconds //TODO: make it 30 for CI
+  val WaitForCompileServerTimeout = 30.seconds
 
   override protected def useCompileServer: Boolean = true
 
@@ -79,7 +78,9 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
       .mkString("Seq(\n  ", ",\n  ", "\n)")
 
   protected val CommonScala2AndScala3FileText =
-    """class MyClass {
+    """package org.example
+      |
+      |class MyClass {
       |  implicit val s: String = ???
       |  def foo() = {
       |    implicitly[String]
@@ -100,13 +101,17 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
       |    println("Deprecated method called!")
       |  }
       |}
-      |""".stripMargin.trim
+      |""".stripMargin
+
+
+  protected val CommonScala2AndScala3FileText_EmptyPackage =
+    """class MyClass2""".stripMargin.trim
 }
 
 class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_10
 
-    def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
+  def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
     testCompilerPhasesAndTreesAreParsedAndDisplayed(
       s"MyClass.scala",
       CommonScala2AndScala3FileText,
@@ -136,12 +141,43 @@ class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTes
       )
     )
   }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("namer", ""),
+        PhaseWithTreeText("packageobjects", ""),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("patmat", ""),
+        PhaseWithTreeText("superaccessors", ""),
+        PhaseWithTreeText("extmethods", ""),
+        PhaseWithTreeText("pickler", ""),
+        PhaseWithTreeText("refchecks", ""),
+        PhaseWithTreeText("uncurry", "Tree placeholder 3"),
+        PhaseWithTreeText("tailcalls", ""),
+        PhaseWithTreeText("specialize", ""),
+        PhaseWithTreeText("explicitouter", ""),
+        PhaseWithTreeText("erasure", ""),
+        PhaseWithTreeText("posterasure", ""),
+        PhaseWithTreeText("lazyvals", ""),
+        PhaseWithTreeText("lambdalift", ""),
+        PhaseWithTreeText("constructors", ""),
+        PhaseWithTreeText("flatten", ""),
+        PhaseWithTreeText("mixin", ""),
+        PhaseWithTreeText("cleanup", ""),
+        PhaseWithTreeText("icode", "")
+      )
+    )
+  }
 }
 
 class ShowScalaCompilerTreeActionTest_211 extends ShowScalaCompilerTreeActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 
-    def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
+  def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
     testCompilerPhasesAndTreesAreParsedAndDisplayed(
       s"MyClass.scala",
       CommonScala2AndScala3FileText,
@@ -172,12 +208,44 @@ class ShowScalaCompilerTreeActionTest_211 extends ShowScalaCompilerTreeActionTes
       )
     )
   }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("namer", ""),
+        PhaseWithTreeText("packageobjects", ""),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("patmat", ""),
+        PhaseWithTreeText("superaccessors", ""),
+        PhaseWithTreeText("extmethods", ""),
+        PhaseWithTreeText("pickler", ""),
+        PhaseWithTreeText("refchecks", ""),
+        PhaseWithTreeText("uncurry", "Tree placeholder 3"),
+        PhaseWithTreeText("tailcalls", ""),
+        PhaseWithTreeText("specialize", ""),
+        PhaseWithTreeText("explicitouter", ""),
+        PhaseWithTreeText("erasure", ""),
+        PhaseWithTreeText("posterasure", ""),
+        PhaseWithTreeText("lazyvals", ""),
+        PhaseWithTreeText("lambdalift", ""),
+        PhaseWithTreeText("constructors", ""),
+        PhaseWithTreeText("flatten", ""),
+        PhaseWithTreeText("mixin", ""),
+        PhaseWithTreeText("cleanup", ""),
+        PhaseWithTreeText("delambdafy", ""),
+        PhaseWithTreeText("icode", "")
+      )
+    )
+  }
 }
 
 class ShowScalaCompilerTreeActionTest_212 extends ShowScalaCompilerTreeActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
-    def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
+  def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
     testCompilerPhasesAndTreesAreParsedAndDisplayed(
       s"MyClass.scala",
       CommonScala2AndScala3FileText,
@@ -207,12 +275,43 @@ class ShowScalaCompilerTreeActionTest_212 extends ShowScalaCompilerTreeActionTes
       )
     )
   }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("namer", ""),
+        PhaseWithTreeText("packageobjects", ""),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("patmat", ""),
+        PhaseWithTreeText("superaccessors", ""),
+        PhaseWithTreeText("extmethods", ""),
+        PhaseWithTreeText("pickler", ""),
+        PhaseWithTreeText("refchecks", ""),
+        PhaseWithTreeText("uncurry", "Tree placeholder 3"),
+        PhaseWithTreeText("fields", ""),
+        PhaseWithTreeText("tailcalls", ""),
+        PhaseWithTreeText("specialize", ""),
+        PhaseWithTreeText("explicitouter", ""),
+        PhaseWithTreeText("erasure", ""),
+        PhaseWithTreeText("posterasure", ""),
+        PhaseWithTreeText("lambdalift", ""),
+        PhaseWithTreeText("constructors", ""),
+        PhaseWithTreeText("flatten", ""),
+        PhaseWithTreeText("mixin", ""),
+        PhaseWithTreeText("cleanup", ""),
+        PhaseWithTreeText("delambdafy", "")
+      )
+    )
+  }
 }
 
 class ShowScalaCompilerTreeActionTest_213 extends ShowScalaCompilerTreeActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-    def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
+  def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
     testCompilerPhasesAndTreesAreParsedAndDisplayed(
       s"MyClass.scala",
       CommonScala2AndScala3FileText,
@@ -239,6 +338,37 @@ class ShowScalaCompilerTreeActionTest_213 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("mixin", "Tree placeholder 11"),
         PhaseWithTreeText("cleanup", "Tree placeholder 12"),
         PhaseWithTreeText("delambdafy", ""),
+      )
+    )
+  }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("namer", ""),
+        PhaseWithTreeText("packageobjects", ""),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("superaccessors", ""),
+        PhaseWithTreeText("extmethods", ""),
+        PhaseWithTreeText("pickler", ""),
+        PhaseWithTreeText("refchecks", ""),
+        PhaseWithTreeText("patmat", ""),
+        PhaseWithTreeText("uncurry", "Tree placeholder 3"),
+        PhaseWithTreeText("fields", ""),
+        PhaseWithTreeText("tailcalls", ""),
+        PhaseWithTreeText("specialize", ""),
+        PhaseWithTreeText("explicitouter", ""),
+        PhaseWithTreeText("erasure", ""),
+        PhaseWithTreeText("posterasure", ""),
+        PhaseWithTreeText("lambdalift", ""),
+        PhaseWithTreeText("constructors", ""),
+        PhaseWithTreeText("flatten", ""),
+        PhaseWithTreeText("mixin", ""),
+        PhaseWithTreeText("cleanup", ""),
+        PhaseWithTreeText("delambdafy", "")
       )
     )
   }
@@ -276,6 +406,38 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("constructors", "Tree placeholder 10"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", "Tree placeholder 11"),
         PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "Tree placeholder 12")
+      )
+    )
+  }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("inlinedPositions", ""),
+        PhaseWithTreeText("sbt-deps", ""),
+        PhaseWithTreeText("posttyper", "Tree placeholder 3"),
+        PhaseWithTreeText("sbt-api", ""),
+        PhaseWithTreeText("pickler", ""),
+        PhaseWithTreeText("inlining", ""),
+        PhaseWithTreeText("postInlining", ""),
+        PhaseWithTreeText("staging", ""),
+        PhaseWithTreeText("splicing", ""),
+        PhaseWithTreeText("pickleQuotes", ""),
+        PhaseWithTreeText("MegaPhase{firstTransform, checkReentrant, elimPackagePrefixes, cookComments, checkStatic, checkLoopingImplicits, betaReduce, inlineVals, expandSAMs, elimRepeated, refchecks}", ""),
+        PhaseWithTreeText("MegaPhase{crossVersionChecks, protectedAccessors, extmethods, uncacheGivenAliases, elimByName, hoistSuperArgs, forwardDepChecks, specializeApplyMethods, tryCatchPatterns, patternMatcher}", ""),
+        PhaseWithTreeText("preRecheck", ""),
+        PhaseWithTreeText("cc", ""),
+        PhaseWithTreeText("MegaPhase{elimOpaque, explicitOuter, explicitSelf, interpolators, dropBreaks}", ""),
+        PhaseWithTreeText("MegaPhase{pruneErasedDefs, uninitialized, inlinePatterns, vcInlineMethods, seqLiterals, intercepted, getters, specializeFunctions, specializeTuples, liftTry, collectNullableFields, elimOuterSelect, resolveSuper, functionXXLForwarders, paramForwarding, genericTuples, letOverApply, arrayConstructors}", ""),
+        PhaseWithTreeText("erasure", ""),
+        PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 4"),
+        PhaseWithTreeText("constructors", "Tree placeholder 5"),
+        PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", ""),
+        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "")
       )
     )
   }

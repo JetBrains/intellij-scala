@@ -23,7 +23,7 @@ private class MyTreeModel(
   }
 
   private def createPhasesWithTrees: Seq[PhaseWithTreeText] = {
-    val AllTreesNodeTitle = "== All trees =="
+    val AllTreesNodeTitle = "== All phases =="
     //Adding extra node with concatenated trees from all phases
     val phasesWithTreesAdjusted: Seq[PhaseWithTreeText] =
       PhaseWithTreeText(AllTreesNodeTitle, compilerTrees.allPhasesTextConcatenated) +: compilerTrees.phasesTrees

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees.PhaseWithTreeText
+import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog.escapeSpecialXmlTagsFromCompilerTreeTExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -24,6 +25,7 @@ import java.awt.event.ActionEvent
 import java.awt.{BorderLayout, Dimension}
 import java.lang
 import javax.swing._
+import scala.util.matching.Regex
 
 final class CompilerTreesDialog(
   myProject: Project,
@@ -120,23 +122,11 @@ final class CompilerTreesDialog(
   private def updateEditorText(phaseWithText: PhaseWithTreeText): Unit = {
     inWriteAction {
       val text = phaseWithText.treeText
-      val documentText = makeTreeTextCloserToCompilableScalaCode(text)
+      val documentText = escapeSpecialXmlTagsFromCompilerTreeTExt(text)
       val document = myEditor.getDocument
       document.setText(documentText)
     }
   }
-
-  /**
-   * NOTE: scala compiler adds  special XML tags for some constructs which is not valid Scala code.
-   * We still want to parse as much as possible and highlight scala tokens - it makes the tree more readable
-   * So we replace those invalids constructs with our alternatives
-   */
-  private def makeTreeTextCloserToCompilableScalaCode(text: String): String =
-    text
-      .replace("package <empty>", "package `<empty>`")
-      .replace(" <empty>", " /*<empty>*/") // e.g. empty constructor body
-      .replace("def <init>", "def `<init>`")
-      .replace("<static>", "/*<static>*/")
 
   private def createToolWindowPanel(tree: Tree): SimpleToolWindowPanel = {
     val toolWindowPanel = new SimpleToolWindowPanel(true, true)
@@ -177,5 +167,48 @@ final class CompilerTreesDialog(
   override protected def dispose(): Unit = {
     EditorFactory.getInstance.releaseEditor(myEditor)
     super.dispose()
+  }
+}
+
+object CompilerTreesDialog {
+  private val KnownSpecialHtmlTags = Seq(
+    "<accessor>",
+    "<artifact>",
+    "<bridge>",
+    "<empty>",
+    "<paramaccessor>",
+    "<stable>",
+    "<static>",
+    "<synthetic>",
+  )
+  private val KnownSpecialHtmlTagWithPrecedingSpaceWithRegep: Seq[(String, Regex)] =
+    KnownSpecialHtmlTags.map(tag => (tag, s" $tag".r))
+
+  /**
+   * The method makes scala compiler tree look closer to Scala code.
+   *
+   * Scala compiler adds special XML tags for some constructs which is not valid Scala code.
+   * We still want to parse as much as possible and highlight scala tokens - it makes the tree more readable
+   * So we replace those invalids constructs with our alternatives.
+   *
+   * Examples from compiler trees: {{{
+   *   package <empty>
+   *   def <init>(): MyClass = ...
+   *   implicit <stable> <accessor> def s(): String = MyClass.this.s;
+   *   lazy <artifact> val C1$module: scala.runtime.LazyRef = new scala.runtime.LazyRef();
+   *   <synthetic> def productArity(): Int = 0;
+   *   <synthetic> <paramaccessor> <artifact> private[this] val $outer: MyClass = _;
+   *   case <synthetic> <bridge> <artifact> def apply(): Object = MyClass$C1$2.this.apply();
+   * }}}
+   */
+  private def escapeSpecialXmlTagsFromCompilerTreeTExt(text: String): String = {
+    val textWithReplacedSpecialIdentifiers = text
+      .replace("package <empty>", "package `<empty>`")
+      .replace("def <init>", "def `<init>`")
+    val textWithReplacedOtherTags =
+      KnownSpecialHtmlTagWithPrecedingSpaceWithRegep.foldLeft(textWithReplacedSpecialIdentifiers) { case (t, (tag, tagRegexp)) =>
+        tagRegexp.replaceAllIn(t, s""" /*$tag*/""")
+      }
+    textWithReplacedOtherTags
   }
 }
