@@ -64,7 +64,7 @@ package object global {
       } holder.addImportForPsiNamedElement(
         elementToImport,
         null,
-        Some(containingClass)
+        Some(this.containingClass)
       )
 
       override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {

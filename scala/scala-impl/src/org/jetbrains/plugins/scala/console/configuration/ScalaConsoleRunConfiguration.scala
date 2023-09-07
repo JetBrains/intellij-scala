@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import java.io.File
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
+import scala.util.chaining.scalaUtilChainingOps
 
 /**
  * Run configuration with a single purpose: run Scala REPL instance in a internal IDEA console.
@@ -169,21 +170,18 @@ class ScalaConsoleRunConfiguration(
       throw CantRunException.noJdkForModule(module)
     }
 
-    val parameters: JavaParameters = new JavaParameters {
-      {
-        configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+    new JavaParameters().tap { params =>
+      params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
-        getVMParametersList.addParametersString(javaOptions)
-        getClassPath.addScalaCompilerClassPath(module)
-        setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
-        getClassPath.addRunners()
-        setWorkingDirectory(workingDirectory)
+      params.getVMParametersList.addParametersString(javaOptions)
+      params.getClassPath.addScalaCompilerClassPath(module)
+      params.setShortenCommandLine(getShortenCommandLineMethod(Option(params.getJdk)), project)
+      params.getClassPath.addRunners()
+      params.setWorkingDirectory(workingDirectory)
 
-        val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
-        setMainClass(mainClass)
-      }
+      val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
+      params.setMainClass(mainClass)
     }
-    parameters
   }
 
   /** ShortenCommandLine.ARGS_FILE is intentionally not used even if JdkUtil.useClasspathJar is true

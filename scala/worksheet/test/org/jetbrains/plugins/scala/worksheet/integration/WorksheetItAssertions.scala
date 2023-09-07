@@ -103,12 +103,12 @@ trait WorksheetItAssertions {
       val messagesRenders = messages.map { err =>
         s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}"
       }
-      val typ = (category match {
+      val typ = category match {
         case CompilerMessageCategory.ERROR       => "errors"
         case CompilerMessageCategory.WARNING     => "warnings"
         case CompilerMessageCategory.INFORMATION => "information messages"
         case CompilerMessageCategory.STATISTICS  => "???"
-      }): @nowarn("msg=match may not be exhaustive") // TODO: https://github.com/scala/bug/issues/12800
+      }
       fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }
   }
