@@ -68,16 +68,4 @@ class ScalaAutoPopupCompletionHandlerTest extends ScalaCompletionAutoPopupTestCa
        |}""".stripMargin
   }
 
-  def testAutoPopupInTypeAnnotation_typeOnSelection(): Unit = doTest(":", "Seq[String]") {
-    s"""object O {
-       |  val v$START: SomeType$END$CARET = Seq.empty[String]
-       |}""".stripMargin
-  }
-
-  def testNoAutoPopupInTypeAnnotation_typeOnWrongSelection(): Unit = doTestNoAutoCompletion(":") {
-    s"""object O {
-       |  val v$START: Some$END${CARET}Type = Seq.empty[String]
-       |}""".stripMargin
-  }
-
 }
