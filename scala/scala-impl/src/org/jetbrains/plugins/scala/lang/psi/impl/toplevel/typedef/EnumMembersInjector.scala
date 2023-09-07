@@ -18,8 +18,7 @@ class EnumMembersInjector extends SyntheticMembersInjector {
 
   private[this] def companionEnum(obj: ScObject): Option[ScEnum] =
     obj.fakeCompanionClassOrCompanionClass match {
-      case enum: ScEnum          => Option(enum)
-      case ScEnum.Original(enum) => Option(enum)
+      case enum: ScEnum          => Some(enum)
       case _                     => None
     }
 
@@ -40,7 +39,7 @@ class EnumMembersInjector extends SyntheticMembersInjector {
   }
 
   override def needsCompanionObject(source: ScTypeDefinition): Boolean =
-    ScEnum.isDesugaredEnumClass(source)
+    source.isInstanceOf[ScEnum]
 }
 
 object EnumMembersInjector {

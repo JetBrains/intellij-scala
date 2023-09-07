@@ -53,6 +53,10 @@ class ParameterRenderer(
     if (withMemberModifiers) {
       renderModifiers(buffer, param)
       buffer.append(keywordPrefix(param))
+    } else {
+      if (param.hasModifierProperty("inline")) {
+        buffer.append("inline ")
+      }
     }
     buffer.append(escaper.escape(param.name))
     typeAnnotationRenderer.render(buffer, param)

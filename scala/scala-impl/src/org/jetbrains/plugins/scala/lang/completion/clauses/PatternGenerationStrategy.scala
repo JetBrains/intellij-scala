@@ -88,7 +88,7 @@ object PatternGenerationStrategy {
         )
       case ExtractClass(DirectInheritors(inheritors)) =>
         new DirectInheritorsGenerationStrategy(inheritors)
-      case ExtractClass(ScEnum.Original(scEnum)) =>
+      case ExtractClass(scEnum: ScEnum) =>
         val inheritors = Inheritors(scEnum.cases.toList, isSealed = true, isExhaustive = true)
         new DirectInheritorsGenerationStrategy(inheritors)
       case _ =>

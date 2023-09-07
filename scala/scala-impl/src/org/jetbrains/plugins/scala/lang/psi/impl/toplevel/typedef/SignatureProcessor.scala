@@ -64,7 +64,6 @@ sealed trait SignatureProcessor[T <: Signature] {
   @tailrec
   protected final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
     case null                                           => ()
-    case ScEnum.Original(enum)                          => processAll(enum, substitutor, sink)
     case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
     case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
     case td: ScTemplateDefinition =>
@@ -119,7 +118,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
   override protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     for (member <- template.membersWithSynthetic.filterByType[ScNamedElement]) {
       member match {
-        case e: ScEnum => e.syntheticClass.foreach(cls => process(TypeSignature(cls, subst), sink))
+        case e: ScEnum => process(TypeSignature(e, subst), sink)
         case gvn: ScGivenDefinition =>
           gvn.desugaredDefinitions.collect {
             case tdef: ScTypeDefinition => process(TypeSignature(tdef, subst), sink)

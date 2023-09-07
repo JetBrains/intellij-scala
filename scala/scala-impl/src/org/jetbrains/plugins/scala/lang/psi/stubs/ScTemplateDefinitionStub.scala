@@ -9,7 +9,6 @@ trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
     with ScMemberOrLocal[T]
     with ScImplicitStub[T]
     with ScGivenStub
-    with ScEnumStub
     with ScEnumCaseStub {
 
   def javaQualifiedName: String

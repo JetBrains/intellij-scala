@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScEnumImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
@@ -41,7 +40,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeOptionName(stub.topLevelQualifier)
     dataStream.writeBoolean(stub.isGiven)
     dataStream.writeNames(stub.givenClassNames)
-    dataStream.writeOptionName(stub.enumSyntheticClassText)
     dataStream.writeOptionName(stub.enumCaseModifierListText)
     dataStream.writeOptionName(stub.enumCaseAnnotationsText)
   }
@@ -67,7 +65,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       topLevelQualifier                = dataStream.readOptionName,
       isGiven                          = dataStream.readBoolean,
       givenClassNames                  = dataStream.readNames,
-      enumSyntheticClassText           = dataStream.readOptionName,
       enumCaseModifierListText         = dataStream.readOptionName,
       enumCaseAnnotationsText          = dataStream.readOptionName,
     )
@@ -125,11 +122,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                           => (false, EMPTY_STRING_ARRAY)
     }
 
-    val enumSyntheticClassText = definition match {
-      case e: ScEnumImpl => Some(e.syntheticClassText)
-      case _             => None
-    }
-
     val enumCaseModifierListText = definition match {
       case e: ScEnumCaseImpl => Some(e.modifierListText)
       case _                 => None
@@ -160,7 +152,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       topLevelQualifier                = topLevelQualifier,
       isGiven                          = isGivenDefinition,
       givenClassNames                  = givenDefinitionClassNames,
-      enumSyntheticClassText           = enumSyntheticClassText,
       enumCaseModifierListText         = enumCaseModifierListText,
       enumCaseAnnotationsText          = enumCaseAnnotationsText
     )

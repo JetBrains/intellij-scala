@@ -64,7 +64,7 @@ object ScalaColorsSchemeUtils {
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {
       case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => DefaultHighlighter.PREDEF //this is td, it's important!
-      case _: ScEnum | ScEnum.Original(_) | ScEnum.OriginalFromObject(_)                 => DefaultHighlighter.ENUM
+      case _: ScEnum | ScEnum.FromObject(_)                                              => DefaultHighlighter.ENUM
       case ec: ScEnumCase                                                                => enumCaseAttributes(ec)
       case ScEnumCase.Original(ec)                                                       => enumCaseAttributes(ec)
       case c: ScClass if c.getModifierList.isAbstract                                    => DefaultHighlighter.ABSTRACT_CLASS

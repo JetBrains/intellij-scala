@@ -33,34 +33,11 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
   override def cases: Seq[ScEnumCase] =
     extendsBlock.cases.flatMap(_.declaredElements)
 
-  def syntheticClassText: String = byPsiOrStub(syntheticClassText0)(_.enumSyntheticClassText.get)
+  override def hasModifierProperty(name: String): Boolean =
+    name == "final" || name == "abstract" || super.hasModifierProperty(name)
 
-  private[this] def syntheticClassText0 = {
-    val typeParametersText        = typeParametersClause.fold("")(_.getTextByStub)
-    val supersText                = extendsBlock.templateParents.fold("")(_.getText)
-    val constructorText           = constructor.fold("")(_.getText)
-    val secondaryConstructorsText = secondaryConstructors.map(_.getText).mkString("\n")
-    val derivesText               = derivesClause.fold("")(_.getText)
-
-    val extendsText =
-      if (supersText.isEmpty) "extends scala.reflect.Enum"
-      else                    s"extends $supersText with scala.reflect.Enum"
-
-    val accessModifierText = getModifierList.accessModifier.fold("")(_.getText)
-
-    s"""
-       |$accessModifierText sealed abstract class $name$typeParametersText$constructorText $extendsText $derivesText {
-       |  $secondaryConstructorsText
-       |}
-       |""".stripMargin
-  }
-
-  override def syntheticClass: Option[ScTypeDefinition] = cachedInUserData("syntheticClass", this, ModTracker.libraryAware(this)) {
-    val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(syntheticClassText, this.getContext, this)
-    cls.originalEnumElement        = this
-    cls.syntheticNavigationElement = this
-    Option(cls)
-  }
+  override def hasModifierPropertyScala(name: String): Boolean =
+    name == "sealed" || name == "abstract" || super.hasModifierPropertyScala(name)
 
   //noinspection TypeAnnotation
   override protected def targetTokenType = EnumKeyword

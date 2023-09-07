@@ -488,7 +488,7 @@ object ScalaSmartCompletionContributor {
           def checkType(tp: ScType): Unit = {
             if (!isSmart) { // SCL-19749
               tp.extractClass match {
-                case Some(ScEnum.Original(scEnum)) =>
+                case Some(scEnum: ScEnum) =>
                   if (isAccessible(scEnum)) {
                     val cases = scEnum.cases
                     cases.foreach { enumCase =>

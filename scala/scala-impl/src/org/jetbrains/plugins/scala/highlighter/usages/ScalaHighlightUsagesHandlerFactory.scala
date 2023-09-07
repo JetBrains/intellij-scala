@@ -124,8 +124,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
         lazy val isInScala3File = element.isInScala3File
 
         element.getParent match {
-          case enum: ScEnum => return new ScalaHighlightEnumUsagesHandler(enum, file, editor)
-          case enumCase: ScEnumCase => return new ScalaHighlightEnumUsagesHandler(enumCase, file, editor)
+          case enumCase: ScEnumCase => return new ScalaHighlightEnumCaseUsagesHandler(enumCase, file, editor)
           case ScConstructorInvocation.byReference(constr) => return new ScalaHighlightConstructorInvocationUsages(constr, file, editor)
           case ref@ScConstructorInvocation.byUniversalApply(_) => return new ScalaHighlightConstructorInvocationUsages(Option(ref), file, editor)
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
@@ -135,8 +134,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
               //a reliable way to do it the other way. Also, other implementations
               //of HighlightUsagesHandlerFactory seem to ebe using resovle-based logic too.
               ref.resolve() match {
-                case ScEnum.Original(enum) => return new ScalaHighlightEnumUsagesHandler(enum, file, editor)
-                case ScEnumCase.Original(enumCase) => return new ScalaHighlightEnumUsagesHandler(enumCase, file, editor)
+                case ScEnumCase.Original(enumCase) => return new ScalaHighlightEnumCaseUsagesHandler(enumCase, file, editor)
                 case _ => return implicitHighlighter(editor, file, ref)
               }
             } else return implicitHighlighter(editor, file, ref)

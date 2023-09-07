@@ -266,7 +266,6 @@ object ReferenceComparisonTestBase {
 
   private def desugaredEnumTarget(syntheticElement: PsiNamedElement): Option[RefTarget] =
     syntheticElement match {
-      case ScEnum.Original(enum)    => Option(DesugaredEnumRefTarget(enum))
       case ScEnumCase.Original(cse) => Option(DesugaredEnumRefTarget(cse))
       case _                        => None
     }

@@ -105,8 +105,8 @@ object ScDeclarationSequenceHolder {
     val synthetics: Iterable[ScMember] = definition match {
       case cls: ScClass           => cls.getSyntheticImplicitMethod
       case e: ScEnum              =>
-        val cls = e.syntheticClass
-        val obj  = cls.flatMap(_.fakeCompanionModule)
+        val cls = Some(e)
+        val obj  = e.fakeCompanionModule
         cls ++ obj
       case gvn: ScGivenDefinition => gvn.desugaredDefinitions
       case _                      => None

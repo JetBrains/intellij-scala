@@ -222,7 +222,7 @@ class ScalaFileImpl(
             case o: ScObject => o.fakeCompanionClass.toList
             case t: ScTrait  => t.fakeCompanionClass :: t.fakeCompanionModule.toList
             case c: ScClass  => c.fakeCompanionModule.toList
-            case e: ScEnum   => e.fakeCompanionModule.toList ++ e.syntheticClass
+            case e: ScEnum   => e.fakeCompanionModule.toList ++ Some(e)
             case _           => Nil
           }
 

@@ -6,27 +6,17 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 
 import java.util
-import java.util.Collections
 
-class ScalaHighlightEnumUsagesHandler(target: ScalaPsiElement, file: PsiFile, editor: Editor)
+class ScalaHighlightEnumCaseUsagesHandler(enumCase: ScEnumCase, file: PsiFile, editor: Editor)
     extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
-  override def getTargets: util.List[PsiElement] = target match {
-    case enum: ScEnum =>
-      enum.syntheticClass match {
-        case Some(cls) => util.List.of(enum, cls)
-        case None      => util.List.of(enum)
-      }
-    case enumCase: ScEnumCase => util.List.of(enumCase, enumCase.getSyntheticCounterpart)
-    case _                    => Collections.emptyList()
-  }
+  override def getTargets: util.List[PsiElement] =
+    util.List.of(enumCase, enumCase.getSyntheticCounterpart)
 
   override def selectTargets(
     targets:           util.List[_ <: PsiElement],
