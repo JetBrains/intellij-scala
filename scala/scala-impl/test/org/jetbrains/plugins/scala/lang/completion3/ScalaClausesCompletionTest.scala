@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.application.options.CodeStyle
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.base.{SdkConfiguration, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}

@@ -16,7 +16,6 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -229,14 +228,4 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //don't use getFixture, use `myFixture` directly
   protected def getFixture: JavaCodeInsightTestFixture = myFixture
   //end section: workaround methods
-}
-
-object ScalaLightCodeInsightFixtureTestCase {
-  sealed trait SdkConfiguration
-
-  object SdkConfiguration {
-    case object FullJdk extends SdkConfiguration
-
-    final case class IncludedModules(modules: Seq[String]) extends SdkConfiguration
-  }
 }
