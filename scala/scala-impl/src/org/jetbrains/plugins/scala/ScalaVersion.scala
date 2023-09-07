@@ -93,7 +93,7 @@ object LatestScalaVersions {
     Scala_2_10,
     Scala_2_11,
     Scala_2_12,
-    Scala_2_13
+    //Scala_2_13
   )
 
   val allScala3: Seq[ScalaVersion] = Seq(

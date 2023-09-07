@@ -33,9 +33,14 @@ class SbtModuleBuilder(
 
   private val selections = _selections.copy() // Selections is mutable data structure
 
-  private lazy val availableScalaVersions: Versions = Versions.Scala.loadVersionsWithProgress()
-  private lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
-  private lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
+  private lazy val defaultAvailableScalaVersions: Versions = Versions.Scala.allHardcodedVersions
+  private lazy val availableScalaVersions: Option[Versions] = None
+
+  private lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
+  private lazy val availableSbtVersions: Option[Versions] = None
+
+  private lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
+  private lazy val availableSbtVersionsForScala3: Option[Versions] = None
 
   def this() = this(SbtModuleBuilderSelections.default)
 
@@ -73,12 +78,16 @@ object SbtModuleBuilder {
 
     // NOTE: ModuleWizardStep is recreated on validation failures, so to avoid multiple "Scala / Sbt versions download"
     // after each validation failure, we need to take this lazy values from the sbtModuleBuilder, which is not recreated
-    override protected val availableScalaVersions: Versions = sbtModuleBuilder.availableScalaVersions
-    override protected val availableSbtVersions: Versions = sbtModuleBuilder.availableSbtVersions
-    override protected val availableSbtVersionsForScala3: Versions = sbtModuleBuilder.availableSbtVersionsForScala3
+    override protected val defaultAvailableScalaVersions: Versions = sbtModuleBuilder.defaultAvailableScalaVersions
+    availableScalaVersions = sbtModuleBuilder.availableScalaVersions
+
+    availableSbtVersions = sbtModuleBuilder.availableSbtVersions
+    override protected lazy val defaultAvailableSbtVersions: Versions = sbtModuleBuilder.defaultAvailableSbtVersions
+    availableSbtVersionsForScala3 = sbtModuleBuilder.availableSbtVersionsForScala3
+    override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = sbtModuleBuilder.defaultAvailableSbtVersionsForScala3
 
     locally {
-      initSelectionsAndUi()
+      initSelectionsAndUi(myWizardContext.getDisposable)
 
       //
       // Add UI elements to the Wizard Step
@@ -88,11 +97,15 @@ object SbtModuleBuilder {
       val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
         _.add(sbtVersionComboBox),
         _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
+        _.add(sbtLoadingLabel),
+        _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
         _.add(downloadSbtSourcesCheckbox),
       )
 
       val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
         _.add(scalaVersionComboBox),
+        _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
+        _.add(scalaLoadingLabel),
         _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
         _.add(downloadScalaSourcesCheckbox),
       )

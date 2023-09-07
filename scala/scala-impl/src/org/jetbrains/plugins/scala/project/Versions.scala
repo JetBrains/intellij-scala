@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.project
 
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import org.jetbrains.plugins.scala.LatestScalaVersions._
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, isInternalMode}
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.plugins.scala.util.HttpDownloadUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.util.{Failure, Success}
 import scala.util.matching.Regex
 
 case class Versions(defaultVersion: String,
@@ -21,21 +23,43 @@ object Versions {
     final def loadVersionsWithProgress(): Versions = {
       val cancelable = true
       val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
-           entities.flatMap(loadVersions(_, cancelable, None))
+           entities.flatMap(loadVersions(_, cancelable, None, shouldThrowExceptions = false))
       }
-      val versions = loaded
+      loadedVersionsToVersions(loaded)
+    }
+
+    final def loadVersionsWithoutProgress(indicator: ProgressIndicator, timeout: FiniteDuration): Versions = {
+      val loaded = entities.flatMap(loadVersions(_, cancelable = true, Some(indicator), timeout, shouldThrowExceptions = true))
+      loadedVersionsToVersions(loaded)
+    }
+
+    private def loadedVersionsToVersions(versions: List[Version]): Versions = {
+      val stringVersions = versions
         .sorted
         .reverse
         .map(_.presentation)
+      Versions(defaultVersion, stringVersions)
+    }
 
-      Versions(defaultVersion, versions)
+    def initiallySelectedVersion(versions: Seq[String]): String =
+      versions.headOption.getOrElse(defaultVersion)
+
+    lazy val allHardcodedVersions: Versions = {
+      val versions = entities
+        .flatMap {
+          case DownloadableEntity(_, minVersionStr, hardcodedVersions, _) =>
+            val minVersion = Version(minVersionStr)
+            hardcodedVersions
+              .map(Version(_))
+              .filter(_ >= minVersion)
+          case StaticEntity(_, hardcodedVersions) =>
+            hardcodedVersions.map(Version.apply)
+        }
+      loadedVersionsToVersions(versions)
     }
 
     protected def defaultVersion: String =
       entities.head.hardcodedVersions.head
-
-    def initiallySelectedVersion(versions: Seq[String]): String =
-      versions.headOption.getOrElse(defaultVersion)
   }
 
   case object Scala extends Kind(
@@ -72,12 +96,16 @@ object Versions {
     )
   }
 
-  private def loadVersions(entity: Entity, cancelable: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = {
+  private def loadVersions(entity: Entity, cancelable: Boolean, indicatorOpt: Option[ProgressIndicator], timeout: FiniteDuration = 10.seconds, shouldThrowExceptions: Boolean): Seq[Version] = {
     entity match {
       case DownloadableEntity(url, minVersionStr, hardcodedVersions, versionPattern) =>
         val minVersion = Version(minVersionStr)
 
-        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt)
+        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt, timeout)
+        lines match {
+          case Failure(exc) if shouldThrowExceptions => throw exc
+          case _ =>
+        }
         val versionStrings = lines.fold(
           Function.const(hardcodedVersions),
           extractVersions(_, versionPattern)
@@ -94,9 +122,10 @@ object Versions {
       case pattern(number) => number
     }
 
-  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt)
-
-  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt)
+  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt, shouldThrowExceptions = false)
+  lazy val scala2HardcodedVersions: Seq[String] = ScalaEntity.hardcodedVersions
+  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt, shouldThrowExceptions = false)
+  lazy val sbt1HardcodedVersions: Seq[String] = Sbt1Entity.hardcodedVersions
 
   private sealed trait Entity {
     def minVersion: String
@@ -143,7 +172,8 @@ object Versions {
     val Sbt1Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/maven-metadata.xml",
       minVersion = "1.0.0",
-      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct,
+      hardcodedVersions = List("1.1.1"),
+      //      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct,
       versionPattern = """^\s+<version>(\d+\.\d+\.\d+)</version>$""".r
     )
   }

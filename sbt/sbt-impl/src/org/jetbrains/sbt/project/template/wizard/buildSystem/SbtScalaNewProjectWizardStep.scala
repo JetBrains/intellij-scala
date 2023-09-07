@@ -53,9 +53,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
   override protected val selections: SbtModuleBuilderSelections = SbtModuleBuilderSelections.default
 
-  override protected lazy val availableScalaVersions: Versions = Versions.Scala.loadVersionsWithProgress()
-  override protected lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
-  override protected lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
+  override protected lazy val defaultAvailableScalaVersions: Versions = Versions.Scala.allHardcodedVersions
+
+  override protected lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
+  override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
+
 
   locally {
     moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
@@ -98,15 +100,21 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     })
 
     panel.row(sbtLabelText, (row: Row) => {
-      row.layout(RowLayout.PARENT_GRID)
-      row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
-      row.cell(downloadSbtSourcesCheckbox)
+     //row.layout(RowLayout.PARENT_GRID)
+
+      //row.cell(sbtVersionComboBox)
+      val panel = reloadablePanel(getContext.getDisposable)
+
+        row.cell(panel).horizontalAlign(HorizontalAlign.LEFT): @nowarn("cat=deprecation")
+      //row.cell(sbtLoadingLabel)
+      row.cell(downloadSbtSourcesCheckbox).horizontalAlign(HorizontalAlign.LEFT): @nowarn("cat=deprecation")
       KUnit
     })
 
     panel.row(scalaLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
       row.cell(scalaVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
+      row.cell(scalaLoadingLabel)
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
@@ -139,7 +147,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
-    initSelectionsAndUi()
+    initSelectionsAndUi(getContext.getDisposable)
   }
 
   private def validateModuleName(builder: ValidationInfoBuilder, field: JBTextField): ValidationInfo = {

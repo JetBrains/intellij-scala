@@ -11,6 +11,10 @@ public class SComboBox<T> extends ComboBox<T> {
   public SComboBox() {
   }
 
+  public SComboBox(int width) {
+    super(width);
+  }
+
   public SComboBox(T[] items) {
     super(items);
   }
