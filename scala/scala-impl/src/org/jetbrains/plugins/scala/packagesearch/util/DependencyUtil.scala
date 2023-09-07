@@ -1,7 +1,11 @@
 package org.jetbrains.plugins.scala.packagesearch.util
 
+import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.psi.PsiElement
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, SeqExt}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
+import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.{ArtifactIdSuffix, DependencyDescriptor}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 
 object DependencyUtil {
@@ -34,7 +38,7 @@ object DependencyUtil {
 
   def getAllScalaVersionsOrDefault(element: PsiElement, majorOnly: Boolean = false): Seq[String] = {
     val projectVersions = element.getProject.allScalaVersions.sort(reverse = true)
-    
+
     if (projectVersions.isEmpty) {
       val langLevel = element.scalaLanguageLevelOrDefault
       val version = langLevel.getVersion.pipeIf(!majorOnly)(_ + ".0")
@@ -44,6 +48,35 @@ object DependencyUtil {
         if (majorOnly) projectVersions.map(_.major)
         else projectVersions.map(_.minor)
       versionStrings.distinct
+    }
+  }
+
+  def getDependencyVersions(dependencyDescriptor: DependencyDescriptor, context: PsiElement, onlyStable: Boolean): Seq[ComparableVersion] = {
+    val noScalaVersionSuffix = dependencyDescriptor.artifactIdSuffix == ArtifactIdSuffix.Empty
+
+    // TODO(SCL-21495): handle platform specification
+    def getVersions(artifactId: String = dependencyDescriptor.artifactId): Seq[String] = {
+      val versionFuture = PackageSearchApiClient.searchById(dependencyDescriptor.groupId, artifactId)
+      val version = ProgressIndicatorUtils.awaitWithCheckCanceled(versionFuture)
+      version.toList
+        .flatMap(_.versions)
+        .distinct
+    }
+
+    val versions =
+      if (noScalaVersionSuffix) getVersions()
+      else {
+        val fullScalaVersionSuffix = dependencyDescriptor.artifactIdSuffix == ArtifactIdSuffix.FullScalaVersion
+        val scalaVersions = DependencyUtil.getAllScalaVersionsOrDefault(context, majorOnly = !fullScalaVersionSuffix)
+        scalaVersions.flatMap { scalaVersion =>
+          val patchedArtifactId = DependencyUtil.buildScalaArtifactIdString(dependencyDescriptor.artifactId, scalaVersion, fullScalaVersionSuffix)
+          getVersions(patchedArtifactId)
+        }
+      }
+
+    versions.collect {
+      case version if !onlyStable || isStable(version) =>
+        new ComparableVersion(version)
     }
   }
 }

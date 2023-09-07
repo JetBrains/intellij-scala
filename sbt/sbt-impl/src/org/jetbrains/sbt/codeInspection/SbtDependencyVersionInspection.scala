@@ -53,7 +53,7 @@ class SbtDependencyVersionInspection extends DependencyVersionInspection {
                 else ArtifactIdSuffix.ScalaVersion
               } else ArtifactIdSuffix.Empty
 
-              DependencyDescriptor(groupId, artifactId, version, artifactIdSuffix)
+              DependencyDescriptor(groupId, artifactId, Option.when(!version.isBlank)(version), artifactIdSuffix)
           }
         }
       } catch {
