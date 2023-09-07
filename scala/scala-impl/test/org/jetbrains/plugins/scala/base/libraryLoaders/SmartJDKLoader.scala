@@ -32,6 +32,10 @@ case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) ex
   override def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
 }
 
+case class FilteredJDKLoader(modules: Seq[String], languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader {
+  override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateFilteredJDK(modules, languageLevel)
+}
+
 case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
   override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
 }
