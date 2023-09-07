@@ -142,6 +142,11 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
     expected = s"//> using compileOnly.dependencies $groupId:$artifactId:$latestStableVersion"
   )
 
+  def testOutdatedDependencyWithoutVersion(): Unit = doTest(
+    text = s"//> using dep $START$groupId:$artifactId:$END",
+    expected = s"//> using dep $groupId:$artifactId:$latestStableVersion"
+  )
+
   def testNoErrorsAlreadyLatestStableVersion(): Unit = doCheckNoErrors(
     text = s"//> using dep $groupId:$artifactId:$latestStableVersion"
   )
@@ -157,6 +162,10 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
   def testNoErrorsApiClientReturnedNothing(): Unit = doCheckNoErrors(
     text = s"//> using dep $groupId:$artifactId:$outdatedStableVersion",
     versions = None
+  )
+
+  def testNoErrorsWithoutVersionAndColon(): Unit = doCheckNoErrors(
+    text = s"//> using dep $START$groupId:$artifactId$END"
   )
 
   private def scalaVersionArtifactId: String = s"${artifactId}_$scalaVersionSuffix"
