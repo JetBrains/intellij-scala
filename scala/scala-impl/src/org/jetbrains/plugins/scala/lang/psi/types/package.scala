@@ -330,10 +330,18 @@ package object types {
             case elem => filter(elem, ScSubstitutor.empty)
           }
         case parameterizedType: ParameterizedType =>
-          extractFrom(parameterizedType.designator, visitedAliases).map {
-            case (element, substitutor) =>
-              val withFollower = if (needSubstitutor) substitutor.followed(parameterizedType.substitutor) else ScSubstitutor.empty
-              (element, withFollower)
+          parameterizedType.aliasType match {
+           case Some(AliasType(ta: ScTypeAliasDefinition, _, Right(upper))) if needExpand(ta) =>
+            extractFrom(upper, visitedAliases + ta)
+          case _ =>
+            extractFrom(parameterizedType.designator, visitedAliases).map {
+              case (element, substitutor) =>
+                val withFollower =
+                  if (needSubstitutor) substitutor.followed(parameterizedType.substitutor)
+                  else                 ScSubstitutor.empty
+
+                (element, withFollower)
+            }
           }
         case stdType: StdType =>
           stdType.syntheticClass.flatMap {
