@@ -7,13 +7,14 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
 import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyDescriptor
-import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionProvider.{clean, toArtifactStringWithoutVersion}
+import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionProvider._
 import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.{ScalaDirectiveDependencyLookupItem, ScalaDirectiveDependencyVersionLookupItem}
 import org.jetbrains.plugins.scalaDirective.lang.completion.weigher.ScalaDirectiveDependencyVersionWeigher
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
@@ -46,16 +47,16 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
         val groupIdWithDummy = tokens(currentToken)
         val groupId = clean(groupIdWithDummy)
         if (groupId.nonEmpty) {
-          val lookupElements = findDependencies(groupId, artifactId = "", exactMatchGroupId = false).asJava
-          resultSet.addAllElements(lookupElements)
+          val lookupElements = findDependencies(groupId, artifactId = "", exactMatchGroupId = false)
+          resultSet.addAllAndStop(lookupElements)
         }
       case 1 => // artifact
         val groupId = tokens.head
         val artifactIdWithDummy = tokens(currentToken)
         val artifactId = clean(artifactIdWithDummy)
 
-        val lookupElements = findDependencies(groupId, artifactId, exactMatchGroupId = true).asJava
-        resultSet.addAllElements(lookupElements)
+        val lookupElements = findDependencies(groupId, artifactId, exactMatchGroupId = true)
+        resultSet.addAllAndStop(lookupElements)
       case 2 => // version
         placeText match {
           case ScalaDirectiveDependencyDescriptor(descriptor) =>
@@ -70,7 +71,7 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 
             resultSet
               .withRelevanceSorter(sorter)
-              .addAllElements(lookupElements.asJava)
+              .addAllAndStop(lookupElements)
           case _ =>
         }
       case _ => // doesn't look like a dependency, do nothing
@@ -79,11 +80,25 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 }
 
 object ScalaDirectiveDependencyCompletionProvider {
-  private[this] val CrossPublishedArtifact = "^(.+)_\\d+.*$".r
+  private[this] val CrossPublishedArtifact = "^(.+)_(\\d+.*)$".r
+  private[this] val Scala2MajorVersions = LatestScalaVersions.all
+    .collect { case version if version.isScala2 => version.major }
+  private[this] val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
   private def toArtifactStringWithoutVersion(pkg: ApiPackage): String = {
     val artifactId = pkg.artifactId match {
-      case CrossPublishedArtifact(artifactId) => s":$artifactId" // add extra ':' and remove version suffix
+      case CrossPublishedArtifact(artifactId, version) =>
+
+        /**
+         * group:artifact   -> group:artifact
+         * group::artifact  -> group:artifact_3, group:artifact_2.12, etc.
+         * group:::artifact -> group:artifact_3.3.0, group:artifact_2.12.15, group:artifact_2.13.0-RC3, etc.
+         */
+        val crossVersionPrefix =
+          if (ScalaMajorVersions.contains(version)) ":"
+          else "::"
+
+        s"$crossVersionPrefix$artifactId"
       case artifactId => artifactId
     }
 
@@ -93,5 +108,12 @@ object ScalaDirectiveDependencyCompletionProvider {
   private def clean(text: String): String = {
     val idx = text.indexOf(DUMMY_IDENTIFIER_TRIMMED)
     text.pipeIf(idx >= 0)(_.substring(0, idx))
+  }
+
+  private[completion] final implicit class CompletionResultSetExt(private val resultSet: CompletionResultSet) extends AnyVal {
+    def addAllAndStop(elements: Seq[LookupElement]): Unit = {
+      resultSet.addAllElements(elements.asJava)
+      resultSet.stopHere()
+    }
   }
 }

@@ -86,6 +86,14 @@ object PackageSearchApiClient {
 
   @Internal
   @VisibleForTesting
+  def updateByQueryCache(groupId: String, artifactId: String, result: Seq[ApiPackage]): Unit = {
+    val key = queryCacheKey(groupId, artifactId)
+    val value = CompletableFuture.completedFuture(result)
+    byQueryCache.updateCache(key, value)
+  }
+
+  @Internal
+  @VisibleForTesting
   def updateByIdCache(groupId: String, artifactId: String, result: Option[ApiPackage]): Unit = {
     val key = idCacheKey(groupId, artifactId)
     val value = CompletableFuture.completedFuture(result)
