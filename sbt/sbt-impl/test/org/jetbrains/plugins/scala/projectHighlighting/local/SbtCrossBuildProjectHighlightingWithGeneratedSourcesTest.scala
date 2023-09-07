@@ -2,15 +2,12 @@ package org.jetbrains.plugins.scala.projectHighlighting.local
 
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert.fail
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
 class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjectHighlightingLocalProjectsTestBase {
 
   override def projectName = "sbt-crossproject-test-project-with-generated-sources"

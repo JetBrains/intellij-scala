@@ -3,20 +3,18 @@ package org.jetbrains.bsp.projectHighlighting
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingAssertions
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert.fail
-import org.junit.experimental.categories.Category
 
 //NOTE:
 //The test is very similar to `org.jetbrains.plugins.scala.projectHighlighting.local.SbtFilesProblemHighlightFilterTest`
 //But for SBT project which is opened as BSP over SBT
-@Category(Array(classOf[HighlightingTests]))
 class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
   extends SbtOverBspProjectHighlightingLocalProjectsTestBase
     with ProjectHighlightingAssertions {

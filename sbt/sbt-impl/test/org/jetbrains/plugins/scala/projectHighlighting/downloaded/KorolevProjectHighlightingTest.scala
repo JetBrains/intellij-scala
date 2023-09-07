@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting.downloaded
 
-import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWithRevision
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
 class KorolevProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   //version 0.9.0

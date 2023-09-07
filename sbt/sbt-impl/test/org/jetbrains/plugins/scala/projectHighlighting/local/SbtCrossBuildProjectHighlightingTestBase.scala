@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspection
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.InspectionsKt
-import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.RevertableChange
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
 abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighlightingLocalProjectsTestBase {
 
   override def projectName = "sbt-crossproject-test-project"

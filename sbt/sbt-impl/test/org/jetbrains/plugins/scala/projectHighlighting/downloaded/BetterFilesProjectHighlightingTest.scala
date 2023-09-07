@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.projectHighlighting.downloaded
 
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWithRevision
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
 class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   //NOTE: doesn't work with JDK 11 due to bug in sbt 0.13.8 used in the this project at this revision
