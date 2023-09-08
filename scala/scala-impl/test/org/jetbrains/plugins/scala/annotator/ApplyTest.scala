@@ -133,4 +133,27 @@ class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testSCL21542(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  val x: UInt = ???
+      |  val counter = Reg(x)
+      |}
+      |
+      |trait SpinalEnum { type C }
+      |trait UInt extends Data
+      |trait Data
+      |trait HardType[T]
+      |
+      |object HardType {
+      |  implicit def implFactory[T <: Data](t: T): HardType[T] = ???
+      |}
+      |
+      |object Reg {
+      |  def apply[T <: Data](dataType: HardType[T]): T = ???
+      |  def apply[T <: SpinalEnum](enumType: T): enumType.C = ???
+      |}
+      |""".stripMargin
+  )
 }

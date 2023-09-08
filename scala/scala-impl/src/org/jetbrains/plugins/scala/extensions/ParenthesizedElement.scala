@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScInfixElement, ScParenthesizedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScParenthesisedExpr, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 
@@ -68,7 +68,7 @@ object ParenthesizedElement {
       * without changing the semantics of the AST.
       */
     def isParenthesisNeeded: Boolean = parenthesized match {
-        case expr @ ScParenthesisedExpr(inner)                             => ScalaPsiUtil.needParentheses(expr, inner)
+        case expr@ScParenthesisedExpr(inner)                               => ScalaPsiUtil.needParentheses(expr, inner)
         case _ if parenthesized.innerElement.isEmpty                       => true
         case ScParenthesizedElement(inner) if containsSomethingElse(inner) => true
         case _ if isFunctionTupleParameter                                 => true

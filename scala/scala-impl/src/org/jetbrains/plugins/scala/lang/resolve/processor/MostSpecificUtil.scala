@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-case class MostSpecificUtil(elem: PsiElement, length: Int) {
-  implicit def ctx: ProjectContext = elem
+case class MostSpecificUtil(place: PsiElement, length: Int) {
+  implicit def ctx: ProjectContext = place
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
@@ -62,13 +62,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     cand => !isMoreSpecific(inner, toInnerSRR(cand), checkImplicits = false)
   }
 
-  private class InnerScalaResolveResult[T](
-    val element:                 PsiNamedElement,
-    val implicitConversionClass: Option[PsiClass],
-    val repr:                    T,
-    val substitutor:             ScSubstitutor,
-    val callByNameImplicit:      Boolean = false,
-    val implicitCase:            Boolean = false
+  private case class InnerScalaResolveResult[T](
+    element:                 PsiNamedElement,
+    implicitConversionClass: Option[PsiClass],
+    repr:                    T,
+    substitutor:             ScSubstitutor,
+    callByNameImplicit:      Boolean = false,
+    implicitCase:            Boolean = false
   )
 
   private class ExistentialAbstractionBuilder(tparams: Seq[TypeParameter]) {
@@ -163,9 +163,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               }
               val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
-                Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
+                Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, place)
               val exprs =
-                params1.map(p => Expression(p.paramType, elem)) ++ Seq.fill(i)(default)
+                params1.map(p => Expression(p.paramType, place)) ++ Seq.fill(i)(default)
               Compatibility.checkConformance(params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
               type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
@@ -259,16 +259,53 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     s1 + s2
   }
 
-  private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T], checkImplicits: Boolean): Boolean = {
+  private def isMoreSpecific[T](
+    r1:             InnerScalaResolveResult[T],
+    r2:             InnerScalaResolveResult[T],
+    checkImplicits: Boolean
+  ): Boolean = {
+    def hasImplicitParameters(isrr: InnerScalaResolveResult[T]): Boolean =
+      isrr.element match {
+        case fn: ScFunction => fn.parameters.exists(_.isImplicitOrContextParameter)
+        case _              => false
+      }
+
     ProgressManager.checkCanceled()
+
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
-      case (Some(t1), Some(t2)) => if (ScalaPsiUtil.isInheritorDeep(t1, t2)) return true
+      case (Some(t1), Some(t2)) if ScalaPsiUtil.isInheritorDeep(t1, t2) => true
       case _ =>
+        if (r1.callByNameImplicit ^ r2.callByNameImplicit) !r1.callByNameImplicit
+        else {
+          val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
+          val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
+
+          /**
+           * Scala 3 expands of the notion of specificity (SLS §6.26.3) in the following ways:
+           * 1. If the relative weights are the same, and `r1` takes implicit/context
+           *    parameters, while `r2` does not, `r1` is considered more specific.
+           * 2. If the relative weights are the same, and both `r1` and  `r2` take implicit/context
+           *    parameters, relative weights are recomputed and compared as if `r1` and `r2`
+           *    take normal (non-implicit) parameters.
+           */
+          if (place.isInScala3File && weightR1R2 == weightR2R1) {
+            val r1HasImplicitParameters = hasImplicitParameters(r1)
+            val r2HasImplicitParameters = hasImplicitParameters(r2)
+
+            if (!r1HasImplicitParameters && r2HasImplicitParameters)
+              true
+            else if (r1HasImplicitParameters && r2HasImplicitParameters) {
+              val r1withParams = r1.copy(implicitCase = false)
+              val r2withParams = r2.copy(implicitCase = false)
+
+              val weightWithParamsR1R2 = relativeWeight(r1withParams, r2withParams, checkImplicits)
+              val weightWithParamsR2R1 = relativeWeight(r2withParams, r1withParams, checkImplicits)
+
+              weightWithParamsR1R2 > weightWithParamsR2R1
+            } else false
+          } else weightR1R2 > weightR2R1
+        }
     }
-    if (r1.callByNameImplicit ^ r2.callByNameImplicit) return !r1.callByNameImplicit
-    val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
-    val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
-    weightR1R2 > weightR2R1
   }
 
   private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]],
@@ -311,13 +348,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
       case m: PsiMethod =>
-        val scope = elem.elementScope
+        val scope = place.elementScope
         m.methodTypeProvider(scope).polymorphicType(dropExtensionClauses = true)
       case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-        case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
+        case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, place, true) =>
           pd.declaredType.getOrElse(Nothing)
-        case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
+        case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, place, true) =>
           vd.declaredType.getOrElse(Nothing)
         case _ => refPatt.`type`().getOrAny
       }

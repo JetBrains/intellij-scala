@@ -937,11 +937,51 @@ object ScalaPsiUtil {
       } else false
     }
 
+    /**
+     * This method determines whether we're dealing with a case like this:
+     * {{{
+     * if (false)
+     *   (if (false) println(1) else if (false) println(2))
+     * else println(3)
+     * }}}
+     *
+     * More specifically, we are interested in testing whether the parentheses around
+     * `if (false) println(1) else if (false) println(2)` are necessary.
+     *
+     * There are 2 conditions that determine whether removal of these parentheses leads
+     * to changed semantics:
+     *
+     * The first and more obvious condition, is that the outer if-expression must have
+     * an else-expression. If it does not, one can safely remove the parentheses.
+     *
+     * The second condition is less obvious, but becomes clear after considering that
+     * the parenthesized expression is potentially a chain of if-expressions, linked
+     * together via the else-construct.
+     * To figure out whether the total inner if-expression needs its parentheses, we must
+     * recurse the chain until its end and check that the final if-expression has an
+     * else-expression.
+     * If it does, we can remove the parentheses without changing semantics. If it doesn't,
+     * and the outer if-expression indeed has an else-expression, removing the parentheses
+     * would associate that else-expression with the formerly parenthesized expression.
+     */
+    def innerIfNeedsParentheses(outerIf: ScIf, innerIf: ScIf): Boolean = {
+
+      @tailrec
+      def ifChainHasTerminatingElse(ifExpr: ScIf): Boolean = ifExpr.elseExpression match {
+          case Some(nestedIfExpr: ScIf) => ifChainHasTerminatingElse(nestedIfExpr)
+          case Some(_) => true
+          case _ => false
+        }
+
+      outerIf.elseExpression.nonEmpty && !ifChainHasTerminatingElse(innerIf)
+    }
+
     if (parsedDifferently(from, expr)) true
     else {
       val parent = from.getParent
       (parent, expr) match {
         //order of these case clauses is important!
+        case (outerIf: ScIf, innerIf: ScIf) if innerIfNeedsParentheses(outerIf, innerIf) => true
         case (_: ScGuard, _: ScMatch) => true
         case _ if !parent.is[ScExpression] => false
         case _ if expr.textMatches("_") => false
