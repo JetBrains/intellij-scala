@@ -19,8 +19,9 @@ class ProjectNode(override val data: ProjectData)
 class ModuleNode(override val data: ModuleData)
   extends Node[ModuleData] {
   //TODO: remove projectURI?
-  def this(typeId: String, projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
+  def this(typeId: String, projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String, projectURI: Option[String]) = {
     this(new ModuleData(projectId, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+    projectURI.foreach(this.setProperty(Sbt.moduleDataKeyForProjectURI, _))
   }
 
   override protected def key: Key[ModuleData] = ProjectKeys.MODULE

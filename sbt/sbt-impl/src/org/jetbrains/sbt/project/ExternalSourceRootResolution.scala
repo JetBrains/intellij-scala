@@ -11,18 +11,19 @@ import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
-import scala.annotation.nowarn
+import scala.collection.immutable.Map
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
                                 libraryNodes: Seq[LibraryNode],
-                                moduleFilesDirectory: File
+                                moduleFilesDirectory: File,
+                                rootProject: ProjectData
                                ): Seq[ModuleNode] = {
 
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
-    val grouped = groupSharedRoots(sharedRoots)
+    val grouped = groupSharedRoots(sharedRoots, projectToModuleNode, rootProject)
     grouped.map { group =>
       createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
     }
@@ -81,7 +82,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
         //put source module to the same module group
-        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup): @nowarn("cat=deprecation") // TODO: SCL-21288
+        moduleNode.setProperty(Sbt.moduleDataKeyForProjectURI, reprProjectModule.data.getProperty(Sbt.moduleDataKeyForProjectURI))
+        val reprProjectModuleGroup = reprProjectModule.getGroup
+        moduleNode.setGroup(reprProjectModuleGroup)
+        Option(reprProjectModuleGroup).foreach { groupName => moduleNode.setInternalName(s"$groupName.${moduleNode.getInternalName}") }
       }
 
       moduleNode
@@ -132,7 +136,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       group.name,
       group.name,
       moduleFilesDirectory.path,
-      groupBase.canonicalPath
+      groupBase.canonicalPath,
+      group.uri
     )
 
     val contentRootNode = new ContentRootNode(groupBase.path)
@@ -239,7 +244,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       .toSeq
   }
 
-  private def groupSharedRoots(roots: Seq[SharedRoot]): Seq[RootGroup] = {
+  private def groupSharedRoots(roots: Seq[SharedRoot], projectToModuleMap: Map[sbtStructure.ProjectData, ModuleNode], rootProject: ProjectData): Seq[RootGroup] = {
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
@@ -249,7 +254,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       case (Some(base), sharedRoots) =>
         val name = nameProvider.nameFor(base)
         val projects = sharedRoots.flatMap(_.projects).distinct
-        RootGroup(name, sharedRoots.map(_.root), projects)
+        val uri = projectToModuleMap.find(_._1.base == base).map(_._2.data.getProperty(Sbt.moduleDataKeyForProjectURI)).getOrElse(rootProject.base.getAbsolutePath)
+        RootGroup(name, sharedRoots.map(_.root), projects, Option(uri))
     }
   }
 
@@ -270,7 +276,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData]) {
+  private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData], uri: Option[String]) {
     lazy val base: File = commonBase(roots)
 
     private def commonBase(roots: Seq[Root]): File = {

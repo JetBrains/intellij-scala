@@ -196,6 +196,8 @@ class SbtStructureDump {
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
+//       "-Dfile.encoding=UTF-8",
+//      "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5012") ++
         allOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
       allSbtLauncherArgs// :+ "--debug"

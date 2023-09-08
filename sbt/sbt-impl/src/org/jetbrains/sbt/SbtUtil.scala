@@ -6,6 +6,8 @@ import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil.trimEnd
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
@@ -22,7 +24,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
 import scala.util.Using
 
 object SbtUtil {
@@ -328,5 +330,43 @@ object SbtUtil {
 
   private def environmentsToUse(passParentEnvironment: Boolean, userSetEnv: Map[String, String]) =
     if (passParentEnvironment) EnvironmentUtil.getEnvironmentMap.asScala ++ userSetEnv else userSetEnv
+
+  def generatePossibleName(internalModuleName: String, path: String, groupName: String): Seq[String] = {
+    val pathParts = FileUtil.splitPath(FileUtil.toSystemDependentName(path)).asScala.toSeq.filter(_.nonEmpty)
+    val nameBuilder = new StringBuilder
+    var duplicateCandidate = internalModuleName
+    val myDelimiter = "."
+    val MAX_FILE_DEPTH = 3
+
+    def generate(names: Seq[String], i: Int, j: Int): Seq[String] = {
+      if (!(i >= 0 && j < MAX_FILE_DEPTH)) names
+      else {
+        val part = pathParts(i)
+        var jj = j
+        var isAlreadyIncluded = false
+        if (duplicateCandidate.nonEmpty) {
+          if (duplicateCandidate == part || duplicateCandidate.endsWith(myDelimiter + part) || duplicateCandidate.endsWith("_" + part)) {
+            jj -= 1
+            duplicateCandidate = trimEnd(trimEnd(trimEnd(duplicateCandidate, part), myDelimiter), "_")
+            isAlreadyIncluded = true
+          }
+        } else if (internalModuleName.startsWith(part) || i > 1 && internalModuleName.startsWith(pathParts(i - 1) + myDelimiter + part)) {
+          jj -= 1
+          isAlreadyIncluded = true
+        } else {
+          duplicateCandidate = ""
+        }
+        if (!isAlreadyIncluded) {
+          nameBuilder.insert(0, s"$part.")
+          val possibleModuleName = s"$groupName$nameBuilder$internalModuleName"
+          generate(names :+ possibleModuleName, i - 1, jj + 1)
+        } else {
+          generate(names, i - 1, jj + 1)
+        }
+      }
+    }
+
+    generate(Seq.empty, pathParts.size - 1, 0)
+  }
 
 }

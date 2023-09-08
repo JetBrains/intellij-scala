@@ -133,7 +133,8 @@ object ExternalSystemDataDsl {
         attributes.getOrFail(projectId),
         attributes.getOrFail(name),
         attributes.getOrFail(moduleFileDirectoryPath),
-        attributes.getOrFail(externalConfigPath)
+        attributes.getOrFail(externalConfigPath),
+        attributes.get(projectURI).map(_.getPath)
       )
       attributes.get(libraries).foreach { libs =>
         libs.map(_.build).foreach { libNode =>

@@ -26,6 +26,8 @@ object Sbt {
 
   @NonNls val BuildModuleSuffix = "-build"
 
+  @NonNls val MultipleBuildModulePrefix = "sbt-build-modules."
+
   @NonNls val BuildLibraryPrefix = "sbt-"
 
   @NonNls val UnmanagedLibraryName = "unmanaged-jars"
@@ -58,4 +60,6 @@ object Sbt {
    */
   def Icon: Icon = Icons.SBT
   def FolderIcon: Icon = Icons.SBT_FOLDER
+
+  def moduleDataKeyForProjectURI = "uri"
 }
