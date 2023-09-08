@@ -141,7 +141,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case inv: MethodInvocation =>
         var paramsBuf = Seq[String]()
         for {
-          (arg, param) <- inv.matchedParameters.sortBy(_._2.index)
+          (arg, param) <- inv.matchedParameters
           if ScUnderScoreSectionUtil.isUnderscore(arg)
         } {
           val paramName =

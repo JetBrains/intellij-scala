@@ -27,7 +27,7 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
   override def getParameterHints(element: PsiElement): ju.List[hints.InlayInfo] = {
     val matchedParameters = (element match {
       case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
-      case call: ScMethodCall => call.matchedParameters.reverse
+      case call: ScMethodCall => call.matchedParameters
       case invocation: ScConstructorInvocation => invocation.matchedParameters
       case _ => Seq.empty
     }).filter {
