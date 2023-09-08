@@ -10,6 +10,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 
 final class ScalaDirectiveKeyCompletionContributor extends ScalaCompletionContributor {
   register(ScalaDirectiveDependencyKeys)
+  register(ScalaDirectiveScalaKey)
 
   private def register(keys: String*): Unit = register(keys)
 
