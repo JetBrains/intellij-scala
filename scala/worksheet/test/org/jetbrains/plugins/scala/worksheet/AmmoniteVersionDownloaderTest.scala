@@ -11,13 +11,13 @@ class AmmoniteVersionDownloaderTest extends base.ScalaLightCodeInsightFixtureTes
   import ammonite.ImportAmmoniteDependenciesFix._
 
   private def downloadAndTestScalaVersionImpl(forScala: MyScalaVersion): Unit =
-    loadScalaVersions(forScala) match {
+    loadScalaVersions(forScala, cancelable = false) match {
       case Success(Some(_)) =>
       case other => fail(s"Cannot download Scala version for $forScala, got: $other")
     }
 
   private def downloadAndTestAmmoniteVersionImpl(scalaVersion: String): Unit =
-    loadAmmoniteVersion(scalaVersion) match {
+    loadAmmoniteVersion(scalaVersion, cancelable = false) match {
       case Success(_) =>
       case other => fail(s"Cannot download Ammonite version for $scalaVersion, got: $other")
     }

@@ -1,8 +1,10 @@
 package org.jetbrains.sbt.project.template.techhub
 
 import com.google.gson.Gson
+import org.jetbrains.plugins.scala.util.HttpDownloadUtil
 
 import java.io.{File, IOException}
+import scala.concurrent.duration.DurationInt
 import scala.util.Try
 
 case class IndexEntry(displayName: String, templateName: String, githubRepo: String, githubUrl: String,
@@ -23,7 +25,7 @@ private object TechHubStarterProjects {
   val dummyEntry: IndexEntry = IndexEntry("","","","","","","",Array.empty, Array.empty, EntryFeatured(0))
 
   def downloadIndex(): Try[Map[String, IndexEntry]] = {
-    val jsonTry = TechHubDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5000)
+    val jsonTry = HttpDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5.seconds, canBeCanceled = false, None)
     val gson = new Gson
 
     jsonTry.map { json =>
