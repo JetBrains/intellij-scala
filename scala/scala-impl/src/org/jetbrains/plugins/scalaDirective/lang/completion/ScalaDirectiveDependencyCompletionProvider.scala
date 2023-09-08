@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 
 final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvider[CompletionParameters] {
   override def addCompletions(params: CompletionParameters, processingContext: ProcessingContext, resultSet: CompletionResultSet): Unit = {
-    resultSet.restartCompletionWhenNothingMatches()
+    resultSet.restartCompletionOnAnyPrefixChange()
 
     val place = positionFromParameters(params)
     val (placeText, valueKind) = ScalaDirectiveValueKind.extract(place.getText)
