@@ -82,4 +82,16 @@ final class ScalaDirectiveAutoPopupTest extends ScalaCompletionAutoPopupTestCase
       s"//> using something foo$CARET"
     }
   }
+
+  def testAutoPopupInDependencyKeyOnDot_test(): Unit = doTest(".", "test.dep" :: "test.deps" :: "test.dependencies" :: Nil) {
+    s"//> using test$CARET"
+  }
+
+  def testAutoPopupInDependencyKeyOnDot_compileOnly(): Unit = doTest(".", "compileOnly.dep" :: "compileOnly.deps" :: "compileOnly.dependencies" :: Nil) {
+    s"//> using compileOnly$CARET"
+  }
+
+  def testAutoPopupInDependencyKeyWithSelection_test(): Unit = doTest("te", "test.dep" :: "test.deps" :: "test.dependencies" :: Nil) {
+    s"//> using ${START}dep$END foo:bar:1.2.3"
+  }
 }

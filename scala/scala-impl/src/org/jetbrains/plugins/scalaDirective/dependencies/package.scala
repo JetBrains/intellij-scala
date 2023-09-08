@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
 package object dependencies {
-  private val dependencyDirectiveKeys = Set(
+  private[scalaDirective] val ScalaDirectiveDependencyKeys = Set(
     "dep", "deps", "dependencies",
     "test.dep", "test.deps", "test.dependencies",
     "compileOnly.dep", "compileOnly.deps", "compileOnly.dependencies",
@@ -17,6 +17,6 @@ package object dependencies {
     .inside(
       psiElement(classOf[ScDirective])
         .`with`(condition[ScDirective]("scalaDirectiveWithDepKey")(directive =>
-          directive.key.exists(key => dependencyDirectiveKeys(key.getText))))
+          directive.key.exists(key => ScalaDirectiveDependencyKeys(key.getText))))
     )
 }

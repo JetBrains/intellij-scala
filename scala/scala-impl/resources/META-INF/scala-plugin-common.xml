@@ -255,6 +255,8 @@
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.EnableAutoPopupInScalaDirectiveComment"/>
         <completion.contributor language="ScalaDirective" id="scalaDirectiveDependencyCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionContributor"/>
+        <completion.contributor language="ScalaDirective" id="scalaDirectiveKeyCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveKeyCompletionContributor"/>
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
