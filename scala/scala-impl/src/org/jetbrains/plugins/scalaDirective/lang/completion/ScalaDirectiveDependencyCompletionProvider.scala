@@ -38,7 +38,8 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
         .pipeIf(exactMatchGroupId)(_.filter(_.groupId == groupId))
 
       packages.map(toArtifactStringWithoutVersion).distinct.map { lookupString =>
-        ScalaDirectiveDependencyLookupItem(lookupString, valueKind)
+        // schedule version completion auto popup after insertion
+        ScalaDirectiveDependencyLookupItem(lookupString, valueKind, scheduleAutoPopupAfterInsert = true)
       }
     }
 

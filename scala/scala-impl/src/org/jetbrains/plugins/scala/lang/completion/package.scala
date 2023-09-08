@@ -182,7 +182,7 @@ package object completion {
     def update(key: OffsetKey, offset: Int): Unit = offsetMap.addOffset(key, offset)
   }
 
-  private[completion] implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
+  implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
 
     def offsetMap: OffsetMap = context.getOffsetMap
 
