@@ -37,4 +37,8 @@ final class ScalaDirectiveKeyCompletionTest extends ScalaCompletionTestBase {
   def testCompileOnlyDeps(): Unit = checkCompletion("compileOnly.deps")
 
   def testCompileOnlyDependencies(): Unit = checkCompletion("compileOnly.dependencies")
+
+  /// SCALA
+
+  def testScala(): Unit = checkCompletion("scala")
 }

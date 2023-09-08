@@ -51,26 +51,26 @@ object DependencyUtil {
     }
   }
 
+  def getArtifactVersions(groupId: String, artifactId: String): Seq[String] = {
+    val versionFuture = PackageSearchApiClient.searchById(groupId, artifactId)
+    val version = ProgressIndicatorUtils.awaitWithCheckCanceled(versionFuture)
+    version.toList
+      .flatMap(_.versions)
+      .distinct
+  }
+
   def getDependencyVersions(dependencyDescriptor: DependencyDescriptor, context: PsiElement, onlyStable: Boolean): Seq[ComparableVersion] = {
     val noScalaVersionSuffix = dependencyDescriptor.artifactIdSuffix == ArtifactIdSuffix.Empty
 
     // TODO(SCL-21495): handle platform specification
-    def getVersions(artifactId: String = dependencyDescriptor.artifactId): Seq[String] = {
-      val versionFuture = PackageSearchApiClient.searchById(dependencyDescriptor.groupId, artifactId)
-      val version = ProgressIndicatorUtils.awaitWithCheckCanceled(versionFuture)
-      version.toList
-        .flatMap(_.versions)
-        .distinct
-    }
-
     val versions =
-      if (noScalaVersionSuffix) getVersions()
+      if (noScalaVersionSuffix) getArtifactVersions(dependencyDescriptor.groupId, dependencyDescriptor.artifactId)
       else {
         val fullScalaVersionSuffix = dependencyDescriptor.artifactIdSuffix == ArtifactIdSuffix.FullScalaVersion
         val scalaVersions = DependencyUtil.getAllScalaVersionsOrDefault(context, majorOnly = !fullScalaVersionSuffix)
         scalaVersions.flatMap { scalaVersion =>
           val patchedArtifactId = DependencyUtil.buildScalaArtifactIdString(dependencyDescriptor.artifactId, scalaVersion, fullScalaVersionSuffix)
-          getVersions(patchedArtifactId)
+          getArtifactVersions(dependencyDescriptor.groupId, patchedArtifactId)
         }
       }
 

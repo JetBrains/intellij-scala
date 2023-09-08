@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
 object ScalaDirectiveDependencyLookupItem {
-  def apply(text: String, valueKind: ScalaDirectiveValueKind): LookupElement = LookupElementBuilder
-    .create(text)
+  def apply(text: String, obj: AnyRef, valueKind: ScalaDirectiveValueKind): LookupElement = LookupElementBuilder
+    .create(obj, text)
     .withInsertHandler { (context, item) =>
       context.getFile.findElementAt(context.getStartOffset) match {
         case value@ElementType(ScalaDirectiveTokenTypes.tDIRECTIVE_VALUE) =>
@@ -18,4 +18,6 @@ object ScalaDirectiveDependencyLookupItem {
         case _ =>
       }
     }
+
+  def apply(text: String, valueKind: ScalaDirectiveValueKind): LookupElement = apply(text, text, valueKind)
 }
