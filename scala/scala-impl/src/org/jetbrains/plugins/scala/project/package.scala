@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Document
@@ -363,7 +362,7 @@ package object project {
     def subscribeToModuleRootChanged(parentDisposable: Disposable = unloadAwareDisposable)
                                     (onRootsChanged: ModuleRootEvent => Unit): Unit =
       project.getMessageBus.connect(parentDisposable).subscribe(
-        ProjectTopics.PROJECT_ROOTS,
+        ModuleRootListener.TOPIC,
         new ModuleRootListener {
           override def rootsChanged(event: ModuleRootEvent): Unit = onRootsChanged(event)
         }
