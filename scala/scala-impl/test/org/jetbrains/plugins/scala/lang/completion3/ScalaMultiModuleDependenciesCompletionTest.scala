@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -43,6 +44,7 @@ final class ScalaMultiModuleDependenciesCompletionTest
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
 
   override protected def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
     super[JavaCodeInsightFixtureTestCase].setUp()
 
     val zio1Module = addModule(ZIO1_MODULE_NAME)

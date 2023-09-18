@@ -6,6 +6,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner {
 
@@ -21,6 +22,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
   )
 
   override protected def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     setUpLibraries(myModule)
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)

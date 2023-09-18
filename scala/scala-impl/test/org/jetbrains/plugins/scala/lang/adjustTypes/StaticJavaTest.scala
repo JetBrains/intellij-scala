@@ -4,9 +4,15 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 class StaticJavaTest extends LightJavaCodeInsightFixtureTestCase {
+
+  override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
+    super.setUp()
+  }
 
   def testStaticJava(): Unit = {
     val file = myFixture.addFileToProject("TestStatic.java",
