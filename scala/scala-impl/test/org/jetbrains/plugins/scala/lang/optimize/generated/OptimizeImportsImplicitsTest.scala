@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.optimize
 package generated
 
-import org.jetbrains.plugins.scala.base.SdkConfiguration
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.Lookup
-import org.jetbrains.plugins.scala.base.{SdkConfiguration, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 

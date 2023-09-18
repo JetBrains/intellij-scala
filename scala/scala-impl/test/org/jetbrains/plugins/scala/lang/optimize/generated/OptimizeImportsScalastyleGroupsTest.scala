@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.SdkConfiguration
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalastyleSettings
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 

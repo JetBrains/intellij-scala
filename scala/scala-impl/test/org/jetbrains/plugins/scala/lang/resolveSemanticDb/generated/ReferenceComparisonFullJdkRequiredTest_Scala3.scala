@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 package generated
 
 import org.jetbrains.plugins.scala.ScalacTests
-import org.jetbrains.plugins.scala.base.{SdkConfiguration, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.junit.experimental.categories.Category
 
 /**

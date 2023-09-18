@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SdkConfiguration
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 
 abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
