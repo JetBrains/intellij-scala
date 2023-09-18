@@ -68,11 +68,11 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |import scala.Option;
         |import scala.Option$;
         |
-        |import java.nio.file.Path;
+        |import java.sql.Connection;
         |
         |public class Temp {
-        |    static void test(Path con, String s) {
-        |        Option<Path> conOpt = Option$.MODULE$.apply(con);
+        |    static void test(Connection con, String s) {
+        |        Option<Connection> conOpt = Option$.MODULE$.apply(con);
         |        Option<String> stringOpt = Option$.MODULE$.apply(s);
         |    }
         |}

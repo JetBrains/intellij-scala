@@ -4,7 +4,7 @@ import com.intellij.psi.PsiPackage
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaFixtureTestCase, SdkConfiguration}
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -22,8 +22,6 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
                                   astLoadingFilter: Boolean = true)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
 
   override protected val includeCompilerAsLibrary = includeScalaCompiler
-
-  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.FullJdk
 
   override protected def supportedIn(version: ScalaVersion) = version >= scalaVersion
 

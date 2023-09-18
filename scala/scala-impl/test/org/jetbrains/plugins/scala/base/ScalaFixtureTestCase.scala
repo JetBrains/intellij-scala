@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{FilteredJDKLoader, HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
 abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner {
 
@@ -13,22 +13,12 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
 
   protected val includeCompilerAsLibrary: Boolean = false
 
-  protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.base"))
-
   protected final implicit def projectContext: Project = getProject
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = {
-    val jdkLoader = sdkConfiguration match {
-      case SdkConfiguration.FullJdk => HeavyJDKLoader()
-      case SdkConfiguration.IncludedModules(modules) => FilteredJDKLoader(modules)
-    }
-
-    Seq(
-      ScalaSDKLoader(includeScalaCompilerIntoLibraryClasspath = includeCompilerAsLibrary),
-      jdkLoader
-    )
-  }
-
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaSDKLoader(includeScalaCompilerIntoLibraryClasspath = includeCompilerAsLibrary),
+    HeavyJDKLoader()
+  )
 
   override protected def setUp(): Unit = {
     super.setUp()
