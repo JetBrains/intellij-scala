@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
-import com.intellij.openapi.roots.{ModuleRootModificationUtil, OrderRootType}
+import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.pom.java.LanguageLevel
@@ -76,16 +76,6 @@ object SmartJDKLoader {
     registeredJdkFromTable.getOrElse {
       val jdk = createNewJdk(jdkVersion, jdkName)
       inWriteAction {
-        // Create a Java SDK that only contains the classes from the `java.base` JDK module. This module contains the
-        // well-known classes like `java.lang.Object`, `java.lang.String`, `java.util.List`, etc...
-        // This significantly speeds up SDK set up and indexing in tests.
-        val classesUrls = jdk.getRootProvider.getUrls(OrderRootType.CLASSES)
-        if (classesUrls.exists(_.endsWith("/java.base"))) {
-          val modificator = jdk.getSdkModificator
-          classesUrls.filterNot(_.endsWith("/java.base")).foreach(modificator.removeRoot(_, OrderRootType.CLASSES))
-          modificator.getUrls(OrderRootType.SOURCES).filterNot(_.endsWith("/java.base")).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
-          modificator.commitChanges()
-        }
         jdkTable.addJdk(jdk)
       }
       jdk
