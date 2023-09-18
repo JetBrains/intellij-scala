@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -17,8 +16,6 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override protected def getTestDirName: String = "pos"
-
-  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.FullJdk
 
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
@@ -42,3 +39,4 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
   //SOE at pos/t0674.scala
   def testScalacTests(): Unit = doTest()
 }
+

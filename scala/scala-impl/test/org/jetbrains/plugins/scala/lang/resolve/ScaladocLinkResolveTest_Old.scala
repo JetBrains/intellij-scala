@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -10,7 +9,11 @@ import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-abstract class ScaladocLinkResolveTestBase_Old extends ScalaResolveTestCase {
+/** Also see [[org.jetbrains.plugins.scala.lang.resolve2.ScalaDocLinkResolveTest]] */
+class ScaladocLinkResolveTest_Old extends ScalaResolveTestCase {
+
+  override def folderPath: String = super.folderPath + "resolve/scaladoc"
+
   protected def genericResolve(expectedLength: Int, expectedClass: Class[_]): Unit = try {
     //NOTE: the file is prepared in `setUp`
     val caretOffsets: Seq[Int] = getEditor.getCaretModel.getAllCarets.asScala.map(_.getOffset).toSeq
@@ -49,12 +52,8 @@ abstract class ScaladocLinkResolveTestBase_Old extends ScalaResolveTestCase {
       System.err.println(s"Test file: $testFilePath")
       throw throwable
   }
-}
 
-/** Also see [[org.jetbrains.plugins.scala.lang.resolve2.ScalaDocLinkResolveTest]] */
-class ScaladocLinkResolveTest_Old extends ScaladocLinkResolveTestBase_Old {
-
-  override def folderPath: String = super.folderPath + "resolve/scaladoc"
+  def testCodeLinkResolve(): Unit = genericResolve(1, classOf[PsiClass])
   def testCodeLinkMultiResolve(): Unit = genericResolve(2, classOf[PsiClass])
   def testMethodParamResolve(): Unit = genericResolve(1, classOf[ScParameterImpl])
   def testMethodTypeParamResolve(): Unit = genericResolve(1, classOf[ScTypeParamImpl])
@@ -65,12 +64,4 @@ class ScaladocLinkResolveTest_Old extends ScaladocLinkResolveTestBase_Old {
   def testPrimaryConstrTypeParamNoResolve(): Unit = genericResolve(0, classOf[PsiClass])
   def testTypeAliasParamResolve(): Unit = genericResolve(1, classOf[ScTypeParamImpl])
   def testTypeAliasParamNoResolve(): Unit = genericResolve(0, classOf[PsiClass])
-}
-
-class ScaladocLinkResolveJavaDesktopClassesTest_Old extends ScaladocLinkResolveTestBase_Old {
-  override def folderPath: String = super.folderPath + "resolve/scaladoc"
-
-  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.base", "java.desktop"))
-
-  def testCodeLinkResolve(): Unit = genericResolve(1, classOf[PsiClass])
 }

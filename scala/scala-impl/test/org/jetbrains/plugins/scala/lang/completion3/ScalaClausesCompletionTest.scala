@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.application.options.CodeStyle
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase.SdkConfiguration
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
@@ -12,9 +11,9 @@ import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScala
 ))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
 
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
   import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{CASE, MATCH}
   import org.jetbrains.plugins.scala.lang.completion.clauses.DirectInheritors.FqnBlockList
-  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
@@ -533,6 +532,22 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
       itemText = "_: Bar"
     )
   }
+
+  def testCompleteWithImportsClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""import javax.swing.JComponent
+         |
+         |(_: JComponent) match {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""import javax.swing.{JComponent, JTree}
+         |
+         |(_: JComponent) match {
+         |  case tree: JTree => $CARET
+         |}""".stripMargin,
+    itemText = "_: JTree"
+  )
 
   def testCompleteInaccessibleClause(): Unit = doClauseCompletionTest(
     fileText =
@@ -1395,31 +1410,4 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   //    super.doMultipleCompletionTest(fileText, BASIC, DEFAULT_TIME, items.size) { lookup =>
   //      items.contains(lookup.getLookupString)
   //    }
-}
-
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13
-))
-class ScalaClausesCompletionJavaDesktopClassesTest extends ScalaClausesCompletionTestBase {
-  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.desktop"))
-
-  // The test project must not be shared with other clauses completion tests, otherwise the JDK will not be initialized
-  // with the correct classes for this test.
-  override protected def sharedProjectToken = SharedTestProjectToken.DoNotShare
-
-  def testCompleteWithImportsClause(): Unit = doClauseCompletionTest(
-    fileText =
-      s"""import javax.swing.JComponent
-         |
-         |(_: JComponent) match {
-         |  c$CARET
-         |}""".stripMargin,
-    resultText =
-      s"""import javax.swing.{JComponent, JTree}
-         |
-         |(_: JComponent) match {
-         |  case tree: JTree => $CARET
-         |}""".stripMargin,
-    itemText = "_: JTree"
-  )
 }
