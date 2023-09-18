@@ -1,18 +1,29 @@
 package org.jetbrains.sbt.project.template;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.ClientProperty;
 import scala.Function1;
 import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;
 
+import static com.intellij.ui.AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED;
+
 public class SComboBox<T> extends ComboBox<T> {
   public SComboBox() {
   }
 
-  public SComboBox(T[] items) {
-    super(items);
+  public SComboBox(T[] items, int width, DefaultListCellRenderer renderer, Boolean shouldAllowAnimation) {
+    super(items, width);
+    setRenderer(renderer, shouldAllowAnimation);
+  }
+
+  private void setRenderer(DefaultListCellRenderer renderer, Boolean shouldAllowAnimation) {
+    if (shouldAllowAnimation) {
+      ClientProperty.put(this , ANIMATION_IN_RENDERER_ALLOWED, true);
+    }
+    setRenderer(renderer);
   }
 
   public void setItems(T[] items) {
@@ -21,6 +32,12 @@ public class SComboBox<T> extends ComboBox<T> {
 
   public void setSelectedItemSafe(T anObject) {
     setSelectedItem(anObject);
+  }
+
+  public void updateComboBoxModel(T[] items, Option<T> selectedItem) {
+    ComboBoxModel<T> model = new DefaultComboBoxModel<>(items);
+    if (selectedItem.isDefined()) model.setSelectedItem(selectedItem.get());
+    super.setModel(model);
   }
 
   @SuppressWarnings("unchecked")
@@ -37,17 +54,6 @@ public class SComboBox<T> extends ComboBox<T> {
         }
         Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         setText(renderer.apply((String) value));
-        return component;
-      }
-    });
-  }
-  public void setTextRenderer2(final Function1<T, String> renderer) {
-    setRenderer(new DefaultListCellRenderer() {
-      @Override
-      @SuppressWarnings("unchecked")
-      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        setText(renderer.apply((T) value));
         return component;
       }
     });
