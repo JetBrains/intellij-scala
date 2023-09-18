@@ -10,7 +10,8 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 
 import java.lang.StringBuilder
 import java.util.regex.Pattern
-import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.annotation.{switch, tailrec}
