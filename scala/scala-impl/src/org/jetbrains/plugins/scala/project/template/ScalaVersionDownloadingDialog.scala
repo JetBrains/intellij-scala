@@ -23,7 +23,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
     setTitle(ScalaBundle.message("title.download"))
     myVersion.setTextRenderer(Version.abbreviate)
 
-    val versions = Versions.Scala.loadVersionsWithProgress().versions
+    val versions = Versions.Scala.loadVersionsWithProgressDialog().versions
     if (versions.nonEmpty) {
       myVersion.setItems(versions.toArray)
       preselectLatestScala2Version(myVersion, versions)
