@@ -284,7 +284,7 @@ object DiagramsComponent {
 
   private def isDarkTheme: Boolean =
     Option(LafManager.getInstance.getCurrentUIThemeLookAndFeel)
-      .exists(_.getTheme.isDark) || StartupUiUtil.isDarkTheme
+      .exists(_.isDark) || StartupUiUtil.isDarkTheme
 
   private def stringifyForAxisLabel(duration: FiniteDuration): String = {
     val minutes = duration.toMinutes

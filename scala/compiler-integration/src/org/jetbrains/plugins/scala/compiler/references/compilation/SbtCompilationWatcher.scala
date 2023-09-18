@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.references.compilation
 
-import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{ModuleListener, Project}
@@ -83,7 +82,7 @@ private[references] class SbtCompilationWatcher(
     val messageBus = project.getMessageBus
     val connection = messageBus.connect(project.unloadAwareDisposable)
 
-    connection.subscribe(ProjectTopics.MODULES, new ModuleListener {
+    connection.subscribe(ModuleListener.TOPIC, new ModuleListener {
       // if an sbt project is added to the IDEA model, just nuke the indices
       // since it may possess a compiler state we are unaware of
       // (this is fine since reindexing is relatively cheap with sbt (no rebuild)).
