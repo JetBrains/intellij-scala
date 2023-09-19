@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.9.3"
 
   // ATTENTION: check the comment in CommonUltimate when updating this version
-  val intellijVersion = "233.6745"
+  val intellijVersion = "233.6745.292"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
