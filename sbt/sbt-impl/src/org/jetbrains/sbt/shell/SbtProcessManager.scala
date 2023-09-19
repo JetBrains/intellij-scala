@@ -120,6 +120,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
+    invokeAndWait {
+      inWriteAction {
+        //By saving all documents ew ensure that edits in `project/build.properties` are saved to disk
+        //otherwise user might change `sbt.version`, reload the project and there will be a warning in sbt shell
+        //"[warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value."
+        //This is because `saveAllDocuments` will be called anyway after sbt process is started, but before it does the check which produces the warning
+        FileDocumentManager.getInstance().saveAllDocuments()
+      }
+    }
+
     val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
 
     val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
