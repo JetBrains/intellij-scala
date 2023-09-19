@@ -212,6 +212,8 @@ class SbtStructureDump {
       val processBuilder = generalCommandLine.toProcessBuilder
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)
+      // It is required due to #SCL-19498
+      processBuilder.environment().put("HISTCONTROL", "ignorespace")
       val procString = processBuilder.command().asScala.mkString(" ")
       reporter.log(procString)
 
@@ -223,9 +225,10 @@ class SbtStructureDump {
     }
       .flatMap { process =>
         Using.resource(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
-          writer.println(sbtCommands)
+          // Due to #SCL-19498 it is needed to prepend each command with empty space at the beginning
+          writer.println(" " + sbtCommands)
           // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
-          writer.println("exit")
+          writer.println(" exit")
           writer.flush()
           handle(process, dumpTaskId, reporter)
         }
