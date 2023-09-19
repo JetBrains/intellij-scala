@@ -720,3 +720,213 @@ class UnusedImportTest_213_XSource3 extends UnusedImportTest_Common_2 {
     assert(messages(text).isEmpty)
   }
 }
+
+final class UnusedImportTest_3 extends UnusedImportTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  def testUnusedGivenWildcard_noGivensOrImplicitsUsed(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.{*, given}
+        |  b
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |  val b: Boolean = true
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("given", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testUnusedGivenWildcard_implicitImportedWithStarWildcard(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.{*, given}
+        |  summon[Int]
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("given", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testUnusedStarWildcard_onlyGivenIsUsedSeparate(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.*
+        |  import Declarations.given
+        |  summon[String]
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("import Declarations.*", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testUnusedStarWildcard_importedByGiven(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.*
+        |  import Declarations.given
+        |  summon[String]
+        |  println(i)
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("import Declarations.*", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testUnusedStarWildcard_importedByGiven2(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.given
+        |  import Declarations.*
+        |  summon[String]
+        |  println(i)
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("import Declarations.*", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testNoHighlightings_givenIsImportedByNameAndImplicitIsWithGivenWildcard(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.{given_String, given}
+        |  summon[Int]
+        |  val s = given_String
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq[HighlightMessage](),
+      messages(text)
+    )
+  }
+
+  def testNoHighlightings_implicitIsImportedWithGivenType(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.given Int
+        |  summon[Int]
+        |
+        |object Declarations:
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq[HighlightMessage](),
+      messages(text)
+    )
+  }
+}
+
+// TODO(SCL-21608):
+//  There is some divergence between Scala 3 compiler's and IntelliJ Scala Plugin's logic in marking wildcard imports unused.
+//  These tests are supposed to fail until the logic is fixed
+final class UnusedImportTest_3_Failing extends UnusedImportTestBase {
+  private def shouldHaveMessages = false
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def doTest(text: String, expectedMessages: HighlightMessage*): Unit =
+    assertCollectionEquals(
+      if (shouldHaveMessages) expectedMessages else Seq.empty,
+      messages(text)
+    )
+
+  def testUnusedStarWildcard_onlyGivenIsUsed(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.{*, given}
+        |  summon[String]
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    doTest(text, HighlightMessage("*", UnusedImportStatement))
+  }
+
+  def testUnusedStarWildcard_onlyGivenIsUsedSwapped(): Unit = {
+    val text =
+      """package org.example
+        |
+        |object Usages:
+        |  import Declarations.{given, *}
+        |  summon[String]
+        |
+        |object Declarations:
+        |  given String = "foo"
+        |  implicit val i: Int = 2
+        |
+        |""".stripMargin
+
+    doTest(text, HighlightMessage("*", UnusedImportStatement))
+  }
+}
