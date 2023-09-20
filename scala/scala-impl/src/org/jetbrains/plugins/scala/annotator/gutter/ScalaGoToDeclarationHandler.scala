@@ -13,10 +13,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinitio
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScPrimaryConstructor, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -107,6 +108,24 @@ object ScalaGoToDeclarationHandler {
       .orNull
   }
 
+  private def getImplicitMembers(templateDef: ScTemplateDefinition)
+                                (isAccepted: ScNamedElement => Boolean): Array[PsiElement] = {
+    val implicitElements = Array.newBuilder[PsiElement]
+
+    def process(element: ScNamedElement): Unit =
+      if (ScalaPsiUtil.isImplicit(element) && isAccepted(element)) {
+        implicitElements += element
+      }
+
+    templateDef.members.foreach {
+      case valOrVar: ScValueOrVariable => valOrVar.declaredElements.foreach(process)
+      case element: ScNamedElement => process(element)
+      case _ =>
+    }
+
+    implicitElements.result()
+  }
+
   private def getGotoDeclarationTargetsForGivenImport(maybeParent: Option[PsiElement]): Array[PsiElement] =
     maybeParent match {
       case Some(selector: ScImportSelector) if selector.isGivenSelector =>
@@ -115,17 +134,20 @@ object ScalaGoToDeclarationHandler {
           .reference
         val resolved = reference.flatMap(_.resolve().toOption)
         val maybeTypeDef = resolved.flatMap(extractTypeDef)
-        val members = maybeTypeDef.toSeq.flatMap(_.members)
-        val givens = selector.givenTypeElement match {
-          case Some(typeElement) => members.filter {
-            case (_: ScGiven) & Typeable(givenType) =>
-              typeElement.`type`().exists(givenType.conforms)
-            case _ => false
-          }
-          case None => members.filterByType[ScGiven]
-        }
 
-        givens.toArray[PsiElement]
+        maybeTypeDef.map { templateDefinition =>
+          selector.givenTypeElement match {
+            case Some(Typeable(expectedType)) =>
+              getImplicitMembers(templateDefinition) {
+                case Typeable(actualType) =>
+                  actualType.conforms(expectedType)
+                case _ => false
+              }
+            case None =>
+              getImplicitMembers(templateDefinition)(Function.const(true))
+            case _ => null
+          }
+        }.orNull
       case _ => null
     }
 
