@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.jdk.CollectionConverters._
 
+// TODO Handle content and source roots that are files rather than directories
+// TODO Handle nested content and source roots
 class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
@@ -34,7 +36,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         val sourceFolder =
           for {
-            virtualFile <- Option(file.getVirtualFile)
+            virtualFile <- Option(file.getVirtualFile).flatMap(f => Option(f.getParent))
             root <- Option(projectFileIndex.getSourceRootForFile(virtualFile))
             sourceFolder <- Option(ProjectRootsUtil.getModuleSourceRoot(root, file.getProject))
           } yield sourceFolder
@@ -47,6 +49,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         val dir = file.getContainingDirectory
         if (dir == null) return null
+        // TODO Reuse sourceFolder to compute a relative path
         val packageNameByDir = packageNameFromFile(dir, packagePrefix) match {
           case Some(pack) => pack
           case None => return null
@@ -116,6 +119,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
   private def packageNameFromFile(file: PsiDirectory, packagePrefix: Option[String]): Option[String] = {
     val vFile = file.getVirtualFile
     // If there are nested source roots, prefer inner, SCL-20397
+    // TODO There's no need to iterate over source roots of other modules
     val withoutPrefix = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.sortBy(_.getPath.length).reverseIterator
       .flatMap { root =>
         if (VfsUtilCore.isAncestor(root, vFile, false)) {
