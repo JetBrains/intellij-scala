@@ -252,35 +252,6 @@ object SbtPlay2ProjectData {
   }
 }
 
-@SerialVersionUID(2)
-case class SbtAndroidFacetData @PropertyMapping(Array("version", "manifest", "apk", "res", "assets", "gen", "libs", "isLibrary", "proguardConfig")) (
-  version: String,
-  manifest: File,
-  apk: File,
-  res: File,
-  assets: File,
-  gen: File,
-  libs: File,
-  isLibrary: Boolean,
-  proguardConfig: JList[String]
-) extends SbtEntityData
-
-object SbtAndroidFacetData {
-  // TODO Change to "+ 1" when external system will enable the proper service separation.
-  // The external system now invokes data services regardless of system ID.
-  // Consequently, com.android.tools.idea.gradle.project.sync.setup.* services in the Android plugin remove _all_ Android facets.
-  // As a workaround, we now rely on the additional "weight" to invoke the service after the Android / Gradle's one.
-  // We expect the external system to update the architecture so that different services will be properly separated.
-  val Key: Key[SbtAndroidFacetData] = datakey(classOf[SbtAndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight +100500)
-
-  def apply(
-    version: String, manifest: File, apk: File,
-    res: File, assets: File, gen: File, libs: File,
-    isLibrary: Boolean, proguardConfig: Seq[String]
-  ): SbtAndroidFacetData =
-    SbtAndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
-}
-
 /**
  * This URI wrapper class is a workaround for a [[java.net.URI]] deserialization bug (see IDEA-221074)<br>
  *

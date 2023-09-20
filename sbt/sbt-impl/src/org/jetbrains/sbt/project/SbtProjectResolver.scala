@@ -299,7 +299,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyDependencyData = DependencyData(Seq.empty, Seq.empty, Seq.empty)
     val dummyRootProject = ProjectData(
       projectTmpName, projectRoot.toURI, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
-      new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString, None,
+      new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
       dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty
     )
 
@@ -430,14 +430,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    */
   private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]): Option[SdkReference] = {
     // TODO put some of this logic elsewhere in resolving process?
-    val androidSdk = project.android.map(android => AndroidJdk(android.targetVersion))
     val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)
 
     // default either from project structure or initial import settings
     val default = defaultJdk.map(JdkByName)
 
-    androidSdk
-      .orElse(jdkHomeInSbtProject)
+    jdkHomeInSbtProject
       .orElse(default)
   }
 
@@ -477,7 +475,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.setIdeModuleGroup(groupName): @nowarn("cat=deprecation") // TODO: SCL-21288
 
       val contentRootNode = createContentRoot(project)
-      project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
       moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
@@ -486,7 +483,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
       moduleNode.addAll(createCommandData(project))
-      moduleNode.addAll(project.android.map(createAndroidFacet).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
         val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
@@ -529,17 +525,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
-    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, compileOrder, android, _, _, _, _, _, _) = project
-
-    val sdk = android.map(_.targetVersion).map(AndroidJdk)
-      .orElse(java.flatMap(_.home).map(JdkByHome))
+    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, compileOrder, _, _, _, _, _, _) = project
 
     val data = SbtModuleExtData(
       scalaVersion           = scala.map(_.version),
       scalacClasspath        = scala.fold(Seq.empty[File])(_.allCompilerJars),
       scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
       scalacOptions          = scala.fold(Seq.empty[String])(_.options),
-      sdk                    = sdk,
+      sdk                    = java.flatMap(_.home).map(JdkByHome),
       javacOptions           = java.fold(Seq.empty[String])(_.options),
       packagePrefix          = packagePrefix,
       basePackage            = basePackages.headOption, // TODO Rename basePackages to basePackage in sbt-ide-settings?
@@ -565,15 +558,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     project.commands.map { c =>
       new SbtCommandNode(SbtCommandData(c.name, c.help))
     }
-  }
-
-  private def createAndroidFacet(android: sbtStructure.AndroidData): AndroidFacetNode = {
-    val data = SbtAndroidFacetData(
-      android.targetVersion, android.manifest, android.apk,
-      android.res, android.assets, android.gen, android.libs,
-      android.isLibrary, android.proguardConfig
-    )
-    new AndroidFacetNode(data)
   }
 
   private def createUnresolvedLibrary(moduleId: sbtStructure.ModuleIdentifier): LibraryNode = {
@@ -807,12 +791,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
     result.setScope(scope)
     result
-  }
-
-  private def addApklibDirs(contentRootNode: ContentRootNode, apklib: sbtStructure.ApkLib): Unit = {
-    contentRootNode.storePath(ExternalSystemSourceType.SOURCE, apklib.sources.canonicalPath)
-    contentRootNode.storePath(ExternalSystemSourceType.SOURCE_GENERATED, apklib.gen.canonicalPath)
-    contentRootNode.storePath(ExternalSystemSourceType.RESOURCE, apklib.resources.canonicalPath)
   }
 
   protected def scopeFor(configurations: Seq[sbtStructure.Configuration]): DependencyScope = {

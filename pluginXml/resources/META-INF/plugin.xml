@@ -59,7 +59,6 @@
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.java-i18n</depends>
     <depends optional="true" config-file="scala-properties-integration.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="scala-gradle-integration.xml">com.intellij.gradle</depends>
-    <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-devkit-integration.xml">DevKit</depends>
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
