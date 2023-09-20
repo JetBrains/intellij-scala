@@ -1,23 +1,63 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-//TODO: Scala 3 enum (+enum with parameter)
-//TODO: Scala 3 traits with parameters
 @Category(Array(classOf[TypecheckerTests]))
-class ScopeAnnotatorTest extends SimpleTestCase {
-  import Message._
+abstract class ScopeAnnotatorTestBase extends SimpleTestCase {
 
+  protected final val Header = "class Foo; class Bar; \n "
+
+  protected def clashesOf(@Language(value = "Scala", prefix = Header) code: String): Seq[String] = {
+    messages(code).map {
+      case error: Error => error.element
+      case message =>
+        Assert.fail("Unexpected message: " + message).asInstanceOf[Nothing]
+    }
+  }
+
+  protected def assert2Clashes(@Language(value = "Scala", prefix = Header) code: String, expectedClash: String): Unit = {
+    assertClashes(code, expectedClash, expectedClash)
+  }
+
+  protected def assertClashes(@Language(value = "Scala", prefix = Header) code: String, expectedClashes: String*): Unit = {
+    val actualClashes = clashesOf(code)
+    Assert.assertEquals(
+      "Incorrect clashed elements",
+      expectedClashes.mkString(", "),
+      actualClashes.mkString(", ")
+    )
+  }
+
+  protected def assertFine(@Language(value = "Scala", prefix = Header) code: String): Unit = {
+    val clashes = clashesOf(code)
+    if (clashes.nonEmpty) {
+      Assert.fail("Unexpected clashes: " + clashes.mkString(", "))
+    }
+  }
+
+  protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
+    val file = (Header + code).parse(scalaVersion)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    file.depthFirst().foreach {
+      ScopeAnnotator.annotateScope(_)
+    }
+
+    mock.annotations
+  }
+}
+
+class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
   // TODO List of explicit clash groups, report scope 
   // ("Foo is already defined as class Foo, object Foo in object Holder")
-  // TODO Suggest "rename" quick fix 
+  // TODO Suggest "rename" quick fix
 
-  final val Header = "class Foo; class Bar; \n "
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
 
   def testEmpty(): Unit = {
     assertFine("")
@@ -673,8 +713,16 @@ class ScopeAnnotatorTest extends SimpleTestCase {
       """.stripMargin, "test")
 
   }
+}
 
-  //TODO: extract to a separate class for Scala 3
+class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
+
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+
+  override protected def assertFine(@Language("Scala 3") code: String): Unit = super.assertFine(code)
+  override protected def assertClashes(@Language("Scala 3") code: String, expectedClashes: String*): Unit = super.assertClashes(code, expectedClashes: _*)
+  override protected def assert2Clashes(@Language("Scala 3") code: String, expectedClash: String): Unit = super.assert2Clashes(code, expectedClash)
+
   def testExtensions(): Unit = {
     assertFine(
       """extension (n: Int)
@@ -687,55 +735,92 @@ class ScopeAnnotatorTest extends SimpleTestCase {
         |  def mySpecialMkString(prefix: String, separator: String, postfix: String): String =
         |    List(n).mkString(prefix, separator, postfix)
         """.stripMargin,
-      ScalaVersion.Latest.Scala_3
     )
   }
 
-  private def clashesOf(@Language(value = "Scala", prefix = Header) code: String): Seq[String] =
-    clashesOf(code, ScalaVersion.default)
-
-  private def clashesOf(@Language(value = "Scala", prefix = Header) code: String, scalaVersion: ScalaVersion): Seq[String] = {
-    messages(code, scalaVersion).map {
-      case error: Error => error.element
-      case message =>
-        Assert.fail("Unexpected message: " + message).asInstanceOf[Nothing]
-    }
+  def testEnumFine(): Unit = {
+    assertFine("enum MyEnum { case MyCase1 }")
+    assertFine("enum MyEnum(name: Int) { case MyCase1 extends MyEnum(23) }")
+    assertFine("enum MyEnum1 { case MyCase1 } ; enum MyEnum2 { case MyCase1 }")
   }
 
-  private def assert2Clashes(@Language(value = "Scala", prefix = Header) code: String, expectedClash: String): Unit = {
-    assertClashes(code, expectedClash, expectedClash)
+  def testEnumClash(): Unit = {
+    assert2Clashes("enum MyEnum { case MyCase1 } ; enum MyEnum { case MyCase1 }", "MyEnum")
   }
 
-  private def assertClashes(@Language(value = "Scala", prefix = Header) code: String, expectedClashes: String*): Unit = {
-    val actualClashes = clashesOf(code)
-    Assert.assertEquals(
-      "Incorrect clashed elements",
-      expectedClashes.mkString(", "),
-      actualClashes.mkString(", ")
+  def testEnumCaseClash(): Unit = {
+    assert2Clashes("enum MyEnum { case MyCase1, MyCase2, MyCase1 }", "MyCase1")
+    assert2Clashes("enum MyEnum { case MyCase1 ; case MyCase2 ; case MyCase1 }", "MyCase1")
+  }
+
+  def testEnumDuplicatedPrimaryConstructorAndFieldMembers(): Unit = {
+    assertClashes(
+      """enum MyEnum(name: Int) {
+        |  val name: Int = ???
+        |  case MyCase1 extends MyEnum(42)
+        |}""".stripMargin,
+      "name", "name",
+    )
+    assertClashes(
+      """enum MyEnum(name: Int)(name: Int) {
+        |  val name: Int = ???
+        |  val name: Int = ???
+        |  case MyCase1 extends MyEnum(42)(23)
+        |}""".stripMargin,
+      "name", "name", "name", "name",
     )
   }
 
-  private def assertFine(@Language(value = "Scala", prefix = Header) code: String): Unit =
-    assertFine(code, ScalaVersion.default)
-
-  private def assertFine(@Language(value = "Scala", prefix = Header) code: String, scalaVersion: ScalaVersion): Unit = {
-    val clashes = clashesOf(code, scalaVersion)
-    if (clashes.nonEmpty) {
-      Assert.fail("Unexpected clashes: " + clashes.mkString(", "))
-    }
+  def testEnumDuplicatedPrimaryConstructorParameters(): Unit = {
+    assertClashes(
+    """enum MyEnum(name: Int, name: Int)(name: Int) { case MyCase1 extends MyEnum(1, 2)(3) }""",
+      "name", "name", "name"
+    )
   }
 
-  private def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    messages(code, ScalaVersion.default)
+  def testEnumDuplicatedFieldMembers(): Unit = {
+    assertClashes(
+      """enum MyEnum {
+        |  val name: Int = ???
+        |  val name: Int = ???
+        |  case MyCase
+        |}
+        |""".stripMargin,
+      "name", "name"
+    )
   }
 
-  private def messages(@Language(value = "Scala", prefix = Header) code: String, scalaVersion: ScalaVersion): List[Message] = {
-    val file = (Header + code).parse(scalaVersion)
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    file.depthFirst().foreach {
-      ScopeAnnotator.annotateScope(_)
-    }
+  def testTraitDuplicatedPrimaryConstructorAndFieldMembers(): Unit = {
+    assertClashes(
+      """trait MyTrait(name: Int) {
+        |  val name: Int = ???
+        |}""".stripMargin,
+      "name", "name",
+    )
+    assertClashes(
+      """trait MyTrait(name: Int)(name: Int) {
+        |  val name: Int = ???
+        |  val name: Int = ???
+        |}""".stripMargin,
+      "name", "name", "name", "name",
+    )
+  }
 
-    mock.annotations
+  def testTraitDuplicatedPrimaryConstructorParameters(): Unit = {
+    assertClashes(
+    """trait MyTrait(name: Int, name: Int)(name: Int)""",
+      "name", "name", "name"
+    )
+  }
+
+  def testTraitDuplicatedFieldMembers(): Unit = {
+    assertClashes(
+      """trait MyTrait {
+        |  val name: Int = ???
+        |  val name: Int = ???
+        |}
+        |""".stripMargin,
+      "name", "name"
+    )
   }
 }

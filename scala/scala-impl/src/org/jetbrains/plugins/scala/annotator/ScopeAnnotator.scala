@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGene
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
@@ -58,7 +58,6 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
         clashesOf(fieldLikes)
 
       val clashesSet = clashes.toSet
-
       clashesSet.foreach { e =>
         val element = Option(e.getNameIdentifier).getOrElse(e)
         holder.createErrorAnnotation(element, ScalaBundle.message("id.is.already.defined", nameOf(e)))
@@ -92,7 +91,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
     elements.foreach { element =>
       val classParams: List[ScClassParameter] = element match {
-        case clazz: ScClass => clazz.parameters.toList
+        case clazz: ScConstructorOwner => clazz.parameters.toList
         case _ => Nil
       }
       val (paramPrivateThis, paramNotPrivateOther) = classParams.partition(_.isPrivateThis)
@@ -101,6 +100,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       parameterless :::= paramNotPrivateOther
 
       val children = element match {
+        case en: ScEnum               => en.members ++ en.cases //TODO: remove this line after SCL-21270 is fixed
         case td: ScTemplateDefinition => td.members
         case _                        => element.children
       }
