@@ -142,6 +142,10 @@ private object AlignedInlayGroup {
       }
     }
 
-    override def getMargin(editor: Editor): Insets = JBUI.insetsLeft(cached.margin)
+    override def getMargin(editor: Editor): Insets = {
+      // JBUI.insetsLeft scales the given margin according to ui scale (influenced by zoom and font size)
+      // But the margin is already calculated pixel perfectly, so we must use the unscaled version
+      JBUI.insetsLeft(cached.margin).getUnscaled
+    }
   }
 }
