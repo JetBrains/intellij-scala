@@ -23,7 +23,7 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
       s"def foo: String = Predef.${REFSRC}summon[String]")
   }
 
-  def testStrictEquality(): Unit= doResolveTest(
+  def testStrictEquality(): Unit = doResolveTest(
     s"import scala.language.${REFSRC}strictEquality"
   )
 
@@ -61,5 +61,50 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
 
   def testTypeVariableMatchTypeInfix(): Unit = doResolveTest(
     s"class &&[A, B]; type T = Int && Long match { case ${REFTGT}x && y => ${REFSRC}x }"
+  )
+
+  def testImplicitValByGivenWildcard(): Unit = doResolveTest(
+    s"""
+       |object Usages:
+       |  import Declarations.given
+       |  val s = st${REFSRC}r
+       |
+       |object Declarations:
+       |  implicit val s${REFTGT}tr: String = "foo"
+       |""".stripMargin
+  )
+
+  def testImplicitValByGivenSelector(): Unit = doResolveTest(
+    s"""object Usages:
+       |  import Declarations.given String
+       |  val s = st${REFSRC}r
+       |
+       |object Declarations:
+       |  implicit val (s${REFTGT}tr, i) = ("foo", 1)
+       |""".stripMargin
+  )
+
+  def testImplicitDefByGivenWildcard(): Unit = doResolveTest(
+    s"""import scala.language.implicitConversions
+       |
+       |object Usages:
+       |  import Declarations.given
+       |  val s: Long = lo${REFSRC}ng
+       |
+       |object Declarations:
+       |  given Int = 1
+       |  implicit def lo${REFTGT}ng(using i: Int): Long = i + 2L
+       |""".stripMargin
+  )
+
+  def testImplicitClassByGivenWildcard(): Unit = doResolveTest(
+    s"""object Usages:
+       |  import Declarations.given
+       |  val str: Long = "foobar".scre${REFSRC}am
+       |
+       |object Declarations:
+       |  implicit class StringExt(private val s: String) extends AnyVal:
+       |    def scream: String = s.toUpperCase
+       |""".stripMargin
   )
 }

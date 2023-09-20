@@ -12,19 +12,20 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -200,17 +201,35 @@ object ScImportOrExportImpl {
 
           var newState = state
           val importedByGiven = if (isScala3) {
-            // given elements are handled in a special way by given imports
-            namedElement match {
-              case ScGiven.Original(givenElement) =>
+            // given and implicit elements are handled in a special way by given imports
+            val namedTypeable = namedElement match {
+              case ScGiven.Original(givenElement) => Some(givenElement)
+              case typeable: Typeable =>
+                // treat implicits as imported from wildcard if there is one
+                // TODO(SCL-21608):
+                //  Scala 3 compiler has some more complex logic in CheckUnused phase.
+                //  This will lead to given selectors being incorrectly marked as used in some cases
+                Option.unless(hasWildcard)(typeable)
+              case _ => None
+            }
+
+            namedTypeable match {
+              case Some(implicitElement) if ScalaPsiUtil.isImplicit(implicitElement) =>
                 // check if there are any given imports
                 if (!givenImports.hasImports) {
                   // no given selector at all, so don't import, because a normal wildcard doesn't import givens
                   return true
                 }
 
-                val adjustedGivenElementType = givenElement.`type`().map(state.substitutor)
-                givenImports.conformingGivenSelector(adjustedGivenElementType) match {
+                val decodedName   = clean(implicitElement.name)
+                val importedNames = importExpr.importedNames.map(clean)
+                if (importedNames.contains(decodedName)) {
+                  // already imported explicitly
+                  return true
+                }
+
+                val adjustedElementType = implicitElement.`type`().map(state.substitutor)
+                givenImports.conformingGivenSelector(adjustedElementType) match {
                   case Some(conformingGivenSelector) =>
                     val additionalImportsUsed = new ImportSelectorUsed(conformingGivenSelector)
                     newState = newState.withImportsUsed(newState.importsUsed + additionalImportsUsed)
@@ -219,8 +238,7 @@ object ScImportOrExportImpl {
                     // no selector conforms, so do not import
                     return true
                 }
-              case _ =>
-                false
+              case _ => false
             }
           } else false
 
@@ -379,6 +397,10 @@ object ScImportOrExportImpl {
               case bp: BaseProcessor =>
                 ProgressManager.checkCanceled()
 
+                // TODO(SCL-21608):
+                //  Wildcard selector is always marked as used here.
+                //  However, from compiler's point of view, in some cases everything might be imported from given selector,
+                //  leaving the wildcard unused.
                 val wildcardExprUsed =
                   if (hasWildcard) Some(new ImportWildcardSelectorUsed(importExpr))
                   else None

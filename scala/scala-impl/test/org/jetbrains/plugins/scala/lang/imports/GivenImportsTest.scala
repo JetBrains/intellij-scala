@@ -57,10 +57,10 @@ class GivenImportsTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
-  def test_wildcard_given_import_does_not_import_implicit(): Unit = alsoInSelector(testNoResolve(_))(
+  def test_wildcard_given_import_does_import_implicit(): Unit = alsoInSelector(doResolveTest(_))(
     s"""
        |object Source {
-       |  implicit val given_Int: Int = 0
+       |  implicit val ${REFTGT}given_Int: Int = 0
        |}
        |
        |object Target {
@@ -84,6 +84,20 @@ class GivenImportsTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  def test_filtered_given_import_does_import_wanted_implicit_type(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |object Source {
+       |  implicit val ${REFTGT}given_Int: Int = 0
+       |  implicit val given_Short: Short = 0
+       |}
+       |
+       |object Target {
+       |  import Source.given Int
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
   def test_filtered_given_import_does_not_import_other_type(): Unit = alsoInSelector(testNoResolve(_))(
     s"""
        |object Source {
@@ -97,6 +111,21 @@ class GivenImportsTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  def test_filtered_given_import_does_not_import_other_implicit_type(): Unit = alsoInSelector(testNoResolve(_))(
+    s"""
+       |object Source {
+       |  implicit val given_Int: Int = 0
+       |  implicit val given_Short: Short = 0
+       |}
+       |
+       |object Target {
+       |  import Source.given Short
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
 
   def test_given_from_class(): Unit = alsoInSelector(doResolveTest(_))(
     s"""
