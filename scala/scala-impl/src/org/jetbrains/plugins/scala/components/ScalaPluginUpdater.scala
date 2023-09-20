@@ -16,6 +16,7 @@ import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.platform.ide.customization.ExternalProductResourceUrls
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.io.HttpRequests.Request
 import org.jdom.JDOMException
@@ -203,7 +204,7 @@ object ScalaPluginUpdater {
     }
 
     def getPlatformUpdateResult: Option[PlatformUpdates] = {
-      val url = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
+      val url = ExternalProductResourceUrls.getInstance.getUpdateMetadataUrl
 
       val info: Option[Product] = HttpRequests.request(url).connect { request =>
         val productCode = ApplicationInfo.getInstance().getBuild.getProductCode
