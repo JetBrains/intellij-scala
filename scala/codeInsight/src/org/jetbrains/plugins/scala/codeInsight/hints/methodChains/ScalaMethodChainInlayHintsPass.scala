@@ -177,7 +177,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     for (hints <- hintTemplates; hint <- hints) {
       val inlay = inlayModel.addAfterLineEndElement(
         hint.endOffset,
-        false,
+        NonSoftWrappingInlayProperties,
         new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
           override protected def getMargin(editor: Editor): Insets = JBUI.insetsLeft(charWidth)
         }

@@ -55,7 +55,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
       for (line <- alignmentLines; hint <- line.maybeHint) yield {
         val inlay = inlayModel.addAfterLineEndElement(
           hint.endOffset,
-          false,
+          NonSoftWrappingInlayProperties,
           new AlignedInlayRenderer(line, hint.textParts, recalculateGroupsOffsets)
         )
         inlay.putUserData(ScalaMethodChainKey, true)
