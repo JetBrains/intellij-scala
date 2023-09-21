@@ -44,7 +44,7 @@ final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
         if typeCheckIsUsedEnough(ifStmt, call)
       } {
         val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
-        holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+        holder.registerProblem(call, inspectionName, fix)
       }
     case _ =>
   }

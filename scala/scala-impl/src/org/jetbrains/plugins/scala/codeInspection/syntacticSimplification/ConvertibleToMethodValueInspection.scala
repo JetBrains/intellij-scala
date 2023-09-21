@@ -109,9 +109,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
 
   private def registerProblem(holder: ProblemsHolder, expr: ScExpression, @Nls hint: String): Unit = {
     possibleReplacements(expr).find(isSuitableForReplace(expr, _)).foreach { replacement =>
-      holder.registerProblem(expr, inspectionName,
-        ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-        new ConvertibleToMethodValueQuickFix(expr, replacement, hint))
+      holder.registerProblem(expr, inspectionName, new ConvertibleToMethodValueQuickFix(expr, replacement, hint))
     }
   }
 
