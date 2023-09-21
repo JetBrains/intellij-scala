@@ -96,6 +96,13 @@ class ScalaFileImpl(
 
     val vector = toVector(name)
 
+    //TODO: SCL-21623
+    // make it quick-fix preview friendly (e.g. for `ChainedPackageInspection.UseChainedPackageQuickFix`)
+    // During action preview a in-memory document is used, for which `document` is null
+    // However the entire logic below is base on modification of document
+    if (!this.isPhysical)
+      return
+
     preservingClasses {
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
