@@ -13,6 +13,7 @@ import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -134,13 +135,9 @@ class ScalaFileImpl(
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
           override def run(): Unit = {
-            try {
-              DebugUtil.startPsiModification(null): @nowarn("cat=deprecation")
+            DebugUtil.performPsiModification("ScalaFileImpl.preservingClasses", (() => {
               aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
-            }
-            finally {
-              DebugUtil.finishPsiModification(): @nowarn("cat=deprecation")
-            }
+            }): ThrowableRunnable[Throwable])
           }
         }
       }
