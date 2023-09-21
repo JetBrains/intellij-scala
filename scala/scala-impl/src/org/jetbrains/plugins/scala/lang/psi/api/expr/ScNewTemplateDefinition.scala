@@ -9,8 +9,6 @@ trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
   //It's very rare case, when we need to desugar apply first.
   def desugaredApply: Option[ScExpression]
 
-  override def getTextOffset: Int = extendsBlock.getTextOffset
-
   /**
    * @return `true` if new expression creates an instance a new anonimous class<br>
    *         Examples: {{{

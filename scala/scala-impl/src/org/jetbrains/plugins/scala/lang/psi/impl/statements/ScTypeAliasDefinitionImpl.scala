@@ -41,8 +41,6 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override def aliasedTypeElement: Option[ScTypeElement] =
     byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
-
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor =  EditSourceUtil.getDescriptor(this)
     if (descriptor != null) {

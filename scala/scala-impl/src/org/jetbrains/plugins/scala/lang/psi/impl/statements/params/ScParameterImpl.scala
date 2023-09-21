@@ -34,8 +34,6 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def toString: String = "Parameter: " + ifReadAllowed(name)("")
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
-
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
   override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {

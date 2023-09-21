@@ -29,8 +29,6 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   def this(stub: ScTypeAliasStub) = this(stub, null)
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
-
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor = EditSourceUtil.getDescriptor(this)
     if (descriptor != null) {

@@ -62,8 +62,6 @@ trait ScFunction
 
   def isNative: Boolean = hasAnnotation("scala.native")
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
-
   def hasParameterClause: Boolean
 
   def definedReturnType: TypeResult

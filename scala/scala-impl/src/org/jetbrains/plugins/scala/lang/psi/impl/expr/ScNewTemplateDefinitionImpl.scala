@@ -181,6 +181,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   override def nameId: PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name: String = "<anonymous>"
+  override def getTextOffset: Int = extendsBlock.getTextOffset
 
   override def getName: String = name
 
