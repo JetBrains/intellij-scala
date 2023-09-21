@@ -1691,7 +1691,7 @@ object ScalaPsiUtil {
     parentNode.removeChild(elementNode)
   }
 
-  def generateGivenOrExtensionName(tes: ScTypeElement*): String = {
+  def generateGivenName(tes: ScTypeElement*): String = {
     // refercne: https://docs.scala-lang.org/scala3/reference/contextual/relationship-implicits.html#
 
     def fallback(te: ScTypeElement): String =
@@ -1811,7 +1811,7 @@ object ScalaPsiUtil {
    * @note it might still return `ScObject` instance which is not a top level context (not a package object)
    */
   @Nullable
-  def getEnclosingTopLevelContextCandidate(element: PsiElement) = {
+  def getEnclosingTopLevelContextCandidate(element: PsiElement): ScalaPsiElement = {
     PsiTreeUtil.getContextOfType(element, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
   }
 
