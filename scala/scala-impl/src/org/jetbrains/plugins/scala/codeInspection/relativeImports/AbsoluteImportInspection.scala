@@ -20,7 +20,7 @@ class AbsoluteImportInspection extends LocalInspectionTool {
         OptimizeImportSettings(file).basePackage.foreach { basePackage =>
           if ((qualifier.getText + ".").startsWith(basePackage + ".")) {
             holder.registerProblem(importExpr, ScalaInspectionBundle.message("absolute.import.detected"),
-              ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, basePackage.length + 1), new OptimizeImportsQuickFix())
+              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, TextRange.create(0, basePackage.length + 1), new OptimizeImportsQuickFix())
           }
         }
       }

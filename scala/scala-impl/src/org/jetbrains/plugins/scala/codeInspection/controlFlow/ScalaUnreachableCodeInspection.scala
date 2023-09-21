@@ -17,10 +17,10 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
 
   import ScalaUnreachableCodeInspection._
 
-  protected def problemDescriptors(element: PsiElement,
-                                   @Nls descriptionTemplate: String,
-                                   highlightType: ProblemHighlightType)
-                                  (implicit manager: InspectionManager, isOnTheFly: Boolean): List[ProblemDescriptor] =
+  private def problemDescriptors(
+    element: PsiElement,
+    @Nls descriptionTemplate: String,
+  )(implicit manager: InspectionManager, isOnTheFly: Boolean): List[ProblemDescriptor] =
     element match {
       case definition: ScFunctionDefinition =>
         for {
@@ -37,7 +37,7 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
           head,
           last,
           descriptionTemplate,
-          highlightType,
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
           isOnTheFly,
           createQuickFix(head, last)
         )
@@ -49,7 +49,7 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
     private val descriptionTemplate = getDisplayName
 
     override def visitElement(element: PsiElement): Unit = for {
-      descriptor <- problemDescriptors(element, descriptionTemplate, ProblemHighlightType.LIKE_UNUSED_SYMBOL)(holder.getManager, isOnTheFly)
+      descriptor <- problemDescriptors(element, descriptionTemplate)(holder.getManager, isOnTheFly)
     } holder.registerProblem(descriptor)
   }
 }

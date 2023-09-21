@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
@@ -22,7 +22,7 @@ final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
           else if (mayOnlyThrow(expression)) Some(ScalaInspectionBundle.message("unused.expression.throws"))
           else None
         } yield {
-          holder.registerProblem(expression, descriptionTemplate, ProblemHighlightType.LIKE_UNUSED_SYMBOL, createQuickFixes(expression): _*)
+          holder.registerProblem(expression, descriptionTemplate, createQuickFixes(expression): _*)
         }
       case _ =>
     }

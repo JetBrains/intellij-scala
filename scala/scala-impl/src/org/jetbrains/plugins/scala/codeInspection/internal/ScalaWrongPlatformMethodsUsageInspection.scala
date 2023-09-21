@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.{PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -53,7 +53,7 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
                         "or use \"for Java only\" text in bounded doc comment owner ScalaDoc." +
                         properMethodText +
                         "</html>"
-                      holder.registerProblem(ref.nameId, message, ProblemHighlightType.LIKE_DEPRECATED)
+                      holder.registerProblem(ref.nameId, message)
                     }
                   case _ =>
                 }

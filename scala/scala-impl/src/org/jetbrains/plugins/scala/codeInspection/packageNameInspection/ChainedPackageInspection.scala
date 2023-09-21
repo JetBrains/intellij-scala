@@ -31,7 +31,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
           file,
           range,
           ScalaInspectionBundle.message("package.declaration.could.use.chained.package.clauses", basePackage),
-          ProblemHighlightType.WEAK_WARNING,
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
           false,
           quickFix
         )

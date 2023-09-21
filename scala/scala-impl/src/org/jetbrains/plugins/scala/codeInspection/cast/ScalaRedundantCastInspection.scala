@@ -26,8 +26,7 @@ class ScalaRedundantCastInspection extends LocalInspectionTool {
 
               val message = ScalaInspectionBundle.message("casting.left.to.right.is.redundant", left.getText, castType.presentableText)
 
-              new ProblemDescriptorImpl(call, call, message, Array(new RemoveCastQuickFix(call, left)),
-                ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, null, false)
+              new ProblemDescriptorImpl(call, call, message, Array(new RemoveCastQuickFix(call, left)), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false, range, null, false)
             }
 
             holder.registerProblem(descriptor)

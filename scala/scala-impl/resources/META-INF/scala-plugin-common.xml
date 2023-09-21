@@ -897,12 +897,16 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.deprecated.kind.projector.syntax"
                          groupPath="Scala" groupKey="group.general" shortName="DeprecatedKindProjectorSyntax"
-                         id="DeprecatedKindProjectorSyntax" level="WARNING" enabledByDefault="true" language="Scala"/>
+                         id="DeprecatedKindProjectorSyntax"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.case.class.parameter"
                          groupPath="Scala" groupKey="group.general" shortName="CaseClassParam"
-                         id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
+                         id="CaseClassParam"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.var.could.be.a.val"
@@ -962,7 +966,8 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.chained.package.clause.inspection"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="ChainedPackage" level="WARNING"
+                         shortName="ChainedPackage"
+                         level="WARNING" editorAttributes="INFO_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -974,7 +979,8 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="display.name.absolute.import"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="AbsoluteImport" level="WARNING"
+                         shortName="AbsoluteImport"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1019,13 +1025,13 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.cast.inspection"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="ScalaRedundantCast" level="WARNING"
+                         shortName="ScalaRedundantCast" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.ScalaRedundantConversionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.conversion.inspection"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="ScalaRedundantConversion" level="WARNING"
+                         shortName="ScalaRedundantConversion" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.catchAll.DangerousCatchAllInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1156,14 +1162,14 @@
                          key="unreachable.code.name"
                          groupPath="Scala" groupKey="group.general"
                          shortName="ScalaUnreachableCode"
-                         language="Scala" level="WARNING"
+                         language="Scala" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="unused.expression.name"
                          groupPath="Scala" groupKey="group.general"
                          shortName="ScalaUnusedExpression"
-                         language="Scala" level="WEAK WARNING"
+                         language="Scala" level="WEAK WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.NonLocalReturnInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1192,7 +1198,8 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.convert.expression.to.single.abstract.method"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="ConvertExpressionToSAM" level="WARNING"
+                         shortName="ConvertExpressionToSAM"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1223,7 +1230,9 @@
                          key="displayname.wrong.platform.method.usage"
 
                          language="Scala" groupPath="Scala" groupKey="group.internal"
-                         isInternal="true" level="WARNING" enabledByDefault="true"/>
+                         isInternal="true"
+                         level="WARNING" editorAttributes="DEPRECATED_ATTRIBUTES"
+                         enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaShouldBeTextContainsInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="internal.getText.contains.shouldBe.textContains"
@@ -1256,7 +1265,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.scala.unnecessary.semicolon.inspection"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="ScalaUnnecessarySemicolon" level="WARNING"
+                         shortName="ScalaUnnecessarySemicolon" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.PostfixUnaryOperationInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1268,7 +1277,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.return"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="RemoveRedundantReturn" level="WARNING"
+                         shortName="RemoveRedundantReturn" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1287,12 +1296,15 @@
                          key="displayname.redundant.new.on.case.class"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
                          shortName="RedundantNewCaseClass"
-                         id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
+                         id="RedundantNewCaseClass"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.RedundantDefaultArgumentInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.argument.duplicates.corresponding.parameter.default.value"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="RedundantDefaultArgument" level="WARNING"
+                         shortName="RedundantDefaultArgument"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
 
         <!-- Syntactic clarification inspections (including syntactic desugaring), see SCL-10327 -->
@@ -1810,7 +1822,8 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.collection.conversion"
                          groupPath="Scala" groupKey="group.collections"
-                         shortName="RedundantCollectionConversion" level="WARNING"
+                         shortName="RedundantCollectionConversion"
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
                          bundle="messages.ScalaInspectionBundle"

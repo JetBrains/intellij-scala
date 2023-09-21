@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -24,7 +24,7 @@ class RedundantDefaultArgumentInspection extends LocalInspectionTool {
 
   private def registerProblem(expr: ScExpression)
                              (implicit holder: ProblemsHolder): Unit = {
-    holder.registerProblem(expr, getDisplayName, ProblemHighlightType.LIKE_UNUSED_SYMBOL, new DeleteRedundantDefaultArgumentQuickFix(expr))
+    holder.registerProblem(expr, getDisplayName, new DeleteRedundantDefaultArgumentQuickFix(expr))
   }
 }
 

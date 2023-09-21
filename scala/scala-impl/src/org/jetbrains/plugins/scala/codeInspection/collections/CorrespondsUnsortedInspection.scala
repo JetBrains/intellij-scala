@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.&
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -13,10 +12,10 @@ class CorrespondsUnsortedInspection extends OperationOnCollectionInspection {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case (expr: ScExpression) & (left`.sameElements`(right)) if isUnsorted(left) || isUnsorted(right) =>
-      holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("sameElements.unsorted"), highlightType)
+      holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("sameElements.unsorted"))
     case (expr: ScExpression) & (left`.corresponds`(right, _)) if isIterator(left) && isUnsorted(right) =>
     //corresponds signature imply that check is needed for iterators only
-      holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("corresponds.unsorted"), highlightType)
+      holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("corresponds.unsorted"))
     case _ =>
   }
 

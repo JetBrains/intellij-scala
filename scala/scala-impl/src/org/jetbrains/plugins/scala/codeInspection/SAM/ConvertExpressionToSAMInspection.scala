@@ -80,8 +80,7 @@ class ConvertExpressionToSAMInspection extends LocalInspectionTool {
             val extendsBlock = definition.extendsBlock
             val lBraceInParent = extendsBlock.templateBody.map(_.startOffsetInParent + extendsBlock.startOffsetInParent)
             val rangeInElement: TextRange = lBraceInParent.map(new TextRange(0, _)).orNull
-            holder.registerProblem(definition, inspectionName, ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              rangeInElement, fix)
+            holder.registerProblem(definition, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, rangeInElement, fix)
           case _ =>
         }
       case _ =>
