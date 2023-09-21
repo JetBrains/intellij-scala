@@ -837,7 +837,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
               }
             }
           }
-          if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
+          val isSyntheticParam = node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC))
+          if (!isSyntheticParam) {
             val nameId = id(name)
             sb ++= nameId
             if (needsSpace(nameId)) {
@@ -868,9 +869,16 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     }
     val valueParameterText = sb.substring(valueParameterStart) // TODO Check nodes rather than text
     syntheticParameterNames.foreach { (name, index) =>
-      if (valueParameterText.contains(name) || resultType.exists(_.contains(name))) {
+      //example from `scala.annotation.MacroAnnotation#transform`
+      //original code : def transform(using Quotes)(tree: quotes.reflect.Definition): List[quotes.reflect.Definition]
+      //printed code  : def transform(using _root_.scala.quoted.Quotes)(tree: x$1.reflect.Definition): List[x$1.reflect.Definition]
+      val syntheticParameterIsLikelyUsedInSignature =
+        valueParameterText.contains(name) || resultType.exists(_.contains(name))
+      val insertSyntheticParameterName = syntheticParameterIsLikelyUsedInSignature
+      if (insertSyntheticParameterName) {
         val nameId = id(name)
-        sb.insert(index, name + (if (needsSpace(nameId)) " " else "") + ": ")
+        val paramNamePrefix = name + (if (needsSpace(nameId)) " " else "") + ": "
+        sb.insert(index, paramNamePrefix)
       }
     }
     if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
@@ -985,6 +993,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case c => val ct = Character.getType(c); ct == Character.MATH_SYMBOL.toInt || ct == Character.OTHER_SYMBOL.toInt
   }
 
+  //For example `???` requires extra space after it: `??? : String`
   private def needsSpace(id: String) = id.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
 }
 
