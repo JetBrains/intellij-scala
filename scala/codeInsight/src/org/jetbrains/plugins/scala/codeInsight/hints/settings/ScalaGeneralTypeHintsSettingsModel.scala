@@ -1,16 +1,17 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.settings
 
-import java.util
-import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
-
-import javax.swing.JComponent
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.codeInsight.hints.GeneralSettingsPanel
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+
+import java.util
+import javax.swing.JComponent
 
 //noinspection UnstableApiUsage
 class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(

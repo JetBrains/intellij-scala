@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.hints;
+package org.jetbrains.plugins.scala.codeInsight.hints.settings;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;

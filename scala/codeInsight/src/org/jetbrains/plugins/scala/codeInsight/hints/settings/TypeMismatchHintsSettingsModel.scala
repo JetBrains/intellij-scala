@@ -1,20 +1,20 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.settings
 
-import java.awt.{BorderLayout, FlowLayout}
-import java.util
-import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.ui.components.labels.LinkLabel
-
-import javax.swing.{JComponent, JLabel, JPanel}
-import org.jetbrains.plugins.scala.{DesktopUtils, ScalaLanguage}
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{DesktopUtils, ScalaLanguage}
+
+import java.awt.{BorderLayout, FlowLayout}
+import java.util
+import javax.swing.{JComponent, JPanel}
 
 //noinspection UnstableApiUsage
 class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(

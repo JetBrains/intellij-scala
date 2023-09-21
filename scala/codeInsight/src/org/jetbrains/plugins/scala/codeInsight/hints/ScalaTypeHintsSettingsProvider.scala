@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsSettingsModel
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.{ExclusiveRangeHintSettingsModel, RangeHintsForToAndUntilSettingsModel}
+import org.jetbrains.plugins.scala.codeInsight.hints.settings.{ScalaGeneralTypeHintsSettingsModel, ScalaTypeHintsSettingsModel, TypeMismatchHintsSettingsModel}
 
 class ScalaTypeHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =

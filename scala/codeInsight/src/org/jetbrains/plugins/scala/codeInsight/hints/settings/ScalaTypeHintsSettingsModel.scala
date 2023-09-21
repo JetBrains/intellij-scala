@@ -1,15 +1,12 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.settings
 
-import java.util
-import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-
-import javax.swing.{JComponent, JPanel}
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
@@ -17,6 +14,8 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import java.util
+import javax.swing.{JComponent, JPanel}
 import scala.jdk.CollectionConverters._
 
 //noinspection UnstableApiUsage
