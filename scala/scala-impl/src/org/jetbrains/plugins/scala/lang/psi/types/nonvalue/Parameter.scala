@@ -28,8 +28,7 @@ case class Parameter(
 
   def nameInCode: Option[String] = psiParam.map(_.getName)
 
-  //@TODO: rename
-  def isImplicit: Boolean = paramInCode.exists(_.isImplicitOrContextParameter)
+  def isImplicitOrContextParameter: Boolean = paramInCode.exists(_.isImplicitOrContextParameter)
 }
 
 object Parameter {

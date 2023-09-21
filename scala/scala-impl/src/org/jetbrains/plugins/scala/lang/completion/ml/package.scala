@@ -340,7 +340,7 @@ package object ml {
 
     override def visitMethodType(`type`: ScMethodType): Unit = {
       visit(`type`)
-      `type`.params.filterNot(_.isImplicit).map(_.paramType).foreach(visit)
+      `type`.params.filterNot(_.isImplicitOrContextParameter).map(_.paramType).foreach(visit)
     }
 
     override def visitUndefinedType(`type`: UndefinedType): Unit = ()
