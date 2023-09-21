@@ -22,7 +22,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   "Scala.ScalaMethodChainInlayHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
-  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+  override def getGroup: InlayGroup = InlayGroup.METHOD_CHAINS_GROUP
 
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
