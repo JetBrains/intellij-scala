@@ -134,7 +134,7 @@ object NameSuggester {
 
   private def namesByTypeableElement(typed: TypeableScalaPsiElement): Seq[String] = {
     val maybeName = typed.asOptionOf[ScGivenAliasDeclaration]
-      .map(decl => ScalaPsiUtil.generateGivenOrExtensionName(decl.typeElement.toSeq: _*))
+      .map(decl => ScalaPsiUtil.generateGivenName(decl.typeElement.toSeq: _*))
 
     maybeName.toSeq ++ namesByTypes(typed.`type`().toSeq)
   }
