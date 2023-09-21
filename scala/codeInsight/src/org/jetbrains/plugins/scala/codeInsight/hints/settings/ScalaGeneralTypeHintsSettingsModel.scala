@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.settings
 
-import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurableKt}
 import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInsight.hints.GeneralSettingsPanel
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.util
 import javax.swing.JComponent
@@ -85,4 +86,10 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
+}
+
+object ScalaGeneralTypeHintsSettingsModel {
+  def navigateTo(project: Project): Unit = {
+    InlaySettingsConfigurableKt.showInlaySettings(project, ScalaLanguage.INSTANCE, _.is[ScalaGeneralTypeHintsSettingsModel])
+  }
 }
