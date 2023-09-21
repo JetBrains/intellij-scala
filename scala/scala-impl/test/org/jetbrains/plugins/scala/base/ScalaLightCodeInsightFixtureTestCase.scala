@@ -69,10 +69,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
       afterSetUpProject(project, module)
     }
 
-    override def getSdk: Sdk = sdkConfiguration match {
-      case SdkConfiguration.FullJdk => SmartJDKLoader.getOrCreateJDK()
-      case SdkConfiguration.IncludedModules(modules) => SmartJDKLoader.getOrCreateFilteredJDK(modules)
-    }
+    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
     override def getSourceRootType: JavaSourceRootType =
       if (placeSourceFilesInTestContentRoot)
@@ -82,8 +79,6 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   }
 
   protected def placeSourceFilesInTestContentRoot: Boolean = false
-
-  protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.base"))
 
   protected def afterSetUpProject(project: Project, module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
@@ -122,6 +117,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //end section: project descriptor
 
   override protected def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     TestUtils.disableTimerThread()
   }

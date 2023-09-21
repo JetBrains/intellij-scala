@@ -42,6 +42,7 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
   protected def getScalaCodeStyleSettings: ScalaCodeStyleSettings
 
   override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     val scalaSettings = getScalaCodeStyleSettings
     scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER

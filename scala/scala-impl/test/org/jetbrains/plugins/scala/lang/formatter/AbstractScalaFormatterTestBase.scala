@@ -52,6 +52,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     CodeStyleManager.getInstance(project)
 
   override protected def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     TestUtils.disableTimerThread()
   }

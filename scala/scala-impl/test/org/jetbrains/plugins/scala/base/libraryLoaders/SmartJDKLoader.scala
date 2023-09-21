@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
-import com.intellij.openapi.roots.{ModuleRootModificationUtil, OrderRootType}
+import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.pom.java.LanguageLevel
@@ -29,11 +29,7 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
   * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
   */
 case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
-  override def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
-}
-
-case class FilteredJDKLoader(modules: Seq[String], languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader {
-  override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateFilteredJDK(modules, languageLevel)
+  override protected def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
 }
 
 case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
@@ -71,41 +67,20 @@ object SmartJDKLoader {
     )
   }
 
-  def getOrCreateFilteredJDK(jdkModuleNames: Seq[String], languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk = {
+  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk = {
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
-    val jdkName = {
-      val description = jdkVersion.getDescription
-      if (jdkModuleNames.isEmpty) description else s"$description-${jdkModuleNames.mkString("{", ",", "}")}"
-    }
+    val jdkName = jdkVersion.getDescription
 
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     val registeredJdkFromTable = Option(jdkTable.findJdk(jdkName))
     registeredJdkFromTable.getOrElse {
       val jdk = createNewJdk(jdkVersion, jdkName)
       inWriteAction {
-        // Create a Java SDK that only contains the classes from the JDK modules provided as a parameter to this method.
-        // E.g. the `java.base` JDK module contains the well-known classes such as `java.lang.Object`,
-        // `java.lang.String`, `java.util.List`, etc...
-        // Having a minimal number of classes in the created SDK significantly speeds up SDK set up and indexing in tests.
-        if (jdkModuleNames.nonEmpty) {
-          val modulePaths = jdkModuleNames.map(m => s"/$m")
-          val classesUrls = jdk.getRootProvider.getUrls(OrderRootType.CLASSES)
-          val filterFn = (url: String) => modulePaths.exists(url.endsWith)
-          if (classesUrls.exists(filterFn)) {
-            val modificator = jdk.getSdkModificator
-            classesUrls.filterNot(filterFn).foreach(modificator.removeRoot(_, OrderRootType.CLASSES))
-            modificator.getUrls(OrderRootType.CLASSES).filterNot(filterFn).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
-            modificator.commitChanges()
-          }
-        }
         jdkTable.addJdk(jdk)
       }
       jdk
     }
   }
-
-  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk =
-    getOrCreateFilteredJDK(Seq.empty, languageLevel)
 
   private def createNewJdk(jdkVersion: JavaSdkVersion, jdkName: String): Sdk = {
     val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
