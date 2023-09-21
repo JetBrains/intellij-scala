@@ -1723,6 +1723,9 @@ object ScalaPsiUtil {
       case proj: ScTypeProjection => proj.refName
       case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
       case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))
+      case _: ScSplicedBlock =>
+        // TODO: Evaluate?
+        ""
       case unknown =>
         Log.error(s"Unknown type Element in generateGivenOrExtensionName: $unknown")
         fallback(unknown)
