@@ -276,7 +276,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
             try {
                 super.setUp();
                 ScalaFileSetTestCase.this.setUp(getProject());
-                TestUtils.disableTimerThread();
             } catch (Exception e) {
                 try {
                     tearDown();
