@@ -81,7 +81,7 @@ final class NameAnonymousAbstractGivenFixTest extends ScGivenAliasDeclarationAnn
         |trait A[T]
         |
         |trait Foo:
-        |  given given_A_List_Int: A[List[Int]]
+        |  given given_A_List: A[List[Int]]
         |end Foo
         |""".stripMargin,
     hint = hint
