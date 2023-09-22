@@ -16,10 +16,10 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
   extends ExternalLookup {
 
   private val all: Set[VirtualFileRef] = compilationData.zincData.allSources
-    .map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath))
+    .map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath))
     .toSet
   private val changedSources: Set[VirtualFileRef] = compilationData.sources
-    .map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath))
+    .map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath))
     .toSet
 
   override def lookupAnalyzedClass(binaryClassName: String, file: Option[VirtualFileRef]): Option[AnalyzedClass] =
@@ -47,7 +47,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
   override def shouldDoIncrementalCompilation(changedClasses: Set[String], analysis: CompileAnalysis): Boolean = {
     if (compilationData.zincData.isCompile){
       def invalidateClass(source: VirtualFileRef): Unit =
-        client.sourceStarted(Utils.virtualFileConverter.toPath(source).toFile.getAbsolutePath)
+        client.sourceStarted(PlainVirtualFileConverter.converter.toPath(source).toFile.getAbsolutePath)
 
       changedClasses.flatMap(analysis.asInstanceOf[Analysis].relations.definesClass).foreach(invalidateClass)
     }

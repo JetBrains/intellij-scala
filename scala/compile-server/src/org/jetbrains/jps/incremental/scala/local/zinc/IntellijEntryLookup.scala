@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local.zinc
 
 import org.jetbrains.jps.incremental.scala.local.DefinesClassCache
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc.Analysis
+import sbt.internal.inc.{Analysis, PlainVirtualFileConverter}
 import xsbti.VirtualFile
 import xsbti.compile.{AnalysisStore, CompileAnalysis, DefinesClass, PerClasspathEntryLookup}
 
@@ -15,7 +15,7 @@ case class IntellijEntryLookup(compilationData: CompilationData, fileToStore: Fi
   extends PerClasspathEntryLookup {
 
   private def loadAnalysis(forCpEntry: VirtualFile): Option[Analysis] = {
-    val file = Utils.virtualFileConverter.toPath(forCpEntry).toFile
+    val file = PlainVirtualFileConverter.converter.toPath(forCpEntry).toFile
     val cache = compilationData.outputToCacheMap.get(file)
     val anaysisStore = cache.map(fileToStore)
 

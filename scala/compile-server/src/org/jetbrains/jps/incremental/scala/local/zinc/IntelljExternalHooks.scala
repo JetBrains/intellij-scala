@@ -3,9 +3,9 @@ package local.zinc
 
 import java.io.File
 import java.util.Optional
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.local.ClassFileUtils
+import sbt.internal.inc.PlainVirtualFileConverter
 import xsbti.VirtualFile
 import xsbti.compile.ExternalHooks.Lookup
 import xsbti.compile.{ClassFileManager, ExternalHooks}
@@ -28,28 +28,28 @@ class IntellijClassfileManager extends ClassFileManager {
 
   override def delete(classes: Array[VirtualFile]): Unit = {
     val tastyFiles = classes.flatMap { virtualFile =>
-      ClassFileUtils.correspondingTastyFile(Utils.virtualFileConverter.toPath(virtualFile).toFile)
+      ClassFileUtils.correspondingTastyFile(PlainVirtualFileConverter.converter.toPath(virtualFile).toFile)
     }
     tastyFiles.foreach(FileUtil.delete)
     _deleted :+= classes.map { virtualFile =>
-      Utils.virtualFileConverter.toPath(virtualFile).toFile
+      PlainVirtualFileConverter.converter.toPath(virtualFile).toFile
     }
   }
 
   final override def delete(classes: Array[File]): Unit =
     delete(classes.map { file =>
-      Utils.virtualFileConverter.toVirtualFile(file.toPath)
+      PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)
     })
 
   override def complete(success: Boolean): Unit = {}
 
   override def generated(classes: Array[VirtualFile]): Unit = _generated :+= classes.map { virtualFile =>
-    Utils.virtualFileConverter.toPath(virtualFile).toFile
+    PlainVirtualFileConverter.converter.toPath(virtualFile).toFile
   }
 
   final override def generated(classes: Array[File]): Unit =
     generated(classes.map { file =>
-      Utils.virtualFileConverter.toVirtualFile(file.toPath)
+      PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)
     })
 
   def deletedDuringCompilation(): Seq[Array[File]] = _deleted

@@ -1,9 +1,8 @@
 package org.jetbrains.jps.incremental.scala.local.zinc
 
 import java.io.File
-
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc.Analysis
+import sbt.internal.inc.{Analysis, PlainVirtualFileConverter}
 import xsbti.compile.CompileAnalysis
 
 case class BinaryToSource(compileAnalysis: CompileAnalysis, compilationData: CompilationData) {
@@ -12,8 +11,8 @@ case class BinaryToSource(compileAnalysis: CompileAnalysis, compilationData: Com
 
   def classfileToSources(file: File): Set[File] =
     binaryToSource
-      .getOrElse(Utils.virtualFileConverter.toVirtualFile(file.toPath), Set.empty)
-      .map(Utils.virtualFileConverter.toPath(_).toFile)
+      .getOrElse(PlainVirtualFileConverter.converter.toVirtualFile(file.toPath), Set.empty)
+      .map(PlainVirtualFileConverter.converter.toPath(_).toFile)
 
   def classfilesToSources(classfiles: Array[File]): Set[File] =
     classfiles.flatMap(classfileToSources).toSet
