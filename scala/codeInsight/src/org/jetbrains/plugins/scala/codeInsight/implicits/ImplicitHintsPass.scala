@@ -93,7 +93,7 @@ class ImplicitHintsPass(
       val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
 
       (ImplicitHints.enabled || enabledForElement) &&
-        !(compilerErrorsEnabled && rootElement.isInScala3Module)
+        !(compilerErrorsEnabled && rootElement.isInScala3Module && !ScalaHintsSettings.xRayMode)
     }
 
     def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
