@@ -198,7 +198,7 @@ object ScalaColorSchemeAnnotator {
     if (!nameId.isPhysical)
       return
 
-    val attributesKey = if (param.isAnonymousParameter) ANONYMOUS_PARAMETER else PARAMETER
+    val attributesKey = ScalaColorsSchemeUtils.parameterAttributes(param)
     createInfoAnnotation(nameId, attributesKey)
   }
 

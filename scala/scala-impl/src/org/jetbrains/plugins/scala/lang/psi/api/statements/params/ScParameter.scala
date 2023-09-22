@@ -108,14 +108,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   override def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
 
-  def isAnonymousParameter: Boolean = getContext match {
-    case clause: ScParameterClause => clause.getContext.getContext match {
-      case _: ScFunctionExpr => true
-      case _ => false
-    }
-    case _ => false
-  }
-
   /**
    * Infers expected type for the parameter of an anonymous function
    * based on the corresponding function-like type.

@@ -7,7 +7,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -69,14 +69,14 @@ private object ScalaRainbowVisitor {
     }
   }
 
-  object ColorKey {
+  private object ColorKey {
 
     import DefaultHighlighter._
 
     def unapply(element: PsiElement): Option[(PsiElement, TextAttributesKey)] = element match {
       case tagValue: ScDocTagValue => Some(tagValue, SCALA_DOC_TAG_PARAM_VALUE)
       case _: ScClassParameter => None
-      case parameter: ScParameter => Some(parameter, if (parameter.isAnonymousParameter) ANONYMOUS_PARAMETER else PARAMETER)
+      case parameter: ScParameter => Some(parameter, ScalaColorsSchemeUtils.parameterAttributes(parameter))
       case value: ScValue if value.isLocal => Some(value, LOCAL_VALUES)
       case variable: ScVariable if variable.isLocal => Some(variable, LOCAL_VARIABLES)
       case clause: ScCaseClause => Some(clause, PATTERN)
@@ -85,7 +85,7 @@ private object ScalaRainbowVisitor {
     }
   }
 
-  object PsiContext {
+  private object PsiContext {
 
     import PsiTreeUtil.getContextOfType
 
