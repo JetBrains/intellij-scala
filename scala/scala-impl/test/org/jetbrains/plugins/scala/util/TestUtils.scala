@@ -120,6 +120,16 @@ object TestUtils {
     input
   }
 
+  def disableTimerThread(): Unit = {
+    //This hacky "something" is originated from this commit:
+    //  Fixed thread leak in PrivacyPolicyUpdater (it was actually suppressed).
+    //  f0e2ac01 Alexander.Podkhalyuzin <alexander.podkhalyuzin@jetbrains.com> on 7/23/2016 at 12:03
+    //Not sure if it's still actual though
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "Timer")
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "BaseDataReader")
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "ProcessWaitFor")
+  }
+
   def optimizeSearchingForIndexableFiles(): Unit = {
     // The test flag needs to be set _before_ calling super.setUp() in order to disable repeated searching
     // for indexable files before each test. Our test environment in light project tests does not change
