@@ -7,14 +7,17 @@ import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.ui.components.labels.LinkLabel
 
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.settings.ScalaGeneralTypeHintsSettingsModel
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
+import java.awt.{BorderLayout, FlowLayout}
 import java.util.Collections
 
 class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
@@ -22,7 +25,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   "Scala.ScalaMethodChainInlayHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
-  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+  override def getGroup: InlayGroup = InlayGroup.METHOD_CHAINS_GROUP
 
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
@@ -64,7 +67,6 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
       getOnChangeListener.settingsChanged()
     }
   )
-  override def getComponent: JComponent = settingsPanel.getPanel
 
   override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("method.chain.hints")
 
@@ -122,6 +124,25 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   }
 
   override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description")
+
+  override def getComponent: JComponent = {
+    val linePanel = {
+      val link = new LinkLabel[Any](ScalaCodeInsightBundle.message("method.chain.hints.link.to.general.settings"), null)
+      link.setListener((_, _) => ScalaGeneralTypeHintsSettingsModel.navigateTo(project), null)
+      val linePanel = {
+        val layout = new FlowLayout()
+        layout.setHgap(0)
+        layout.setAlignment(FlowLayout.LEFT)
+        new JPanel(layout)
+      }
+      linePanel.add(link)
+      linePanel
+    }
+
+    val panel = new JPanel(new BorderLayout())
+    panel.add(linePanel, BorderLayout.NORTH)
+    panel
+  }
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
