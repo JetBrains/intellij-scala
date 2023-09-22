@@ -14,4 +14,4 @@ class ShowLocalVariableTypeSettingsModel(group: TypeHintSettingsModelGroup, proj
   override def getDescription: String = null
 
   override def getName: String = ScalaCodeInsightBundle.message("local.variables")
-  }
+}
