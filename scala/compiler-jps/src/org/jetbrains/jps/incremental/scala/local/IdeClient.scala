@@ -40,29 +40,27 @@ abstract class IdeClient(compilerName: String,
       case None => (None, None)
     }
 
-    if (LogFilter.shouldLog(kind, text, source, line, column)) {
-      val jpsKind = kind match {
-        case MessageKind.Error => BuildMessage.Kind.ERROR
-        case MessageKind.Warning => BuildMessage.Kind.WARNING
-        case MessageKind.Info => BuildMessage.Kind.INFO
-        case MessageKind.Progress => BuildMessage.Kind.PROGRESS
-        case MessageKind.JpsInfo => BuildMessage.Kind.JPS_INFO
-        case MessageKind.InternalBuilderError => BuildMessage.Kind.INTERNAL_BUILDER_ERROR
-        case MessageKind.Other => BuildMessage.Kind.OTHER
-      }
-
-      val uuid = Try {
-        val cancelStatus = context.getCancelStatus
-        val mySessionIdField = cancelStatus.getClass.getDeclaredField("mySessionId")
-        mySessionIdField.setAccessible(true)
-        mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
-      }.toOption
-
-      // CompilerMessage expects 1-based line and column indices.
-      context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
-        -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-      context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg).toCustomMessage)
+    val jpsKind = kind match {
+      case MessageKind.Error => BuildMessage.Kind.ERROR
+      case MessageKind.Warning => BuildMessage.Kind.WARNING
+      case MessageKind.Info => BuildMessage.Kind.INFO
+      case MessageKind.Progress => BuildMessage.Kind.PROGRESS
+      case MessageKind.JpsInfo => BuildMessage.Kind.JPS_INFO
+      case MessageKind.InternalBuilderError => BuildMessage.Kind.INTERNAL_BUILDER_ERROR
+      case MessageKind.Other => BuildMessage.Kind.OTHER
     }
+
+    val uuid = Try {
+      val cancelStatus = context.getCancelStatus
+      val mySessionIdField = cancelStatus.getClass.getDeclaredField("mySessionId")
+      mySessionIdField.setAccessible(true)
+      mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
+    }.toOption
+
+    // CompilerMessage expects 1-based line and column indices.
+    context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
+      -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
+    context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg).toCustomMessage)
   }
 
   override def compilationStart(): Unit = {
