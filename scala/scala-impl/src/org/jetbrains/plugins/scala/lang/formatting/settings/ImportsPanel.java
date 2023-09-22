@@ -41,6 +41,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private final DefaultListModel<String> alwaysUsedImportsModel;
     private final DefaultListModel<String> myImportLayoutModel;
 
+    @SuppressWarnings("deprecation")
     public ImportsPanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("imports.panel.title"));
 
