@@ -29,7 +29,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
       } else {
         val groups = compilationData.outputGroups.map {
           case (source, target) => (source.toPath, target.toPath)
-        }.toSeq
+        }
         CompileOutput(groups: _*)
       }
 
@@ -82,6 +82,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def api(sourceFile: VirtualFileRef, classApi: ClassLike): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def api(sourceFile: File, classApi: ClassLike): Unit =
     api(PlainVirtualFileConverter.converter.toVirtualFile(sourceFile.toPath), classApi)
 
@@ -91,6 +92,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
                                 fromSourceFile: VirtualFileRef,
                                 context: DependencyContext): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def binaryDependency(onBinary: File,
                                       onBinaryClassName: String,
                                       fromClassName: String,
@@ -109,9 +111,11 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
   override def classesInOutputJar(): util.Set[String] =
     Set.empty[String].asJava
 
+  //noinspection ScalaDeprecation
   override def generatedLocalClass(source: File, classFile: File): Unit =
     generatedLocalClass(PlainVirtualFileConverter.converter.toVirtualFile(source.toPath), classFile.toPath)
 
+  //noinspection ScalaDeprecation
   final override def generatedNonLocalClass(source: File,
                                             classFile: File,
                                             binaryClassName: String,
@@ -139,6 +143,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def startSource(source: VirtualFile): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def startSource(source: File): Unit =
     startSource(PlainVirtualFileConverter.converter.toVirtualFile(source.toPath))
 
@@ -152,6 +157,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def mainClass(sourceFile: VirtualFileRef, className: String): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def mainClass(sourceFile: File, className: String): Unit =
     mainClass(PlainVirtualFileConverter.converter.toVirtualFile(sourceFile.toPath), className)
 }
