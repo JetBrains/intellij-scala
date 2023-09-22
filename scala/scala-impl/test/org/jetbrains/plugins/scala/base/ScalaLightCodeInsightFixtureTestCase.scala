@@ -119,6 +119,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   override protected def setUp(): Unit = {
     TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
+    TestUtils.disableTimerThread()
   }
 
   override protected def tearDown(): Unit = {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.moveLeftRight
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformCodeInsightTestCase}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCase {
   protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*): Unit = {
@@ -48,5 +49,10 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
   private def configureEditor(fileText: String): Unit = {
     val fileName = s"${getTestName(false)}.scala"
     configureFromFileText(fileName, fileText)
+  }
+
+  override def setUp(): Unit = {
+    super.setUp()
+    TestUtils.disableTimerThread()
   }
 }
