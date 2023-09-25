@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.compiler.actions.internal
 import com.intellij.ide.nls.NlsMessages
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.application.ApplicationNamesInfo
-import com.intellij.openapi.application.ex.ApplicationInfoEx
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationNamesInfo}
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.MessageType
@@ -37,7 +36,7 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
   }
 
   private def collectSummary(e: AnActionEvent): String = {
-    val appInfo = ApplicationInfoEx.getInstanceEx
+    val appInfo = ApplicationInfo.getInstance()
     val ideaBuildNumber = appInfo.getBuild.asString
     val ideaBuildDate = {
       val cal = appInfo.getBuildDate

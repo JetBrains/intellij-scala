@@ -2,8 +2,7 @@ package org.jetbrains.sbt.language.utils
 
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ex.ApplicationInfoEx
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -44,7 +43,7 @@ object CustomPackageSearchApiClient {
 
   private val headers = List(
     ("Scala-Plugin-Version", PluginManagerCore.getPlugins.find(_.getName == "Scala").map(_.getVersion).getOrElse("-")),
-    ("IDEA-Build-Number", ApplicationInfoEx.getInstanceEx.getBuild.asString)
+    ("IDEA-Build-Number", ApplicationInfo.getInstance().getBuild.asString)
   )
 
 
