@@ -203,6 +203,9 @@ object ScalaI18nUtil {
       case method: PsiMethod =>
         isDirectAnnotated(method) || method.findSuperMethods().exists(isDirectAnnotated)
 
+      case field: PsiField =>
+        isDirectAnnotated(field)
+
       case param: PsiParameter =>
         isDirectAnnotated(param) || {
           param.getDeclarationScope match {

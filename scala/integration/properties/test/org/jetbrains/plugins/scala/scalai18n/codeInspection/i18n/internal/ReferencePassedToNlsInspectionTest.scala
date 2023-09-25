@@ -252,4 +252,31 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
         |""".stripMargin
     )
   }
+
+  def test_annotated_java_fields(): Unit = {
+    myFixture.addFileToProject(
+      "additional/java/label.java",
+      """package additional.java;
+        |
+        |import org.jetbrains.annotations.Nls;
+        |
+        |public @Nls(capitalization = Nls.Capitalization.Sentence)  @interface Label {
+        |
+        |}
+        |
+        |class SomethingWithLabel {
+        |  public static final @Label String SOME_LABEL = null;
+        |}
+        |""".stripMargin
+    )
+
+    checkTextHasNoErrors(
+      """
+        |import additional.java.Label;
+        |import additional.java.SomethingWithLabel;
+        |
+        |toNls(SomethingWithLabel.SOME_LABEL)
+        |""".stripMargin
+    )
+  }
 }
