@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
 
+  import org.jetbrains.plugins.scala.icons.Icons.PARAMETER
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
-  import org.jetbrains.plugins.scala.icons.Icons.{PARAMETER, PATTERN_VAL}
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
@@ -170,7 +171,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |  trait A(x: Int, y: Int)
          |
          |  val x: Int = ???
-         |  val y: Int = ???
+         |  var y: Int = ???
          |
          |  new A($CARET) {}
         """.stripMargin,
@@ -179,13 +180,13 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |  trait A(x: Int, y: Int)
          |
          |  val x: Int = ???
-         |  val y: Int = ???
+         |  var y: Int = ???
          |
          |  new A(x, y)$CARET {}
         """.stripMargin,
     item = "x, y",
     isSuper = true,
-    icons = PATTERN_VAL, PATTERN_VAL
+    icons = Icons.FIELD_VAL, Icons.FIELD_VAR
   )
 
   def testAfterParenthesisOnlyInTraitConstructorAfterNew(): Unit = checkNoCompletion(
@@ -502,7 +503,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |    case B(x: Int, y: Int)
          |
          |  val x: Int = ???
-         |  val y: Int = ???
+         |  var y: Int = ???
          |
          |  A.B($CARET)
         """.stripMargin,
@@ -512,13 +513,13 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |    case B(x: Int, y: Int)
          |
          |  val x: Int = ???
-         |  val y: Int = ???
+         |  var y: Int = ???
          |
          |  A.B(x, y)$CARET
         """.stripMargin,
     item = "x, y",
     isSuper = false,
-    icons = PATTERN_VAL, PATTERN_VAL
+    icons = Icons.FIELD_VAL, Icons.FIELD_VAR
   )
 
   def testAfterParenthesisOnlyInEnumCaseConstructor(): Unit = checkNoCompletion(

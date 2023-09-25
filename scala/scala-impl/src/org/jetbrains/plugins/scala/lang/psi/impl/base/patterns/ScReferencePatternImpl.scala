@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -22,8 +22,13 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import javax.swing.Icon
+
 class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePattern], node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScPatternImpl with ScReferencePattern with ContributedReferenceHost {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node)
+    with ScPatternImpl
+    with ScReferencePattern
+    with ContributedReferenceHost {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -39,6 +44,16 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
     this.expectedType match {
       case Some(x) => Right(x)
       case _       => Failure(ScalaBundle.message("cannot.define.expected.type"))
+    }
+
+  override def getIcon(flags: Int): Icon =
+    nameContext match {
+      case v: ScValueOrVariable =>
+        //When we are inside val/var declaration, get the corresponding declaration icon with proper flags
+        //This can matter e.g. when we show usages dialog when ctrl-clicking on `given` imports
+        v.getIcon(flags)
+      case _ =>
+        super.getIcon(flags)
     }
 
   override def getReferences: Array[PsiReference] = {

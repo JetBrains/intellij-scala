@@ -18,10 +18,12 @@ abstract class SameSignatureCallParametersProviderTestBase extends ScalaCompleti
                                    icons: Icon*): Unit =
     super.doRawCompletionTest(fileText, resultText) { lookup =>
       val icon = createPresentation(lookup).getIcon
-      val value = allIcons(icon)
-      hasLookupString(lookup, item) &&
-        lookup.getUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS) == (if (isSuper) java.lang.Boolean.TRUE else null) &&
-        value == icons
+      val iconsActual = allIcons(icon)
+
+      val lookupStringMatches = hasLookupString(lookup, item)
+      val isSuperMatches = lookup.getUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS) == (if (isSuper) java.lang.Boolean.TRUE else null)
+      val iconsMatch = iconsActual == icons
+      lookupStringMatches && isSuperMatches && iconsMatch
     }
 
   protected def checkNoCompletion(fileText: String): Unit =

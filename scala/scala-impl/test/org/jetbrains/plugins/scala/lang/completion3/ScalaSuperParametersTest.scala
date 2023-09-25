@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
@@ -321,7 +322,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
         """.stripMargin,
     item = "x, y",
     isSuper = true,
-    icons = PATTERN_VAL, PATTERN_VAL
+    icons = Icons.VAL, Icons.VAL
   )
 
   @RunWithScalaVersions(Array(
@@ -1174,7 +1175,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |""".stripMargin,
     item = "bar, baz",
     isSuper = false,
-    icons = PARAMETER, PATTERN_VAL
+    icons = PARAMETER, Icons.VAL
   )
 
   def testClauseLookupElement2(): Unit = checkLookupElement(
@@ -1198,7 +1199,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |""".stripMargin,
     item = "bar, baz",
     isSuper = false,
-    icons = PATTERN_VAL, PATTERN_VAL
+    icons = Icons.VAR, Icons.PATTERN_VAL
   )
 
   def testClauseLookupElement3(): Unit = checkNoBasicCompletion(
