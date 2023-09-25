@@ -22,7 +22,7 @@ import org.jetbrains.sbt.language.utils.SbtDependencyUtils
 
 class SbtDependencyVersionInspection extends DependencyVersionInspection {
   override protected def isAvailable(element: PsiElement): Boolean = element.getParent match {
-    case infix: ScInfixExpr =>
+    case infix: ScInfixExpr if infix.isValid =>
       SBT_ORG_ARTIFACT.contains(infix.left.`type`().getOrAny.canonicalText) && element == infix.right
     case _ => false
   }
