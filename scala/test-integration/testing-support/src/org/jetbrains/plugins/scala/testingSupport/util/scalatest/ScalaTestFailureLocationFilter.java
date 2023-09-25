@@ -17,14 +17,16 @@ import java.awt.*;
 
 
 /**
- * A custom console outpit filter to build hyperlinks to exact test failure location in ScalaTest. Pretty much copies
- * {@link com.intellij.execution.filters.ExceptionFilter}.
+ * A custom console output filter to build hyperlinks to exact test failure location in ScalaTest.<br>
+ * Pretty much copies {@link com.intellij.execution.filters.ExceptionFilter}.
  */
 public class ScalaTestFailureLocationFilter implements Filter {
 
   private final ExceptionInfoCache myCache;
 
 //  private final static Pattern fqnPattern = Pattern.compile("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)+\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
+
+  //See org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporterWithLocation.apply
   private final static String testFailureLocationPrefix = "ScalaTestFailureLocation: ";
 
   public ScalaTestFailureLocationFilter(@NotNull final Project project, @NotNull final GlobalSearchScope scope) {
@@ -36,10 +38,9 @@ public class ScalaTestFailureLocationFilter implements Filter {
   public Result applyFilter(String line, int entireLength) {
     Project myProject = myCache.getProject();
     if (!line.startsWith(testFailureLocationPrefix)) return null;
-    int atKeywordLocation = line.indexOf(" at ");
+    final int atKeywordLocation = line.indexOf(" at ");
     if (atKeywordLocation < 0) return null;
     //get class name and make sure it is a fqn
-    String className = line.substring(testFailureLocationPrefix.length(), atKeywordLocation);
 //    if (!fqnPattern.matcher(className).matches()) return null;
     int lparenthIndex = line.lastIndexOf("(");
     int rparenthIndex = line.lastIndexOf(")");
@@ -50,9 +51,15 @@ public class ScalaTestFailureLocationFilter implements Filter {
     int lineNumber = ScalaTestFailureLocationFilter.getLineNumber(fileAndLine.substring(colonIndex + 1));
     if (lineNumber < 0) return null;
     final var fileName = fileAndLine.substring(0, colonIndex).trim();
+
+    //NOTE: class name can be empty (see examples in SCL-21627 and https://github.com/scalatest/scalatest/issues/2286)
+    //in this case only file name will be used during resolution under the hood
+    final String className = line.substring(testFailureLocationPrefix.length(), atKeywordLocation).trim();
     final var resolutionResult = myCache.resolveClassOrFile(className, fileName);
+
     final var virtualFiles = resolutionResult.getClasses().keySet().stream().toList();
-    if (virtualFiles.isEmpty()) return null;
+    if (virtualFiles.isEmpty())
+      return null;
 
     final int textStartOffset = entireLength - line.length();
 
