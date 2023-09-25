@@ -236,7 +236,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
     val elemRange = SourcePositionHighlighter.getHighlightRangeFor(position)
     val document = PsiDocumentManager.getInstance(getProject).getDocument(position.getFile)
     val lineRange = DocumentUtil.getLineTextRange(document, position.getLine)
-    val textRange = if (elemRange ne null) elemRange.intersection(lineRange) else lineRange
+    val textRange = if (elemRange ne null) elemRange else lineRange
     document.getText(textRange).trim
   }
 
@@ -522,5 +522,20 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
 
   def testBreakpointWithBackticks(): Unit = {
     exactBreakpointTest()("println(1)", "println(2)")
+  }
+
+  addSourceFile("MultilineLambda.scala",
+    s"""object MultilineLambda {
+       |  def main(args: Array[String]): Unit = {
+       |    List(1, 2, 3).foreach { x =>
+       |      println(x) $breakpoint
+       |      println(123) $breakpoint
+       |      println()
+       |    }
+       |  }
+       |}""".stripMargin)
+
+  def testMultilineLambda(): Unit = {
+    exactBreakpointTest()("println(x)", "println(123)", "println(x)",  "println(123)", "println(x)", "println(123)")
   }
 }
