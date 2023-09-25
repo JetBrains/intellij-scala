@@ -110,8 +110,13 @@ public class ScalaTestReporterWithLocation implements Reporter {
                 detail = getStackTraceString(throwable);
                 if (throwable instanceof StackDepthException) {
                     StackDepthException stackDepthException = (StackDepthException) throwable;
+
                     Option<String> fileNameAndLineNumber = stackDepthException.failedCodeFileNameAndLineNumberString();
-                    StackTraceElement stackTraceElement = (stackDepthException.getStackTrace())[stackDepthException.failedCodeStackDepth()];
+
+                    int failedCodeStackDepth = stackDepthException.failedCodeStackDepth();
+                    StackTraceElement[] stackTraceElements = stackDepthException.getStackTrace();
+                    StackTraceElement stackTraceElement = stackTraceElements[failedCodeStackDepth];
+
                     String className = stackTraceElement != null ? stackTraceElement.getClassName() : null;
                     if (fileNameAndLineNumber instanceof Some && className != null) {
                         failureLocation = "\nScalaTestFailureLocation: " + className + " at (" + fileNameAndLineNumber.get() + ")";
