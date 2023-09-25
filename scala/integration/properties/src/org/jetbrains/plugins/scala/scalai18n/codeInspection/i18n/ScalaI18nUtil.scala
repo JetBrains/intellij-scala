@@ -13,8 +13,9 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
+import org.jetbrains.plugins.scala.extensions.{&, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
@@ -25,48 +26,62 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.text.MessageFormat
+import java.util.Collections
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
 object ScalaI18nUtil {
   // com.intellij.codeInspection.i18n.NlsInfo.NLS_SAFE is package-private
   private val NLS_SAFE = "com.intellij.openapi.util.NlsSafe"
 
   trait AnnotationChecker {
-    def check(owner: PsiModifierListOwner): Boolean
+    def checkPsiModifierListOwner(owner: PsiModifierListOwner): Boolean
+    def checkPsiAnnotationOwner(owner: PsiAnnotationOwner): Boolean
   }
 
   sealed abstract class PassedToAnnotatedChecker(protected val annotations: Seq[String]) extends AnnotationChecker {
-    override def check(owner: PsiModifierListOwner): Boolean = {
-      def resolveAnnotation(annotation: PsiAnnotation): Option[PsiModifierListOwner] = {
-        def resolveInScala =
-          annotation
-            .asOptionOf[ScAnnotation]
-            .flatMap(_.typeElement.`type`().toOption)
-            .flatMap(_.extractClass)
+    private val annotationsSet: java.util.Set[String] = annotations match {
+      case Seq(one) => Collections.singleton(one)
+      case multiple => ContainerUtil.newHashSet(multiple.asJava)
+    }
 
-        def resolveInJava =
-          annotation
-            .getNameReferenceElement
-            .toOption
-            .flatMap(_.resolve().asOptionOf[PsiModifierListOwner])
-
-        resolveInJava.orElse(resolveInScala)
-      }
-
+    override def checkPsiModifierListOwner(owner: PsiModifierListOwner): Boolean = {
       // annotated with one of the given annotations
-      AnnotationUtil.findAnnotation(owner, annotations: _*) != null ||
+      AnnotationUtil.findAnnotation(owner, annotationsSet) != null ||
         // annotated with Annotation itself annotated with one of the given annotations
-        owner
-          .getAnnotations.iterator
-          .flatMap(resolveAnnotation)
-          .exists(AnnotationUtil.findAnnotation(_, annotations: _*) != null)
+        checkAnnotationsOfAnnotations(owner.getAnnotations)
+    }
+
+    override def checkPsiAnnotationOwner(owner: PsiAnnotationOwner): Boolean = {
+      annotations.exists(owner.hasAnnotation) || checkAnnotationsOfAnnotations(owner.getAnnotations)
+    }
+
+    private def checkAnnotationsOfAnnotations(annotations: Array[PsiAnnotation]): Boolean =
+      annotations.iterator
+        .flatMap(resolveAnnotation)
+        .exists(AnnotationUtil.findAnnotation(_, annotationsSet) != null)
+
+    private def resolveAnnotation(annotation: PsiAnnotation): Option[PsiModifierListOwner] = {
+      def resolveInScala =
+        annotation
+          .asOptionOf[ScAnnotation]
+          .flatMap(_.typeElement.`type`().toOption)
+          .flatMap(_.extractClass)
+
+      def resolveInJava =
+        annotation
+          .getNameReferenceElement
+          .toOption
+          .flatMap(_.resolve().asOptionOf[PsiModifierListOwner])
+
+      resolveInJava.orElse(resolveInScala)
     }
   }
 
-  object PassedToNlsChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS))
+  private object PassedToNlsChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS))
 
-  object PassedToNlsOrNlsSafeChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS, NLS_SAFE))
+  private object PassedToNlsOrNlsSafeChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS, NLS_SAFE))
 
   def isPassedToNls(element: PsiElement): Boolean =
     ScalaI18nUtil.isPassedToAnnotated(element, PassedToNlsChecker)
@@ -81,24 +96,27 @@ object ScalaI18nUtil {
                           @Nullable
                           annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean =
     isPassedToAnnotated(element, new AnnotationChecker {
-      override def check(owner: PsiModifierListOwner): Boolean = {
-        val annotation = AnnotationUtil.findAnnotation(owner, annFqn)
-        if (annotation != null) {
-          addToAnnotationAttributeValues(annotation)
-          true
-        } else false
-      }
+      override def checkPsiModifierListOwner(owner: PsiModifierListOwner): Boolean =
+        addToAnnotationAttributeValues(AnnotationUtil.findAnnotation(owner, annFqn))
 
-      private def addToAnnotationAttributeValues(annotation: PsiAnnotation): Unit = {
-        if (annotationAttributeValues != null) {
-          val parameterList = annotation.getParameterList
-          val attributes = parameterList.getAttributes
-          for (attribute <- attributes) {
-            val name: String = attribute.getName
-            if (annotationAttributeValues.contains(name)) {
-              annotationAttributeValues.put(name, attribute.getValue)
+      override def checkPsiAnnotationOwner(owner: PsiAnnotationOwner): Boolean =
+        addToAnnotationAttributeValues(owner.findAnnotation(annFqn))
+
+      private def addToAnnotationAttributeValues(annotation: PsiAnnotation): Boolean = {
+        if (annotation == null) {
+          false
+        } else {
+          if (annotationAttributeValues != null) {
+            val parameterList = annotation.getParameterList
+            val attributes = parameterList.getAttributes
+            for (attribute <- attributes) {
+              val name: String = attribute.getName
+              if (annotationAttributeValues.contains(name)) {
+                annotationAttributeValues.put(name, attribute.getValue)
+              }
             }
           }
+          true
         }
       }
     })
@@ -209,13 +227,23 @@ object ScalaI18nUtil {
   }
 
   private def checkAnnotationsOnElement(element: PsiElement, checker: AnnotationChecker): Boolean = {
-    element match {
-      case owner: PsiModifierListOwner => checker.check(owner)
+    def elementIsAnnotated = element match {
+      case owner: PsiModifierListOwner => checker.checkPsiModifierListOwner(owner)
       case _ => false
     }
+    def typeIsAnnotated: Boolean = {
+      val ty = element match {
+        case method: PsiMethod => NullSafe(method.getReturnType)
+        case field: PsiField => NullSafe(field.getType)
+        case _ => return false
+      }
+      ty.exists(checker.checkPsiAnnotationOwner)
+    }
+
+    elementIsAnnotated || typeIsAnnotated
   }
 
-  def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
+  private def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
     if (resourceBundleName == null) {
       !PropertiesImplUtil.findPropertiesByKey(expression.getProject, key).isEmpty
     }
@@ -229,7 +257,7 @@ object ScalaI18nUtil {
     }
   }
 
-  def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
+  private def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
     var containingFile: PsiFile = context.getContainingFile
     val containingFileContext: PsiElement = containingFile.getContext
     if (containingFileContext != null) containingFile = containingFileContext.getContainingFile

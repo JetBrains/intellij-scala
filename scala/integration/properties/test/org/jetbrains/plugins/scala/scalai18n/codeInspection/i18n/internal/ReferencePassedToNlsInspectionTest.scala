@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
 
 class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -9,18 +9,28 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = ScalaI18nBundle.message("internal.expression.without.nls.passed.to.nls")
 
+  override protected def configureByText(text: String): ScalaAnnotatorQuickFixTestBase.TestPrepareResult = {
+    myFixture.addFileToProject(
+      "org/jetbrains/annotations/nls.java",
+      """
+        |package org.jetbrains.annotations;
+        |
+        |public @interface Nls {
+        |  enum Capitalization {
+        |    NotSpecified,
+        |    Title,
+        |    Sentence
+        |  }
+        |  Capitalization capitalization() default Capitalization.NotSpecified;
+        |}
+        |
+        |""".stripMargin
+    )
+    super.configureByText(text)
+  }
+
   override protected def createTestText(text: String): String =
     s"""
-       |object org {
-       |  object jetbrains {
-       |    object annotations {
-       |      class Nls extends scala.annotation.StaticAnnotation
-       |      @Nls
-       |      class SpecificNls extends scala.annotation.StaticAnnotation
-       |    }
-       |  }
-       |}
-       |
        |object com {
        |  object intellij {
        |    object openapi {
@@ -33,7 +43,9 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |
        |import com.intellij.openapi.util.NlsSafe
        |import org.jetbrains.annotations.Nls
-       |import org.jetbrains.annotations.SpecificNls
+       |
+       |@Nls
+       |class SpecificNls extends scala.annotation.StaticAnnotation
        |
        |@Nls
        |val nls: String = null
@@ -215,4 +227,29 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
          |Test(${START}nls$END)
          |""".stripMargin
     )
+
+  def test_nls_on_type(): Unit = {
+    myFixture.addFileToProject(
+      "additional/java/AJavaValue.java",
+      """package additional.java;
+        |
+        |import org.jetbrains.annotations.Nls;
+        |
+        |public class AJavaValue {
+        |  public @Nls String getNlsValue() {
+        |    return null;
+        |  }
+        |}
+        |""".stripMargin
+    )
+
+    checkTextHasNoErrors(
+      """
+        |import additional.java.AJavaValue
+        |
+        |val cls = new AJavaValue
+        |toNls(cls.getNlsValue)
+        |""".stripMargin
+    )
+  }
 }
