@@ -22,10 +22,10 @@ import _root_.scala.collection.immutable.ArraySeq
 import _root_.scala.jdk.CollectionConverters._
 
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
-  override def getPresentableName = JpsBundle.message("sbt.builder.presentable.name")
+  override def getPresentableName: String = JpsBundle.message("sbt.builder.presentable.name")
 
   override def buildStarted(context: CompileContext): Unit = {
-    if (isScalaProject(context) && !isDisabled(context)) {
+    if (isEnabled(context)) {
       JavaBuilder.IS_ENABLED.set(context, false)
     }
   }
@@ -37,7 +37,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val modules = chunk.getModules.asScala.toSet
 
-    if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
+    if (!isEnabled(context) || ChunkExclusionService.isExcluded(chunk))
       return JpsExitCode.NOTHING_DONE
 
     updateSharedResources(context, chunk)
@@ -88,9 +88,8 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getCompilableFileExtensions: jutil.List[String] =
     jutil.Arrays.asList("scala", "java")
 
-  private def isDisabled(context: CompileContext): Boolean =
-    projectSettings(context).getIncrementalityType != IncrementalityType.SBT ||
-      !isScalaProject(context)
+  private def isEnabled(context: CompileContext): Boolean =
+    projectSettings(context).getIncrementalityType == IncrementalityType.SBT && isScalaProject(context)
 }
 
 object SbtBuilder {
