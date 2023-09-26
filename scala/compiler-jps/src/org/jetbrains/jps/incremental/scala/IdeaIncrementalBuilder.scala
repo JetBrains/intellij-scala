@@ -26,7 +26,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): JpsExitCode = {
 
-    if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
+    if (!isEnabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return JpsExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
@@ -95,23 +95,25 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
   override def getCompilableFileExtensions: ju.List[String] =
     ju.Arrays.asList("scala", "java")
 
-  private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
+  private def isEnabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = ScalaBuilder.projectSettings(context)
 
-    def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
+    def correctIncrementalityType: Boolean = settings.getIncrementalityType == IncrementalityType.IDEA
 
-    def wrongCompileOrder: Boolean = {
-      val compilerOrder = settings.getCompilerSettings(chunk).getCompileOrder
-      compilerOrder match {
+    def correctCompileOrder: Boolean = {
+      val compileOrder = settings.getCompilerSettings(chunk).getCompileOrder
+      val category = getCategory
+      compileOrder match {
         case CompileOrder.JavaThenScala =>
-          getCategory == BuilderCategory.SOURCE_PROCESSOR
+          // Java code needs to be compiled before Scala. The Java JPS builder will compile the Java code, and it runs
+          // with a TRANSLATOR builder category. We need to run after it. OVERWRITING_TRANSLATOR runs after TRANSLATOR.
+          category == BuilderCategory.OVERWRITING_TRANSLATOR
         case CompileOrder.ScalaThenJava | CompileOrder.Mixed =>
-          getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
-        case _ =>
-          false
+          category == BuilderCategory.SOURCE_PROCESSOR
       }
     }
-    wrongIncrType || wrongCompileOrder
+
+    correctIncrementalityType && correctCompileOrder
   }
 
   private def collectSources(context: CompileContext,
