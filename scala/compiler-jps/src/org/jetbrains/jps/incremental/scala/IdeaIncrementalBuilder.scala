@@ -19,7 +19,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   import ModuleLevelBuilder.{ExitCode => JpsExitCode}
 
-  override def getPresentableName: String = "Scala IDEA builder"
+  override def getPresentableName: String = JpsBundle.message("idea.incremental.builder.presentable.name")
 
   override def build(context: CompileContext,
                      chunk: ModuleChunk,

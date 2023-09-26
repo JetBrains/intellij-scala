@@ -22,7 +22,7 @@ import _root_.scala.collection.immutable.ArraySeq
 import _root_.scala.jdk.CollectionConverters._
 
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
-  override def getPresentableName = "Scala sbt builder"
+  override def getPresentableName = JpsBundle.message("sbt.builder.presentable.name")
 
   override def buildStarted(context: CompileContext): Unit = {
     if (isScalaProject(context) && !isDisabled(context)) {
