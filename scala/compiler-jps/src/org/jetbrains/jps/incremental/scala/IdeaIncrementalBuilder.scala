@@ -87,13 +87,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
           JpsExitCode.ADDITIONAL_PASS_REQUIRED
         else {
           client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
-          code match {
-            case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
-            case ExitCode.Ok => JpsExitCode.OK
-            case ExitCode.Abort => JpsExitCode.ABORT
-            case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
-            case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
-          }
+          ScalaBuilder.exitCode(code)
         }
     }
   }

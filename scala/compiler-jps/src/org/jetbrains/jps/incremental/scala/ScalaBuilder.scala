@@ -161,4 +161,14 @@ object ScalaBuilder {
 
   private def globalSettings(implicit context: CompileContext) =
     SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
+
+  import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode => JpsExitCode}
+
+  private[scala] def exitCode(code: ExitCode): JpsExitCode = code match {
+    case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
+    case ExitCode.Ok => JpsExitCode.OK
+    case ExitCode.Abort => JpsExitCode.ABORT
+    case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
+    case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
+  }
 }
