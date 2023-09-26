@@ -16,7 +16,7 @@ final private [documentationProvider] class ScalaDocParametersRenderer(parameter
 final private [documentationProvider] class ScalaDocParameterRenderer(typeRenderer: TypeRenderer, typeAnnotationRenderer: TypeAnnotationRenderer)
   extends ParameterRenderer(
     typeRenderer,
-    WithHtmlPsiLink.renderer,
+    WithHtmlPsiLink.modifiersRenderer,
     typeAnnotationRenderer,
     TextEscaper.Html,
     withMemberModifiers = true,
@@ -25,7 +25,7 @@ final private [documentationProvider] class ScalaDocParameterRenderer(typeRender
 
   override def render(buffer: StringBuilder, param: ScParameter): Unit = {
     parameterAnnotations(buffer, param)
-    WithHtmlPsiLink.renderer.render(buffer, param)
+    WithHtmlPsiLink.modifiersRenderer.render(buffer, param)
     val keyword = keywordPrefix(param)
     if (keyword.nonEmpty) buffer.appendKeyword(keyword)
     buffer.append(TextEscaper.Html.escape(param.name))
