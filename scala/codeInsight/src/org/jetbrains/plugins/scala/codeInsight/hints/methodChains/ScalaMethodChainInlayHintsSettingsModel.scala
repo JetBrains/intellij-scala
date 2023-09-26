@@ -140,7 +140,8 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     }
 
     val panel = new JPanel(new BorderLayout())
-    panel.add(linePanel, BorderLayout.NORTH)
+    panel.add(settingsPanel.getPanel, BorderLayout.NORTH)
+    panel.add(linePanel, BorderLayout.SOUTH)
     panel
   }
 
