@@ -35,14 +35,21 @@ class ParametersRenderer(
 
   private def renderClause(buffer: StringBuilder, clause: ScParameterClause): Unit = {
     buffer.append("(")
-    if (shouldRenderImplicitModifier) renderImplicitModifier(buffer, clause)
+    renderImplicitOrUsingModifier(buffer, clause, shouldRenderImplicitModifier)
     renderParameters(buffer, clause.parameters)
     buffer.append(")")
   }
 
-  protected def renderImplicitModifier(buffer: StringBuilder, clause: ScParameterClause): Unit =
-    if (clause.isImplicit) buffer.append("implicit ")
-    else if (clause.isUsing) buffer.append("using ")
+  protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit = {
+    if (shouldRenderImplicitModifier && clause.isImplicit) {
+      buffer.append("implicit ")
+    }
+    //Always render `using` if it exists mostly to handle anonimous context parameters `(using Int)`
+    //in order we don't end up in strange situation when we render just `(Int)`, which looks unclear without `using` prefix
+    if (clause.isUsing) {
+      buffer.append("using ")
+    }
+  }
 
   private def renderParameters(buffer: StringBuilder, parameters: Seq[ScParameter]): Unit = {
     var isFirst = true

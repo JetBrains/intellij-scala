@@ -82,23 +82,6 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
-  def testUsing(): Unit = {
-    val fileContent =
-      s"""
-         |import scala.concurrent.ExecutionContext
-         |def ${|}f()(using ec: ExecutionContext): Int = ???
-         |""".stripMargin
-
-    val expectedContent =
-      """
-        |<span style="color:#000080;font-weight:bold;">def</span>
-        |<span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">using</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
-        |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
-        |""".stripMargin
-
-    doGenerateDocDefinitionTest(fileContent, expectedContent)
-  }
-
   def testGiven(): Unit = {
     val fileContent =
       s"""
@@ -115,7 +98,7 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
-  def testUsingParameters(): Unit = {
+  def testContextParameters(): Unit = {
     val fileContent =
       s"""
          |def ${|}foo(a: Int, b: Int)(using c: Int, d: Int): Unit = ???
@@ -127,6 +110,24 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
         |<span style="color:#000000;">foo</span>(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |(<span style="color:#000080;font-weight:bold;">using</span>c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
         |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testContextParameters_Anonimous(): Unit = {
+    val fileContent =
+      s"""
+         |import scala.concurrent.ExecutionContext
+         |def ${|}f()(using ExecutionContext): Int = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">def</span>
+        |<span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">using</span>
+        |<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
+        |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)

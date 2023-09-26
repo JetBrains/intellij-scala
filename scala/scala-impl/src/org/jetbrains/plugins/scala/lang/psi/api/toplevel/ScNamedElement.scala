@@ -6,6 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
@@ -36,7 +37,14 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     }
   })
 
-  def nameInner: String = nameId.getText
+  /**
+   * NOTE: implementors that can be anonimous and who's `nameId` can be null should explicitly override this method<br>
+   * A fails-safe implementation in the base class was added just in case, to avoid unexpected exceptions
+   */
+  protected def nameInner: String = {
+    val nameId = this.nameId
+    if (nameId != null) nameId.getText else "<anonimous>"
+  }
 
   def nameContext: PsiElement = _nameContext()
 
@@ -67,13 +75,38 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     }
   })
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+  override def getTextOffset: Int = {
+    val nameId = this.nameId
+    val range = if (nameId != null) nameId.getTextRange else getTextRange
+    range.getStartOffset
+  }
 
   override def getName: String = ScalaNamesUtil.toJavaName(name)
 
+  /**
+   * PsiElement representing a name identifier
+   *
+   * @note can be `null` in some cases<br>
+   *       '''Example 1''' - anonimous context parameter {{{
+   *         def foo(using String): Unit = ()
+   *       }}}
+   *       '''Example 2''' - anonimous given declaration/definition/structural instance {{{
+   *         given String
+   *         given String = ???
+   *         given MyType with MyTrait with {}
+   *       }}}
+   *       '''Example 3''' - anonimous class (new template definition) {{{
+   *         new Object() {
+   *         }
+   *       }}}
+   */
+  @Nullable
   def nameId: PsiElement
 
-  override def getNameIdentifier: PsiIdentifier = if (nameId != null) new JavaIdentifier(nameId) else null
+  override def getNameIdentifier: PsiIdentifier = {
+    val id = nameId
+    if (id != null) new JavaIdentifier(id) else null
+  }
 
   override def getIdentifyingElement: PsiElement = nameId
 

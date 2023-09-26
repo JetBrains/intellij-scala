@@ -81,7 +81,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: X
+      |        Parameter: <anonimous>
       |          ParameterType
       |            SimpleType: X
       |              CodeReferenceElement: X
@@ -537,7 +537,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: Test
+      |        Parameter: <anonimous>
       |          ParameterType
       |            SimpleType: Test
       |              CodeReferenceElement: Test

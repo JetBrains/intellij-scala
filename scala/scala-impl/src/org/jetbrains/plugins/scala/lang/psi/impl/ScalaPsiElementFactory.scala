@@ -1223,10 +1223,10 @@ object ScalaPsiElementFactory {
         val name = param.name
         val tpe = param.`type`().map(substitutor).getOrAny
 
-        val isAnonymous = param.typeElement.contains(param.nameId)
-
-        if (isAnonymous) s"$arrow${tpe.canonicalText}"
-        else s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
+        if (param.isAnonimousContextParameter)
+          s"$arrow${tpe.canonicalText}"
+        else
+          s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
       }
 
       builder.append("(")

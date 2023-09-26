@@ -3,8 +3,10 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,8 +27,15 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 
-class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType[_ <: ScParameter], node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter {
+class ScParameterImpl protected(
+  stub: ScParameterStub,
+  nodeType: ScParamElementType[_ <: ScParameter],
+  node: ASTNode
+) extends ScalaStubBasedElementImpl(
+  stub,
+  nodeType,
+  node
+) with ScParameter {
 
   def this(node: ASTNode) = this(null, null, node)
 
@@ -50,16 +59,19 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     } yield name
   }
 
-  override def nameId: PsiElement = {
-    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id != null) id
-    else {
-      val under = findChildByType[PsiElement](ScalaTokenTypes.tUNDER)
+  /**
+   * @return `param` - in `def foo(param: Int)`<br>
+   *         `null` - in anonimous context parameter: `def foo(using Int)`
+   */
+  @Nullable
+  override def nameId: PsiElement =
+    findChildByType[PsiElement](TokenSets.ID_SET)
 
-      if (under != null) under
-      else               typeElement.orNull
-    }
-  }
+  override def isAnonimousContextParameter: Boolean =
+    isContextParameter && isAnonimous
+
+  private def isAnonimous: Boolean =
+    byPsiOrStub(nameId == null)(_.isAnonimous)
 
   override def getTypeElement: PsiTypeElement = null
 
