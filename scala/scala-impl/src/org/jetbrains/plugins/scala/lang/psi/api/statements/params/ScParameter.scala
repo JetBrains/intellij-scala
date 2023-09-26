@@ -83,32 +83,17 @@ trait ScParameter extends ScTypedDefinition
 
   //TODO: Review all usages of `isImplicitParameter` and replace with `isImplicitOrContextParameter` if needed
   // This is basically the same comment as for `ScParameterClause.isImplicit`
-  def isImplicitParameter: Boolean = {
-    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    if (clause == null) return false
-    clause.isImplicit
-  }
+  def isImplicitParameter: Boolean
 
-  def isContextParameter: Boolean = {
-    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    if (clause == null) return false
+  def isContextParameter: Boolean
 
-    clause.isUsing || isInsideContextFunction
-  }
-
-  //Example: `param` in `val init: Int ?=> Unit = param ?=> { summon[Int] }`
-  private def isInsideContextFunction = owner match {
-    case fun: ScFunctionExpr => fun.isContext
-    case _ => false
-  }
+  def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
 
   /**
    * @return true - for `String` in `def foo(using String): Unit = ()`<br>
    *         false - for `p: String` in `def foo(p: String): Unit = ()`
    */
   def isAnonimousContextParameter: Boolean
-
-  def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
 
   def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)

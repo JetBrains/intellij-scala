@@ -3,6 +3,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
@@ -66,6 +67,25 @@ class ScParameterImpl protected(
   @Nullable
   override def nameId: PsiElement =
     findChildByType[PsiElement](TokenSets.ID_SET)
+
+  override def isImplicitParameter: Boolean = {
+    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+    if (clause == null) return false
+    clause.isImplicit
+  }
+
+  override def isContextParameter: Boolean = {
+    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+    if (clause == null) return false
+
+    clause.isUsing || isInsideContextFunction
+  }
+
+  //Example: `param` in `val init: Int ?=> Unit = param ?=> { summon[Int] }`
+  private def isInsideContextFunction = owner match {
+    case fun: ScFunctionExpr => fun.isContext
+    case _ => false
+  }
 
   override def isAnonimousContextParameter: Boolean =
     isContextParameter && isAnonimous
