@@ -22,10 +22,10 @@ import _root_.scala.collection.immutable.ArraySeq
 import _root_.scala.jdk.CollectionConverters._
 
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
-  override def getPresentableName = "Scala sbt builder"
+  override def getPresentableName: String = JpsBundle.message("sbt.builder.presentable.name")
 
   override def buildStarted(context: CompileContext): Unit = {
-    if (isScalaProject(context) && !isDisabled(context)) {
+    if (isEnabled(context)) {
       JavaBuilder.IS_ENABLED.set(context, false)
     }
   }
@@ -37,7 +37,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val modules = chunk.getModules.asScala.toSet
 
-    if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
+    if (!isEnabled(context) || ChunkExclusionService.isExcluded(chunk))
       return JpsExitCode.NOTHING_DONE
 
     updateSharedResources(context, chunk)
@@ -80,13 +80,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
           JpsExitCode.ABORT
         } else {
           client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
-          code match {
-            case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
-            case ExitCode.Ok => JpsExitCode.OK
-            case ExitCode.Abort => JpsExitCode.ABORT
-            case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
-            case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
-          }
+          exitCode(code)
         }
     }
   }
@@ -94,9 +88,8 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getCompilableFileExtensions: jutil.List[String] =
     jutil.Arrays.asList("scala", "java")
 
-  private def isDisabled(context: CompileContext): Boolean =
-    projectSettings(context).getIncrementalityType != IncrementalityType.SBT ||
-      !isScalaProject(context)
+  private def isEnabled(context: CompileContext): Boolean =
+    projectSettings(context).getIncrementalityType == IncrementalityType.SBT && isScalaProject(context)
 }
 
 object SbtBuilder {
