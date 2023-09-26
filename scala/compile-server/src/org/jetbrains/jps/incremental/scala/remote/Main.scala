@@ -231,7 +231,7 @@ object Main {
         }
         .collect {
           case scalaVersionRegex(x, y, z) => s"$x.$y.$z"
-        }.getOrElse("3.3.0")
+        }.getOrElse("3.3.1")
 
     val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) {
       val path = PathManager.getJarForClass(this.getClass)

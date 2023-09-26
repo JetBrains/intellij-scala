@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi._
-import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
@@ -93,10 +93,10 @@ private class ScalaDocDefinitionGenerator private(
 
     element match {
       case named: ScNamedElement =>
-        val name = escapeHtml(named.name)
+        val name = escapeHtml4(named.name)
         builder.appendAs(name, attrKey)
       case value: ScValueOrVariable if value.declaredNames.nonEmpty =>
-        val name = escapeHtml(value.declaredNames.head)
+        val name = escapeHtml4(value.declaredNames.head)
         builder.appendAs(name, attrKey)
       case _ =>
         builder.append("_")

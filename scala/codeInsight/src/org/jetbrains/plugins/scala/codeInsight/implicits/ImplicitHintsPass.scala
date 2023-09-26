@@ -40,7 +40,8 @@ private[codeInsight]
 class ImplicitHintsPass(
   private val editor: Editor,
   private val rootElement: ScalaFile,
-  override val settings: ScalaHintsSettings
+  override val settings: ScalaHintsSettings,
+  isPreviewPass: Boolean = false, // for the settings preview
 ) extends EditorBoundHighlightingPass(
   editor,
   rootElement.getContainingFile,
@@ -54,12 +55,12 @@ class ImplicitHintsPass(
   private val hints: mutable.Buffer[Hint] = mutable.ArrayBuffer.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
-    if (!HighlightingAdvisor.shouldInspect(rootElement))
+    if (!HighlightingAdvisor.shouldInspect(rootElement) && !isPreviewPass)
       return
 
     hints.clear()
 
-    if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
+    if (myDocument != null && (rootElement.containingVirtualFile.isDefined || isPreviewPass)) {
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
@@ -93,7 +94,7 @@ class ImplicitHintsPass(
       val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
 
       (ImplicitHints.enabled || enabledForElement) &&
-        !(compilerErrorsEnabled && rootElement.isInScala3Module)
+        !(compilerErrorsEnabled && rootElement.isInScala3Module && !ScalaHintsSettings.xRayMode)
     }
 
     def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {

@@ -48,7 +48,7 @@ class ScGivenDefinitionImpl(
     val typeElements = extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
 
     explicitName
-      .getOrElse(ScalaPsiUtil.generateGivenOrExtensionName(typeElements: _*))
+      .getOrElse(ScalaPsiUtil.generateGivenName(typeElements: _*))
   }
 
   override def clauses: Option[ScParameters] = _clauses()

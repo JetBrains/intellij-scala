@@ -5,7 +5,9 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.newvfs.impl.VfsData
 import com.intellij.psi.{PsiComment, PsiFile}
+import com.intellij.testFramework.TestModeFlags
 import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
@@ -126,6 +128,13 @@ object TestUtils {
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "Timer")
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "BaseDataReader")
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "ProcessWaitFor")
+  }
+
+  def optimizeSearchingForIndexableFiles(): Unit = {
+    // The test flag needs to be set _before_ calling super.setUp() in order to disable repeated searching
+    // for indexable files before each test. Our test environment in light project tests does not change
+    // between test runs and enabling this optimization cuts down test execution time considerably.
+    TestModeFlags.set(VfsData.ENABLE_IS_INDEXED_FLAG_KEY, java.lang.Boolean.TRUE)
   }
 
   /**

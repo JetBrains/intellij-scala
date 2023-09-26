@@ -4,8 +4,6 @@ import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.application.ex.ApplicationInfoEx
-import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
@@ -16,6 +14,7 @@ import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.platform.ide.customization.ExternalProductResourceUrls
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.io.HttpRequests.Request
 import org.jdom.JDOMException
@@ -156,7 +155,7 @@ object ScalaPluginUpdater {
   }
 
   def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch): Unit = {
-    val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
+    val infoImpl = ApplicationInfo.getInstance()
     val localBuildNumber = infoImpl.getBuild
     val url = branch match {
       case Release => None
@@ -189,7 +188,7 @@ object ScalaPluginUpdater {
   def postCheckIdeaCompatibility(): Unit = postCheckIdeaCompatibility(getScalaPluginBranch)
 
   private def suggestIdeaUpdate(branch: String, suggestedVersion: String): Unit = {
-    val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
+    val infoImpl = ApplicationInfo.getInstance()
     val appSettings = ScalaApplicationSettings.getInstance()
 
     if (!appSettings.ASK_PLATFORM_UPDATE)
@@ -203,7 +202,7 @@ object ScalaPluginUpdater {
     }
 
     def getPlatformUpdateResult: Option[PlatformUpdates] = {
-      val url = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
+      val url = ExternalProductResourceUrls.getInstance.getUpdateMetadataUrl
 
       val info: Option[Product] = HttpRequests.request(url).connect { request =>
         val productCode = ApplicationInfo.getInstance().getBuild.getProductCode
@@ -264,7 +263,7 @@ object ScalaPluginUpdater {
     if (ApplicationManager.getApplication.isUnitTestMode)
       return
 
-    val ideaApplicationInfo = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoEx]
+    val ideaApplicationInfo = ApplicationInfo.getInstance()
     val scalaApplicationSettings = ScalaApplicationSettings.getInstance()
 
     val isEapIdeaInstallation = ideaApplicationInfo.isEAP

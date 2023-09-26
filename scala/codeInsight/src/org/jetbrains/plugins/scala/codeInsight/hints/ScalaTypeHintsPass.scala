@@ -30,7 +30,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     }
     if (editor.isOneLineMode ||
       !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType) ||
-      compilerErrorsEnabled) {
+      (compilerErrorsEnabled && !ScalaHintsSettings.xRayMode)) {
       Seq.empty
     } else {
       (for {

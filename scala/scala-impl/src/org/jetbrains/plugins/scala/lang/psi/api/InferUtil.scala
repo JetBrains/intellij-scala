@@ -311,11 +311,16 @@ object InferUtil {
     }
 
     @tailrec
-    def shouldSearchImplicit(t: ScType, first: Boolean = true): Boolean = t match {
-      case ScMethodType(_, _, isImplicit) if isImplicit => !first  // implicit method type on top level means explicit implicit argument
-      case ScTypePolymorphicType(internalType, _)       => shouldSearchImplicit(internalType, first = first)
-      case ScMethodType(returnType, _, _)               => shouldSearchImplicit(returnType, first = false)
-      case _                                            => false
+    def shouldSearchImplicit(t: ScType, ptConstraints: ConstraintSystem, first: Boolean = true): Boolean = t match {
+      case ScMethodType(_, params, isImplicit) if isImplicit =>
+        !first &&  // implicit method type on top level means explicit implicit argument
+          params.forall(p => p.paramType.subtypeExists {
+            case tpt: TypeParameterType => ptConstraints.isApplicable(tpt.typeParamId)
+            case _                      => false
+          })
+      case ScTypePolymorphicType(internalType, _) => shouldSearchImplicit(internalType, ptConstraints, first = first)
+      case ScMethodType(returnType, _, _)         => shouldSearchImplicit(returnType, ptConstraints, first = false)
+      case _                                      => false
     }
 
     def implicitSearchFails(tp: ScType): Boolean = expr match {
@@ -331,7 +336,8 @@ object InferUtil {
       case _ => false
     }
 
-    def cantFindImplicitsFor(tp: ScType): Boolean = shouldSearchImplicit(tp) && implicitSearchFails(tp)
+    def cantFindImplicitsFor(tp: ScType, ptConstraints: ConstraintSystem): Boolean =
+      shouldSearchImplicit(tp, ptConstraints) && implicitSearchFails(tp)
 
     def doLocalTypeInference(tpt: ScTypePolymorphicType, expected: ScType): ScType = {
       val ScTypePolymorphicType(internal, typeParams) = tpt
@@ -346,11 +352,16 @@ object InferUtil {
       val expectedParam = Parameter("", None, expected, expected)
       val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
-      val inferredWithExpected =
-        localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
+      val (inferredWithExpected, conformanceResult) =
+        localTypeInferenceWithApplicabilityExt(
+          internal,
+          Seq(expectedParam),
+          Seq(expressionToUpdate),
+          typeParams,
           shouldUndefineParameters = false,
-          canThrowSCE = canThrowSCE,
-          filterTypeParams = filterTypeParams)
+          canThrowSCE              = canThrowSCE,
+          filterTypeParams         = filterTypeParams
+        )
 
       val subst =
         if (!filterTypeParams) {
@@ -370,8 +381,8 @@ object InferUtil {
         * If there is not found implicit for type parameters inferred using expected type,
         * rollback type inference, it may be fixed later with implicit conversion
         */
-      if (cantFindImplicitsFor(result)) _nonValueType
-      else                              result
+      if (cantFindImplicitsFor(result, conformanceResult.constraints)) _nonValueType
+      else                                                             result
     }
 
     val nonValueType = (_nonValueType, expectedType) match {

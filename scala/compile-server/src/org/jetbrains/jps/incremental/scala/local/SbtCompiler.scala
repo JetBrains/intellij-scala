@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils.virtualFileConverter
 import org.jetbrains.jps.incremental.scala.local.zinc._
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompileOrder}
 import sbt.internal.inc._
@@ -70,11 +69,11 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       previousSetup.toJava
     )
 
-    val stampReader = stampReaderCache.getOrUpdate(true)(Stamps.timeWrapBinaryStamps(virtualFileConverter))
+    val stampReader = stampReaderCache.getOrUpdate(true)(Stamps.timeWrapBinaryStamps(PlainVirtualFileConverter.converter))
 
     val inputs = incrementalCompiler.inputs(
-      compilationData.classpath.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
-      compilationData.zincData.allSources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
+      compilationData.classpath.toArray.map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)),
+      compilationData.zincData.allSources.toArray.map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)),
       compilationData.output.toPath,
       None,
       compilationData.scalaOptions.toArray,
@@ -86,7 +85,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       setup,
       previousResult,
       Optional.empty(),
-      virtualFileConverter,
+      PlainVirtualFileConverter.converter,
       stampReader
     )
 

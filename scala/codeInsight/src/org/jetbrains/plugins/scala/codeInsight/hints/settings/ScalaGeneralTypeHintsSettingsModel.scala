@@ -1,16 +1,20 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
+package org.jetbrains.plugins.scala.codeInsight.hints.settings
 
-import java.util
+import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurable}
 import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
-import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.ide.DataManager
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.options.ex.Settings
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
-
-import javax.swing.JComponent
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
+
+import java.util
+import javax.swing.JComponent
 
 //noinspection UnstableApiUsage
 class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
@@ -84,4 +88,21 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
+}
+
+object ScalaGeneralTypeHintsSettingsModel {
+  def navigateTo(project: Project): Unit = {
+    val promise = DataManager.getInstance().getDataContextFromFocusAsync
+    promise.onSuccess { context =>
+      NullSafe(context)
+        .map(Settings.KEY.getData)
+        .foreach { settings =>
+          val configurable = settings.find("inlay.hints")
+          // Should not throw, but if it does, let exception analyzer know
+          val inlayConfigurable = configurable.asInstanceOf[InlaySettingsConfigurable]
+          inlayConfigurable.selectModel(ScalaLanguage.INSTANCE, _.is[ScalaGeneralTypeHintsSettingsModel])
+          settings.select(configurable)
+        }
+    }
+  }
 }

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
@@ -111,11 +111,11 @@ private class ScalaDocContentGenerator(
     val resolved = resolvePsiElementLink(ref, resolveContext)
     resolved
       .map { (res: PsiElementResolveResult) =>
-        val label = labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(res.label))
+        val label = labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml4(res.label))
         hyperLinkToPsi(res.refText, label, plainLink)
       }
       .getOrElse {
-        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(ref.getText)))
+        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml4(ref.getText)))
       }
   }
 
@@ -157,7 +157,7 @@ private class ScalaDocContentGenerator(
           buffer.append("""</code></pre>""")
         case ScalaDocTokenType.DOC_INNER_CODE =>
           val text = minIndent.fold(element.getText)(element.getText.drop(_))
-          buffer.append(escapeHtml(text))
+          buffer.append(escapeHtml4(text))
         case ScalaDocTokenType.DOC_WHITESPACE if element.textContains('\n') =>
           buffer.append("\n") // ignore other spaces except line break
         case _ => //just in case
@@ -308,7 +308,7 @@ private class ScalaDocContentGenerator(
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
       case _                                               =>
         val text1: String = unescape(element.getText)
-        val text2: String = if (isInWikiSyntaxElement) escapeHtml(text1) else text1
+        val text2: String = if (isInWikiSyntaxElement) escapeHtml4(text1) else text1
         result.append(text2)
     }
 
@@ -368,7 +368,7 @@ object ScalaDocContentGenerator {
   def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement): String = {
     val resolved = resolvePsiElementLink(ref, context)
     resolved
-      .map(res => hyperLinkToPsi(res.refText, escapeHtml(res.label), plainLink = false))
+      .map(res => hyperLinkToPsi(res.refText, escapeHtml4(res.label), plainLink = false))
       .getOrElse(unresolvedReference(ref.getText))
   }
 
@@ -431,7 +431,7 @@ object ScalaDocContentGenerator {
   }
 
   private def hyperLink(href: String, label: String): String =
-    s"""<a href="${escapeHtml(href)}">$label</a>""".stripMargin
+    s"""<a href="${escapeHtml4(href)}">$label</a>""".stripMargin
 
   /** @note I considered using some reddish, wavy underline, but looks like Java Swing HTML/CSS renderer does not support
    *        text-decorator-style & text-decorator-color, see [[javax.swing.text.html.CSS]]. So for now we use just text.

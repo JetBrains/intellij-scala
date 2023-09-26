@@ -127,6 +127,7 @@ public abstract class ModuleDelegate implements Module {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public <T> T getComponent(@NotNull Class<T> interfaceClass) {
         return module.getComponent(interfaceClass);
     }

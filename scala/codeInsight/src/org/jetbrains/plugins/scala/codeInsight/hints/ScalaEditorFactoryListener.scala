@@ -57,7 +57,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         } else {
           firstKeyPressTime = System.currentTimeMillis()
           mouseHasMoved = false
-          longDelay.start()
+          //longDelay.start()
         }
       } else {
         longDelay.stop()

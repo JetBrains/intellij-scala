@@ -18,5 +18,5 @@ final class ScGivenPatternImpl(node: ASTNode)
   override def `type`(): TypeResult       = typeElement.`type`()
   override def isWildcard: Boolean        = false
   override def nameId: PsiElement         = typeElement
-  override def name: String               = ScalaPsiUtil.generateGivenOrExtensionName(typeElement)
+  override def name: String               = ScalaPsiUtil.generateGivenName(typeElement)
 }

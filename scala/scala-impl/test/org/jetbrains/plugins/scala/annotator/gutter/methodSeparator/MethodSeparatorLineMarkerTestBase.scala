@@ -27,6 +27,8 @@ abstract class MethodSeparatorLineMarkerTestBase extends LightJavaCodeInsightFix
   protected override def getBasePath = TestUtils.getTestDataPath + "/methodSeparator/"
 
   override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
+
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
 

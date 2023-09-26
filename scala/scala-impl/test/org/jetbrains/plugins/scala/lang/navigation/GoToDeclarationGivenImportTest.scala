@@ -2,7 +2,10 @@ package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction.findAllTargetElements
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
@@ -276,5 +279,143 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
        |  import Foo.given Ba${CARET}r
        |}
        |""".stripMargin
+  )
+
+  def testGoToWildcardGiven_WithImplicits(): Unit = doTest(
+    s"""
+       |object GoToGivenImport {
+       |  import Givens.giv${CARET}en
+       |}
+       |
+       |object Givens:
+       |  given string: String = "42"
+       |  given Int = 42
+       |  given Appendable with {
+       |    override def append(csq: CharSequence): Appendable = ???
+       |    override def append(csq: CharSequence, start: Int, end: Int): Appendable = ???
+       |    override def append(c: Char): Appendable = ???
+       |  }
+       |  given short(using Int): Short = 42
+       |
+       |  val regularVal: Int = 1
+       |  def regularDef: Boolean = false
+       |
+       |  implicit val boolean: Boolean = true
+       |  implicit val (list, vector) = (List(1, 2, 3), Vector(true, false))
+       |  implicit def double: Double = 1.2
+       |  implicit def long(using i: Int): Long = i + 2L
+       |
+       |  implicit class StringExt(private val str: String) extends AnyVal {
+       |    def scream: String = str.toUpperCase
+       |  }
+       |
+       |  class RegularClass(private val str: String) extends AnyVal {
+       |    def whisper: String = str.toLowerCase
+       |  }
+       |""".stripMargin,
+    expected =
+      (_.is[ScGiven], "string"),
+      (_.is[ScGiven], "given_Int"),
+      (_.is[ScGiven], "Givens.given_Appendable"),
+      (_.is[ScGiven], "short"),
+      (_.is[ScReferencePattern], "boolean"),
+      (_.is[ScReferencePattern], "list"),
+      (_.is[ScReferencePattern], "vector"),
+      (_.is[ScFunctionDefinition], "double"),
+      (_.is[ScFunctionDefinition], "long"),
+      (_.is[ScClass], "Givens.StringExt")
+  )
+
+  def testGoToWildcardGivenFromInstance_WithImplicits(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar(val i: Int) {
+       |    given string: String = "42"
+       |    given Int = 42
+       |    given Appendable with {
+       |      override def append(csq: CharSequence): Appendable = ???
+       |      override def append(csq: CharSequence, start: Int, end: Int): Appendable = ???
+       |      override def append(c: Char): Appendable = ???
+       |    }
+       |    given short(using Int): Short = 42
+       |
+       |    val regularVal: Int = 1
+       |    def regularDef: Boolean = false
+       |
+       |    implicit val boolean: Boolean = true
+       |    implicit val (list, vector) = (List(1, 2, 3), Vector(true, false))
+       |    implicit def double: Double = 1.2
+       |    implicit def long(using i: Int): Long = i + 2L
+       |
+       |    implicit class StringExt(private val str: String) extends AnyVal {
+       |      def scream: String = str.toUpperCase
+       |    }
+       |
+       |    class RegularClass(private val str: String) extends AnyVal {
+       |      def whisper: String = str.toLowerCase
+       |    }
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |
+       |  val bar = Bar(21)
+       |
+       |  import bar.giv${CARET}en
+       |}
+       |""".stripMargin,
+    expected =
+      (_.is[ScGiven], "string"),
+      (_.is[ScGiven], "given_Int"),
+      (_.is[ScGiven], "Foo.Bar.given_Appendable"),
+      (_.is[ScGiven], "short"),
+      (_.is[ScReferencePattern], "boolean"),
+      (_.is[ScReferencePattern], "list"),
+      (_.is[ScReferencePattern], "vector"),
+      (_.is[ScFunctionDefinition], "double"),
+      (_.is[ScFunctionDefinition], "long"),
+      (_.is[ScClass], "Foo.Bar.StringExt")
+  )
+
+  def testGoToGivenSelectorByType_WithImplicits(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  given string: String = "42"
+       |  given Int = 42
+       |  given Appendable with {
+       |    override def append(csq: CharSequence): Appendable = ???
+       |    override def append(csq: CharSequence, start: Int, end: Int): Appendable = ???
+       |    override def append(c: Char): Appendable = ???
+       |  }
+       |  given short(using Int): Short = 42
+       |
+       |  val regularVal: Int = 1
+       |  def regularDef: Boolean = false
+       |
+       |  implicit val boolean: Boolean = true
+       |  implicit val (list, vector) = (List(1, 2, 3), Vector(true, false))
+       |  implicit def double: Double = 1.2
+       |  implicit def long(using i: Int): Long = i + 2L
+       |
+       |  implicit class StringExt(private val str: String) extends AnyVal {
+       |    def scream: String = str.toUpperCase
+       |  }
+       |
+       |  class RegularClass(private val str: String) extends AnyVal {
+       |    def whisper: String = str.toLowerCase
+       |  }
+       |}
+       |
+       |object Test {
+       |  type T = String | Int | Boolean | Double
+       |  import Foo.giv${CARET}en T
+       |}
+       |""".stripMargin,
+    expected =
+      (_.is[ScGiven], "string"),
+      (_.is[ScGiven], "given_Int"),
+      (_.is[ScReferencePattern], "boolean"),
+      (_.is[ScFunctionDefinition], "double"),
   )
 }

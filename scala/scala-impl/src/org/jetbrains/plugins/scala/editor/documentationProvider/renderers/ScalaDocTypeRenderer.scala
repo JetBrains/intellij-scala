@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 private [documentationProvider] object ScalaDocTypeRenderer {
-  import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+  import org.apache.commons.text.StringEscapeUtils.escapeHtml4
   import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils._
 
   private val annotationsRenderer = new NameRenderer {
@@ -33,7 +33,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
   }
 
   private val renderer: NameRenderer = new NameRenderer {
-    override def escapeName(e: String): String = escapeHtml(e)
+    override def escapeName(e: String): String = escapeHtml4(e)
 
     override def renderName(e: PsiNamedElement): String = renderNameImpl(e, withPoint = false)
 
@@ -51,7 +51,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
             .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
         case a: ScTypeAlias =>
           a.qualifiedNameOpt
-            .fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
+            .fold(escapeHtml4(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
         case _ =>
           psiElement(e, Some(e.name))
       }

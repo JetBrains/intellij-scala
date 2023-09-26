@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.typesafe.config._
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
@@ -243,7 +243,7 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected")) + filesStackShortNotificationText
     }
 
-    val errorMessage = ScalaBundle.message("scalafmt.config.load.errors.failed.to.load.config") + ":<br>" + StringEscapeUtils.escapeHtml(details)
+    val errorMessage = ScalaBundle.message("scalafmt.config.load.errors.failed.to.load.config") + ":<br>" + StringEscapeUtils.escapeHtml4(details)
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
     val openFileAction = new OpenFileNotificationActon(project, configFile, offset = 0, title = ScalaBundle.message("scalafmt.config.load.actions.open.config.file"))
     ScalafmtNotifications.displayWarning(errorMessage, Seq(openFileAction))

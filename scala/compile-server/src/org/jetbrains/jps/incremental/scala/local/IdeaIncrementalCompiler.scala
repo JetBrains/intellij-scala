@@ -1,9 +1,8 @@
 package org.jetbrains.jps.incremental.scala.local
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc.{AnalyzingCompiler, CompileOutput}
+import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, PlainVirtualFileConverter}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.DependencyChanges
@@ -30,15 +29,15 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
       } else {
         val groups = compilationData.outputGroups.map {
           case (source, target) => (source.toPath, target.toPath)
-        }.toSeq
+        }
         CompileOutput(groups: _*)
       }
 
     try {
       scalac.compile(
-        compilationData.sources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
-        compilationData.classpath.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)).toArray,
-        Utils.virtualFileConverter,
+        compilationData.sources.toArray.map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)),
+        compilationData.classpath.map(file => PlainVirtualFileConverter.converter.toVirtualFile(file.toPath)).toArray,
+        PlainVirtualFileConverter.converter,
         emptyChanges,
         compilationData.scalaOptions.toArray,
         out,
@@ -63,13 +62,13 @@ private class ClientCallback(client: Client, output: Path) extends ClientCallbac
                                       classFile: Path,
                                       binaryClassName: String,
                                       srcClassName: String): Unit =
-    client.generated(Utils.virtualFileConverter.toPath(source).toFile, classFile.toFile, binaryClassName)
+    client.generated(PlainVirtualFileConverter.converter.toPath(source).toFile, classFile.toFile, binaryClassName)
 
   override def generatedLocalClass(source: VirtualFileRef, classFile: Path): Unit =
     if (classFile.startsWith(output)) {
       val relative = output.relativize(classFile)
       val binaryClassName = relative.iterator().asScala.mkString(".").dropRight(".class".length)
-      client.generated(Utils.virtualFileConverter.toPath(source).toFile, classFile.toFile, binaryClassName)
+      client.generated(PlainVirtualFileConverter.converter.toPath(source).toFile, classFile.toFile, binaryClassName)
     }
 
   override def enabled(): Boolean = false
@@ -83,8 +82,9 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def api(sourceFile: VirtualFileRef, classApi: ClassLike): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def api(sourceFile: File, classApi: ClassLike): Unit =
-    api(Utils.virtualFileConverter.toVirtualFile(sourceFile.toPath), classApi)
+    api(PlainVirtualFileConverter.converter.toVirtualFile(sourceFile.toPath), classApi)
 
   override def binaryDependency(onBinaryEntry: Path,
                                 onBinaryClassName: String,
@@ -92,6 +92,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
                                 fromSourceFile: VirtualFileRef,
                                 context: DependencyContext): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def binaryDependency(onBinary: File,
                                       onBinaryClassName: String,
                                       fromClassName: String,
@@ -101,7 +102,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
       onBinary.toPath,
       onBinaryClassName,
       fromClassName,
-      Utils.virtualFileConverter.toVirtualFile(fromSourceFile.toPath),
+      PlainVirtualFileConverter.converter.toVirtualFile(fromSourceFile.toPath),
       context
     )
 
@@ -110,15 +111,17 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
   override def classesInOutputJar(): util.Set[String] =
     Set.empty[String].asJava
 
+  //noinspection ScalaDeprecation
   override def generatedLocalClass(source: File, classFile: File): Unit =
-    generatedLocalClass(Utils.virtualFileConverter.toVirtualFile(source.toPath), classFile.toPath)
+    generatedLocalClass(PlainVirtualFileConverter.converter.toVirtualFile(source.toPath), classFile.toPath)
 
+  //noinspection ScalaDeprecation
   final override def generatedNonLocalClass(source: File,
                                             classFile: File,
                                             binaryClassName: String,
                                             srcClassName: String): Unit =
     generatedNonLocalClass(
-      Utils.virtualFileConverter.toVirtualFile(source.toPath),
+      PlainVirtualFileConverter.converter.toVirtualFile(source.toPath),
       classFile.toPath,
       binaryClassName,
       srcClassName
@@ -140,8 +143,9 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def startSource(source: VirtualFile): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def startSource(source: File): Unit =
-    startSource(Utils.virtualFileConverter.toVirtualFile(source.toPath))
+    startSource(PlainVirtualFileConverter.converter.toVirtualFile(source.toPath))
 
   override def usedName(className: String, name: String, useScopes: util.EnumSet[xsbti.UseScope]): Unit = {}
 
@@ -153,8 +157,9 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def mainClass(sourceFile: VirtualFileRef, className: String): Unit = {}
 
+  //noinspection ScalaDeprecation
   final override def mainClass(sourceFile: File, className: String): Unit =
-    mainClass(Utils.virtualFileConverter.toVirtualFile(sourceFile.toPath), className)
+    mainClass(PlainVirtualFileConverter.converter.toVirtualFile(sourceFile.toPath), className)
 }
 
 private object emptyChanges extends DependencyChanges {

@@ -6,6 +6,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -68,6 +69,7 @@ import scala.collection.mutable
 import scala.reflect.{ClassTag, NameTransformer}
 
 object ScalaPsiUtil {
+  private lazy val Log: Logger = Logger.getInstance(this.getClass)
 
   //java has magic @PolymorphicSignature annotation in java.lang.invoke.MethodHandle
   def isJavaReflectPolymorphicSignature(expression: ScExpression): Boolean = expression match {
@@ -1689,14 +1691,47 @@ object ScalaPsiUtil {
     parentNode.removeChild(elementNode)
   }
 
-  def generateGivenOrExtensionName(tes: ScTypeElement*): String = {
-    // todo: implement correct naming : https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html#anonymous-given-instances
-    var text = tes.map(_.getText).mkString("_")
-    text = text.replaceAll("=>", "_to_")
-    text = text.replaceAll("[^a-zA-Z_0-9]+", "_")
-    text = text.replaceAll("(^_+)|(_+$)", "")
+  def generateGivenName(tes: ScTypeElement*): String = {
+    // refercne: https://docs.scala-lang.org/scala3/reference/contextual/relationship-implicits.html#
 
-    "given_" + text
+    def fallback(te: ScTypeElement): String =
+      te.getText
+        .replaceAll("=>", "_to_")
+        .replaceAll("[^a-zA-Z_0-9]+", "_")
+        .replaceAll("(^_+)|(_+$)", "")
+
+    def transformInner(te: ScTypeElement): String = transform(isRoot = false)(te)
+    def transform(isRoot: Boolean)(te: ScTypeElement): String = te match {
+      case _: ScLiteralTypeElement | _: ScWildcardTypeElement => ""
+      case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
+      case te: ScParenthesisedTypeElement => te.innerElement.fold("")(transform(isRoot))
+      case ScSimpleTypeElement(ref) if te.isSingleton => s"${ref.refName}_type"
+      case ScSimpleTypeElement(ref) => ref.refName
+      case ScInfixTypeElement(lhs, op, rhs) if isRoot => s"${op.refName}_${transformInner(lhs)}_${rhs.fold("")(transformInner)}"
+      case ScInfixTypeElement(_, op, _) => op.refName
+      case ScParameterizedTypeElement(base, args) if isRoot => (transform(isRoot)(base) +: args.map(transformInner)).mkString("_")
+      case ScParameterizedTypeElement(base, _) => transformInner(base)
+      case ScCompoundTypeElement(tes, _) if isRoot =>
+        tes
+          .take(2) // we take two elements at most, (A with B with C) means (A with (B with C)), so C is too deep
+          .map(transformInner)
+          .mkString("_" /* this is stupid, no idea why this is added */, "_", "")
+      case ScCompoundTypeElement(tes, _) => tes.headOption.fold("")(transformInner)
+      case ScMatchTypeElement(te, _) => transform(isRoot)(te)
+      case ScFunctionalTypeElement(pte: ScParenthesisedTypeElement, retTe) if pte.innerElement.isEmpty => retTe.fold("")(transform(isRoot))
+      case ScFunctionalTypeElement(argTe, retTe) => transformInner(argTe) + "_to_" + retTe.fold("")(transform(isRoot))
+      case proj: ScTypeProjection => proj.refName
+      case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
+      case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))
+      case _: ScSplicedBlock =>
+        // TODO: Evaluate?
+        ""
+      case unknown =>
+        Log.error(s"Unknown type Element in generateGivenOrExtensionName: $unknown")
+        fallback(unknown)
+    }
+
+    "given_" + tes.map(transform(isRoot = true)).mkString("_")
   }
 
   def constructTypeForPsiClass(
@@ -1779,7 +1814,7 @@ object ScalaPsiUtil {
    * @note it might still return `ScObject` instance which is not a top level context (not a package object)
    */
   @Nullable
-  def getEnclosingTopLevelContextCandidate(element: PsiElement) = {
+  def getEnclosingTopLevelContextCandidate(element: PsiElement): ScalaPsiElement = {
     PsiTreeUtil.getContextOfType(element, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
   }
 

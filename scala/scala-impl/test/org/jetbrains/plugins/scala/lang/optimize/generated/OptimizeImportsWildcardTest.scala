@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SdkConfiguration
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 
 abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
 
   override def folderPath: String = super.folderPath + "wildcard/"
 
+  def testMayReplace(): Unit = doTest()
+
   def testNotUsedNameClash(): Unit = doTest()
 
   def testUsedNameClash(): Unit = doTest()
+
+  def testNameClash(): Unit = doTest()
 
   def testImplicitClass(): Unit = doTest()
 
@@ -522,22 +525,4 @@ class OptimizeImportsWildcardTest_2_13_XSource3 extends OptimizeImportsWildcardT
       |""".stripMargin,
     "Removed 4 imports"
   )
-}
-
-abstract class OptimizeImportsWildcardJavaDesktopClassesTestBase extends OptimizeImportsTestBase {
-  override def folderPath: String = super.folderPath + "wildcard/"
-
-  override protected def sdkConfiguration: SdkConfiguration = SdkConfiguration.IncludedModules(Seq("java.desktop"))
-
-  def testMayReplace(): Unit = doTest()
-
-  def testNameClash(): Unit = doTest()
-}
-
-class OptimizeImportsWildcardJavaDesktopClassesTest_2_12 extends OptimizeImportsWildcardJavaDesktopClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
-}
-
-class OptimizeImportsWildcardJavaDesktopClassesTest_2_13 extends OptimizeImportsWildcardJavaDesktopClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }

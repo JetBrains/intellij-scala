@@ -6,9 +6,15 @@ import com.intellij.openapi.util.JDOMUtil
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jdom.Element
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 class ScalaCodeStyleSettingsTest extends LightJavaCodeInsightFixtureTestCase {
+
+  override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles()
+    super.setUp()
+  }
 
   def testReadLegacyMultilineStringSettingsNames(): Unit = {
     val settings = new ScalaCodeStyleSettings(CodeStyleSettings.getDefaults)
