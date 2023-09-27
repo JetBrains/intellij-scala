@@ -6,30 +6,31 @@ import org.junit.Assert._
 
 trait HtmlAssertions {
 
-  protected def assertDocHtml(expected: String, actual: String): Unit =
+  protected def assertDocHtml(
+    expected: String,
+    actual: String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.DontIgnore
+  ): Unit =
     if (expected == null) {
       assertNull(actual)
     } else {
-      val expectedNormalized = normalizeWhiteSpaces(expected)
-      val actualNormalized = normalizeWhiteSpaces(actual)
+      val expectedNormalized = normalizeWhiteSpaces(expected, whitespacesMode)
+      val actualNormalized = normalizeWhiteSpaces(actual, whitespacesMode)
       assertEquals(expectedNormalized, actualNormalized)
     }
 
-  private val htmlTagRegex = """</?\w+\s?[^>]*>""".r
-  private def removeSpacesAroundTags(html: String): String =
-    html.replaceAll(s"(?m)\\s*($htmlTagRegex)\\s*", "$1")
-
   /**
-   * Everywhere outside <pre> tag:
-   * 1. Removes whitespaces tags
-   * 2. Collapses all whitespaces (including new lines) sequences to a single whitespace
+   * The method "normalizes" html content in order it's easier to construct an expected HTML content.<br>
+   * Without such normalization it can be hard to test HTML, because it can contain a lot of insignificant information.
    *
-   * This is done for an easier testing.
-   * NOTE: we assume that whitespaces character only matter inside <pre> tag.
+   * Under the hood the method:
+   * 1. Removes new lines
+   * 2. Collapses all whitespaces sequences to a single whitespace
+   *
+   * The exception is a `pre` tag, which preserves whitespaces inside.
+   * The content in that tag is left untouched
    */
-  private def normalizeWhiteSpaces(htmlRaw: String): String = {
-    val html = htmlRaw.replace("\r", "").replace("\n","")
-
+  private def normalizeWhiteSpaces(html: String, whitespacesMode: HtmlSpacesComparisonMode): String = {
     val buffer = new java.lang.StringBuilder
 
     val (preTagStart, preTagEnd) = ("<pre>", "</pre>")
@@ -40,13 +41,37 @@ trait HtmlAssertions {
     // adding two additional empty ranges to avoid handling special cases for first/last ranges
     val preformattedRangesFixed = TextRange.create(0, 0) +: preformattedRanges :+ TextRange.create(html.length, html.length)
     preformattedRangesFixed.sliding(2).foreach { case Seq(prev, cur) =>
-      val contentBefore = html.substring(prev.getEndOffset, cur.getStartOffset)
-      val preformattedContent = html.substring(cur.getStartOffset, cur.getEndOffset)
+      //Example: `content before <pre>content inside</pre>`
+      val contentBeforePre = html.substring(prev.getEndOffset, cur.getStartOffset)
+      val contentInsidePre = html.substring(cur.getStartOffset, cur.getEndOffset)
 
-      buffer.append(removeSpacesAroundTags(contentBefore).replaceAll("\\s+", " "))
-      buffer.append(preformattedContent)
+      import HtmlSpacesComparisonMode._
+      val contentBeforePreNormalized = whitespacesMode match {
+        case DontIgnore => contentBeforePre
+        case DontIgnoreNewLinesCollapseSpaces => replaceWhitespacesWithSingleSpace(contentBeforePre)
+        case IgnoreNewLinesAndCollapseSpaces => replaceWhitespacesWithSingleSpace(contentBeforePre.withoutNewLines)
+      }
+
+      buffer.append(contentBeforePreNormalized)
+      buffer.append(contentInsidePre)
     }
 
     buffer.toString.trim
+  }
+
+  protected sealed trait HtmlSpacesComparisonMode
+  protected object HtmlSpacesComparisonMode {
+    object DontIgnore extends HtmlSpacesComparisonMode
+    object DontIgnoreNewLinesCollapseSpaces extends HtmlSpacesComparisonMode
+    object IgnoreNewLinesAndCollapseSpaces extends HtmlSpacesComparisonMode
+  }
+
+  private def replaceWhitespacesWithSingleSpace(contentBefore: String): String =
+    contentBefore.replaceAll("[ \t]+", " ")
+
+  implicit class StringOps(private val str: String) {
+    def withoutNewLines: String = str
+      .replace("\r", "")
+      .replace("\n", "")
   }
 }

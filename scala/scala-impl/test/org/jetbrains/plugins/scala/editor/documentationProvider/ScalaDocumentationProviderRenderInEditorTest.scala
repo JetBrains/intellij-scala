@@ -66,7 +66,7 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
          |<td valign='top'>T &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Returns:</td>
-         |<td valign='top'> some text</td>
+         |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
          |<td valign='top'><a href="psi_element://$exceptionClass"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
@@ -98,7 +98,7 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |def ${|}foo = ???""".stripMargin,
       s"""$ContentStart
          |<code>unknown.Reference</code>
-         |<code>ref label</code>
+         | <code>ref label</code>
          |$ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Throws:</td>

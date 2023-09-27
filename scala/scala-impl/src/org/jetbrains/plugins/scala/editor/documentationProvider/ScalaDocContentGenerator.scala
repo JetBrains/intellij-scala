@@ -8,9 +8,9 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.{PsiClass, PsiElement}
-import org.apache.commons.text.StringEscapeUtils.escapeHtml4
+import com.intellij.psi.{PsiClass, PsiElement, PsiErrorElement}
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
 import org.jetbrains.plugins.scala.extensions._
@@ -120,7 +120,7 @@ private class ScalaDocContentGenerator(
   }
 
   private def labelFromSiblings(element: PsiElement, siblingFilter: PsiElement => Boolean): Option[String] = {
-    val labelElements = element.nextSiblings.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE).filter(siblingFilter)
+    val labelElements = element.nextSiblings.dropLeadingDocWhitespaces.filter(siblingFilter)
     if (labelElements.nonEmpty) Some(nodesText(labelElements.to(Iterable))) else None
   }
 
@@ -209,7 +209,7 @@ private class ScalaDocContentGenerator(
 
     listItems.foreach { item =>
       buffer.append("<li>")
-      val itemContentElements = item.headToken.nextSiblings
+      val itemContentElements = item.headToken.nextSiblings.dropLeadingDocWhitespaces
       itemContentElements.foreach(visitNode(buffer, _))
       buffer.append("</li>")
     }
@@ -219,7 +219,10 @@ private class ScalaDocContentGenerator(
 
 
   /**
-   * JavaDoc-style inline tags e.g. {@code 2 + 2 == 42} or {@link scala.Exception}
+   * JavaDoc-style inline tags, examples: {{{
+   * {@code 2 + 2 == 42}
+   * {@link scala.Exception}
+   * }}}
    *
    * @see [[scala.tools.nsc.doc.base.CommentFactoryBase#javadocReplacement]]
    */
@@ -227,7 +230,8 @@ private class ScalaDocContentGenerator(
   private def visitInlinedTag(buffer: StringBuilder, inlinedTag: ScDocInlinedTag): Unit = {
     def appendHtmlTag(httpTag: String, inlinedTag: ScDocInlinedTag): Unit = {
       buffer.append(s"<$httpTag>")
-      inlinedTag.children.filter(isInlineInner).foreach(visitLeafNode(buffer, _))
+      val innerChildren = inlinedTag.children.filter(isInlineInner)
+      innerChildren.iterator.dropLeadingDocWhitespaces.foreach(visitLeafNode(buffer, _))
       buffer.append(s"</$httpTag>")
     }
 
@@ -271,7 +275,8 @@ private class ScalaDocContentGenerator(
     val elementType = child.elementType
     val skip = elementType == ScalaDocTokenType.DOC_TAG_NAME ||
       elementType == ScalaDocTokenType.DOC_INLINE_TAG_START ||
-      elementType == ScalaDocTokenType.DOC_INLINE_TAG_END
+      elementType == ScalaDocTokenType.DOC_INLINE_TAG_END ||
+      child.is[PsiErrorElement]
     !skip
   }
 
@@ -290,7 +295,7 @@ private class ScalaDocContentGenerator(
     if (linkValue == null) return None
 
     val href = linkValue.getText
-    val labelNodes = linkValue.nextSiblings.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE).filter(isMarkupInner)
+    val labelNodes = linkValue.nextSiblings.dropLeadingDocWhitespaces.filter(isMarkupInner)
     val label = if (labelNodes.nonEmpty)
       nodesText(labelNodes.to(Iterable))
     else
@@ -476,5 +481,10 @@ object ScalaDocContentGenerator {
   @TestOnly
   lazy val unresolvedMacro: mutable.Buffer[UnresolvedMacroInfo] =
     mutable.ArrayBuffer.empty[UnresolvedMacroInfo]
+
+  implicit class IteratorOps(private val elements: Iterator[PsiElement]) extends AnyVal {
+    def dropLeadingDocWhitespaces: Iterator[PsiElement] =
+      elements.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
+  }
 }
 

@@ -17,4 +17,8 @@ package object documentationProvider {
       delegate
     }
   }
+
+  //"\n" separator works as well as `<br>` tag because definition section is located inside `<pre>` tag (which preserves new lines)
+  //however "\n" is more convenient to us in expected test data
+  val NewLineSeparatorInDefinitionSection = "\n"
 }

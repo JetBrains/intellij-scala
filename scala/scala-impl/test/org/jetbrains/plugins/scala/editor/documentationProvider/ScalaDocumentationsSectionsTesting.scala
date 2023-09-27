@@ -24,37 +24,55 @@ trait ScalaDocumentationsSectionsTesting {
   protected val SectionsStart  : String = DocumentationMarkup.SECTIONS_START
   protected val SectionsEnd    : String = DocumentationMarkup.SECTIONS_END
 
-  protected def doGenerateDocBodyTest(fileContent: String, expectedBody: String): Unit = {
+  protected def doGenerateDocBodyTest(
+    fileContent: String,
+    expectedBody: String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+  ): Unit = {
     val actualDoc = generateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
-    assertDocHtml(expectedBody, actualPart)
+    assertDocHtml(expectedBody, actualPart, whitespacesMode)
   }
 
   protected def doGenerateDocDefinitionTest(fileContent: String, expectedDefinition: String): Unit = {
     val actualDoc = generateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "definition", DefinitionStart, DefinitionEnd)
-    assertDocHtml(expectedDefinition, actualPart)
+    //don't ignore new lines, definition section is wrapped with `<pre>` tag
+    assertDocHtml(expectedDefinition, actualPart, HtmlSpacesComparisonMode.DontIgnore)
   }
 
   /** NOTE: doesn't support inner <div> tags, see [[extractSectionInner]] */
-  protected def doGenerateDocContentTest(fileContent: String, expectedContent: String): Unit = {
+  protected def doGenerateDocContentTest(
+    fileContent: String,
+    expectedContent: String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+  ): Unit = {
     val actualDoc = generateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "content", ContentStart, ContentEnd)
-    assertDocHtml(expectedContent, actualPart)
+    assertDocHtml(expectedContent, actualPart, whitespacesMode)
   }
 
   /** The same as [[doGenerateDocContentTest]] but accepts a comment without any definition */
-  protected def doGenerateDocContentDanglingTest(commentContent: String, expectedContent: String): Unit =
+  protected def doGenerateDocContentDanglingTest(
+    commentContent: String,
+    expectedContent: String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+  ): Unit =
     doGenerateDocContentTest(
       s"""$commentContent
          |class A""".stripMargin,
-      expectedContent
+      expectedContent,
+      whitespacesMode
     )
 
-  protected def doGenerateDocSectionsTest(fileContent: String, expectedDoSections: String): Unit = {
+  protected def doGenerateDocSectionsTest(
+    fileContent: String,
+    expectedDoSections: String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+  ): Unit = {
     val actualDoc = generateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "sections", SectionsStart, SectionsEnd)
-    assertDocHtml(expectedDoSections, actualPart)
+    assertDocHtml(expectedDoSections, actualPart, whitespacesMode)
   }
 
   // NOTE: doesn't support nested tags,
