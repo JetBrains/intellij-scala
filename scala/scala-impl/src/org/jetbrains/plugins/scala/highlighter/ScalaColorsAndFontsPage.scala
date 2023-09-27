@@ -58,7 +58,7 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.VARIABLES, VARIABLES),
     new AttributesDescriptor(DisplayNames.LAZY, LAZY),
     new AttributesDescriptor(DisplayNames.PARAMETER, PARAMETER),
-    new AttributesDescriptor(DisplayNames.ANONYMOUS_PARAMETER, ANONYMOUS_PARAMETER),
+    new AttributesDescriptor(DisplayNames.PARAMETER_OF_ANONIMOUS_FUNCTION, PARAMETER_OF_ANONIMOUS_FUNCTION),
     new AttributesDescriptor(DisplayNames.PATTERN, PATTERN),
     new AttributesDescriptor(DisplayNames.GENERATOR, GENERATOR),
     new AttributesDescriptor(DisplayNames.METHOD_CALL, METHOD_CALL),
@@ -128,7 +128,7 @@ object ScalaColorsAndFontsPage {
     val VARIABLES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.var")
     val LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.lazy.val.var")
     val PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter")
-    val ANONYMOUS_PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.anonymous.parameter")
+    val PARAMETER_OF_ANONIMOUS_FUNCTION = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter.of.anonimous.function")
     val METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.class.method.call")
     val OBJECT_METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.object.method.call")
     val LOCAL_METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.method.call")
@@ -170,7 +170,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       case `LOCAL_VALUES` |
            `LOCAL_VARIABLES` |
            `PARAMETER` |
-           `ANONYMOUS_PARAMETER` |
+           PARAMETER_OF_ANONIMOUS_FUNCTION |
            `PATTERN` |
            `SCALA_DOC_TAG_PARAM_VALUE` =>
         true
@@ -273,7 +273,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("local", LOCAL_VALUES)
     map.put("val", VALUES)
     map.put("param", PARAMETER)
-    map.put("anon_param", ANONYMOUS_PARAMETER)
+    map.put("anon_param", PARAMETER_OF_ANONIMOUS_FUNCTION)
     map.put("method", METHOD_CALL)
     map.put("objectmethod", OBJECT_METHOD_CALL)
     map.put("localmethod", LOCAL_METHOD_CALL)

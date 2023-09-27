@@ -107,4 +107,28 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
        |    def scream: String = s.toUpperCase
        |""".stripMargin
   )
+
+  //SCL-21604
+  def testNamelessUsingParameter_ClashBetweenTypeAndObject_1(): Unit = doResolveTest(
+    s"""type MyClass = Int
+       |object MyClass:
+       |  def ${REFTGT}test(): String = ""
+       |
+       |def foo(using MyClass): Unit =
+       |  summon[MyClass]
+       |  MyClass.${REFSRC}test()
+       |""".stripMargin
+  )
+
+  //SCL-21604
+  def testNamelessUsingParameter_ClashBetweenTypeAndObject_2(): Unit = doResolveTest(
+    s"""type ${REFTGT}MyClass = Int
+       |object MyClass:
+       |  def test(): String = ""
+       |
+       |def foo(using MyClass): Unit =
+       |  summon[${REFSRC}MyClass]
+       |  MyClass.test()
+       |""".stripMargin
+  )
 }

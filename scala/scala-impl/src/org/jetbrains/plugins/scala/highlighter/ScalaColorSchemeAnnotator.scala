@@ -194,11 +194,11 @@ object ScalaColorSchemeAnnotator {
   private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
     val nameId = param.nameId
 
-    //in scala 3 parameters may be anonymous and we create synthetic name id for them
-    if (!nameId.isPhysical)
+    //in scala 3 there are anonymous context parameters which don't have name identifier
+    if (nameId == null)
       return
 
-    val attributesKey = if (param.isAnonymousParameter) ANONYMOUS_PARAMETER else PARAMETER
+    val attributesKey = ScalaColorsSchemeUtils.parameterAttributes(param)
     createInfoAnnotation(nameId, attributesKey)
   }
 

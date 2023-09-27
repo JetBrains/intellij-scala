@@ -8,15 +8,23 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ParameterRend
 final private [documentationProvider] class ScalaDocParametersRenderer(parameterRenderer: ParameterRenderer)
   extends ParametersRenderer(parameterRenderer, true) {
 
-  override protected def renderImplicitModifier(buffer: StringBuilder, clause: ScParameterClause): Unit =
-    if (clause.isImplicit) buffer.appendKeyword("implicit").append(" ")
-    else if (clause.isUsing) buffer.appendKeyword("using").append(" ")
+  override protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit = {
+    if (clause.isImplicit) {
+      buffer.appendKeyword("implicit").append(" ")
+    }
+
+    //Always render `using` if it exists mostly to handle anonimous context parameters `(using Int)`
+    //in order we don't end up in strange situation when we render just `(Int)`, which looks unclear without `using` prefix
+    if (clause.isUsing) {
+      buffer.appendKeyword("using").append(" ")
+    }
+  }
 }
 
 final private [documentationProvider] class ScalaDocParameterRenderer(typeRenderer: TypeRenderer, typeAnnotationRenderer: TypeAnnotationRenderer)
   extends ParameterRenderer(
     typeRenderer,
-    WithHtmlPsiLink.renderer,
+    WithHtmlPsiLink.modifiersRenderer,
     typeAnnotationRenderer,
     TextEscaper.Html,
     withMemberModifiers = true,
@@ -25,11 +33,11 @@ final private [documentationProvider] class ScalaDocParameterRenderer(typeRender
 
   override def render(buffer: StringBuilder, param: ScParameter): Unit = {
     parameterAnnotations(buffer, param)
-    WithHtmlPsiLink.renderer.render(buffer, param)
+    WithHtmlPsiLink.modifiersRenderer.render(buffer, param)
     val keyword = keywordPrefix(param)
     if (keyword.nonEmpty) buffer.appendKeyword(keyword)
-    buffer.append(TextEscaper.Html.escape(param.name))
-    typeAnnotationRenderer.render(buffer, param)
+
+    renderParameterNameAndType(buffer, param)
   }
 }
 

@@ -224,17 +224,7 @@ object MethodTypeProvider {
 
     private def toParameter(psiParameter: PsiParameter) = {
       val scType = psiParameter.paramType()
-      Parameter(
-        name = psiParameter.getName,
-        deprecatedName = None,
-        paramType = scType,
-        expectedType = scType,
-        isDefault = false,
-        isRepeated = psiParameter.isVarArgs,
-        isByName = false,
-        index = psiParameter.index,
-        psiParam = Some(psiParameter)
-      )
+      Parameter.fromJavaParameterWithType(psiParameter, scType)
     }
   }
 }

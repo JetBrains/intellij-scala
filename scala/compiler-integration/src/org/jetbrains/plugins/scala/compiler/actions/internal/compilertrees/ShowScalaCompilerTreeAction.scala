@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees
 
 import com.intellij.notification.{NotificationType, NotificationsManager}
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
@@ -23,12 +23,20 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import java.io.File
 import scala.collection.mutable
 
+//TODO: (big feature) don't ignore last bytecode generation phase, show decompiled classes (1. bytecode and 2. as Java)
+//TODO: (big feature) add UI for extra Scala 3 options `-Xprint-*`
+//TODO: (big feature) Scala 3 has option to print tasty, we can add it as well
+//TODO: (big improvement) implement folding (check how it's done for "Show Decompiled Code" action, if it even works for it)
+//TODO: show notifications on all steps (no file, no virtual file, no module, etc...)
+//TODO: if not trees are parsed, show some notification (when there are still no errors)
 final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBundle.message("show.scala.compiler.trees.action.title")) {
 
   override def update(e: AnActionEvent): Unit = {
     val data = getDataRequiredForAction(e)
     e.getPresentation.setEnabledAndVisible(data.isDefined)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getDataRequiredForAction(e: AnActionEvent): Option[ActionData] =
     for {
@@ -56,9 +64,10 @@ final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBund
     val module = actionData.module
 
     FileDocumentManager.getInstance.saveAllDocuments()
-    CompileServerLauncher.ensureServerRunning(module.getProject)
 
     withProgressSynchronouslyTry(CompilerIntegrationBundle.message("compiling.file", virtualFile.getName), canBeCanceled = true) { _ =>
+      CompileServerLauncher.ensureServerRunning(module.getProject)
+
       val compilerMessages = compileFileAndGetCompilerMessages(virtualFile, module)
 
       val errors = compilerMessages.filter(_.kind == MessageKind.Error)

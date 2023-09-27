@@ -34,7 +34,6 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
       } holder.registerProblem(
         expression,
         ScalaInspectionBundle.message("expression.unit.return.in.map"),
-        highlightType,
         quickFixes: _*
       )
     case _ =>

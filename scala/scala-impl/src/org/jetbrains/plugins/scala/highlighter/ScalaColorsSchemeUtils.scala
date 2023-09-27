@@ -6,12 +6,12 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierL
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCaseKind, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
@@ -81,12 +81,24 @@ object ScalaColorsSchemeUtils {
       case p: ScBindingPattern                                                           => attributesKey(p)
       case f: PsiField if !hasModifier(f, "final")                              => DefaultHighlighter.VARIABLES
       case _: PsiField                                                                   => DefaultHighlighter.VALUES
-      case p: ScParameter if p.isAnonymousParameter                                      => DefaultHighlighter.ANONYMOUS_PARAMETER
-      case _: ScParameter                                                                => DefaultHighlighter.PARAMETER
+      case p: ScParameter                                                                => parameterAttributes(p)
       case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => attributesKey(f.asInstanceOf[ScFunction])
       case m: PsiMethod                                                                  => attributesKey(m)
       case _                                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
     }
+
+  //SCL-7499
+  def parameterAttributes(p: ScParameter): TextAttributesKey =
+    if (isParameterOfAnonymousFunction(p)) DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION
+    else DefaultHighlighter.PARAMETER
+
+  private def isParameterOfAnonymousFunction(p: ScParameter): Boolean = p.getContext match {
+    case clause: ScParameterClause => clause.getContext.getContext match {
+      case _: ScFunctionExpr => true
+      case _ => false
+    }
+    case _ => false
+  }
 
   private def attributesKey(pattern: ScBindingPattern): TextAttributesKey = {
     val parent = pattern.nameContext

@@ -79,7 +79,8 @@ public class DefaultHighlighter {
   static final String VARIABLES_ID = "Scala Template var";
   static final String LAZY_ID = "Scala Template lazy val/var";
   static final String PARAMETER_ID = "Scala Parameter";
-  static final String ANONYMOUS_PARAMETER_ID = "Scala Anonymous Parameter";
+  //"Scala Anonymous Parameter" is preserved for backward compatibility
+  static final String PARAMETER_OF_ANONYMOUS_FUNCTION_ID = "Scala Anonymous Parameter";
   static final String METHOD_CALL_ID = "Scala Class method call";
   static final String OBJECT_METHOD_CALL_ID = "Scala Object method call";
   static final String LOCAL_METHOD_CALL_ID = "Scala Local method call";
@@ -152,7 +153,7 @@ public class DefaultHighlighter {
   public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
-  public static final TextAttributesKey ANONYMOUS_PARAMETER = createKey(ANONYMOUS_PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+  public static final TextAttributesKey PARAMETER_OF_ANONIMOUS_FUNCTION = createKey(PARAMETER_OF_ANONYMOUS_FUNCTION_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
   public static final TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
   public static final TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightInfoTypes.STATIC_METHOD.getAttributesKey());
   public static final TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());

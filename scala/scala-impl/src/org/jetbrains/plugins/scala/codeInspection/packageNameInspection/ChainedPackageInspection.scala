@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -31,7 +32,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
           file,
           range,
           ScalaInspectionBundle.message("package.declaration.could.use.chained.package.clauses", basePackage),
-          ProblemHighlightType.WEAK_WARNING,
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
           false,
           quickFix
         )
@@ -53,6 +54,9 @@ object ChainedPackageInspection {
                                      (implicit project: Project): Unit = {
       file.setPackageName(file.getPackageName)
     }
+
+    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+      IntentionPreviewInfo.EMPTY //TODO: SCL-21623
 
     override def getFamilyName: String = ScalaInspectionBundle.message("use.chained.package.clauses")
   }

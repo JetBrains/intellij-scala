@@ -43,7 +43,7 @@ class ScGivenDefinitionImpl(
 
   override def nameId: PsiElement = nameElement.getOrElse(extendsBlock)
 
-  override def nameInner: String = {
+  override protected def nameInner: String = {
     val explicitName = nameElement.map(_.getText)
     val typeElements = extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
 

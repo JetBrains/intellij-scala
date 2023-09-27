@@ -28,9 +28,14 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
 
   override def isVar: Boolean = byStubOrPsi(_.isVar)(findChildByType(ScalaTokenTypes.kVAR) != null)
 
+  /**
+   * @note `implicit` modifier can belong both to all parameter clauses or to a single parameter, examples {{{
+   *         class MyClass1(implicit c1: String, c2: Int) //implicit belongs to entire clause
+   *         class MyClass1(c1: String, implicit val c2: String) //implicit belongs to a single parameter
+   *       }}}
+   *       NOTE: this is only actual for `implicit` modifier but not for `using`
+   */
   override def isImplicitParameter: Boolean = super.isImplicitParameter || getModifierList.isImplicit
-
-  override def isContextParameter: Boolean = super.isContextParameter || getModifierList.isUsing
 
   override def isPrivateThis: Boolean = {
     if (!isClassMember) return true

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.api.statements
-package params
+package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -9,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -19,8 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import javax.swing.Icon
 import scala.annotation.tailrec
 
-trait ScParameter extends ScTypedDefinition with ScModifierListOwner
-                  with PsiParameterAdapter with ScImportableDeclarationsOwner { self =>
+trait ScParameter extends ScTypedDefinition
+  with ScModifierListOwner
+  with PsiParameterAdapter
+  with ScImportableDeclarationsOwner { self =>
+
   override def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name
@@ -38,8 +41,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
   def typeElement: Option[ScTypeElement]
 
   def paramType: Option[ScParameterType] = findChild[ScParameterType]
-
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def getIcon(flags: Int): Icon = Icons.PARAMETER
 
@@ -82,24 +83,17 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   //TODO: Review all usages of `isImplicitParameter` and replace with `isImplicitOrContextParameter` if needed
   // This is basically the same comment as for `ScParameterClause.isImplicit`
-  def isImplicitParameter: Boolean = {
-    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    if (clause == null) return false
-    clause.isImplicit
-  }
+  def isImplicitParameter: Boolean
 
-  def isContextParameter: Boolean = {
-    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    if (clause == null) return false
-
-    clause.isUsing ||
-      (owner match {
-        case fun: ScFunctionExpr => fun.isContext
-        case _                   => false
-      })
-  }
+  def isContextParameter: Boolean
 
   def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
+
+  /**
+   * @return true - for `String` in `def foo(using String): Unit = ()`<br>
+   *         false - for `p: String` in `def foo(p: String): Unit = ()`
+   */
+  def isAnonimousContextParameter: Boolean
 
   def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)
@@ -107,14 +101,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
   }
 
   override def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
-
-  def isAnonymousParameter: Boolean = getContext match {
-    case clause: ScParameterClause => clause.getContext.getContext match {
-      case _: ScFunctionExpr => true
-      case _ => false
-    }
-    case _ => false
-  }
 
   /**
    * Infers expected type for the parameter of an anonymous function

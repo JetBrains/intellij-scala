@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction.findAllTargetElements
+import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
@@ -16,7 +18,7 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
     configureFromFileText(fileText)
 
     val editor = getEditor
-    val targets = findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset).toSeq
+    val targets = GotoDeclarationAction.findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset).toSeq
 
     checkTargets(targets, expected)
   }
@@ -33,17 +35,27 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
   }
 
   def testGoToWildcardGiven(): Unit = doTest(
-    s"""
-       |object Foo {
-       |  given str: String = "foo"
-       |  given Int = 42
+    s"""object GoToGivenImport {
+       |  import Givens.${CARET}given
        |}
        |
-       |object Test {
-       |  import Foo.giv${CARET}en
-       |}
+       |object Givens:
+       |  given str: String = "foo"
+       |  given Int = 42
+       |  implicit val short: Short = ???
+       |  implicit var float: Float = ???
+       |  implicit def long: Long = ???
+       |  implicit object MyObject extends MyTrait
+       |
+       |trait MyTrait
+       |
        |""".stripMargin,
-    expected = (is[ScGiven], "str"), (is[ScGiven], "given_Int")
+    expected = (is[ScGiven], "str"),
+    (is[ScGiven], "given_Int"),
+    (is[ScReferencePatternImpl], "short"),
+    (is[ScReferencePatternImpl], "float"),
+    (is[ScFunctionDefinition], "long"),
+    (is[ScObject], "Givens.MyObject"),
   )
 
   def testGoToWildcardGivenFromInstance(): Unit = doTest(

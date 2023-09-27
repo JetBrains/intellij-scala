@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import javax.swing.Icon
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def isWildcard: Boolean = name == "_"
 

@@ -18,8 +18,7 @@ class SimplifyBooleanInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
-        holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.simplify.boolean.expression"),
-                               ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
+        holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.simplify.boolean.expression"), new SimplifyBooleanQuickFix(expr))
     case _ =>
   }
 

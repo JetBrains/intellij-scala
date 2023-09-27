@@ -142,9 +142,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def getTextOffset: Int =
-    nameId.getTextRange.getStartOffset
-
   override def getContainingClass: PsiClass = {
     super[ScTypeDefinition].getContainingClass match {
       case o: ScObject => o.fakeCompanionClassOrCompanionClass

@@ -24,7 +24,7 @@ class AmmoniteUnresolvedLibraryInspection extends LocalInspectionTool {
   private def processExpr(ref: ScReference, qualifier: ScStableCodeReference, holder: ProblemsHolder): Unit = {
     if (qualifier == null || qualifier.refName != "$ivy" || ref.resolve() != null) return
     AmmoniteScriptWrappersHolder.getInstance(ref.getProject).registerProblemIn(ref.getContainingFile.asInstanceOf[ScalaFile])
-    holder.registerProblem(ref, WorksheetBundle.message("ammonite.cannot.resolve.import"), ProblemHighlightType.WEAK_WARNING, null: TextRange,
+    holder.registerProblem(ref, WorksheetBundle.message("ammonite.cannot.resolve.import"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, null: TextRange,
       new CreateImportedLibraryQuickFix(ref))
   }
 }

@@ -28,8 +28,7 @@ case class Parameter(
 
   def nameInCode: Option[String] = psiParam.map(_.getName)
 
-  //@TODO: rename
-  def isImplicit: Boolean = paramInCode.exists(_.isImplicitOrContextParameter)
+  def isImplicitOrContextParameter: Boolean = paramInCode.exists(_.isImplicitOrContextParameter)
 }
 
 object Parameter {
@@ -38,27 +37,31 @@ object Parameter {
             isByName: Boolean,
             index: Int,
             name: String): Parameter =
-    new Parameter(name,
+    new Parameter(
+      name,
       deprecatedName = None,
       paramType = paramType,
       expectedType = paramType,
       isDefault = false,
       isRepeated = isRepeated,
       isByName = isByName,
-      index = index)
+      index = index
+    )
 
   def apply(paramType: ScType,
             isRepeated: Boolean,
             index: Int,
             name: String): Parameter =
-    new Parameter(name,
+    new Parameter(
+      name,
       deprecatedName = None,
       paramType = paramType,
       expectedType = paramType,
       isDefault = false,
       isRepeated = isRepeated,
       isByName = false,
-      index = index)
+      index = index
+    )
 
   def apply(paramType: ScType,
             isRepeated: Boolean,
@@ -75,7 +78,8 @@ object Parameter {
     case scParameter: ScParameter =>
       val `type` = scParameter.`type`().getOrNothing
 
-      new Parameter(name = scParameter.name,
+      new Parameter(
+        name = scParameter.name,
         deprecatedName = scParameter.deprecatedName,
         paramType = `type`,
         expectedType = `type`,
@@ -84,19 +88,24 @@ object Parameter {
         isByName = scParameter.isCallByNameParameter,
         index = scParameter.index,
         psiParam = Some(scParameter),
-        defaultType = scParameter.getDefaultExpression.flatMap(_.`type`().toOption))
+        defaultType = scParameter.getDefaultExpression.flatMap(_.`type`().toOption)
+      )
     case _ =>
       val `type` = parameter.paramType(extractVarargComponent = false)
+      fromJavaParameterWithType(parameter, `type`)
+  }
 
-      new Parameter(name = parameter.getName,
-        deprecatedName = None,
-        paramType = `type`,
-        expectedType = `type`,
-        isDefault = false,
-        isRepeated = parameter.isVarArgs,
-        isByName = false,
-        index = parameter.index,
-        psiParam = Some(parameter))
-
+  def fromJavaParameterWithType(parameter: PsiParameter, scType: ScType): Parameter = {
+    new Parameter(
+      name = parameter.getName,
+      deprecatedName = None,
+      paramType = scType,
+      expectedType = scType,
+      isDefault = false,
+      isRepeated = parameter.isVarArgs,
+      isByName = false,
+      index = parameter.index,
+      psiParam = Some(parameter)
+    )
   }
 }

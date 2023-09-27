@@ -21,5 +21,7 @@ trait ScParameterStub extends NamedStub[ScParameter]
 
   def isCallByNameParameter: Boolean
 
+  def isAnonimous: Boolean
+
   def deprecatedName: Option[String]
 }

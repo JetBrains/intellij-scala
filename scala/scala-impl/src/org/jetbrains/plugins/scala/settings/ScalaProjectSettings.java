@@ -125,6 +125,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INTERPOLATED_INJECTION_MAPPING.put("xpath", "XPath");
     INTERPOLATED_INJECTION_MAPPING.put("yaml", "yaml");
     INTERPOLATED_INJECTION_MAPPING.put("protobuf", "protobuf");
+    INTERPOLATED_INJECTION_MAPPING.put("md", "Markdown");
   }
 
   // For state

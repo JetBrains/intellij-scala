@@ -182,16 +182,16 @@ private class ClassPrinter(isScala3: Boolean) {
   }
 
   private def textOf(clause: ScParameterClause): String =
-    clause.parameters.map(textOf(_, clause.isUsing)).mkString(if (clause.isImplicit) "(implicit " else if (clause.isUsing) "(using " else "(", ", ", ")")
+    clause.parameters.map(textOf).mkString(if (clause.isImplicit) "(implicit " else if (clause.isUsing) "(using " else "(", ", ", ")")
 
-  private def textOf(p: ScParameter, isUsing: Boolean): String = {
+  private def textOf(p: ScParameter): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val modifiers = textOf(p.getModifierList)
     val keyword = if (p.isVal) "val " else if (p.isVar) "var " else ""
     val name = p.name
     val byName = if (p.isCallByNameParameter) "=> " else ""
     val tpe = textOf(p.`type`())
-    val isAnonymous = isUsing && name == tpe // SCL-21204
+    val isAnonymous = p.isAnonimousContextParameter
     val repeated = if (p.isRepeatedParameter) "*" else ""
     val default = if (p.baseDefaultParam) " = ???" else ""
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default

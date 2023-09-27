@@ -82,7 +82,7 @@ private class ScalaDocDefinitionGenerator private(
 
     element match {
       case m: ScModifierListOwner =>
-        val modifiersRendered = WithHtmlPsiLink.renderer.render(m)
+        val modifiersRendered = WithHtmlPsiLink.modifiersRenderer.render(m)
         if (modifiersRendered.nonEmpty) builder.append(modifiersRendered)
       case _ =>
     }

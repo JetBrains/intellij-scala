@@ -19,7 +19,10 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTimestamp;
 
 /**
- * Reporter for sequential execution of scalaTest test suites. Do not use it with -P key (parallel execution of suites).
+ * Reporter for sequential execution of scalaTest test suites.<br>
+ * Do not use it with -P key (parallel execution of suites).
+ * <p>
+ * See also {@code org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilter}
  */
 public class ScalaTestReporterWithLocation implements Reporter {
     private TreeBuilder treeBuilder = new ParallelTreeBuilder();
@@ -110,11 +113,20 @@ public class ScalaTestReporterWithLocation implements Reporter {
                 detail = getStackTraceString(throwable);
                 if (throwable instanceof StackDepthException) {
                     StackDepthException stackDepthException = (StackDepthException) throwable;
+
                     Option<String> fileNameAndLineNumber = stackDepthException.failedCodeFileNameAndLineNumberString();
-                    StackTraceElement stackTraceElement = (stackDepthException.getStackTrace())[stackDepthException.failedCodeStackDepth()];
+
+                    int failedCodeStackDepth = stackDepthException.failedCodeStackDepth();
+                    StackTraceElement[] stackTraceElements = stackDepthException.getStackTrace();
+                    StackTraceElement stackTraceElement = stackTraceElements[failedCodeStackDepth];
+
                     String className = stackTraceElement != null ? stackTraceElement.getClassName() : null;
                     if (fileNameAndLineNumber instanceof Some && className != null) {
-                        failureLocation = "\nScalaTestFailureLocation: " + className + " at (" + fileNameAndLineNumber.get() + ")";
+                        //NOTE: it's a workaround for SCL-21627 and https://github.com/scalatest/scalatest/issues/2286
+                        // "org.scalatest.Assertions" means that stack trace item with original test position was not properly detected
+                        boolean isAcceptableClassName = !className.equals("org.scalatest.Assertions");
+                        String optionalClassPrefix = isAcceptableClassName ? className + " " : "";
+                        failureLocation = "\nScalaTestFailureLocation: " + optionalClassPrefix + "at ("  + fileNameAndLineNumber.get() + ")";
                     }
                 }
             }

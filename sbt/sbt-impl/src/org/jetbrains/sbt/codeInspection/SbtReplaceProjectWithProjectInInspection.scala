@@ -19,9 +19,7 @@ class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
       (defn.expr, defn.bindings) match {
         case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>
           findPlaceToFix(call, projectNamePattern.getText).foreach { place =>
-            holder.registerProblem(place, SbtBundle.message("sbt.inspection.projectIn.name"),
-                                          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-                                          new SbtReplaceProjectWithProjectInQuickFix(place))
+            holder.registerProblem(place, SbtBundle.message("sbt.inspection.projectIn.name"), new SbtReplaceProjectWithProjectInQuickFix(place))
           }
         case _ => // do nothing
       }
