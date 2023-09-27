@@ -7,7 +7,7 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import com.intellij.testFramework.fixtures.TestLookupElementPresentation
 import org.jetbrains.plugins.scala.CompletionTests
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
@@ -27,8 +27,6 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCompletionTestBase._
-
-  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   protected override def setUp(): Unit = {
     super.setUp()

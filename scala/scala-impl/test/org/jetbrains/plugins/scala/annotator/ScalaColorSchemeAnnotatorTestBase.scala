@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -28,8 +27,6 @@ import scala.collection.immutable.ListSet
   TestScalaVersion.Scala_3_Latest
 ))
 abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    base.SharedTestProjectToken(this.getClass)
 
   protected def needToAnnotateElement(element: PsiElement): Boolean
 

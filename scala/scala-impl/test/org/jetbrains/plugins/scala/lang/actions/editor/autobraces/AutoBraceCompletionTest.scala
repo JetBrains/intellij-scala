@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
@@ -12,8 +11,6 @@ import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScala
   TestScalaVersion.Scala_2_13
 ))
 class AutoBraceCompletionTest extends ScalaCompletionTestBase {
-
-  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   protected override def setUp(): Unit = {
     super.setUp()

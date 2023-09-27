@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.incremental
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.DebugUtil.psiToString
-import org.jetbrains.plugins.scala.base.{EditorActionTestBase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -14,9 +14,6 @@ import org.junit.ComparisonFailure
 
 abstract class IncrementalParserTestBase extends EditorActionTestBase with AssertionMatchers {
   private implicit def p: Project = getProject
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
-
 
   def doTest(text: String, replaceWith: String = ""): Unit = {
     val (code, Seq(range)) = MarkersUtils.extractMarker(text, startMarker = START, endMarker = END)

@@ -62,7 +62,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //end section: project libraries configuration
 
   //start section: project descriptor
-  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module, project: Project): Unit = {

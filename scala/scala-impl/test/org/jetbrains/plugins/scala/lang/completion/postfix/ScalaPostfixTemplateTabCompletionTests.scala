@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.testFramework.UsefulTestCase.{assertNotEmpty, assertSize}
 import com.intellij.util.containers.ContainerUtil
 import junit.framework.TestCase.{assertNotNull, assertNull}
-import org.jetbrains.plugins.scala.base.{ScalaCompletionAutoPopupTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
@@ -21,8 +21,6 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
   private val resultFilePostfix = "-after.scala"
 
   override def getTestDataPath = super.getTestDataPath + "postfixTemplate/tabCompletion"
-
-  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   protected def doTestUniqueKeyTemplate(testName: String = getTestName(true))(textToType: String = "." + testName): Unit = {
     configureByFile(testName)

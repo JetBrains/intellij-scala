@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.injection
 import com.intellij.codeInsight.intention.impl.QuickEditAction
 import com.intellij.testFramework.fixtures.InjectionTestFixture
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.assertEquals
 
@@ -13,9 +13,6 @@ import org.junit.Assert.assertEquals
  * (e.g. using "Edit RegExp fragment")
  */
 class ScalaInjectedLanguageEditInjectedFragmentTest extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13

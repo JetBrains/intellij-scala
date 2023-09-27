@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 import scala.jdk.CollectionConverters._
 
 abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
-
   protected val UnusedImportStatement = "Unused import statement"
 
   def messages(text: String, fileName: String = "dummy.scala"): Seq[HighlightMessage] = {

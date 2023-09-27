@@ -6,7 +6,7 @@ import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, ObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
@@ -86,8 +86,6 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
 
   protected def fileType: LanguageFileType = ScalaFileType.INSTANCE
   protected def isScratchFile: Boolean = false
-
-  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def descriptionMatches(s: String): Boolean = s == description.withNormalizedSeparator.trim
 

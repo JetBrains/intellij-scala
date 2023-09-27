@@ -6,7 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestLike}
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
@@ -22,8 +22,6 @@ abstract class TypeInferenceTestBase
     with ScalaHighlightingTestLike {
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
-
-  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   override protected val START = START_MARKER
   override protected val END = END_MARKER

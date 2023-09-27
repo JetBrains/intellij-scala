@@ -1,12 +1,8 @@
 package org.jetbrains.sbt
 package lang.completion
 
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
-
 abstract class SbtCompletionDefinitionTestBase extends SbtFileTestDataCompletionTestBase {
   self: MockSbtBase =>
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   def testObjectValues(): Unit = doTest()
   def testLocalVars(): Unit = doTest()

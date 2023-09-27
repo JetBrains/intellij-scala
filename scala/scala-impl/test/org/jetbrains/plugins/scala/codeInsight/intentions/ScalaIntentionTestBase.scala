@@ -8,10 +8,10 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.extensions._
-import org.junit.Assert.{assertFalse, assertTrue, fail}
+import org.junit.Assert.{assertFalse, fail}
 import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
@@ -24,8 +24,6 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestC
   def caretTag: String = EditorTestUtil.CARET_TAG
 
   def fileType: FileType = ScalaFileType.INSTANCE
-
-  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTest(text: String,
                        resultText: String,

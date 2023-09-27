@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 import scala.language.implicitConversions
 
@@ -15,9 +15,6 @@ abstract class ScalaLanguageInjectionTestBase extends ScalaLightCodeInsightFixtu
 
     scalaInjectionTestFixture = new ScalaInjectionTestFixture(getProject, myFixture)
   }
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13

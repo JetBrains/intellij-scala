@@ -4,7 +4,6 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.LightProjectDescriptor
 
-// TODO: review all usages ScalaLightProjectDescriptor and decide which test classes can reuse test project
 class ScalaLightProjectDescriptor(private val sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare) extends LightProjectDescriptor {
 
   override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {

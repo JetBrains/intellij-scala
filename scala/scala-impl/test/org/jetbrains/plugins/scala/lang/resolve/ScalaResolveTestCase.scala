@@ -39,7 +39,7 @@ abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase
     TestUtils.getTestDataPath + "/"
 
   override protected def sharedProjectToken =
-    if (sourceRootPath == null) SharedTestProjectToken(this.getClass)
+    if (sourceRootPath == null) super.sharedProjectToken
     else SharedTestProjectToken.DoNotShare
 
   protected def findReferenceAtCaret(): PsiReference =

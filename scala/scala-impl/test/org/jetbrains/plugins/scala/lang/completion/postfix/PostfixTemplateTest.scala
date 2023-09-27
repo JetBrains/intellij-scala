@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -33,8 +33,6 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestCase 
   import PostfixTemplateTest._
 
   def testPath(): String = TestUtils.getTestDataPath + "/postfixTemplate/"
-
-  override protected def sharedProjectToken = SharedTestProjectToken((version, librariesLoaders))
 
   protected final def parseTestData(): (String, String) = {
     var fileText: String = FileUtil.loadFile(new File(testPath() + getTestName(true) + ".test"), CharsetToolkit.UTF8)

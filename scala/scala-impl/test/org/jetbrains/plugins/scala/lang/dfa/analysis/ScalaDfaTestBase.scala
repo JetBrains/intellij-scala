@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
 import com.intellij.codeInspection.InspectionManager
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -14,8 +14,6 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_13
 ))
 abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken((classOf[ScalaDfaTestBase], version))
 
   protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
 

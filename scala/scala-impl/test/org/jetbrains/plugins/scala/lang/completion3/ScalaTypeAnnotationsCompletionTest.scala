@@ -1,16 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase {
-  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
-}
+abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase
 
 class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionTestBase {
   def testCollectionFactory1(): Unit = doCompletionTest(

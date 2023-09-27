@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.lang.imports
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase._
 
 class GivenImportsTest extends SimpleResolveTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[GivenImportsTest])
 
   private def replaceImportExprWithSelector(text: String): String =
     text.replaceAll(raw"(import .+)\.([^{.\n]+)", "$1.{$2}")
