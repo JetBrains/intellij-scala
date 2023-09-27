@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.{DocumentationPr
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.sbt.language.SbtFileType
 
-// TODO: it takes too long to setup project, we should reuse project in each test case
 abstract class SbtDocumentationProviderTestBase extends DocumentationProviderTestBase with ScalaDocumentationsSectionsTesting {
 
   protected val commonDescription = """This is a description for some-key"""

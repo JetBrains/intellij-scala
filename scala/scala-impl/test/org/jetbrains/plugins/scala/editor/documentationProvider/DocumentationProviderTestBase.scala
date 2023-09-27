@@ -6,7 +6,7 @@ import com.intellij.lang.documentation.ide.IdeDocumentationTargetProvider
 import com.intellij.lang.documentation.psi.PsiElementDocumentationTarget
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -22,6 +22,9 @@ abstract class DocumentationProviderTestBase
   protected def documentationProvider: DocumentationProvider
 
   protected implicit def projectContext: ProjectContext = super.getProject
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def generateDoc(editor: Editor, file: PsiFile): String = {
     val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)
