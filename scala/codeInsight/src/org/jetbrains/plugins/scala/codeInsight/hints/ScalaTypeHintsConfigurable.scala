@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.codeInsight.hints.settings.InlaySettingsConfigurableKt
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, ToggleAction}
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.{Getter, Setter}
@@ -95,7 +94,7 @@ object ScalaTypeHintsConfigurable {
       def defaultProject = ProjectManager.getInstance().getDefaultProject
       val project = e.getProject.nullSafe.getOrElse(defaultProject)
 
-      InlaySettingsConfigurableKt.showInlaySettings(project, ScalaLanguage.INSTANCE, null)
+      ScalaTypeHintsSettingsModel.navigateTo(project)
     }
   }
 }

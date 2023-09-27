@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
-import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurable}
+import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurable, InlaySettingsConfigurableKt}
 import com.intellij.ide.DataManager
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -176,17 +176,29 @@ object ScalaTypeHintsSettingsModel {
   }
 
   def navigateTo(project: Project): Unit = {
-    val promise = DataManager.getInstance().getDataContextFromFocusAsync
-    promise.onSuccess { context =>
-      NullSafe(context)
-        .map(Settings.KEY.getData)
-        .foreach { settings =>
-          val configurable = settings.find("inlay.hints")
-          // Should not throw, but if it does, let exception analyzer know
-          val inlayConfigurable = configurable.asInstanceOf[InlaySettingsConfigurable]
-          inlayConfigurable.selectModel(ScalaLanguage.INSTANCE, _.is[ScalaTypeHintsSettingsModel])
-          settings.select(configurable)
+    DataManager.getInstance().getDataContextFromFocusAsync
+      .`then` { context =>
+        // First try to navigate currently open settings to the type hint settings
+        NullSafe(Settings.KEY.getData(context))
+          .map { settings =>
+            val configurable = settings.find("inlay.hints")
+            // Should not throw, but if it does, let exception analyzer know
+            val inlayConfigurable = configurable.asInstanceOf[InlaySettingsConfigurable]
+            inlayConfigurable.selectModel(ScalaLanguage.INSTANCE, _.is[ScalaTypeHintsSettingsModel])
+            settings.select(configurable)
+            true
+          }
+          .orNull
+      }
+      .onProcessed { res =>
+        if (res == null) {
+          // if that doesn't work, instead open new settings window
+          InlaySettingsConfigurableKt.showInlaySettings(
+            project,
+            ScalaLanguage.INSTANCE,
+            _.is[ScalaTypeHintsSettingsModel]
+          )
         }
-    }
+      }
   }
 }
