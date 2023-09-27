@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
-    public static final boolean SHOW_TYPE_HINTS_DEFAULT = true;
     public static final boolean SHOW_METHOD_RESULT_TYPE_DEFAULT = true;
     public static final boolean SHOW_MEMBER_VARIABLE_TYPE_DEFAULT = false;
     public static final boolean SHOW_LOCAL_VARIABLE_TYPE_DEFAULT = false;
@@ -39,7 +38,6 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     }
 
     //private fields are not serialized
-    public boolean showTypeHints = SHOW_TYPE_HINTS_DEFAULT;
     // TODO Rename to "showMethodResultType" (setting format upgrade is required)
     public boolean showFunctionReturnType = SHOW_METHOD_RESULT_TYPE_DEFAULT;
     // TODO Rename to "showMemberVariableType" (setting format upgrade is required)
@@ -54,14 +52,6 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public boolean showRangeHintsForToAndUntil = SHOW_RANGE_HINTS_FOR_TO_AND_UNTIL_DEFAULT;
     public boolean showExclusiveRangeHint = SHOW_EXCLUSIVE_RANGE_HINT_DEFAULT;
 
-
-    public Getter<Boolean> showTypeHintsGetter() {
-        return () -> showTypeHints;
-    }
-
-    public Setter<Boolean> showTypeHintsSetter() {
-        return value -> showTypeHints = value;
-    }
 
     public Getter<Boolean> showMethodResultTypeGetter() {
         return () -> showFunctionReturnType;

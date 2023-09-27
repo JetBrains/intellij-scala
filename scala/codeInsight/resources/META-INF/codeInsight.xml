@@ -349,7 +349,6 @@
         </group>
 
         <group id="TypeHintsMenu">
-            <action id="ToggleTypeHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction"/>
             <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
             <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
             <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />

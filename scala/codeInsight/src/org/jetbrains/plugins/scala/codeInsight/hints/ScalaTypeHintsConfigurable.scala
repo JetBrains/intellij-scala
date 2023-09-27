@@ -32,12 +32,6 @@ object ScalaTypeHintsConfigurable {
     }
   }
 
-  class ToggleTypeHintsAction extends ToggleTypeAction(
-    ScalaCodeInsightBundle.message("type.hints.action.text"),
-    ScalaCodeInsightBundle.message("type.hints.action.description"),
-    ScalaCodeInsightSettings.showTypeHintsGetter,
-    ScalaCodeInsightSettings.showTypeHintsSetter,
-  )
 
   class ToggleMethodChainInlayHintsAction extends ToggleTypeAction(
     ScalaCodeInsightBundle.message("method.chain.hints.action.text"),
