@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -196,7 +196,7 @@ private class ScalaDocDefinitionGenerator private(
   // UTILS
 
   private lazy val typeAnnotationRenderer: TypeAnnotationRenderer =
-    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
+    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAll)
   private lazy val annotationsTypeRenderer =
     ScalaDocTypeRenderer.forAnnotations(originalElement)
   private lazy val annotationsRenderer =

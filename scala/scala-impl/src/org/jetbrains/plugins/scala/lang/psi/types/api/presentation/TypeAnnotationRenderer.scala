@@ -5,12 +5,12 @@ import com.intellij.openapi.project.IndexNotReadyException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 
 class TypeAnnotationRenderer(
   typeRenderer: TypeRenderer,
-  parameterTypeDecorateOptions: ParameterTypeDecorateOptions = ParameterTypeDecorateOptions.DecorateNone
+  parameterTypeDecorator: ParameterTypeDecorator = ParameterTypeDecorator.DecorateNone
 ) {
 
   def render(buffer: StringBuilder, typed: Typeable): Unit = {
@@ -56,42 +56,61 @@ class TypeAnnotationRenderer(
     }
 
   private def decoratedParameterType(buffer: StringBuilder, param: ScParameter, typeText: String): Unit = {
-    if (parameterTypeDecorateOptions.showByNameArrow && param.isCallByNameParameter) {
-      buffer.append(ScalaPsiUtil.functionArrow(param.getProject))
-      buffer.append(" ")
-    }
+    parameterTypeDecorator.decorate(buffer, param) {
+      buffer.append(typeText)
 
-    buffer.append(typeText)
-
-    if (param.isRepeatedParameter)
-      buffer.append("*")
-
-    if (parameterTypeDecorateOptions.showDefaultValue && param.isDefaultParam) {
-      buffer.append(" = ")
-      param.getDefaultExpressionInSource match {
-        case Some(expr) =>
-          val text: String = expr.getText.replace(" /* compiled code */ ", "")
-          val cutTo = 20
-          buffer.append(text.substring(0, text.length.min(cutTo)))
-          if (text.length > cutTo)
-            buffer.append("...")
-        case _ =>
-          buffer.append("...")
-      }
+      if (param.isRepeatedParameter)
+        buffer.append("*")
     }
   }
 }
 
 object TypeAnnotationRenderer {
 
-  case class ParameterTypeDecorateOptions(
-    showByNameArrow: Boolean,
-    showDefaultValue: Boolean
-  )
+  class ParameterTypeDecorator(showByNameArrow: Boolean, showDefaultValue: Boolean) {
+    final def decorate(buffer: StringBuilder, param: ScParameter)(action: => Unit): Unit = {
+      if (showByNameArrow && param.isCallByNameParameter) {
+        buffer.append(ScalaPsiUtil.functionArrow(param.getProject))
+        buffer.append(" ")
+      }
 
-  //noinspection TypeAnnotation
-  object ParameterTypeDecorateOptions {
-    val DecorateAll = ParameterTypeDecorateOptions(showByNameArrow = true, showDefaultValue = true)
-    val DecorateNone = ParameterTypeDecorateOptions(showByNameArrow = false, showDefaultValue = false)
+      action
+
+      if (showDefaultValue && param.isDefaultParam) {
+        buffer.append(" = ")
+        renderDefaultValue(buffer, param)
+      }
+    }
+
+    protected def renderDefaultValue(buffer: StringBuilder, param: ScParameter): Unit = {}
+  }
+
+  object ParameterTypeDecorator {
+    private val Ellipsis = '…'
+
+    val DecorateNone: ParameterTypeDecorator =
+      new ParameterTypeDecorator(showByNameArrow = false, showDefaultValue = false)
+
+    val DecorateAll: ParameterTypeDecorator =
+      new ParameterTypeDecorator(showByNameArrow = true, showDefaultValue = true) {
+        override protected def renderDefaultValue(buffer: StringBuilder, param: ScParameter): Unit = {
+          param.getDefaultExpressionInSource match {
+            case Some(expr) =>
+              val text: String = expr.getText.replace(" /* compiled code */ ", "")
+              val cutTo = 20
+              buffer.append(text.substring(0, text.length.min(cutTo)))
+              if (text.length > cutTo)
+                buffer.append(Ellipsis)
+            case _ =>
+              buffer.append(Ellipsis)
+          }
+        }
+      }
+
+    val DecorateAllMinimized: ParameterTypeDecorator =
+      new ParameterTypeDecorator(showByNameArrow = true, showDefaultValue = true) {
+        override protected def renderDefaultValue(buffer: StringBuilder, param: ScParameter): Unit =
+          buffer.append(Ellipsis)
+      }
   }
 }

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeParamsRenderer, TypeRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -84,7 +84,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           val renderer = new ParameterRenderer(
             typeRenderer,
             ModifiersRenderer.SimpleText(),
-            new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+            new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized),
             withAnnotations = true
           )
           renderer.render(param)
@@ -143,11 +143,11 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
                     val length = clause.effectiveParameters.length
 
-                    val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
+                    val precedingClauses = if (i == -1) Seq.empty else clauses.take(i)
                     val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
 
                     val typeParameters = method.typeParameters
-                    val multipleLists = typeParameters.nonEmpty || preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+                    val multipleLists = typeParameters.nonEmpty || precedingClauses.nonEmpty || remainingClauses.nonEmpty
 
                     def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
                       val parameters0 = if (isEffective) clause.effectiveParameters else clause.parameters
@@ -161,7 +161,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append("]")
                     }
 
-                    preceedingClauses.foreach { clause =>
+                    precedingClauses.foreach { clause =>
                       buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
