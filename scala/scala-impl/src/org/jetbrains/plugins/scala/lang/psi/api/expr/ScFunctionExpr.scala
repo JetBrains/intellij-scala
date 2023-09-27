@@ -18,6 +18,10 @@ trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
   def rightParen: Option[PsiElement]
 
+  /**
+   * @return `true` for context function (the one with `?=>` arrow instead of `=>`)
+   * @see https://docs.scala-lang.org/scala3/reference/contextual/context-functions.html
+   */
   def isContext: Boolean
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {

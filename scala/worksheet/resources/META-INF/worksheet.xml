@@ -45,7 +45,8 @@
                          bundle="messages.ScalaWorksheetBundle"
                          key="displayname.ammonite.unresolved.import"
                          groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
-                         level="WARNING" enabledByDefault="true" language="Scala" groupKey="group.worksheet"/>
+                         level="WARNING" editorAttributes="INFO_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala" groupKey="group.worksheet"/>
 
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNGotoHandler" order="first"/>

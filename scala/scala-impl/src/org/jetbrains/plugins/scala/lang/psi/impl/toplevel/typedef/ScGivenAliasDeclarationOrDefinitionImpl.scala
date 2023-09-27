@@ -26,7 +26,7 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
   override def typeElement: Option[ScTypeElement] =
     byPsiOrStub(findChildByClassScala(classOf[ScTypeElement]).toOption)(_.typeElement)
 
-  override def nameInner: String = {
+  override protected def nameInner: String = {
     val explicitName = nameElement.map(_.getText)
 
     explicitName

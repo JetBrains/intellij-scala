@@ -39,7 +39,6 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
       } holder.registerProblem(
         caseKeyword,
         inspectionName,
-        ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
         new UnnecessaryPartialFunctionQuickFix(expression)
       )
     case _ =>

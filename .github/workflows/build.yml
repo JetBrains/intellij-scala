@@ -2,9 +2,9 @@ name: Scala Plugin Build & Test
 
 on:
   push:
-    branches: [ idea231.x idea232.x ]
+    branches: [ idea232.x idea233.x ]
   pull_request:
-    branches: [ idea231.x idea232.x ]
+    branches: [ idea232.x idea233.x ]
 
 jobs:
   build_and_test:

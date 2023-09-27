@@ -125,6 +125,27 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  def testContextParameter(): Unit = {
+    testAllAnnotations("def foo(using p: Int): Unit = ()",
+      """Info((4,7),foo,Scala Method declaration)
+        |Info((8,13),using,Scala Keyword)
+        |Info((14,15),p,Scala Parameter)
+        |Info((17,20),Int,Scala Predefined types)
+        |Info((23,27),Unit,Scala Predefined types)
+        |""".stripMargin
+    )
+  }
+
+  def testContextParameterAnonymous(): Unit = {
+    testAllAnnotations("def foo(using Int): Unit = ()",
+      """Info((4,7),foo,Scala Method declaration)
+        |Info((8,13),using,Scala Keyword)
+        |Info((14,17),Int,Scala Predefined types)
+        |Info((20,24),Unit,Scala Predefined types)
+        |""".stripMargin
+    )
+  }
+
   def testSoftKeywords_Open(): Unit = {
     val text =
       """

@@ -12,13 +12,13 @@ class AbstractValueInTraitInspection extends LocalInspectionTool {
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>
       v.containingClass match {
         case _: ScTrait =>
-          holder.registerProblem(v, ScalaInspectionBundle.message("abstract.value.used.in.trait"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          holder.registerProblem(v, ScalaInspectionBundle.message("abstract.value.used.in.trait"))
         case _ =>
       }
     case v: ScVariableDeclaration =>
       v.containingClass match {
         case _: ScTrait =>
-          holder.registerProblem(v, ScalaInspectionBundle.message("abstract.variable.used.in.trait"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          holder.registerProblem(v, ScalaInspectionBundle.message("abstract.variable.used.in.trait"))
         case _ =>
       }
     case _ =>

@@ -207,12 +207,14 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     val text =
       """
         |(x: Int) => x
+        |{ x: Int => x }
         |""".stripMargin
 
-    testAnnotations(text, ANONYMOUS_PARAMETER,
-      """
-        |Info((2,3),x,Scala Anonymous Parameter)
+    testAnnotations(text, PARAMETER_OF_ANONIMOUS_FUNCTION,
+      """Info((2,3),x,Scala Anonymous Parameter)
         |Info((13,14),x,Scala Anonymous Parameter)
+        |Info((17,18),x,Scala Anonymous Parameter)
+        |Info((27,28),x,Scala Anonymous Parameter)
         |""".stripMargin
     )
   }

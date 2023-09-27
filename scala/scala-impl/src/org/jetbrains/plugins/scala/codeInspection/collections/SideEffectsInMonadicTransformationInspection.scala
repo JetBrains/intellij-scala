@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 
 import scala.collection.immutable.ArraySeq
@@ -11,7 +10,7 @@ class SideEffectsInMonadicTransformationInspection extends OperationOnCollection
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case _ `.monadicMethod`(arg) =>
       exprsWithSideEffects(arg).foreach(
-        expr => holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.side.effects.in.a.monadic.transformation"), highlightType)
+        expr => holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.side.effects.in.a.monadic.transformation"))
       )
     case _ =>
   }

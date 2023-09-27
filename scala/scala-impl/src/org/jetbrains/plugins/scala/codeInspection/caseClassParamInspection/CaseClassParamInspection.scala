@@ -21,7 +21,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
       } {
         val descriptor = new ProblemDescriptorImpl(classParam, classParam,
           ScalaBundle.message("val.on.case.class.param.redundant"), Array(new RemoveValQuickFix(classParam)),
-          ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, TextRange.create(0, 3), holder.isOnTheFly)
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false, TextRange.create(0, 3), holder.isOnTheFly)
         holder.registerProblem(descriptor)
       }
     case _ =>

@@ -14,8 +14,7 @@ class NotImplementedCodeInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case reference @ ReferenceTarget(Member("???", "scala.Predef")) =>
-      holder.registerProblem(reference, ScalaInspectionBundle.message("not.implemented"),
-        ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new ImplementQuickFix(reference))
+      holder.registerProblem(reference, ScalaInspectionBundle.message("not.implemented"), new ImplementQuickFix(reference))
     case _ =>
   }
 

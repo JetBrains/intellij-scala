@@ -31,7 +31,7 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
 
   def explicitImplicitArgList: Option[ScArgumentExprList] = {
     val implicitArg = matchedParameters.collectFirst {
-      case (arg, param) if param.isImplicit => arg
+      case (arg, param) if param.isImplicitOrContextParameter => arg
     }
     implicitArg.toSeq
       .flatMap(_.parentsInFile.take(2)) //argument or rhs of a named argument

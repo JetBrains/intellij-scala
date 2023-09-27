@@ -147,7 +147,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
             val comparability = checkComparability(leftType, rightType, isBuiltinOperation)
             if (comparability.shouldNotBeCompared) {
               val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
-              holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+              holder.registerProblem(expr, message)
             }
           case _ =>
         }
@@ -161,7 +161,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         if comparability.shouldNotBeCompared
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
-        holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        holder.registerProblem(arg, message)
       }
     case IsInstanceOfCall(call) =>
       // "blub".isInstanceOf[Integer]
@@ -177,7 +177,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         if comparability == Comparability.Incomparable
       } {
         val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
-        holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        holder.registerProblem(call, message)
       }
     case _ =>
   }

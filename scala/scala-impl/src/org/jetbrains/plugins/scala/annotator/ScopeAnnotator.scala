@@ -6,13 +6,14 @@ import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -27,8 +28,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   private case class Definitions(types: List[ScNamedElement],
                                  functions: List[ScFunction],
                                  parameterless: List[ScNamedElement],
-                                 fieldLike: List[ScNamedElement],
-                                 classParameters: List[ScClassParameter])
+                                 fieldLike: List[ScNamedElement])
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
@@ -36,10 +36,20 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   def annotateScope(element: PsiElement)
                    (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!ScalaPsiUtil.isScope(element)) return
+    //Do not process class parameters, template body and early definitions separately
+    //process them in single pass for the whole template definition
+    val shouldAnnotate = ScalaPsiUtil.isScope(element) && (element match {
+      case _: ScTemplateBody => false
+      case _: ScEarlyDefinitions => false
+      case (_: ScParameters) & Parent(_: ScPrimaryConstructor) => false
+      case _ => true
+    }) || element.is[ScTemplateDefinition]
+
+    if (!shouldAnnotate)
+      return
 
     def checkScope(elements: Iterable[PsiElement]): Unit = {
-      val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements)
+      val Definitions(types, functions, parameterless, fieldLikes) = definitionsIn(elements)
 
       val clashes =
         clashesOf(functions) ++
@@ -47,13 +57,10 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
         clashesOf(types) ++
         clashesOf(fieldLikes)
 
-      //clashed class parameters were already highlighted
-      val withoutClassParameters = clashes.toSet -- clashesOf(classParameters)
-
-      withoutClassParameters.foreach {
-        e =>
-          holder.createErrorAnnotation(e.getNameIdentifier,
-            ScalaBundle.message("id.is.already.defined", nameOf(e)))
+      val clashesSet = clashes.toSet
+      clashesSet.foreach { e =>
+        val element = Option(e.getNameIdentifier).getOrElse(e)
+        holder.createErrorAnnotation(element, ScalaBundle.message("id.is.already.defined", nameOf(e)))
       }
     }
 
@@ -75,20 +82,30 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     }
   }
 
-  private def definitionsIn(elements: Iterable[PsiElement]) = {
+  private def definitionsIn(elements: Iterable[PsiElement]): Definitions = {
     var types: List[ScNamedElement] = Nil
     var functions: List[ScFunction] = Nil
     var parameterless: List[ScNamedElement] = Nil
     var fieldLike: List[ScNamedElement] = Nil
     var classParameters: List[ScClassParameter] = Nil
+
     elements.foreach { element =>
-
-      val classParams = containingClassParams(element)
+      val classParams: List[ScClassParameter] = element match {
+        case clazz: ScConstructorOwner => clazz.parameters.toList
+        case _ => Nil
+      }
+      val (paramPrivateThis, paramNotPrivateOther) = classParams.partition(_.isPrivateThis)
       classParameters :::= classParams
-      fieldLike     :::= classParams.filter(_.isPrivateThis)
-      parameterless :::= classParams.filterNot(_.isPrivateThis)
+      fieldLike :::= paramPrivateThis
+      parameterless :::= paramNotPrivateOther
 
-      element.children.foreach {
+      val children = element match {
+        case en: ScEnum               => en.members ++ en.cases //TODO: remove this line after SCL-21270 is fixed
+        case td: ScTemplateDefinition => td.members
+        case _                        => element.children
+      }
+      children.foreach {
+        //stop processing when found another scope
         _.depthFirst(!ScalaPsiUtil.isScope(_)).foreach {
           case e: ScObject =>
             parameterless ::= e
@@ -119,14 +136,9 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       }
     }
 
-    Definitions(types, functions, parameterless, fieldLike, classParameters)
+    Definitions(types, functions, parameterless, fieldLike)
   }
 
-  private def containingClassParams(scope: PsiElement): List[ScClassParameter] = scope match {
-    case (_: ScTemplateBody) & Parent(Parent(aClass: ScClass)) =>
-      aClass.parameters.toList
-    case _ => Nil
-  }
 
   private def generatesFunction(td: ScTypedDefinition): Boolean = td.nameContext match {
     case _: ScFunction => true

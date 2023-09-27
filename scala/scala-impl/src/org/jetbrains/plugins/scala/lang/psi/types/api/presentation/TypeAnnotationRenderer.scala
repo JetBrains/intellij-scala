@@ -14,10 +14,12 @@ class TypeAnnotationRenderer(
 ) {
 
   def render(buffer: StringBuilder, typed: Typeable): Unit = {
-    val typeText = renderType(typed)
-
     buffer.append(": ")
+    renderWithoutColon(buffer, typed)
+  }
 
+  def renderWithoutColon(buffer: StringBuilder, typed: Typeable): Unit = {
+    val typeText = renderType(typed)
     typed match {
       case param: ScParameter => decoratedParameterType(buffer, param, typeText)
       case _                  => buffer.append(typeText)

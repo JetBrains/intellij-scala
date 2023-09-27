@@ -58,8 +58,19 @@ class ParameterRenderer(
         buffer.append("inline ")
       }
     }
-    buffer.append(escaper.escape(param.name))
-    typeAnnotationRenderer.render(buffer, param)
+
+    renderParameterNameAndType(buffer, param)
+  }
+
+  protected def renderParameterNameAndType(buffer: StringBuilder, param: ScParameter): Unit = {
+    if (param.isAnonimousContextParameter) {
+      //example: Int in `def f(using Int)`
+      typeAnnotationRenderer.renderWithoutColon(buffer, param)
+    } else {
+      //example: `p: Int` in `def f(p: Int)`
+      buffer.append(escaper.escape(param.name))
+      typeAnnotationRenderer.render(buffer, param)
+    }
   }
 
   protected def parameterAnnotations(buffer: StringBuilder, param: ScParameter): Unit = {

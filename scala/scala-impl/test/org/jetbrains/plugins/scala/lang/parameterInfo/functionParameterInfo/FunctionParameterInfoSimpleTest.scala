@@ -87,6 +87,8 @@ final class FunctionParameterInfoSimpleTest_Scala3 extends FunctionParameterInfo
 
   def testUsingParameter(): Unit = doTest()
 
+  def testUsingParameterAnonymous(): Unit = doTest()
+
   def testPropertyUsing(): Unit = doTest()
 
   def testPropertyUsingMultipleLists(): Unit = doTest()

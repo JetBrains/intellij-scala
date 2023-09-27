@@ -1060,7 +1060,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
       fileText,
       "MyClass",
       _ => true,
-      """(using context1: Int)(target: String)(using context2: Long) myExt2(context3: Float)(param1: String, param2: String)(context4: Double): String""",
+      """(using context1: Int)(target: String)(using context2: Long) myExt2(using context3: Float)(param1: String, param2: String)(using context4: Double): String""",
     )
   }
 }

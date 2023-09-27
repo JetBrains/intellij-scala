@@ -13,7 +13,7 @@ class DoubleNegationInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
-      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
+      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), new DoubleNegationQuickFix(expr))
     case _ =>
   }
 }

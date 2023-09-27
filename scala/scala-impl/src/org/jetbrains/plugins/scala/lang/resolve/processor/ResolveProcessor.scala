@@ -10,14 +10,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, TypeIsNotStable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -164,10 +165,25 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   protected final def nameMatches(namedElement: PsiNamedElement)
                                  (implicit state: ResolveState): Boolean = {
+    if (shouldSkipAnonimousContextParameter(namedElement))
+      return false
+
     val elementName = state.renamed.getOrElse(namedElement.name)
 
     (name == "_root_" && elementName == null) ||
       !StringUtil.isEmpty(elementName) && ScalaNamesUtil.equivalent(elementName, name)
+  }
+
+  /**
+   * Don't resolve to anonimous context parameters anywhere except during implicits resolution
+   *
+   * @see SCL-21204 and SCL-21604
+   */
+  private def shouldSkipAnonimousContextParameter(namedElement: PsiNamedElement): Boolean = namedElement match {
+    case p: ScParameter =>
+      !this.isImplicitProcessor && p.isAnonimousContextParameter
+    case _ =>
+      false
   }
 
   override def getHint[T](hintKey: Key[T]): T = {

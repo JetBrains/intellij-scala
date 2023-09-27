@@ -8,9 +8,9 @@ import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, SimpleToolWindowPanel, ValidationInfo}
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.{JBCheckBox, JBScrollPane}
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.ui.{OnePixelSplitter, TreeUIHelper}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees
@@ -91,6 +91,7 @@ final class CompilerTreesDialog(
       showEmptyPhasesProperty,
       lastSelectedPhaseProperty
     )
+    TreeUIHelper.getInstance().installTreeSpeedSearch(myTree)
 
     val toolWindowPanel = createToolWindowPanel(myTree)
 

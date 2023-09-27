@@ -137,7 +137,7 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: Int
+      |        Parameter: <anonimous>
       |          ParameterType
       |            SimpleType: Int
       |              CodeReferenceElement: Int
@@ -147,14 +147,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: String
+      |        Parameter: <anonimous>
       |          ParameterType
       |            SimpleType: String
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: Double
+      |        Parameter: <anonimous>
       |          ParameterType
       |            SimpleType: Double
       |              CodeReferenceElement: Double
@@ -205,14 +205,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(()('(')
       |          PsiElement(using)('using')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: Int
+      |          ClassParameter: <anonimous>
       |            ParameterType
       |              SimpleType: Int
       |                CodeReferenceElement: Int
       |                  PsiElement(identifier)('Int')
       |          PsiElement(,)(',')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: Test
+      |          ClassParameter: <anonimous>
       |            ParameterType
       |              SimpleType: Test
       |                CodeReferenceElement: Test
@@ -294,7 +294,7 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: X
+      |        Parameter: <anonimous>
       |          ParameterType
       |            PsiElement(=>)('=>')
       |            PsiWhiteSpace(' ')

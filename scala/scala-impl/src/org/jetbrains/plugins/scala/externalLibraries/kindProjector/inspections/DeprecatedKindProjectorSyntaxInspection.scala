@@ -17,7 +17,7 @@ class DeprecatedKindProjectorSyntaxInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case DeprecatedIdentifier(e, qf, message) =>
       //noinspection ReferencePassedToNls
-      holder.registerProblem(e, message, ProblemHighlightType.LIKE_DEPRECATED, qf.toArray[LocalQuickFix]: _*)
+      holder.registerProblem(e, message, qf.toArray[LocalQuickFix]: _*)
     case _ =>
   }
 }

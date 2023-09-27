@@ -11,7 +11,7 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.extensions._
-import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Assert.{assertFalse, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
@@ -74,8 +74,11 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestC
   protected def checkIntentionIsNotAvailable(text: String): Unit =
     assertFalse("Intention is found", intentionIsAvailable(text))
 
-  protected def checkIntentionIsAvailable(text: String): Unit =
-    assertTrue("Intention is not found", intentionIsAvailable(text))
+  protected def checkIntentionIsAvailable(text: String): Unit = {
+    if (!intentionIsAvailable(text)) {
+      fail(s"Intention `$familyName` is not found in code:\n$text")
+    }
+  }
 
   private def findIntention(text: String): Option[IntentionAction] =
     findIntention(text, fileType)

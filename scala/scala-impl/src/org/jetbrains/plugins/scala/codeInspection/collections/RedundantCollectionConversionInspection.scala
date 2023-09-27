@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import com.intellij.codeInspection.ProblemHighlightType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
@@ -27,8 +26,6 @@ object RedundantCollectionConversion extends SimplificationType {
   }
 }
 
-class RedundantCollectionConversionInspection extends OperationOnCollectionInspection {
-  override def highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
-
+final class RedundantCollectionConversionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(RedundantCollectionConversion)
 }

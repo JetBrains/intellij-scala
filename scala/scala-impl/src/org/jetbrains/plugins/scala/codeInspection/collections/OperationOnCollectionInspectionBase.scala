@@ -76,12 +76,10 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
     case SimplifiableExpression(expr) => simplifications(expr).foreach {
       case s@Simplification(toReplace, _, hint, rangeInParent) =>
         val quickFix = OperationOnCollectionQuickFix(s)
-        holder.registerProblem(toReplace.getElement, hint, highlightType, rangeInParent, quickFix)
+        holder.registerProblem(toReplace.getElement, hint, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, rangeInParent, quickFix)
     }
     case _ =>
   }
-
-  def highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
 
   private def simplifications(expr: ScExpression): Seq[Simplification] = {
     def simplificationTypes = for {

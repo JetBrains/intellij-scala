@@ -22,7 +22,7 @@ private [documentationProvider] object WithHtmlPsiLink extends AccessQualifierRe
     }
   }
 
-  val renderer: ModifiersRenderer = new ModifiersRenderer(accessModifierRenderer) {
+  val modifiersRenderer: ModifiersRenderer = new ModifiersRenderer(accessModifierRenderer) {
     override def render(buffer: StringBuilder, modifierList: ScModifierList): Unit = {
       modifierList
         .accessModifier

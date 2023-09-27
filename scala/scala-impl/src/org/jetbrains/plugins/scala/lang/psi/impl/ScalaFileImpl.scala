@@ -13,6 +13,7 @@ import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -95,6 +96,13 @@ class ScalaFileImpl(
 
     val vector = toVector(name)
 
+    //TODO: SCL-21623
+    // make it quick-fix preview friendly (e.g. for `ChainedPackageInspection.UseChainedPackageQuickFix`)
+    // During action preview a in-memory document is used, for which `document` is null
+    // However the entire logic below is base on modification of document
+    if (!this.isPhysical)
+      return
+
     preservingClasses {
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
@@ -134,13 +142,9 @@ class ScalaFileImpl(
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
           override def run(): Unit = {
-            try {
-              DebugUtil.startPsiModification(null): @nowarn("cat=deprecation")
+            DebugUtil.performPsiModification("ScalaFileImpl.preservingClasses", (() => {
               aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
-            }
-            finally {
-              DebugUtil.finishPsiModification(): @nowarn("cat=deprecation")
-            }
+            }): ThrowableRunnable[Throwable])
           }
         }
       }

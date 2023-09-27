@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
@@ -68,8 +69,18 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
+  /**
+   * NOTE: we copy `artifactPatterns` to `withIvyPatterns` to avoid this warning <br>
+   * `[warn] Unrecognized repository Scala Plugin Bundled Repository, ignoring it`<br>
+   * from `sbt-coursier` in sbt output
+   * @see https://github.com/coursier/sbt-coursier/blob/0fa908c63219837050dd22e4141985eb0298b1fd/modules/lm-coursier/src/main/scala/lmcoursier/internal/Resolvers.scala#L126
+   * @see https://stackoverflow.com/questions/72814869/unrecognized-repository-scala-plugin-bundled-repository
+   */
   @NonNls private def pluginResolverSetting: String =
-    raw"""resolvers += Resolver.file("Scala Plugin Bundled Repository",file(raw"$repoPath"))(Resolver.mavenStylePatterns)"""
+    raw"""resolvers += {
+         |  val resolver = Resolver.file("Scala Plugin Bundled Repository", file(raw"$repoPath"))(Resolver.mavenStylePatterns)
+         |  resolver.withPatterns(resolver.patterns.withIvyPatterns(resolver.patterns.artifactPatterns))
+         |}""".stripMargin
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
@@ -119,6 +130,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
     javaParameters.setJarPath(launcher.getCanonicalPath)
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
+
+    invokeAndWait {
+      inWriteAction {
+        //By saving all documents ew ensure that edits in `project/build.properties` are saved to disk
+        //otherwise user might change `sbt.version`, reload the project and there will be a warning in sbt shell
+        //"[warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value."
+        //This is because `saveAllDocuments` will be called anyway after sbt process is started, but before it does the check which produces the warning
+        FileDocumentManager.getInstance().saveAllDocuments()
+      }
+    }
 
     val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
 
