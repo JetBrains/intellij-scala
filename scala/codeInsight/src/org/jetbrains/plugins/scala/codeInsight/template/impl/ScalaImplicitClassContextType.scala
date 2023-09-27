@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.annotation.tailrec
 
-final class ScalaImplicitValueClassContextType
-  extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.implicit.value.class")) {
+final class ScalaImplicitClassContextType
+  extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.implicit.class")) {
 
   override protected def isInContext(offset: Int)
                                     (implicit file: ScalaFile): Boolean = {
@@ -23,21 +23,12 @@ final class ScalaImplicitValueClassContextType
     }
 
     val isTopLevel = element == null || isTopLevelElement(element)
-    if (isTopLevel) {
-      file.isWorksheetFile
-    } else {
-      isStaticallyAccessible(element)
-    }
+    if (isTopLevel)
+      file.isWorksheetFile //`implicit` modifier cannot be used for top-level objects
+    else
+      true
   }
 
   private def isTopLevelElement(element: PsiElement): Boolean =
     element.getParent.is[ScalaFile]
-
-  @tailrec
-  private def isStaticallyAccessible(element: PsiElement): Boolean =
-    element.getParent match {
-      case _: ScalaFile | _: ScPackaging                                             => true
-      case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(obj: ScObject)) => isStaticallyAccessible(obj)
-      case _                                                                         => false
-    }
 }

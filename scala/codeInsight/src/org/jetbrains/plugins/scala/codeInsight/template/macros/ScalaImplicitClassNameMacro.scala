@@ -5,9 +5,8 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 
-final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
+final class ScalaImplicitClassNameMacro extends ScalaMacro {
 
   override def getNameShort: String = "implicitValueClassName"
 
@@ -26,12 +25,7 @@ final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
   }
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = {
-    val targetTypeName = params match {
-      case Array(p) if p != null => p
-      case _ => return null
-    }
-    val name = calculateQuickName(targetTypeName)(context)
-    new TextResult(name)
+    calculateResult(params, context)
   }
 
   private def prefixAndSuffix(implicit context: ExpressionContext): (String, String) = {

@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import org.jetbrains.plugins.scala.codeInsight.template.macros.ImplicitValueClassLiveTemplateTest._
+import org.jetbrains.plugins.scala.codeInsight.template.macros.ImplicitClassLiveTemplateTest._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
+class ImplicitClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
 
   override protected def templateName = "imc"
 
-  // easier to test in worksheets due to the allow top level implicit classes
+  //Using `.sc` (Worksheet) because it's easier to test in them - `imc` live template is available in top-level code in worksheets
   override protected def fileExtension = "sc"
 
   private def expectedResult(implicitClassName: String, fieldName: String, typeName: String): String =
@@ -16,6 +16,22 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
   def testWithDefaultParameters(): Unit = {
     val before = s"$CARET"
     val after  = expectedResult("AnyOps", "value", "Any")
+    doTest(before, after)
+  }
+
+  def testWithDefaultParametersInFileWithSpaces(): Unit = {
+    val before =
+      s"""
+         |
+         |$CARET
+         |
+         |""".stripMargin
+    val after =
+      s"""
+        |
+        |${expectedResult("AnyOps", "value", "Any")}
+        |
+        |""".stripMargin
     doTest(before, after)
   }
 
@@ -95,24 +111,6 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
        |""".stripMargin
   }
 
-  def test_should_not_be_applicable_in_non_statically_accessible_context(): Unit = assertIsNotApplicable {
-    s"""class C1 {
-       |  $CARET
-       |}
-       |""".stripMargin
-  }
-
-  def test_should_not_be_applicable_in_non_statically_accessible_context_1(): Unit = assertIsNotApplicable {
-    s"""object O1 {
-       |  object O2 {
-       |    class C3 {
-       |      $CARET
-       |    }
-       |  }
-       |}
-       |""".stripMargin
-  }
-
   def test_should_be_applicable_at_top_level_in_worksheet(): Unit = assertIsApplicable(
     s"$CARET",
     "sc"
@@ -182,9 +180,45 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
        |}
        |""".stripMargin
   }
+
+  def test_do_not_extend_any_val_in_non_statically_available_context(): Unit = {
+    val before =
+      s"""class Wrapper {
+         |$CARET
+         |}""".stripMargin
+    val after =
+      s"""class Wrapper {
+         |  implicit class AnyOps(private val value: Any) {
+         |    ${""}
+         |  }
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def test_do_not_extend_any_val_in_non_statically_available_context_1(): Unit = {
+    val before =
+      s"""class Wrapper {
+         |  def foo = {
+         |    {
+         |       $CARET
+         |    }
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""class Wrapper {
+         |  def foo = {
+         |    {
+         |      implicit class AnyOps(private val value: Any) {
+         |        ${""}
+         |      }
+         |    }
+         |  }
+         |}""".stripMargin
+    doTest(before, after)
+  }
 }
 
-object ImplicitValueClassLiveTemplateTest {
+object ImplicitClassLiveTemplateTest {
   implicit class StringExt(private val str: String) extends AnyVal {
     def indented(spaces: Int): String = str.replace("\n", "\n" + " " * spaces)
   }
