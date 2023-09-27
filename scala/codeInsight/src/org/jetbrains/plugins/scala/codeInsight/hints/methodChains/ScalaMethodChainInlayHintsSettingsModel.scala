@@ -11,10 +11,9 @@ import com.intellij.ui.components.labels.LinkLabel
 
 import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
-import org.jetbrains.plugins.scala.codeInsight.hints.settings.ScalaGeneralTypeHintsSettingsModel
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsSettingsModel}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.awt.{BorderLayout, FlowLayout}
@@ -128,7 +127,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   override def getComponent: JComponent = {
     val linePanel = {
       val link = new LinkLabel[Any](ScalaCodeInsightBundle.message("method.chain.hints.link.to.general.settings"), null)
-      link.setListener((_, _) => ScalaGeneralTypeHintsSettingsModel.navigateTo(project), null)
+      link.setListener((_, _) => ScalaTypeHintsSettingsModel.navigateTo(project), null)
       val linePanel = {
         val layout = new FlowLayout()
         layout.setHgap(0)

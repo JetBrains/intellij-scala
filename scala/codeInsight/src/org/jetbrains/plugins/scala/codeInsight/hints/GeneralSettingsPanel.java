@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.hints.settings;
+package org.jetbrains.plugins.scala.codeInsight.hints;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -14,40 +14,68 @@ import java.util.function.Supplier;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MAX_PRESENTATION_LENGTH;
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.MIN_PRESENTATION_LENGTH;
 
-final class GeneralSettingsPanel {
+public final class GeneralSettingsPanel {
 
     private JCheckBox obviousTypesCheckbox;
     private JCheckBox preserveIndentsCheckBox;
     private JPanel panel;
-    private SpinnerNumberModel presentationLengthModel;
     private JSpinner presentationLengthSpinner;
+    private final SpinnerNumberModel presentationLengthModel;
 
-    private final Supplier<Boolean> obviousTypesGetter;
-    private final Supplier<Boolean> preserveIndentsGetter;
-    private final Supplier<Integer> presentationLengthGetter;
+    private final Supplier<Boolean> obviousTypesLoader;
+    private final Supplier<Boolean> preserveIndentsLoader;
+    private final Supplier<Integer> presentationLengthLoader;
+    private final Consumer<Boolean> obviousTypesSaver;
+    private final Consumer<Boolean> preserveIndentsSaver;
+    private final Consumer<Integer> presentationLengthSaver;
+
 
     // TODO Just use public fields?
-    public GeneralSettingsPanel(Supplier<Boolean> obviousTypesGetter, Consumer<Boolean> obviousTypesSetter,
-                                Supplier<Boolean> preserveIndentsGetter, Consumer<Boolean> preserveIndentsSetter,
-                                Supplier<Integer> presentationLengthGetter, Consumer<Integer> presentationLengthSetter) {
-        this.obviousTypesGetter = obviousTypesGetter;
-        this.preserveIndentsGetter = preserveIndentsGetter;
-        this.presentationLengthGetter = presentationLengthGetter;
+    public GeneralSettingsPanel(Supplier<Boolean> obviousTypesLoader, Consumer<Boolean> obviousTypesSaver,
+                                Supplier<Boolean> preserveIndentsLoader, Consumer<Boolean> preserveIndentsSaver,
+                                Supplier<Integer> presentationLengthLoader, Consumer<Integer> presentationLengthSaver) {
+        this.obviousTypesLoader = obviousTypesLoader;
+        this.preserveIndentsLoader = preserveIndentsLoader;
+        this.presentationLengthLoader = presentationLengthLoader;
+        this.obviousTypesSaver = obviousTypesSaver;
+        this.preserveIndentsSaver = preserveIndentsSaver;
+        this.presentationLengthSaver = presentationLengthSaver;
         presentationLengthModel = new SpinnerNumberModel();
         $$$setupUI$$$();
         presentationLengthModel.setMinimum(MIN_PRESENTATION_LENGTH);
         presentationLengthModel.setMaximum(MAX_PRESENTATION_LENGTH);
         presentationLengthModel.setStepSize(1);
         reset();
-        obviousTypesCheckbox.addActionListener((e) -> obviousTypesSetter.accept(obviousTypesCheckbox.isSelected()));
-        preserveIndentsCheckBox.addActionListener((e) -> preserveIndentsSetter.accept(preserveIndentsCheckBox.isSelected()));
-        presentationLengthModel.addChangeListener((e) -> presentationLengthSetter.accept(presentationLengthModel.getNumber().intValue()));
+    }
+
+    public boolean showObviousTypes() {
+        return obviousTypesCheckbox.isSelected();
+    }
+
+    public boolean getPreserveIntends() {
+        return preserveIndentsCheckBox.isSelected();
+    }
+
+    public int getPresentationLength() {
+        return presentationLengthModel.getNumber().intValue();
+    }
+
+    public boolean isModified() {
+        return showObviousTypes() != obviousTypesLoader.get() ||
+                getPreserveIntends() != preserveIndentsLoader.get() ||
+                getPresentationLength() != presentationLengthLoader.get();
+    }
+
+    public void saveSettings() {
+        obviousTypesSaver.accept(showObviousTypes());
+        preserveIndentsSaver.accept(getPreserveIntends());
+        presentationLengthSaver.accept(getPresentationLength());
     }
 
     public void reset() {
-        obviousTypesCheckbox.setSelected(obviousTypesGetter.get());
-        preserveIndentsCheckBox.setSelected(preserveIndentsGetter.get());
-        presentationLengthModel.setValue(presentationLengthGetter.get());
+        obviousTypesCheckbox.setSelected(obviousTypesLoader.get());
+        preserveIndentsCheckBox.setSelected(preserveIndentsLoader.get());
+        presentationLengthModel.setValue(presentationLengthLoader.get());
     }
 
     private void createUIComponents() {
