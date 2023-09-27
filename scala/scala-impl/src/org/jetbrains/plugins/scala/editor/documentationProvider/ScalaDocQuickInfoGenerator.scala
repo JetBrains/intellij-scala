@@ -280,7 +280,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   private def richTypeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
-    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAll)
+    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized)
 
   private def simpleTypeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateNone)
