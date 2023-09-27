@@ -27,7 +27,7 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
                                  order="first"/>
 
-        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsProvider" />
+        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayHintsSettingsProvider" />
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener"/>
 

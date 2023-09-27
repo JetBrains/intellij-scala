@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.{ExclusiveRangeH
 
 import scala.collection.immutable.ArraySeq
 
-class ScalaTypeHintsSettingsProvider extends InlaySettingsProvider {
+class ScalaInlayHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =
     if (language == ScalaLanguage.INSTANCE) {
       ju.Arrays.asList(
