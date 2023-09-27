@@ -153,6 +153,29 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     )
   )
 
+  def testDefaultParams(): Unit = check(
+    """
+       object Container {
+         def someMethod(x: Int, y: => Int, z: Int = 5)(a: => Int = 2): Int = x + 2 * y + z - a
+
+         class C1(i: Int = 1)(val b: Boolean = true)(implicit s: String = "default")
+         case class C2(i: Int = 0) {
+           def this()(s: String = "s") = this(s.length)
+         }
+       }
+    """,
+    Node(OBJECT, "Container",
+      Node(MethodIcon, "someMethod(Int, => Int, Int = …)(=> Int = …): Int"),
+      Node(CLASS, "C1(Int = …)(Boolean = …)(?=> String = …)",
+        Node(FIELD_VAL, "b: Boolean")
+      ),
+      Node(CLASS, "C2(Int = …)",
+        Node(FIELD_VAL, "i: Int"),
+        Node(MethodIcon, "this()(String = …)")
+      )
+    )
+  )
+
   def testValue(): Unit = {
     check("""
           val v: Int = 1
