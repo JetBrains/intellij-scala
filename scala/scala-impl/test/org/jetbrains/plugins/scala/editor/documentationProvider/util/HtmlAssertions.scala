@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.editor.documentationProvider
+package org.jetbrains.plugins.scala.editor.documentationProvider.util
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.util.MarkersUtils

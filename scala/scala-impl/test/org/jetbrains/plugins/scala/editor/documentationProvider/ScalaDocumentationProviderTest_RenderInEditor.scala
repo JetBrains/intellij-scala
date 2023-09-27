@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsBodySectionTesting
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.util.AliasExports._
 
 // TODO: in-editor doc: code example in the end of the doc produces new line
-class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationProviderTestBase {
-
-  override protected def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
-    documentationProvider.generateRenderedDoc(referredElement.asInstanceOf[ScDocCommentOwner].getDocComment)
+class ScalaDocumentationProviderTest_RenderInEditor extends ScalaDocumentationProviderTestBase
+  with ScalaDocumentationsBodySectionTesting {
 
   def testSingleParagraphInDescription(): Unit =
-    doGenerateDocTest(
+    doGenerateRenderedDocTest(
       s"""class AllTags {
          |  /** description */
          |  def ${|}foo[T](p: String) = 42
@@ -85,11 +84,11 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |<td valign='top'>some text</td>
          |$SectionsEnd
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateRenderedDocBodyTest(fileText, expectedDoc)
   }
 
   def testUnresolvedReference(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateRenderedDocBodyTest(
       s"""/**
          | * [[unknown.Reference]]
          | * [[unknown.Reference ref label]]

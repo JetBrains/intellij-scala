@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import org.junit.Assert.{assertEquals, assertTrue}
 
-class ScalaDocumentationProviderCodeBlockTest extends ScalaDocumentationProviderTestBase {
+class ScalaDocumentationProviderTest_CodeBlocks extends ScalaDocumentationProviderTestBase {
 
   private def extractCodeBlockSection(actualDoc: String, startSearchFromIndex: Int = 0): (String, Int) = {
     val codeStart = actualDoc.indexOf("<code>", startSearchFromIndex)
