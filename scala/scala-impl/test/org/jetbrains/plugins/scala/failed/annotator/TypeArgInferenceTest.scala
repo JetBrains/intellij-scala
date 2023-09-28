@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 class TypeArgInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def shouldPass: Boolean = false
 

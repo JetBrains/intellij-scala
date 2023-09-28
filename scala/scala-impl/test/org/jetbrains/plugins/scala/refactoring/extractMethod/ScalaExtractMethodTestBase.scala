@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,8 +19,6 @@ import org.junit.Assert._
 import java.io.File
 
 abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"

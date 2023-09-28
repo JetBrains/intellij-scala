@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.util.ThrowableRunnable
 import junit.framework.{Test, TestCase, TestSuite}
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
@@ -229,8 +228,6 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     private[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive] def this() = this(null)
 
     private implicit def p: Project = getProject
-
-    override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
     override def setUp(): Unit = {
       super.setUp()
