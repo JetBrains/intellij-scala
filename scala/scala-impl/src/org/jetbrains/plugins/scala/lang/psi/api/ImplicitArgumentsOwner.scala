@@ -28,7 +28,7 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
   protected def updateImplicitArguments(): Unit
 
   /**
-   * @return Collection of parameters in order of appearance in code.
+   * @return Sequence of mappings between arguments and parameters in the order of the arguments' appearance in code.
    */
   def matchedParameters: Seq[(ScExpression, Parameter)] = Seq.empty
 
