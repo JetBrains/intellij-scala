@@ -73,7 +73,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
 
     @NotNull
     public static ScalaLanguageLevel getDefault() {
-        return Scala_2_12;
+        return Scala_2_13;
     }
 
     @NotNull
