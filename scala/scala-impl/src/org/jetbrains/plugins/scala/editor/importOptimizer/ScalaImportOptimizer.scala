@@ -215,21 +215,35 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
   //we should not apply this to Play2ScalaFile, it is covered by Play2ImportOptimizer
   override def supports(file: PsiFile): Boolean =
-    file.is[ScalaFile] &&
-      (IntentionPreviewUtils.isPreviewElement(file) || // show changed imports in intention preview
-        (!file.getVirtualFile.getName.endsWith(".html") && {
-          val vFile = file.getViewProvider.getVirtualFile
-          val projectRootManager = ProjectRootManager.getInstance(file.getProject)
-          val fileIndex = projectRootManager.getFileIndex
-          //only process
-          // - files from sources and scratch files, this is a similar to Java & Kotlin (see IDEA-136712)
-          // - synthetic files created for Scala REPL (see SCL-20571)
-          // - sbt files that are not considered "in source" but are still "in project" (e.g.: top-level build.sbt, see SCL-21336)
-          fileIndex.isInSource(vFile) ||
-            ScratchUtil.isScratch(vFile) ||
-            ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile) ||
-            file.is[SbtFile] && fileIndex.isInProject(vFile)
-        }))
+    file match {
+      case scalaFile: ScalaFile =>
+        supportsImpl(scalaFile)
+      case _ =>
+        false
+    }
+
+  private def supportsImpl(file: ScalaFile): Boolean = {
+    // show changed imports in intention preview
+    if (IntentionPreviewUtils.isPreviewElement(file))
+      return true
+
+    //don't process play2 templates
+    if (file.getVirtualFile.getName.endsWith(".html"))
+      return false
+
+    val vFile = file.getViewProvider.getVirtualFile
+    val projectRootManager = ProjectRootManager.getInstance(file.getProject)
+    val fileIndex = projectRootManager.getFileIndex
+
+    //only process
+    // - files from sources and scratch files, this is a similar to Java & Kotlin (see IDEA-136712)
+    // - synthetic files created for Scala REPL (see SCL-20571)
+    // - sbt files that are not considered "in source" but are still "in project" (e.g.: top-level build.sbt, see SCL-21336)
+    fileIndex.isInSource(vFile) ||
+      ScratchUtil.isScratch(vFile) ||
+      ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile) ||
+      file.isInstanceOf[SbtFile] && fileIndex.isInProject(vFile)
+  }
 
   def replaceWithNewImportInfos(
     range: ImportRangeInfo,
@@ -1207,7 +1221,7 @@ object ScalaImportOptimizer {
           .getOrElse {
             0 max groups.indexOf(ALL_OTHER_IMPORTS)
           }
-        }
+    }
   }
 
   private def greater(lInfo: ImportInfo, rInfo: ImportInfo, settings: OptimizeImportSettings): Boolean = {
