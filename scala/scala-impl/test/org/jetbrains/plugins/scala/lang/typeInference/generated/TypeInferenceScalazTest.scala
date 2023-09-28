@@ -11,8 +11,8 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "scalaz/"
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0"))
 
   def testSCL3819(): Unit = doTest()
 

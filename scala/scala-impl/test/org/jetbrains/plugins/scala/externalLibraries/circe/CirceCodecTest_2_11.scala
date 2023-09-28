@@ -19,10 +19,12 @@ class CirceCodecTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 
-  override def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
-    "io.circe" %% "circe-core" % "0.9.3",
-    "io.circe" %% "circe-generic" % "0.9.3",
-    "io.circe" %% "circe-generic-extras" % "0.9.3"
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(
+    IvyManagedLoader(
+      "io.circe" %% "circe-core" % "0.9.3",
+      "io.circe" %% "circe-generic" % "0.9.3",
+      "io.circe" %% "circe-generic-extras" % "0.9.3"
+    )
   )
 
   protected def folderPath: String = TestUtils.getTestDataPath

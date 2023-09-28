@@ -16,8 +16,8 @@ class ShapelessConformanceTest_2_13 extends ShapelessConformanceTestBase {
 
 abstract class ShapelessConformanceTestBase extends TypeConformanceTestBase {
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3"))
 
   def testWitnessSelectDynamic(): Unit = doTest(
     s"""

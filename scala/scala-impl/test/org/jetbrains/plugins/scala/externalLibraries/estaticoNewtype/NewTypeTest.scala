@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 
 class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("io.estatico" %% "newtype" % "0.4.3")
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(IvyManagedLoader("io.estatico" %% "newtype" % "0.4.3"))
 
   private def getSourceElement(text: String): ScObject = {
     val normalized = text.withNormalizedSeparator.trim

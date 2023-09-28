@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 class SimulacrumTest extends ScalaLightCodeInsightFixtureTestCase {
   private val caret = "<caret>"
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0")
+  override def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0"))
 
   private def getSourceElement(text: String): ScObject = {
     val normalized = text.withNormalizedSeparator.trim

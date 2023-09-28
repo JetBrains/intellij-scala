@@ -13,8 +13,8 @@ import org.junit.experimental.categories.Category
 class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0"))
 
   override def setUp(): Unit = {
     super.setUp()

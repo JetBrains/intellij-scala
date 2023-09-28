@@ -12,8 +12,8 @@ class TypeConformanceZioTest extends TypeConformanceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version.languageLevel == ScalaLanguageLevel.Scala_2_13
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("dev.zio" %% "zio" % "1.0.0-RC18-2")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("dev.zio" %% "zio" % "1.0.0-RC18-2"))
 
   def testSCL17210(): Unit = {
     doTest(

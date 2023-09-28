@@ -22,9 +22,7 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestCase {
     defaultProfile.setSettings(newSettings)
   }
 
-  override def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
-    "tf.tofu" %% "derevo-core" % "0.13.0",
-  )
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(IvyManagedLoader("tf.tofu" %% "derevo-core" % "0.13.0"))
 
   def testFailing(): Unit = checkHasErrorAroundCaret(
     s"""
