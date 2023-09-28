@@ -10,8 +10,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}globalMember3"
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ SourcesLoader(getTestDataPath)
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(SourcesLoader(getTestDataPath))
 
   def testExtensionMethod(): Unit = doCompletionTest(
     fileText =

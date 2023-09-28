@@ -11,8 +11,7 @@ import org.junit.experimental.categories.Category
 class ScalaTagsImplicitConversionTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("com.lihaoyi" %% "scalatags" % "0.8.6")
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(IvyManagedLoader("com.lihaoyi" %% "scalatags" % "0.8.6"))
 
   def testSCL17374(): Unit = checkTextHasNoErrors(
     """
