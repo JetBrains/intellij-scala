@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class CaseClassTypeInferenceTest extends TypeInferenceTestBase {
 
-  override protected def shouldPass: Boolean = false
+  override def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   def testSCL11159a(): Unit = {
     doTest(
@@ -33,5 +34,4 @@ class CaseClassTypeInferenceTest extends TypeInferenceTestBase {
          |//UnaryOperator[UnaryOps.Test]
       """.stripMargin)
   }
-
 }
