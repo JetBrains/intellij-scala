@@ -5,11 +5,14 @@ import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUt
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 import java.util.Arrays.asList
 
 class ScalaMissingDeprecatedAnnotationOnScheduledForRemovalApiInspectionTest extends ScalaInspectionTestBase {
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
+
   override protected val classOfInspection = classOf[MissingDeprecatedAnnotationOnScheduledForRemovalApiInspection]
   override protected val description = "Scheduled for removal API must also be marked with '@Deprecated' annotation"
 

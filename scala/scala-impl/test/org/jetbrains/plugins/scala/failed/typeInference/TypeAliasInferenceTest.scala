@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 
 class TypeAliasInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def shouldPass: Boolean = false
 

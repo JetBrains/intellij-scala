@@ -13,7 +13,7 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
 import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
@@ -24,6 +24,8 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
 
   protected val caretMarker = "/*caret*/"
 
