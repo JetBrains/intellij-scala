@@ -223,6 +223,11 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     }
 
   private def supportsImpl(file: ScalaFile): Boolean = {
+    //always enable optimise imports in worksheets, even if it's outside source root SCL-21646
+    //(it can be useful when working with isolated worksheets)
+    if (file.isWorksheetFile)
+      return true
+
     // show changed imports in intention preview
     if (IntentionPreviewUtils.isPreviewElement(file))
       return true
@@ -236,9 +241,16 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     val fileIndex = projectRootManager.getFileIndex
 
     //only process
-    // - files from sources and scratch files, this is a similar to Java & Kotlin (see IDEA-136712)
+    // - files from source roots (ignore files outside source roots)
+    //   this is a similar to Java & Kotlin (see IDEA-136712 "Optimize imports on module should not process files from test data")
     // - synthetic files created for Scala REPL (see SCL-20571)
     // - sbt files that are not considered "in source" but are still "in project" (e.g.: top-level build.sbt, see SCL-21336)
+    // - scratch files
+    //   NOTE: explicit check for scratch files might be redundant with current implementation.
+    //   This is because when you create a worksheet (for Scala or Scala Worksheet language)
+    //   it will always create a WorksheetFile, which is already handled above
+    //   But I will still leave this explicit check here. In future we might change how scratch files behave
+    //   (they could be just ordinary file with "main" function or they could use Scala CLI)
     fileIndex.isInSource(vFile) ||
       ScratchUtil.isScratch(vFile) ||
       ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile) ||
