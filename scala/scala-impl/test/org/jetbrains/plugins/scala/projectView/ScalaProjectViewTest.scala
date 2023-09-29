@@ -71,8 +71,8 @@ class ScalaProjectViewTest extends BaseProjectViewTestCase with ScalaSdkOwner {
         |  ScalaFile: singleTopLevelType.scala
         |  ScalaFile: singleTopLevelValue.scala
         | PsiDirectory: well_defined_entities
-        |  ScalaFile: Companions_EnumWithObject.scala
         |  ScalaCompanionsFileNode: class Companions_ClassWithObject
+        |  ScalaCompanionsFileNode: enum Companions_EnumWithObject
         |  ScalaCompanionsFileNode: trait Companions_TraitWithObject
         |  SingleCaseClassInFile
         |  SingleCaseObjectInFile

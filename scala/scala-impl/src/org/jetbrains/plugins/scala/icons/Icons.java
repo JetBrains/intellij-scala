@@ -46,6 +46,7 @@ public interface Icons {
     Icon CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/classObjectScala.svg", Icons.class);
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstractClassObjectScala.svg", Icons.class);
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/traitObjectScala.svg", Icons.class);
+    Icon ENUM_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/enumObjectScala.svg", Icons.class);
 
     Icon MULTIPLE_TYPE_DEFINITIONS = getIcon("/org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg", Icons.class);
     Icon ENUM = getIcon("/org/jetbrains/plugins/scala/images/enumScala.svg", Icons.class);
