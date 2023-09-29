@@ -71,11 +71,18 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   }
 
   private lazy val shouldHighlightFile: Boolean = {
+
+    def inspectionIsDisabledForScalaFragments: Boolean =
+      Seq("ScalaUnusedSymbol", "ScalaWeakerAccess").contains(inspection.getShortName)
+
+    def inspectionIsDisabledForWorksheetFiles: Boolean = inspection.getShortName == "ScalaWeakerAccess"
+
     def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
 
     def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
 
     HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
+      !(file.isWorksheetFile && inspectionIsDisabledForWorksheetFiles) &&
       (!inspectionIsDisabledForScalaFragments || !(isDebugEvaluatorExpression || isInjectedFragmentEditor))
   }
 
@@ -88,9 +95,6 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         Collections.emptyList(), getColorsScheme, getId)
     }
   }
-
-  private val inspectionIsDisabledForScalaFragments =
-    Seq("ScalaUnusedSymbol", "ScalaWeakerAccess").contains(inspection.getShortName)
 
   private def processFile(progress: ProgressIndicator): Unit = {
     if (isEnabled(file)) {
