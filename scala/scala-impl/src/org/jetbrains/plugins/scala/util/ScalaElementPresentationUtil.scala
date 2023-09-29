@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala
 package util
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi.impl.{ElementBase, ElementPresentationUtil}
+import com.intellij.psi.util.PsiMethodUtil
 import com.intellij.psi.{PsiClass, PsiModifier, PsiModifierListOwner}
 import com.intellij.ui.IconManager
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import javax.swing.Icon
 
@@ -14,9 +18,7 @@ import javax.swing.Icon
  * This class mirrors some private constants form [[com.intellij.psi.impl.ElementPresentationUtil]].
  * We can get rid of it once the constants become public
  */
-object ElementPresentationUtilScala {
-  private val CLASS_KIND_RUNNABLE = 100
-
+object ScalaElementPresentationUtil {
   private val FLAGS_ABSTRACT = 0x100
   private val FLAGS_FINAL = 0x400
   private val FLAGS_RUNNABLE = 0x4000
@@ -38,11 +40,27 @@ object ElementPresentationUtilScala {
   /**
    * Similar thing is done in Java version in [[com.intellij.psi.impl.ElementPresentationUtil.getFlags]]
    */
-  def getRunnableFlags(element: PsiModifierListOwner): Int = element match {
-    case clazz: PsiClass =>
-      val classKind = ElementPresentationUtil.getClassKind(clazz)
-      if (classKind == CLASS_KIND_RUNNABLE) FLAGS_RUNNABLE else 0
+  def getRunnableObjectFlags(element: PsiModifierListOwner): Int = element match {
+    case obj: ScObject =>
+      cachedInUserData("ScalaElementPresentationUtil.getRunnableFlags", obj, BlockModificationTracker(obj)) {
+        getRunnableFlagsImpl(obj)
+      }
     case _ =>
       0
+  }
+
+  private def getRunnableFlagsImpl(obj: ScObject): Int =
+    if (isRunnable(obj)) FLAGS_RUNNABLE else 0
+
+  /**
+   * Similar logic for Java is located in [[com.intellij.psi.impl.ElementPresentationUtil.getClassKind]]
+   * however we can't use the method as is.
+   * It can't handle the case when trait/enum have companion object with main method
+   */
+  private def isRunnable(clazz: PsiClass): Boolean = {
+    if (DumbService.getInstance(clazz.getProject).isDumb)
+      return false
+
+    PsiMethodUtil.findMainMethod(clazz) != null
   }
 }

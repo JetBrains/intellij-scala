@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.projectView
 
-import com.intellij.ide.projectView.ViewSettings
+import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.util.ScalaElementPresentationUtil
 
 import java.util
 import javax.swing.Icon
@@ -14,7 +15,15 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
                                              (implicit project: Project, settings: ViewSettings)
   extends CustomDefinitionNode(definition) {
 
-  override final def getIcon(flags: Int): Icon = definition.getIcon(flags)
+  override final def getIcon(flags: Int): Icon = {
+    val layerFlags = ScalaElementPresentationUtil.getRunnableObjectFlags(definition)
+    definition.getIconWithExtraLayerFlags(flags, layerFlags)
+  }
+
+  override def updateImpl(data: PresentationData): Unit = {
+    super.updateImpl(data)
+    setIcon(data)
+  }
 
   override def getTitle: String =
     validValue.fold(super.getTitle)(_.qualifiedName)

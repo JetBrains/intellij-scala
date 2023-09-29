@@ -105,6 +105,8 @@ private object MyScalaMainMethodUtil {
   /**
    * Mainly required for launching JavaFX without main method (see SCL-12132)
    *
+   * @note implementation is very similar to [[com.intellij.psi.util.PsiMethodUtil.hasMainMethod]], we might unify the implementation
+   *
    * @see org.jetbrains.plugins.javaFX.JavaFxMainMethodRunConfigurationProvider
    * @note From JavaFX docx:
    *       "The main() method is not required for JavaFX applications when the JAR file for the application is created with the JavaFX Packager tool..."
