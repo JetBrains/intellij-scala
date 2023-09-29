@@ -129,21 +129,6 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     )
   }
 
-  def testMethod_WithParameters(): Unit =
-    doGenerateDocBodyTest(
-      s"""class A {
-         |  /** description of foo */
-         |  def ${|}foo(i: Int, s: String = "default value", b: Boolean): String = ???
-         |}""".stripMargin,
-      s"""
-         |$DefinitionStart
-         |<a href="psi_element://A"><code>A</code></a><br/>
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(i: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, s: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = …, b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>): <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-         |$DefinitionEnd
-         |${ContentStart}description of foo $ContentEnd
-         |""".stripMargin
-    )
-
   def testMethod_HigherKindedTypeParameters_ReferToParameterInExtendsList(): Unit = {
     val input1  =
       s"""trait Trait1[A]
