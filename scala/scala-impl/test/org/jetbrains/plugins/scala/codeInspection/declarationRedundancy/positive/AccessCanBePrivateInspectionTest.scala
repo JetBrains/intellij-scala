@@ -88,31 +88,31 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
   )
 
   def test_no_need_to_prevent_escaping_via_primary_constructor1(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A (b: A.B)",
+    s"private object A { class ${START}B$END }; class A (b: A.B)",
     AllowAdditionalHighlights
   )
   def test_no_need_to_prevent_escaping_via_primary_constructor2(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A (private val b: A.B)",
+    s"private object A { class ${START}B$END }; class A (private val b: A.B)",
     AllowAdditionalHighlights
   )
 
   def test_no_need_to_prevent_escaping_via_primary_constructor3(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A private (b: A.B)",
+    s"private object A { class ${START}B$END }; class A private (b: A.B)",
     AllowAdditionalHighlights
   )
 
   def test_no_need_to_prevent_escaping_via_primary_constructor4(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A private (b: A.B = ???)",
+    s"private object A { class ${START}B$END }; class A private (b: A.B = ???)",
     AllowAdditionalHighlights
   )
 
   def test_no_need_to_prevent_escaping_via_primary_constructor5(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A private (private val b: A.B)",
+    s"private object A { class ${START}B$END }; class A private (private val b: A.B)",
     AllowAdditionalHighlights
   )
 
   def test_no_need_to_prevent_escaping_via_primary_constructor6(): Unit = checkTextHasError(
-    s"object A { class ${START}B$END }; class A private (private val b: A.B = ???)",
+    s"private object A { class ${START}B$END }; class A private (private val b: A.B = ???)",
     AllowAdditionalHighlights
   )
 
@@ -131,11 +131,11 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
          |""".stripMargin, AllowAdditionalHighlights)
 
   def test_no_need_to_prevent_escaping_via_projection_type_in_companion1(): Unit = checkTextHasError(
-    s"object A { object ${START}B$END { class C } }; class A { private def foo: A.B.C = ???}",
+    s"private object A { object ${START}B$END { class C } }; class A { private def foo: A.B.C = ???}",
     AllowAdditionalHighlights)
 
   def test_no_need_to_prevent_escaping_via_projection_type_in_companion2(): Unit = checkTextHasError(
-    s"object A { object ${START}B$END { object C { class D } } }; class A { private def foo: A.B.C.D = ???}",
+    s"private object A { object ${START}B$END { object C { class D } } }; class A { private def foo: A.B.C.D = ???}",
     AllowAdditionalHighlights)
 
   def test_no_need_to_prevent_escaping_via_projection_type1(): Unit = checkTextHasError(
@@ -237,22 +237,55 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
        |""".stripMargin, AllowAdditionalHighlights)
 
   def test_inner_class_accessed_by_companion(): Unit =
-    checkTextHasError(s"object A { class ${START}B$END }; class A { private def foo: A.B = ??? }", AllowAdditionalHighlights)
+    checkTextHasError(s"private object A { class ${START}B$END }; class A { private def foo: A.B = ??? }", AllowAdditionalHighlights)
 
   def test_imported_companion_object_method(): Unit =
-    checkTextHasError(s"class A { import A._; println(a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
+    checkTextHasError(s"class A { import A._; println(a) }; private object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
 
   def test_indirect_companion_object_method(): Unit =
-    checkTextHasError(s"class A { private def foo = A; println(foo.a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
+    checkTextHasError(s"class A { private def foo = A; println(foo.a) }; private object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
 
   def test_type_alias(): Unit =
     checkTextHasError(s"object A { type ${START}B$END = Int; def foo: B = 1", AllowAdditionalHighlights)
 
   def test_multiple_val_assignment(): Unit = checkTextHasError(
-    s"private object Foo { val ${START}x, y$END = 1; println(x + y) }"
+    s"private object Foo { val ${START}x, y$END = 1; println(x + y) }",
+    AllowAdditionalHighlights
   )
 
   def test_untupled_val_assignment(): Unit = checkTextHasError(
-    s"private object Foo { val $START(x, y)$END = (1, 2); println(x + y) }"
+    s"private object Foo { val $START(x, y)$END = (1, 2); println(x + y) }",
+    AllowAdditionalHighlights
   )
+
+  def test_top_level_definition1(): Unit =
+    checkTextHasError(s"class ${START}A$END; object A { private def a(): A = new A() }", AllowAdditionalHighlights)
+
+  def test_top_level_definition2(): Unit =
+    checkTextHasError(
+      s"""package a.b {
+         |  object ${START}B$END {
+         |    private def b1(i: Int) = i + 1
+         |  }
+         |
+         |  class B {
+         |    def b2(i: Int) = B.b1(i) + 2
+         |  }
+         |}
+         |package a { object A { new a.b.B().b2(42) } }
+         |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_top_level_definition3(): Unit =
+    checkTextHasError(
+      s"""package a.b {
+         |  class ${START}B$END {
+         |    private def b1(i: Int) = i + 1
+         |  }
+         |
+         |  object B {
+         |    def b2(i: Int) = new B().b1(i) + 2
+         |  }
+         |}
+         |package a { object A { a.b.B.b2(42) } }
+         |""".stripMargin, AllowAdditionalHighlights)
 }

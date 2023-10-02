@@ -130,12 +130,15 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
   def test_prevent_parameterized_typedef_escaping(): Unit =
     checkTextHasNoErrors("object A { class B[T]; def foo: B[Int] = ??? }")
 
+  // class A can be private. object A can be private if class A is private.
   def test_prevent_escaping_via_primary_constructor1(): Unit =
     checkTextHasNoErrors("object A { class B }; class A (val b: A.B)")
 
+  // object A and class A can be private
   def test_prevent_escaping_via_primary_constructor2(): Unit =
     checkTextHasNoErrors("object A { class B }; class A (b: A.B = ???)")
 
+  // object A and class A can be private
   def test_prevent_escaping_via_primary_constructor3(): Unit =
     checkTextHasNoErrors("object A { class B }; class A (private val b: A.B = ???)")
 
@@ -276,5 +279,8 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
       s"""trait A { type Foo }; trait B extends A {}
          |class C extends B { type Foo = Int; val x: Foo = 1 }
          |""".stripMargin)
+
+  def test_top_level_definition(): Unit =
+    checkTextHasNoErrors("class A; object B { new A() }")
 
 }

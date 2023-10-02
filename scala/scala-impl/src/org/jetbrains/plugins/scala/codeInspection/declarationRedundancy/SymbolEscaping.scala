@@ -35,7 +35,7 @@ private[declarationRedundancy] object SymbolEscaping {
         td.`type`() match {
           case Right(tdType) =>
             val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
-            val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass))
+            val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass).orElse(Some(td)))
             escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
 
           case _ => false

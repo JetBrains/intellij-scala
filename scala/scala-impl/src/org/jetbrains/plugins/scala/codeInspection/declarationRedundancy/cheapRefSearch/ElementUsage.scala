@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.ref.WeakReference
@@ -107,8 +109,109 @@ private final class ElementUsageWithKnownReference private(
       }
   }
 
+  /**
+   * We rely on text-search to find usages (see [[TextSearch]]).
+   *
+   * Textual references to a class or its companion object and vice versa are
+   * indistinguishable. This leads to false negatives in can-be-private
+   * inspection. The below method performs some cheap checks at the PSI-level
+   * to weed out such false negatives.
+   */
+  private def isReferenceToTargetCompanion: Boolean = {
+    val targetElement = target.underlying.get()
+    val referenceElement = reference.getElement
+
+    /**
+     * For the following case:
+     * {{{
+     * package example1.foo
+     * object MathUtils { private def square(x: Int): Int = x * x }
+     *
+     * class MathUtils {
+     *   def squareAndAddOne(x: Int): Int = {
+     *     MathUtils.square(x) + 1
+     *   }
+     * }
+     * }}}
+     *
+     * {{{
+     * package example1
+     * object MathUtilsClient1 {
+     *   def getResult: Int = {
+     *     val utils = new foo.MathUtils()
+     *     utils.squareAndAddOne(42)
+     *   }
+     * }
+     * }}}
+     *
+     * If we're interested in making `object MathUtils` private, we should not conflate
+     * `new foo.MathUtils()` with a reference to it.
+     *
+     * In this example, `targetElement` is `object MathUtils`, `referenceElement` is
+     * `new foo.MathUtils()`, and `referenceElement.getContext` yields the type element
+     * of `new foo.MathUtils()`, i.e. `object MathUtils`' companion class.
+     */
+    val flavor1 = (targetElement, referenceElement.getContext) match {
+      case (obj: ScObject, simpleType: ScSimpleTypeElement) =>
+        obj.`type`() != simpleType.`type`()
+      case _ => false
+    }
+
+    /**
+     * Same as `flavor1` except here the new-invocation in `getResult` is followed by an invocation:
+     * {{{
+     * def getResult: Int = {
+     *   new foo.MathUtils().squareAndAddOne(42)
+     * }
+     * }}}
+     */
+    val flavor2 = (targetElement, referenceElement.firstChild) match {
+      case (typeDef: ScObject, Some(newTemplateDef: ScNewTemplateDefinition)) =>
+        typeDef.`type`() != newTemplateDef.`type`()
+      case _ => false
+    }
+
+    /**
+     * Very similar to flavor1, except the roles of the object and the class are swapped:
+     * {{{
+     * package example1.foo
+     * class MathUtils { private def square(x: Int): Int = x * x }
+     *
+     * object MathUtils {
+     *   def squareAndAddOne(x: Int): Int = {
+     *     new MathUtils().square(x) + 1
+     *   }
+     * }
+     * }}}
+     *
+     * {{{
+     * package example1
+     * object MathUtilsClient1 {
+     *   def getResult: Int = {
+     *     foo.MathUtils.squareAndAddOne(42)
+     *   }
+     * }
+     * }}}
+     *
+     * If we're interested in making `class MathUtils` private, we should not conflate
+     * `foo.MathUtils.squareAndAddOne(42)` with a reference to it.
+     *
+     * `targetElement` is an ScClass, `referenceElement` is an expression referring to its companion object.
+     */
+    val flavor3 = (targetElement, referenceElement) match {
+      case (typeDef: ScTypeDefinition, referenceExpression: ScReferenceExpression) =>
+        typeDef.`type`() != referenceExpression.`type`()
+      case _ => false
+    }
+
+    flavor1 || flavor2 || flavor3
+  }
+
   private def referenceIsInCompanionScope: Boolean = {
-    val targetContainer = target.underlying.get().parentOfType[ScTypeDefinition]
+    val targetElement = target.underlying.get()
+
+    val targetContainer = targetElement.parentOfType[ScTypeDefinition].orElse(targetElement.asOptionOf[ScTypeDefinition])
+
     val targetContainerCompanion = targetContainer.flatMap(_.baseCompanion)
     val refElement = reference.getElement
     val referenceContainer = refElement.parentOfType[ScTypeDefinition]
@@ -146,13 +249,35 @@ private final class ElementUsageWithKnownReference private(
   }
 
   override lazy val targetCanBePrivate: Boolean = {
-    val parentTypeDef = target.underlying.get().parentOfType[ScTypeDefinition]
 
-    !isReferenceToDefMacroImpl &&
-      !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
-      parentTypeDef.exists { typeDef =>
-        referenceIsInMemberThatHasTypeDefAsAncestor(typeDef) || referenceIsInCompanionScope
-      }
+    val targetElement: ScNamedElement = target.underlying.get()
+
+    def topLevelLogic: Boolean = targetElement match {
+      case typeDef: ScTypeDefinition if typeDef.isTopLevel =>
+        (referenceIsInCompanionScope || isReferenceToTargetCompanion) &&
+          !typeDef.allInnerTypeDefinitions.exists(elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate)
+      case _ => false
+    }
+
+    def targetCanBePrivateOldLogic: Boolean = {
+      val parentTypeDef = targetElement.parentOfType[ScTypeDefinition]
+
+      !isReferenceToDefMacroImpl &&
+        !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
+        parentTypeDef.exists { typeDef =>
+          referenceIsInMemberThatHasTypeDefAsAncestor(typeDef) || referenceIsInCompanionScope
+        }
+    }
+
+    val res = targetCanBePrivateOldLogic || topLevelLogic
+
+    if (res) {
+      println(s"Target $targetElement can be private based on usage by ${reference.getElement}")
+    } else {
+      println(s"Target $targetElement can NOT be private based on usage by ${reference.getElement} with parent text ${reference.getElement.getParent.getText}")
+    }
+
+    res
   }
 }
 
