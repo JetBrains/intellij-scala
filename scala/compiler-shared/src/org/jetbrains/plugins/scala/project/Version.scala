@@ -72,14 +72,13 @@ object Version {
   }
 
   private object Group {
-    private val IntegerPattern = "\\d+".r
 
     def apply(presentation: String): Group = {
       val prefix =
         if (presentation.startsWith("M")) VersionStatus.MILESTONE
         else if (presentation.startsWith("RC")) VersionStatus.RC
         else VersionStatus.DEFAULT
-      Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList, prefix)
+      Group(findAllNumbersInVersion(presentation), prefix)
     }
   }
 
@@ -95,5 +94,10 @@ object Version {
       zipped += ((fill, rights.next()))
 
     zipped.result()
+  }
+
+  def findAllNumbersInVersion(version: String): Seq[Long] = {
+    val IntegerPattern = "\\d+".r
+    IntegerPattern.findAllIn(version).map(_.toLong).toList
   }
 }

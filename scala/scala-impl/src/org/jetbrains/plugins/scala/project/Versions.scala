@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.LatestScalaVersions._
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, isInternalMode}
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.plugins.scala.util.HttpDownloadUtil
+import org.jetbrains.sbt.{SbtVersion, MinorVersionGenerator}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -150,12 +151,12 @@ object Versions {
     val ScalaEntity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       minVersion = Scala_2_10.major + ".0",
-      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala2).map(_.minor).toList
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala2, (v: ScalaVersion) => v.minor)
     )
     val Scala3Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
       minVersion = Scala_3_0.major + ".0",
-      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala3).map(_.minor).toList
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala3, (v: ScalaVersion) => v.minor)
     )
 
     private val CandidateVersionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
@@ -172,7 +173,7 @@ object Versions {
     val Sbt1Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/maven-metadata.xml",
       minVersion = "1.0.0",
-      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct,
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(SbtVersion.allSbt1, (v: Version) => v.presentation),
       versionPattern = """^\s+<version>(\d+\.\d+\.\d+)</version>$""".r
     )
   }
