@@ -5,11 +5,10 @@ import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.ref.WeakReference
@@ -171,15 +170,7 @@ private final class ElementUsageWithKnownReference private(
         }
     }
 
-    val res = targetCanBePrivateOldLogic || topLevelLogic
-
-    if (res) {
-      println(s"Target $targetElement can be private based on usage by ${reference.getElement}")
-    } else {
-      println(s"Target $targetElement can NOT be private based on usage by ${reference.getElement} with parent text ${reference.getElement.getParent.getText}")
-    }
-
-    res
+    targetCanBePrivateOldLogic || topLevelLogic
   }
 }
 
