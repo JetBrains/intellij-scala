@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenameHandler
-import com.intellij.testFramework.MapDataContext
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.{ScalaInplaceRenameHandler, ScalaLocalInplaceRenameHandler, ScalaMemberInplaceRenameHandler}
@@ -11,13 +11,15 @@ import org.junit.Assert
 class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
 
   private def memberHandler = new ScalaMemberInplaceRenameHandler
+
   private def localHandler = new ScalaLocalInplaceRenameHandler
 
   private def isAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Boolean = {
-    val dataContext = new MapDataContext()
-    dataContext.put(CommonDataKeys.PSI_ELEMENT, myFixture.getElementAtCaret)
-    dataContext.put(CommonDataKeys.EDITOR, myFixture.getEditor)
-    dataContext.put(CommonDataKeys.PSI_FILE, myFixture.getFile)
+    val dataContext = SimpleDataContext.builder()
+      .add(CommonDataKeys.PSI_ELEMENT, myFixture.getElementAtCaret)
+      .add(CommonDataKeys.EDITOR, myFixture.getEditor)
+      .add(CommonDataKeys.PSI_FILE, myFixture.getFile)
+      .build()
     handler.isAvailableOnDataContext(dataContext)
   }
 
@@ -44,24 +46,24 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
   def testLocal(): Unit = {
     checkIsLocalHandler(
       s"""
-        |object Test {
-        |  def foo(): Unit = {
-        |    val ${CARET}x = 1
-        |    x + x
-        |  }
-        |}
-        |""".stripMargin)
+         |object Test {
+         |  def foo(): Unit = {
+         |    val ${CARET}x = 1
+         |    x + x
+         |  }
+         |}
+         |""".stripMargin)
   }
 
   def testLocalClass(): Unit = {
     checkIsLocalHandler(
       s"""object Test {
-        |  def foo(): Unit = {
-        |    class ${CARET}Abc
-        |    class Bce extends Abc
-        |  }
-        |}
-        |""".stripMargin)
+         |  def foo(): Unit = {
+         |    class ${CARET}Abc
+         |    class Bce extends Abc
+         |  }
+         |}
+         |""".stripMargin)
   }
 
   def testClassParameter(): Unit = {
@@ -71,12 +73,12 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
   def testParameter(): Unit = {
     checkIsMemberHandler(
       s"""
-        |object Test {
-        |  def foo(${CARET}bar: String): Unit = {
-        |    println(bar)
-        |  }
-        |}
-        |""".stripMargin)
+         |object Test {
+         |  def foo(${CARET}bar: String): Unit = {
+         |    println(bar)
+         |  }
+         |}
+         |""".stripMargin)
   }
 
   def testMember(): Unit = {

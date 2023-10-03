@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees
 
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
-import com.intellij.testFramework.{MapDataContext, TestActionEvent}
+import com.intellij.testFramework.TestActionEvent
 import com.intellij.ui.UiInterceptors
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
@@ -27,8 +28,9 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
     val vFile = addFileToProjectSources(fileName, fileText)
 
     val psiFile = PsiManager.getInstance(getProject).findFile(vFile)
-    val dataContext = new MapDataContext
-    dataContext.put(CommonDataKeys.PSI_FILE, psiFile)
+    val dataContext = SimpleDataContext.builder()
+      .add(CommonDataKeys.PSI_FILE, psiFile)
+      .build()
 
     val promise: Promise[CompilerTrees] = Promise()
     UiInterceptors.register(new UiInterceptors.UiInterceptor[CompilerTreesDialog](classOf[CompilerTreesDialog]) {
@@ -442,4 +444,3 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
     )
   }
 }
-
