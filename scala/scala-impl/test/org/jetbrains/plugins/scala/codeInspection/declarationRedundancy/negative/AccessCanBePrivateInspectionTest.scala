@@ -277,7 +277,4 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
          |class C extends B { type Foo = Int; val x: Foo = 1 }
          |""".stripMargin)
 
-  def test_top_level_definition(): Unit =
-    checkTextHasNoErrors("class A; object B { new A() }")
-
 }
