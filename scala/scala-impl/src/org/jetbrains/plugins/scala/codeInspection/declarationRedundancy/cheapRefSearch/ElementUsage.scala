@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -151,26 +150,11 @@ private final class ElementUsageWithKnownReference private(
 
   override lazy val targetCanBePrivate: Boolean = {
 
-    val targetElement: ScNamedElement = target.underlying.get()
+    val parentTypeDef = target.underlying.get().parentOfType[ScTypeDefinition]
 
-    def topLevelLogic: Boolean = targetElement match {
-      case typeDef: ScTypeDefinition if typeDef.isTopLevel =>
-        referenceIsInCompanionScope &&
-          !typeDef.allInnerTypeDefinitions.exists(elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate)
-      case _ => false
-    }
-
-    def targetCanBePrivateOldLogic: Boolean = {
-      val parentTypeDef = targetElement.parentOfType[ScTypeDefinition]
-
-      !isReferenceToDefMacroImpl &&
-        !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
-        parentTypeDef.exists { typeDef =>
-          referenceIsInMemberThatHasTypeDefAsAncestor(typeDef) || referenceIsInCompanionScope
-        }
-    }
-
-    targetCanBePrivateOldLogic || topLevelLogic
+    !isReferenceToDefMacroImpl &&
+      !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
+      (referenceIsInCompanionScope || parentTypeDef.exists(referenceIsInMemberThatHasTypeDefAsAncestor))
   }
 }
 
