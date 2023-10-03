@@ -13,8 +13,8 @@ import scala.util.Try
 object HttpDownloadUtil {
 
   @RequiresBackgroundThread
-  def downloadString(url: String, timeoutMs: FiniteDuration, canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Try[String] =
-    loadLinesFrom(url, canBeCanceled, indicatorOpt, timeoutMs).map(_.mkString)
+  def downloadString(url: String, canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Try[String] =
+    loadLinesFrom(url, canBeCanceled, indicatorOpt).map(_.mkString)
 
   /**
    * If canBeCanceled is true and this method is invoking in a different thread than the one in which ProgressIndicator was created remember to pass

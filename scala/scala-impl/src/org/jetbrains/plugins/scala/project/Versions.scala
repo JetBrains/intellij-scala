@@ -24,13 +24,13 @@ object Versions {
     final def loadVersionsWithProgressDialog(): Versions = {
       val cancelable = true
       val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
-           entities.flatMap(loadVersions(_, cancelable, None, shouldThrowExceptions = false))
+           entities.flatMap(loadVersions(_, cancelable, None, propagateDownloadExceptions = false))
       }
       mapVersionListToVersions(loaded)
     }
 
     final def loadVersionsWithProgress(indicator: ProgressIndicator): Versions = {
-      val loaded = entities.flatMap(loadVersions(_, cancelable = true, Some(indicator), shouldThrowExceptions = true))
+      val loaded = entities.flatMap(loadVersions(_, cancelable = true, Some(indicator), propagateDownloadExceptions = true))
       mapVersionListToVersions(loaded)
     }
 
@@ -97,14 +97,20 @@ object Versions {
     )
   }
 
-  private def loadVersions(entity: Entity, cancelable: Boolean, indicatorOpt: Option[ProgressIndicator], shouldThrowExceptions: Boolean, timeout: FiniteDuration = 10.seconds): Seq[Version] = {
+  private def loadVersions(
+    entity: Entity,
+    cancelable: Boolean,
+    indicatorOpt: Option[ProgressIndicator],
+    propagateDownloadExceptions: Boolean,
+    timeout: FiniteDuration = 10.seconds
+  ): Seq[Version] = {
     entity match {
       case DownloadableEntity(url, minVersionStr, hardcodedVersions, versionPattern) =>
         val minVersion = Version(minVersionStr)
 
         val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt, timeout)
         lines match {
-          case Failure(exc) if shouldThrowExceptions => throw exc
+          case Failure(exc) if propagateDownloadExceptions => throw exc
           case _ =>
         }
         val versionStrings = lines.fold(
@@ -123,9 +129,9 @@ object Versions {
       case pattern(number) => number
     }
 
-  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt, shouldThrowExceptions = true)
+  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt, propagateDownloadExceptions = true)
   lazy val scala2HardcodedVersions: List[String] = ScalaEntity.hardcodedVersions
-  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt, shouldThrowExceptions = true)
+  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt, propagateDownloadExceptions = true)
   lazy val sbt1HardcodedVersions: Seq[String] = Sbt1Entity.hardcodedVersions
 
   private sealed trait Entity {

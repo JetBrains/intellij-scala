@@ -26,8 +26,8 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
   private val availableSbtVersions: AtomicReference[Option[Versions]] = new AtomicReference(None)
   private val availableSbtVersionsForScala3: AtomicReference[Option[Versions]] = new AtomicReference(None)
 
-  private val isSbtComboBoxModified: AtomicBoolean = new AtomicBoolean(false)
-  private val isScalaComboBoxModified: AtomicBoolean = new AtomicBoolean(false)
+  private val isSbtVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
+  private val isScalaVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
 
   //
   // Raw UI elements
@@ -45,15 +45,15 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
       Seq(sbtIndicator, scalaIndicator).foreach(_.cancel)
     })
 
-    lazy val sbtDownloadingVersions = Versions.SBT.loadVersionsWithProgress(sbtIndicator)
-    downloadVersionsAsynchronously(isSbtLoading, sbtIndicator, sbtDownloadingVersions, Versions.SBT.toString) { v =>
+    val sbtDownloadVersions: () => Versions = () => Versions.SBT.loadVersionsWithProgress(sbtIndicator)
+    downloadVersionsAsynchronously(isSbtLoading, sbtIndicator, sbtDownloadVersions, Versions.SBT.toString) { v =>
       availableSbtVersions.set(v.toOption)
       availableSbtVersionsForScala3.set(Versions.SBT.sbtVersionsForScala3(v).toOption)
       updateSelectionsAndElementsModelForSbt(v)
     }
 
-    lazy val scalaDownloadedVersions = Versions.Scala.loadVersionsWithProgress(scalaIndicator)
-    downloadVersionsAsynchronously(isScalaLoading, scalaIndicator, scalaDownloadedVersions, Versions.Scala.toString) { v =>
+    val scalaDownloadVersions: () => Versions = () => Versions.Scala.loadVersionsWithProgress(scalaIndicator)
+    downloadVersionsAsynchronously(isScalaLoading, scalaIndicator, scalaDownloadVersions, Versions.Scala.toString) { v =>
       updateSelectionsAndElementsModelForScala(v)
     }
   }
@@ -84,7 +84,7 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
   }
 
   private def updateSelectionsAndElementsModelForSbt(sbtVersions: Versions): Unit = {
-    if (!isSbtComboBoxModified.get()) {
+    if (!isSbtVersionManuallySelected.get()) {
       selections.sbtVersion = None
       selections.update(Versions.SBT, sbtVersions)
     }
@@ -92,7 +92,7 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
   }
 
   private def updateSelectionsAndElementsModelForScala(scalaVersions: Versions): Unit = {
-    if (!isScalaComboBoxModified.get()) {
+    if (!isScalaVersionManuallySelected.get()) {
       selections.scalaVersion = None
       selections.update(Versions.Scala, scalaVersions)
     }
@@ -119,11 +119,11 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
    */
   private def initUiElementsListeners(): Unit = {
     sbtVersionComboBox.addActionListener { _ =>
-      isSbtComboBoxModified.set(true)
+      isSbtVersionManuallySelected.set(true)
       selections.sbtVersion = sbtVersionComboBox.getSelectedItemTyped
     }
     scalaVersionComboBox.addActionListener { _ =>
-      isScalaComboBoxModified.set(true)
+      isScalaVersionManuallySelected.set(true)
       selections.scalaVersion = scalaVersionComboBox.getSelectedItemTyped
 
       updateSupportedSbtVersionsForSelectedScalaVersion()
