@@ -278,6 +278,20 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
   def test_top_level_definition3(): Unit =
     checkTextHasError(
       s"""package a.b {
+         |  object ${START}B$END {
+         |    private def b1(i: Int) = i + 1
+         |  }
+         |
+         |  class B {
+         |    def b2(i: Int) = B.b1(i) + 2
+         |  }
+         |}
+         |package a { object A { private val foo = new a.b.B(); foo.b2(42) } }
+         |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_top_level_definition4(): Unit =
+    checkTextHasError(
+      s"""package a.b {
          |  class ${START}B$END {
          |    private def b1(i: Int) = i + 1
          |  }
