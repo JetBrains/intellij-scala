@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 
 /**
  * Each [[Search.Method]] has its own cache, and one [[Search.Method]] instance is bound to a project
- * by virtue of this class being registered as a project service in scala-plugin-common.xml.
+ * by virtue of this class being adorned with `@Service(Array(Service.Level.PROJECT))`.
  */
 @Service(Array(Service.Level.PROJECT))
 private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private(project: Project) {
