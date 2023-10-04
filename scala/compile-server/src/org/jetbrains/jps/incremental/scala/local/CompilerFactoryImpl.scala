@@ -21,26 +21,41 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
     compilerData.incrementalType match {
       case IncrementalityType.SBT =>
-        val javac = {
-          val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse {
-              val dummyFile = new File("")
+        // Thanks to the Mill maintainers for providing the dummy ScalaInstance workaround.
+        // https://github.com/com-lihaoyi/mill/blob/a614c898e485f79de42b514fef3389d04dd96c19/scalalib/worker/src/mill/scalalib/worker/ZincWorkerImpl.scala#L77-L92
+        // https://github.com/sbt/zinc/discussions/1263
+        // The dummy ScalaInstance is necessary in build modules that do not have a Scala SDK configured, for example,
+        // pure Java modules in gradle and Maven.
+        def dummyScalaInstance: (ScalaInstance, File) = {
+          val dummyFile = new File("")
 
-              new ScalaInstance(
-                version = "",
-                loader = null,
-                loaderCompilerOnly = null,
-                loaderLibraryOnly = null,
-                libraryJars = Array(dummyFile),
-                compilerJars = Array(dummyFile),
-                allJars = Array.empty,
-                explicitActual = Some("")
-              )
-            }
+          val scalaInstance = new ScalaInstance(
+            version = "",
+            loader = null,
+            loaderCompilerOnly = null,
+            loaderLibraryOnly = null,
+            libraryJars = Array(dummyFile),
+            compilerJars = Array(dummyFile),
+            allJars = Array.empty,
+            explicitActual = Some("")
+          )
+
+          (scalaInstance, dummyFile)
+        }
+
+        val javac = {
+          val scala = getScalaInstance(compilerData.compilerJars).getOrElse(dummyScalaInstance._1)
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
-        new SbtCompiler(javac, scalacOption, fileToStore)
+
+        val scalac = scalacOption.getOrElse {
+          val (scalaInstance, dummyFile) = dummyScalaInstance
+          val classpathOptions = ClasspathOptions.of(false, false, false, false, false)
+          ZincUtil.scalaCompiler(scalaInstance, dummyFile, classpathOptions)
+        }
+
+        new SbtCompiler(javac, scalac, fileToStore)
 
       case IncrementalityType.IDEA =>
         scalacOption match {

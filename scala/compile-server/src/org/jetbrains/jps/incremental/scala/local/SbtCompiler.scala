@@ -13,14 +13,12 @@ import java.util.Optional
 import scala.jdk.OptionConverters._
 import scala.util.Try
 
-class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
+class SbtCompiler(javaTools: JavaTools, scalac: ScalaCompiler, fileToStore: File => AnalysisStore) extends AbstractCompiler {
 
   private val stampReaderCache: Cache[true, ReadStamps] = new Cache(1)
 
-  override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
-    case Some(scalac) => doCompile(compilationData, client, scalac)
-    case _ =>
-      client.error(CompileServerBundle.message("no.scalac.found.to.compile.scala.sources", compilationData.sources.take(10).mkString("\n")))
+  override def compile(compilationData: CompilationData, client: Client): Unit = {
+    doCompile(compilationData, client, scalac)
   }
 
   private def doCompile(compilationData: CompilationData, client: Client, scalac: ScalaCompiler): Unit = {
