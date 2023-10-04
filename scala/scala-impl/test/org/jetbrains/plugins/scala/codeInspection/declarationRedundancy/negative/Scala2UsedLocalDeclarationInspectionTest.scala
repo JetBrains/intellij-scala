@@ -247,6 +247,13 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
       |}
       |""".stripMargin)
 
+  def test_private_case_class_eta_expansion(): Unit = checkTextHasNoErrors(
+    """@scala.annotation.unused object Foo {
+      |  private case class Bar(i: Int)
+      |  Seq(1).map(Bar)
+      |}
+      |""".stripMargin)
+
   def test_final_class_type_parameter1(): Unit = checkTextHasNoErrors(
     "@scala.annotation.unused final class Test[A] { Seq.empty[A] }"
   )
