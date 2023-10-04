@@ -57,7 +57,12 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
         |""".stripMargin)
     createProjectSubFile("module1/build.gradle",
       """plugins {
-        |  id 'java'
+        |    id 'java'
+        |}
+        |
+        |java {
+        |    sourceCompatibility = JavaVersion.VERSION_1_8
+        |    targetCompatibility = JavaVersion.VERSION_1_8
         |}
         |
         |group = 'org.example'

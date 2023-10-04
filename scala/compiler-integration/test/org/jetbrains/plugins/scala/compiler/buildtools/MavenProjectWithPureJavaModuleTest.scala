@@ -70,7 +70,8 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
         |    <packaging>jar</packaging>
         |
         |    <properties>
-        |        <maven.compiler.release>17</maven.compiler.release>
+        |        <maven.compiler.source>1.8</maven.compiler.source>
+        |        <maven.compiler.target>1.8</maven.compiler.target>
         |    </properties>
         |
         |    <build>
@@ -95,7 +96,8 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
         |    <packaging>jar</packaging>
         |
         |    <properties>
-        |        <maven.compiler.release>17</maven.compiler.release>
+        |        <maven.compiler.source>1.8</maven.compiler.source>
+        |        <maven.compiler.target>1.8</maven.compiler.target>
         |    </properties>
         |
         |    <build>
