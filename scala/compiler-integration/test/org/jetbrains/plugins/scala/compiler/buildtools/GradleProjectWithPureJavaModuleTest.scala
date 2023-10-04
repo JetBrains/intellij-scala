@@ -115,21 +115,24 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
       category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
     }
 
-    assertTrue(errorsAndWarnings.isEmpty)
+    assertTrue(
+      s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
+      errorsAndWarnings.isEmpty
+    )
 
     val module1 = modules.find(_.getName.contains("module1.main")).orNull
-    assertNotNull(module1)
+    assertNotNull("Could not find module with name 'module1.main'", module1)
     val module2 = modules.find(_.getName.contains("module2.main")).orNull
-    assertNotNull(module2)
+    assertNotNull("Could not find module with name 'module2.main'", module2)
 
     val greeter = compiler.findClassFile("Greeter", module1)
-    assertNotNull(greeter)
+    assertNotNull("Could not find compiled class file Greeter", greeter)
 
     val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2)
-    assertNotNull(helloWorldGreeter)
+    assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
 
     val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
-    assertNotNull(helloWorldGreeterModule)
+    assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
   }
 }
 
