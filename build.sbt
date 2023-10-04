@@ -368,7 +368,11 @@ lazy val compilerIntegration =
       jps
     )
     .settings(
-      intellijPlugins += "com.intellij.gradle".toPlugin // Used in tests only
+      intellijPlugins ++= Seq(
+        "com.intellij.gradle",
+        "org.jetbrains.idea.maven"
+      ).map(_.toPlugin), // Used only in tests
+      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive()
     )
     .withCompilerPluginIn(scalacPatches)
 
