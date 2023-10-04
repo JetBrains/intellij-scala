@@ -17,31 +17,36 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   override def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
 
-    val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
+    val scalacOption: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
 
     compilerData.incrementalType match {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse(new ScalaInstance(
-              version = "stub",
-              loader = null,
-              loaderCompilerOnly = null,
-              loaderLibraryOnly = null,
-              libraryJars = Array.empty[File],
-              compilerJars = Array.empty[File],
-              allJars = Array.empty[File],
-              explicitActual = None)
-            )
+            .getOrElse {
+              val dummyFile = new File("")
+
+              new ScalaInstance(
+                version = "",
+                loader = null,
+                loaderCompilerOnly = null,
+                loaderLibraryOnly = null,
+                libraryJars = Array(dummyFile),
+                compilerJars = Array(dummyFile),
+                allJars = Array.empty,
+                explicitActual = Some("")
+              )
+            }
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
-        new SbtCompiler(javac, scalac, fileToStore)
+        new SbtCompiler(javac, scalacOption, fileToStore)
 
       case IncrementalityType.IDEA =>
-        if (scalac.isDefined) new IdeaIncrementalCompiler(scalac.get)
-        else throw new IllegalStateException("Could not create scalac instance")
-
+        scalacOption match {
+          case Some(scalac) => new IdeaIncrementalCompiler(scalac)
+          case None => throw new IllegalStateException("Could not create scalac instance")
+        }
     }
   }
 
@@ -77,7 +82,7 @@ object CompilerFactoryImpl {
 
   private var classLoadersMap = Map[Seq[File], ClassLoader]()
 
-  def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
+  private def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
     scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))
 
   private def createScalaInstance(jars: CompilerJars) = {
@@ -175,12 +180,12 @@ object CompilerFactoryImpl {
   private def is3_1(version: String): Boolean = version.startsWith("3.1")
   private def is3_2(version: String): Boolean = version.startsWith("3.2")
   private def isLatest3(version: String): Boolean = version.startsWith("3.")
-}
 
-object NullLogger extends Logger {
-  override def log(level: sbt.util.Level.Value, message: => String): Unit = {}
+  private object NullLogger extends Logger {
+    override def log(level: sbt.util.Level.Value, message: => String): Unit = {}
 
-  override def success(message: => String): Unit = {}
+    override def success(message: => String): Unit = {}
 
-  override def trace(t: => Throwable): Unit = {}
+    override def trace(t: => Throwable): Unit = {}
+  }
 }
