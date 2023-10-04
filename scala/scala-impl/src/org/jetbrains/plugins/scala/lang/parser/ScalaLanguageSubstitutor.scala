@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.Language
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutor
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
 import org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 
 import scala.util.matching.Regex
 
@@ -24,7 +24,10 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
       case lightFile: LightVirtualFile => lightFile.getLanguage
       case _                           => null
     }
-    val substituted = if (assignedLanguage != null)
+    //Assigned language might be be Play2TemplateLanguage if we are inside `.scala.html` file
+    //This can happen when invoking "View Psi Structure of current file" action
+    //we ignore it because here we are only interested in Scala language flavors
+    val substituted = if (assignedLanguage != null && assignedLanguage.isKindOf(ScalaLanguage.INSTANCE))
       assignedLanguage
     else if (ScalaFileType.INSTANCE.isMyFileType(file)) {
       val module = ModuleUtilCore.findModuleForFile(file, project)
