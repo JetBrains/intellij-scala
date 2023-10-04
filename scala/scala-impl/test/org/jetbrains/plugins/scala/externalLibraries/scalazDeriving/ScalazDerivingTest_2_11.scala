@@ -4,7 +4,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
@@ -20,9 +20,11 @@ class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 
-  override def librariesLoaders = super.librariesLoaders :+ IvyManagedLoader(
-    "com.fommil"           %% "stalactite" % "0.0.5",
-    "com.github.mpilquist" %% "simulacrum" % "0.11.0"
+  override def additionalLibraries: Seq[LibraryLoader] = Seq(
+    IvyManagedLoader(
+      "com.fommil" %% "stalactite" % "0.0.5",
+      "com.github.mpilquist" %% "simulacrum" % "0.11.0"
+    )
   )
 
 

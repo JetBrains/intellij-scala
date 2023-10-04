@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
@@ -23,9 +23,6 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestCase with ScalaP
     myFixture.configureByText("foo.scala", text)
     myFixture.getFile.asInstanceOf[ScalaFile]
   }
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken(this.getClass)
 
   def test_wildcard_type(): Unit = checkTree(
     """

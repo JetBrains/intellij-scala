@@ -27,6 +27,9 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
   //calculation which may set implicit arguments as a side effect, typically computation of a type
   protected def updateImplicitArguments(): Unit
 
+  /**
+   * @return Sequence of mappings between arguments and parameters in the order of the arguments' appearance in code.
+   */
   def matchedParameters: Seq[(ScExpression, Parameter)] = Seq.empty
 
   def explicitImplicitArgList: Option[ScArgumentExprList] = {

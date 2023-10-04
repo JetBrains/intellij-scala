@@ -1,17 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{DEF, OVERRIDE}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.OVERRIDE
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 abstract class ScalaOverrideCompletionTestBase extends ScalaCompletionTestBase {
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   protected override def setUp(): Unit = {
     super.setUp()

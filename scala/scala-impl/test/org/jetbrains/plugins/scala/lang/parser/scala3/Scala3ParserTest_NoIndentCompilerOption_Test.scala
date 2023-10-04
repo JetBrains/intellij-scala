@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserTestOps
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class Scala3ParserTest_NoIndentCompilerOption_Test
   extends ScalaLightCodeInsightFixtureTestCase
     with ScalaParserTestOps {
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken(this.getClass)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 

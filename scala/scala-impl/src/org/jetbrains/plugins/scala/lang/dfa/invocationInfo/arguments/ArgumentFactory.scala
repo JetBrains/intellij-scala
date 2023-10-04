@@ -70,7 +70,7 @@ object ArgumentFactory {
     val maybeVarargParam = matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
     maybeVarargParam match {
       case Some(varargParam) =>
-        val (argsMappedToVarargParam, normalArgs) = matchedParameters.reverse.partition(_._2 == varargParam)
+        val (argsMappedToVarargParam, normalArgs) = matchedParameters.partition(_._2 == varargParam)
         val varargArgument = buildSplatListArgument(argsMappedToVarargParam.map(_._1), varargParam)
         (normalArgs, Some(varargArgument))
       case _ => (matchedParameters, None)

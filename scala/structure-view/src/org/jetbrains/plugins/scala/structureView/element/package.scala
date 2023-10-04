@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ParameterRen
 package object element {
 
   private[structureView]
-  object FromStubsParameterRenderer extends ParametersRenderer(RenderOnlyParameterTypeFromStub, shouldRenderImplicitModifier = true) {
+  object FromStubsParameterRenderer extends ParametersRenderer(RenderParameterTypeAndDefaultValuePlaceholderFromStub, shouldRenderImplicitModifier = true) {
     override protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit =
       if (shouldRenderImplicitModifier && clause.isImplicitOrUsing) {
         buffer.append("?=> ")
@@ -14,14 +14,17 @@ package object element {
   }
 
   private[structureView]
-  object RenderOnlyParameterTypeFromStub extends ParameterRendererLike {
+  object RenderParameterTypeAndDefaultValuePlaceholderFromStub extends ParameterRendererLike {
 
     override def render(buffer: StringBuilder, param: ScParameter): Unit = {
       val paramTypeText = param.paramType match {
         case Some(pt) => pt.getText
         case _        => "AnyRef"
       }
-      buffer.append(paramTypeText)
+      val text = if (param.isDefaultParam) {
+        paramTypeText + " = …"
+      } else paramTypeText
+      buffer.append(text)
     }
   }
 }

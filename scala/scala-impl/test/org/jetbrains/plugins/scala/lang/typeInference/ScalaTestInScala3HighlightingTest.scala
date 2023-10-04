@@ -13,9 +13,8 @@ class ScalaTestInScala3HighlightingTest extends ScalaLightCodeInsightFixtureTest
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == LatestScalaVersions.Scala_3
 
-  override def librariesLoaders: Seq[LibraryLoader] = {
-    super.librariesLoaders :+ IvyManagedLoader(("org.scalatest" %% "scalatest" % "3.2.12").transitive())
-  }
+  override def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader(("org.scalatest" %% "scalatest" % "3.2.12").transitive()))
 
   def testSCL20155(): Unit = checkTextHasNoErrors(
     """

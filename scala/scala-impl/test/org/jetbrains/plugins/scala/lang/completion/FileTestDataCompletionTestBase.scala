@@ -6,7 +6,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{CompletionTests, ScalaVersion}
 import org.junit.Assert._
@@ -21,8 +21,6 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
   protected lazy val extension: String = "scala"
 
   def folderPath: String = getTestDataPath + "completion/"
-
-  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
 

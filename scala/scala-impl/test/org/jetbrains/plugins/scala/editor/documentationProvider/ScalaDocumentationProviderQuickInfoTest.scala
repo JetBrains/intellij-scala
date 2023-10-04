@@ -20,6 +20,22 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |""".stripMargin
     )
 
+  def testSimpleClassParam(): Unit =
+    doGenerateDocTest(
+      s"""class MyClass(s${|}tr: String)""",
+      s"""
+         |MyClass<default>str:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |""".stripMargin
+    )
+
+  def testSimpleClassParamWithDefaultValue(): Unit =
+    doGenerateDocTest(
+      s"""class MyClass(s${|}tr: String = "default value")""",
+      s"""
+         |MyClass<default>str:<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>= …
+         |""".stripMargin
+    )
+
   def testSimpleTypeAlias(): Unit =
     doGenerateDocTest(
       s"""type ${|}Foo = String""",

@@ -75,10 +75,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         return new NoSdkTestCase(file);
     }
 
-    protected SharedTestProjectToken sharedTestProjectToken() {
-        return SharedTestProjectToken.apply(this);
-    }
-
     protected void setUp(@NotNull Project project) {
         setSettings(project);
     }
@@ -264,11 +260,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         @Override
         public boolean supportedIn(ScalaVersion version) {
             return supportedInScalaVersion(version);
-        }
-
-        @Override
-        public SharedTestProjectToken sharedProjectToken() {
-            return ScalaFileSetTestCase.this.sharedTestProjectToken();
         }
 
         @Override

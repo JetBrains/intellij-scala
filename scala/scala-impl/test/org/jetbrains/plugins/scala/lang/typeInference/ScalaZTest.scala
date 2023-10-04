@@ -9,8 +9,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class ScalaZTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0"))
 
   //SCL-6096
   def testSCL6096(): Unit =

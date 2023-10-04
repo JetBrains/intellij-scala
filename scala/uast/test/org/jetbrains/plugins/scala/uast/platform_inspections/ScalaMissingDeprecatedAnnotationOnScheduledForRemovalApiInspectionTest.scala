@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import java.util.Arrays.asList
 
 class ScalaMissingDeprecatedAnnotationOnScheduledForRemovalApiInspectionTest extends ScalaInspectionTestBase {
+
   override protected val classOfInspection = classOf[MissingDeprecatedAnnotationOnScheduledForRemovalApiInspection]
   override protected val description = "Scheduled for removal API must also be marked with '@Deprecated' annotation"
 

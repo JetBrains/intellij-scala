@@ -11,8 +11,8 @@ class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
   override protected def folderPath: String = super.folderPath + "cats/"
 
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    super.librariesLoaders :+ IvyManagedLoader("org.typelevel" % "cats-core_2.11" % "0.4.0")
+  override protected def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("org.typelevel" % "cats-core_2.11" % "0.4.0"))
 
   def testSCL10006(): Unit = doTest()
 

@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 
 class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
-
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   def testSimpleExtension(): Unit = doCompletionTest(
     s"""object Test {

@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.editor.folding
 import com.intellij.codeInsight.folding.CodeFoldingSettings
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.xmlb.XmlSerializerUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.folding.ScalaEditorFoldingTestBase.FoldingInfo
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.util.RevertableChange
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert.assertFalse
 
 import scala.collection.mutable
@@ -40,8 +40,6 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
   val MLS_ST = ST("\"\"\"...\"\"\"")
 
   protected val INDENT_REGION = ST(" ...")
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   protected final def checkNoFoldingRegions(fileTextRaw: String): Unit = {
     assertFalse("text shouldn't contain expected folding", fileTextRaw.contains(FOLD_END_MARKER))

@@ -58,7 +58,6 @@ lazy val scalaCommunity: sbt.Project =
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
-      androidIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -608,21 +607,6 @@ lazy val devKitIntegration =
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
       intellijPlugins += "DevKit".toPlugin
-    )
-
-lazy val androidIntegration =
-  newProject("android", file("scala/integration/android"))
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
-    )
-    .settings(
-      intellijPlugins ++= Seq(
-        "org.jetbrains.android",
-        "com.intellij.gradle",     // required by Android
-        "org.intellij.groovy",     // required by Gradle
-        "com.intellij.properties"
-      ).map(_.toPlugin) // required by Gradle
     )
 
 lazy val copyrightIntegration =

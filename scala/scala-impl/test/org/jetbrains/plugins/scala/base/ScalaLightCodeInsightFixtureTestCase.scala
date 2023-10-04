@@ -62,7 +62,8 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //end section: project libraries configuration
 
   //start section: project descriptor
-  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+  protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module, project: Project): Unit = {
@@ -80,6 +81,10 @@ abstract class ScalaLightCodeInsightFixtureTestCase
 
   protected def placeSourceFilesInTestContentRoot: Boolean = false
 
+  /**
+   * @note If you are overriding this method, most likely, the light project cannot be shared between subsequent
+   *       test invocations. Look into also overriding [[sharedProjectToken]].
+   */
   protected def afterSetUpProject(project: Project, module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 

@@ -108,7 +108,10 @@ private final class ElementUsageWithKnownReference private(
   }
 
   private def referenceIsInCompanionScope: Boolean = {
-    val targetContainer = target.underlying.get().parentOfType[ScTypeDefinition]
+    val targetElement = target.underlying.get()
+
+    val targetContainer = targetElement.parentOfType[ScTypeDefinition].orElse(targetElement.asOptionOf[ScTypeDefinition])
+
     val targetContainerCompanion = targetContainer.flatMap(_.baseCompanion)
     val refElement = reference.getElement
     val referenceContainer = refElement.parentOfType[ScTypeDefinition]
@@ -146,13 +149,12 @@ private final class ElementUsageWithKnownReference private(
   }
 
   override lazy val targetCanBePrivate: Boolean = {
+
     val parentTypeDef = target.underlying.get().parentOfType[ScTypeDefinition]
 
     !isReferenceToDefMacroImpl &&
       !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
-      parentTypeDef.exists { typeDef =>
-        referenceIsInMemberThatHasTypeDefAsAncestor(typeDef) || referenceIsInCompanionScope
-      }
+      (referenceIsInCompanionScope || parentTypeDef.exists(referenceIsInMemberThatHasTypeDefAsAncestor))
   }
 }
 

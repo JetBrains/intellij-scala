@@ -34,8 +34,6 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
 
   private implicit def p: Project = getProject
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
-
   protected def fileType: FileType = ScalaFileType.INSTANCE
 
   protected def defaultFileName: String = s"aaa.${fileType.getDefaultExtension}"

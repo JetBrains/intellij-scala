@@ -19,6 +19,7 @@ import org.junit.Assert._
 import java.io.File
 
 abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
   private val scopeMarker = "/*inThisScope*/"

@@ -45,7 +45,7 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
 
   protected val TestCompilerProfile = "TestCompilerProfile"
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(None)
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
 
   override protected def onFileCreated(file: PsiFile): Unit =
     WorksheetFilePersistentSettings(file.getVirtualFile).setCompilerProfileName(TestCompilerProfile)

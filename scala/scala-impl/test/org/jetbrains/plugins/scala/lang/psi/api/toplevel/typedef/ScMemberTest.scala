@@ -2,17 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 
 class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTestTopLevelQualifier(memberName: String, expectedTopLevelQualifier: Option[String]): Unit = {
     val file = myFixture.getFile

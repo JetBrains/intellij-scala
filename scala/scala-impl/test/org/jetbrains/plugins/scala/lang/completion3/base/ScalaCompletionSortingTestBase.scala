@@ -8,12 +8,9 @@ import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.util.text.StringUtil.getShortName
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.util.TestUtils
 
 abstract class ScalaCompletionSortingTestBase extends ScalaCompletionTestBase {
-
-  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def setUp(): Unit = {
     super.setUp()

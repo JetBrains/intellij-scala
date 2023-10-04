@@ -14,7 +14,7 @@ import com.intellij.ui.icons.CoreIconManager
 import com.intellij.ui.{IconManager, LayeredIcon, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
@@ -31,8 +31,6 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
   protected val Private = AllIcons.Nodes.Private
 
   protected val DeprecatedAttributesKey = ScalaStructureViewTestBase.DeprecatedAttributesKey
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def scalaLanguage: com.intellij.lang.Language
 

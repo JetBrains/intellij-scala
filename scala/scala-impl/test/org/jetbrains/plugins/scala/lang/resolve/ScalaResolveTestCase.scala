@@ -21,7 +21,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiReference
 import org.jetbrains.plugins.scala.TypecheckerTests
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -37,10 +37,6 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase {
   def folderPath: String =
     TestUtils.getTestDataPath + "/"
-
-  override protected def sharedProjectToken =
-    if (sourceRootPath == null) SharedTestProjectToken(this.getClass)
-    else SharedTestProjectToken.DoNotShare
 
   protected def findReferenceAtCaret(): PsiReference =
     getFile.findReferenceAt(getEditor.getCaretModel.getOffset)
