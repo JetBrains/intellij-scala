@@ -367,6 +367,9 @@ lazy val compilerIntegration =
       sbtImpl % "test->test;compile->compile",
       jps
     )
+    .settings(
+      intellijPlugins += "com.intellij.gradle".toPlugin // Used in tests only
+    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val debugger =
