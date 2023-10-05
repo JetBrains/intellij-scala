@@ -389,8 +389,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
           if (!ms.isPrivate) {
             val previousLength = sb.length
             printer.printModifiers(ms)
+            def isInFirstClause = primaryConstructor.infoType.asInstanceOf[MethodType].paramSymbols.contains(msymb)
             if (isMutable) printer.print("var ")
-            else if (!(c.isCase && sb.length == previousLength)) printer.print("val ")
+            else if (!(c.isCase && sb.length == previousLength && isInFirstClause)) printer.print("val ")
           }
         case _ =>
       }
