@@ -715,4 +715,32 @@ class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
       )
     )
   }
+
+  def testNestedByNameExtraction(): Unit = {
+    val text =
+      """class Inner() {
+        |  def isEmpty: Boolean = false
+        |  def get: Inner = this
+        |  def _1: Int = 42
+        |  def _2: Double = 3.14
+        |}
+        |
+        |object Inner {
+        |  def unapply(r: Inner): Inner = r
+        |}
+        |
+        |object Outer {
+        |  def unapply(a: Any): Option[Inner] = ???
+        |}
+        |
+        |object Example {
+        |  new Inner() match {
+        |    case Inner(anInt, aDouble) =>
+        |    case Outer(Inner(anInt, aDouble)) =>
+        |  }
+        |}
+        |""".stripMargin
+
+    assertNoWarnings(text)
+  }
 }

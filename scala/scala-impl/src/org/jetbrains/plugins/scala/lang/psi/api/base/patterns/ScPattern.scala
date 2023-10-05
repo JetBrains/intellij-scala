@@ -299,7 +299,7 @@ object ScPattern {
   ): Int =
     unapplySubpatternTypes(returnType, place, fun).size
 
-  private[this] case class ByNameExtractor(place: PsiElement) {
+  case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
       val selectors = extractPossibleProductParts(tpe, place)
       if (selectors.length >= 2) Option(selectors)
