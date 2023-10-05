@@ -353,6 +353,13 @@ lazy val compilerIntegration =
       sbtImpl % "test->test;compile->compile",
       jps
     )
+    .settings(
+      intellijPlugins ++= Seq(
+        "com.intellij.gradle",
+        "org.jetbrains.idea.maven"
+      ).map(_.toPlugin), // Used only in tests
+      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive()
+    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val debugger =
