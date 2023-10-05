@@ -12,6 +12,8 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
 
   def testNotSimplePattern(): Unit = doTest()
 
+  def testNotSimpleVariable(): Unit = doTest()
+
   def testOutsideClass(): Unit = doTest()
 
   def testRecursiveMethod(): Unit = doTest()
@@ -27,8 +29,6 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testNotUserTypealiasDefinition(): Unit = doTest()
 
   def testImplicitParams(): Unit = doTest()
-
-  def testParameter(): Unit = doTest()
 
   def testImplicitVal(): Unit = doTest()
 
