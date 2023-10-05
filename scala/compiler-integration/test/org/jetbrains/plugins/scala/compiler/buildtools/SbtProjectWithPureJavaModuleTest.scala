@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -29,14 +30,7 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
   private var compiler: CompilerTester = _
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
-    val jdkVersion =
-      Option(System.getProperty("filter.test.jdk.version"))
-        .map(TestJdkVersion.valueOf)
-        .getOrElse(TestJdkVersion.JDK_17)
-        .toProductionVersion
-
     val settings = new SbtProjectSettings()
-    sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
     settings.jdk = sdk.getName
     settings
   }
@@ -49,6 +43,20 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
 
   override def setUp(): Unit = {
     super.setUp()
+
+    sdk = {
+      val jdkVersion =
+        Option(System.getProperty("filter.test.jdk.version"))
+          .map(TestJdkVersion.valueOf)
+          .getOrElse(TestJdkVersion.JDK_17)
+          .toProductionVersion
+
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val settings = ScalaCompileServerSettings.getInstance()
+      settings.COMPILE_SERVER_SDK = res.getName
+      settings.USE_DEFAULT_SDK = false
+      res
+    }
 
     createProjectSubDirs("project", "module1/src/main/java", "module2/src/main/scala")
     createProjectSubFile("project/build.properties",
@@ -85,6 +93,9 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
   override def tearDown(): Unit = try {
     CompileServerLauncher.ensureServerNotRunning()
     compiler.tearDown()
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.USE_DEFAULT_SDK = true
+    settings.COMPILE_SERVER_SDK = null
     inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
   } finally {
     super.tearDown()

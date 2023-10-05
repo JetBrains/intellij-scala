@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
@@ -29,14 +30,7 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   private var compiler: CompilerTester = _
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
-    val jdkVersion =
-      Option(System.getProperty("filter.test.jdk.version"))
-        .map(TestJdkVersion.valueOf)
-        .getOrElse(TestJdkVersion.JDK_17)
-        .toProductionVersion
-
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
     settings.setGradleJvm(sdk.getName)
     settings.setDelegatedBuild(false)
     settings
@@ -50,6 +44,21 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
 
   override def setUp(): Unit = {
     super.setUp()
+
+    sdk = {
+      val jdkVersion =
+        Option(System.getProperty("filter.test.jdk.version"))
+          .map(TestJdkVersion.valueOf)
+          .getOrElse(TestJdkVersion.JDK_17)
+          .toProductionVersion
+
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val settings = ScalaCompileServerSettings.getInstance()
+      settings.COMPILE_SERVER_SDK = res.getName
+      settings.USE_DEFAULT_SDK = false
+      res
+    }
+
     createProjectSubDirs("module1/src/main/java", "module2/src/main/scala")
     createProjectSubFile("settings.gradle",
       """rootProject.name = 'root'
@@ -100,6 +109,9 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   override def tearDown(): Unit = try {
     CompileServerLauncher.ensureServerNotRunning()
     compiler.tearDown()
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.USE_DEFAULT_SDK = true
+    settings.COMPILE_SERVER_SDK = null
     inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
   } finally {
     super.tearDown()
