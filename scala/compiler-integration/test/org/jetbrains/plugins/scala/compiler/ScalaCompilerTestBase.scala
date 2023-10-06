@@ -76,10 +76,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
     setUpLibraries(getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
-    compilerTester = new CompilerTester(getModule)
-    // !!! MUST BE CALLED AFTER compilerTester new CompilerTester(...)
-    //     new CompilerTester resets modules SDK to internal SDK ! (ノಠ益ಠ)ノ彡┻━┻ so we need to setup jdk again
-    setUpJdk()
+    compilerTester = new CompilerTester(myProject, java.util.List.of(getModule), null, false)
     // We need to enforce calculating of the versionString value to ensure presence of it in the JPS-process (╥﹏╥)
     getTestProjectJdk.getVersionString
     addOutRoot()
