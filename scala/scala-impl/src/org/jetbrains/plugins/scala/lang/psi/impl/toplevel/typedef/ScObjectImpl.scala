@@ -13,6 +13,7 @@ import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -58,7 +59,7 @@ class ScObjectImpl(
     (if (isPackageObject) "package" else super.getName) + "$"
 
   //noinspection TypeAnnotation
-  override protected final def baseIcon =
+  override protected def baseIcon =
     if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
   // TODO Should be unified, see ScModifierListOwner
@@ -76,6 +77,11 @@ class ScObjectImpl(
   override def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
   override def isCase: Boolean = hasModifierProperty("case")
+
+  override def syntheticMembers: Seq[ScMember] = ScalaPsiUtil.getCompanionModule(this) match {
+    case Some(e: ScEnum) => e.cases ++ super.syntheticMembers
+    case _ => super.syntheticMembers
+  }
 
   override def processDeclarationsForTemplateBody(
     processor:  PsiScopeProcessor,

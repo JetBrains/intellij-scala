@@ -463,7 +463,6 @@ object TypeAdjuster extends ApplicationListener {
 
       val maybePrefixAndPath = target match {
         case clazz: PsiClass if needPrefix(clazz) => prefixAndPath(clazz.qualifiedName, 1)
-        case ScEnumCase.Original(cse) => prefixAndPath(cse.qualifiedName, 1)
         case _ => qualifiedName(target).flatMap(prefixAndPathGenerator)
       }
 
@@ -502,7 +501,7 @@ object TypeAdjuster extends ApplicationListener {
         isExternalRefToInnerClass && !resolvesRight(c.name)
       }
 
-      fromSettings || forInnerClass
+      fromSettings || c.is[ScEnumCase] || forInnerClass
     }
   }
 

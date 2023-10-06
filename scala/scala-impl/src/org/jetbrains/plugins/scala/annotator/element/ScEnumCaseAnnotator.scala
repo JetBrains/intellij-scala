@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.annotator.element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
@@ -32,12 +32,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     //invariant type parameters in enum class require explicit
     //extends clause for each enum case, while covariant/contravariant ones
     //are just minimized/maximized implicitly
-    val isSingletonCase = cse match {
-      case ScEnumCase.SingletonCase(_, _) => true
-      case _                              => false
-    }
-
-    if (isSingletonCase) {
+    if (cse.is[ScEnumSingletonCase]) {
       nonVariantTypeParameter.foreach { tp =>
         if (parents.isEmpty)
           holder.createErrorAnnotation(

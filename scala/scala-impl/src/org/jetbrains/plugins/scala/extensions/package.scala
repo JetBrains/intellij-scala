@@ -1153,7 +1153,6 @@ package object extensions {
             processMethod(toProcess)
             processName(toProcess.getName)
           }
-        case ScEnumCase.Original(_) => () // why no forwarder is generated for enum cases???
         case t: ScTypedDefinition if t.isVal || t.isVar ||
           (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
           PsiTypedDefinitionWrapper.processWrappersFor(

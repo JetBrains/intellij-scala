@@ -30,7 +30,7 @@ private[cheapRefSearch] final class LocalRefSearch(override val shouldProcess: S
         val syntheticMembers = ScalaPsiUtil.getCompanionModule(enumCase.enumParent).toSeq.flatMap(_.membersWithSynthetic).collect {
           case n: ScNamedElement if ScalaUsageNamesUtil.enumSyntheticMethodNames.contains(n.name) => n
         }
-        enumCase.getSyntheticCounterpart +: syntheticMembers
+        enumCase +: syntheticMembers
       case e: ScNamedElement => Seq(e)
     }
 

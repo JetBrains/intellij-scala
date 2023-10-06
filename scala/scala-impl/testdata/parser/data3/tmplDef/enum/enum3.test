@@ -53,7 +53,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Mercury
+          ScEnumSingletonCase: Mercury
             PsiElement(identifier)('Mercury')
             PsiWhiteSpace(' ')
             ExtendsBlock
@@ -77,7 +77,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Venus
+          ScEnumSingletonCase: Venus
             PsiElement(identifier)('Venus')
             PsiWhiteSpace('   ')
             ExtendsBlock
@@ -101,7 +101,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Earth
+          ScEnumSingletonCase: Earth
             PsiElement(identifier)('Earth')
             PsiWhiteSpace('   ')
             ExtendsBlock
@@ -125,7 +125,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Mars
+          ScEnumSingletonCase: Mars
             PsiElement(identifier)('Mars')
             PsiWhiteSpace('    ')
             ExtendsBlock
@@ -149,7 +149,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Jupiter
+          ScEnumSingletonCase: Jupiter
             PsiElement(identifier)('Jupiter')
             PsiWhiteSpace(' ')
             ExtendsBlock
@@ -173,7 +173,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Saturn
+          ScEnumSingletonCase: Saturn
             PsiElement(identifier)('Saturn')
             PsiWhiteSpace('  ')
             ExtendsBlock
@@ -197,7 +197,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Uranus
+          ScEnumSingletonCase: Uranus
             PsiElement(identifier)('Uranus')
             PsiWhiteSpace('  ')
             ExtendsBlock
@@ -221,7 +221,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Neptune
+          ScEnumSingletonCase: Neptune
             PsiElement(identifier)('Neptune')
             PsiWhiteSpace(' ')
             ExtendsBlock
@@ -247,7 +247,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: Pluto
+          ScEnumSingletonCase: Pluto
             PsiElement(identifier)('Pluto')
             PsiWhiteSpace(' ')
             ExtendsBlock

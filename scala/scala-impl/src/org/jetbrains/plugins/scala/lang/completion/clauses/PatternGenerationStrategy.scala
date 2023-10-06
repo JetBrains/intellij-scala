@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{JavaEnum, ObjectExt, ScalaEnumeration}
 import org.jetbrains.plugins.scala.lang.completion.{ScalaKeyword, toValueType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
@@ -106,9 +106,8 @@ object PatternGenerationStrategy {
       namedInheritors.length < DirectInheritorsGenerationStrategy.NonSealedInheritorsThreshold
 
     override def patterns: Seq[PatternComponents] = namedInheritors.map {
+      case enumCase: ScEnumSingletonCase => new StablePatternComponents(enumCase)
       case scalaObject: ScObject => new StablePatternComponents(scalaObject)
-      case enumCase: ScEnumCase if enumCase.constructor.isEmpty =>
-        new StablePatternComponents(enumCase)
       case CaseClassPatternComponents(components) => components
       case psiClass => new TypedPatternComponents(psiClass)
     } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))

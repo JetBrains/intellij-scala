@@ -265,7 +265,7 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |            <empty list>
       |          PsiElement(case)('case')
       |          PsiWhiteSpace(' ')
-      |          ScEnumCase: X
+      |          ScEnumSingletonCase: X
       |            PsiElement(identifier)('X')
       |            ExtendsBlock
       |              <empty list>

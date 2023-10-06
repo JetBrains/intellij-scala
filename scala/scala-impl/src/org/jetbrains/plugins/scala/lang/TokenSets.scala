@@ -12,8 +12,15 @@ object TokenSets {
     ClassDefinition,
     TraitDefinition,
     EnumDefinition,
+    EnumClassCase,
+    EnumSingletonCase,
     ObjectDefinition,
     GivenDefinition
+  )
+
+  val ENUM_CASES: TokenSet = TokenSet.create(
+    EnumClassCase,
+    EnumSingletonCase,
   )
 
   val BINDING_PATTERNS: TokenSet = TokenSet.create(

@@ -27,6 +27,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
     "io.getquill.context.InsertUpdateMacro", // Enum
     "io.getquill.context.LiftMacro", // Function1
+    "io.getquill.context.QueryExecutionBatch", // AST loading filter
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
     "io.getquill.dsl.InfixDsl", // No annotations

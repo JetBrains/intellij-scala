@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFun, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumClassCase, ScEnumSingletonCase, ScFun, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -157,11 +157,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         des match {
           case DesignatorOwner(tdef: ScTemplateDefinition) =>
             val subst = ScSubstitutor.bind(tdef.getTypeParameters, args)
-            tdef.extendsBlock.templateParents.fold(Seq.empty[ScType])(_.superTypes.map(subst))
+            tdef.superTypes.map(subst)
           case _ => Seq.empty
         }
       case DesignatorOwner(tdef: ScTemplateDefinition) =>
-        tdef.extendsBlock.templateParents.fold(Seq.empty[ScType])(_.superTypes)
+        tdef.superTypes
+      case ScProjectionType(projected, _) =>
+        directParents(projected)
       case _ => Seq.empty
     }
 
@@ -185,18 +187,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       case ScalaResolveResult(method: ScFunctionDefinition, _) if method.isSynthetic =>
         val cls = method.containingClass.asInstanceOf[ScTypeDefinition]
 
-        val isEnumCaseApplyMethod =
-          method.isApplyMethod &&
-            (cls match {
-              case obj: ScObject =>
-                ScalaPsiUtil.getCompanionModule(obj).exists(ScEnumCase.isDesugaredEnumCase)
-              case _ => false
-            })
-
-        val isEnumCaseCopyMethod =
-          method.isCopyMethod && ScEnumCase.isDesugaredEnumCase(cls)
-
-        if (isEnumCaseApplyMethod || isEnumCaseCopyMethod) {
+        if ((method.isApplyMethod || method.isCopyMethod) && ScalaPsiUtil.getCompanionModule(cls).exists(_.is[ScEnumClassCase])) {
           val widened = replaceLastComponent(tpe.inferValueType, widenToDirectParents)
 
           if (this.expectedType().forall(widened.conforms)) widened

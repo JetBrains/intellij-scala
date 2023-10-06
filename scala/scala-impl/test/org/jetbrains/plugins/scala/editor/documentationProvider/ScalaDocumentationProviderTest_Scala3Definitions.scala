@@ -184,7 +184,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
        |$BodyStart
        |$DefinitionStart<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
        |
-       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000000;">MyEnumCase1</span>$DefinitionEnd
+       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1
        |$ContentEnd
@@ -237,7 +237,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
        |$BodyStart
        |$DefinitionStart<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
        |
-       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000000;">MyEnumCase2</span>$DefinitionEnd
+       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase2</span>$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1, MyEnumCase2
        |$ContentEnd
@@ -296,7 +296,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin,
       """<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
         |
-        |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000000;">MyEnumCase1</span>
+        |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>
         |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://example.MyEnum"><code>MyEnum</code></a></span>
         |<span style="color:#000080;font-weight:bold;">with</span> <span style="color:#000000;"><a href="psi_element://example.MyTrait"><code>MyTrait</code></a></span>""".stripMargin
     )
