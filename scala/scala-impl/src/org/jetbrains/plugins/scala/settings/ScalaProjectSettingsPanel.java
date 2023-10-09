@@ -5,6 +5,7 @@ import com.intellij.compiler.options.ModuleTableCellRenderer;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.compiler.JavaCompilerBundle;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -13,6 +14,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.*;
 import com.intellij.ui.scale.JBUIScale;
@@ -106,16 +108,49 @@ public class ScalaProjectSettingsPanel {
     private JComboBox<Ivy2IndexingMode> ivy2IndexingModeCBB;
     private final Project myProject;
 
-    private JTabbedPane tabbedPane;
     private JCheckBox supportBackReferencesInCheckBox;
     private JPanel useCompilerRangesHelp;
 
     private final List<ComponentWithSettings> extraSettings = new ArrayList<>();
 
+    // IMPORTANT: So, we use tabbedPane for the form editor.
+    //            Unfortunately the normal JTabbedPane does not really support the intellij search.
+    //            That only works in TabbedPaneWrapper.
+    //            The solution: We replace the JTabbedPane, created by the form code,
+    //            with a TabbedPaneWrapper and move all the tabs to it.
+    @Nullable
+    private JTabbedPane tabbedPane;
+    private final TabbedPaneWrapper wrappedTabbedPane;
+    private final Disposable wrappedTabbedPaneDisposer = Disposer.newDisposable();
+
+
     public ScalaProjectSettingsPanel(Project project) {
         myProject = project;
 
         $$$setupUI$$$();
+
+        // Create a TabbedPaneWrapper and copy tabs from tabbedPane
+        wrappedTabbedPane = new TabbedPaneWrapper(wrappedTabbedPaneDisposer);
+        while (tabbedPane.getTabCount() > 0) {
+            final String title = tabbedPane.getTitleAt(0);
+            final Component component = tabbedPane.getComponentAt(0);
+            final JComponent jcomponent = (JComponent) component;
+            wrappedTabbedPane.addTab(title, jcomponent);
+        }
+        // make sure myPanel looks like we expect
+        assert myPanel.getComponentCount() == 1;
+        assert myPanel.getComponent(0) == tabbedPane;
+
+        // Replace the tabbedPane with our new wrapped tabbedPane
+        final GridLayoutManager layout = (GridLayoutManager) myPanel.getLayout();
+        final GridConstraints constraints = layout.getConstraintsForComponent(tabbedPane);
+        myPanel.remove(0);
+        myPanel.add(wrappedTabbedPane.getComponent(), constraints);
+
+        // set tabbedPane to null, so that using it fails
+        //noinspection BoundFieldAssignment
+        tabbedPane = null;
+
 
         typeChecker.setModel(new DefaultComboBoxModel<>(TypeChecker.values()));
         typeChecker.setRenderer(SimpleMappingListCellRenderer.create(
@@ -247,7 +282,7 @@ public class ScalaProjectSettingsPanel {
     }
 
     public void selectUpdatesTab() {
-        tabbedPane.setSelectedIndex(6);
+        wrappedTabbedPane.setSelectedIndex(6);
     }
 
     public void apply() throws ConfigurationException {
@@ -447,8 +482,9 @@ public class ScalaProjectSettingsPanel {
     }
 
     void dispose() {
-        int tabIdx = tabbedPane.getSelectedIndex();
+        int tabIdx = wrappedTabbedPane.getSelectedIndex();
         PropertiesComponent.getInstance(myProject).setValue(LAST_SELECTED_TAB_INDEX, tabIdx, -1);
+        wrappedTabbedPaneDisposer.dispose();
     }
 
     private void initSelectedTab() {
@@ -457,8 +493,8 @@ public class ScalaProjectSettingsPanel {
     }
 
     private void setSelectedTabIndex(int index) {
-        if (0 <= index && index < tabbedPane.getTabCount()) {
-            tabbedPane.setSelectedIndex(index);
+        if (0 <= index && index < wrappedTabbedPane.getTabCount()) {
+            wrappedTabbedPane.setSelectedIndex(index);
         }
     }
 
