@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpe
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13, Scala_3_0}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -88,7 +88,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     import Arity._
 
     e match {
-      case block: ScBlockExpr if block.isPartialFunction => aritiesOf(block.caseClauses.get)
+      case block: ScBlockExpr if block.isPartialFunction   => aritiesOf(block.caseClauses.get)
       case clauses: ScCaseClauses                          => clauses.caseClause.pattern.fold(NotAFunction : Arity)(aritiesOf)
       case _: ScReferencePattern                           => FunctionLiteral(1)
       case tuple: ScTuplePattern                           => TuplePattern(tuple.subpatterns.size)
@@ -140,9 +140,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     implicit val scope: ElementScope = e.elementScope
 
-    lazy val (canMergeParamTpes, canLubParamTpes) = {
+    lazy val (canMergeParamTpes, canLubParamTpes, canUntuple) = {
       val languageLevel = e.scalaLanguageLevelOrDefault
-      (languageLevel >= Scala_2_13, languageLevel == Scala_2_12)
+      (languageLevel >= Scala_2_13, languageLevel == Scala_2_12, languageLevel >= Scala_3_0)
     }
 
     lazy val expectedArity    = aritiesOf(e)
@@ -200,13 +200,21 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
 
     /** Filter expected type alternatives by arity,
-     * short circiut if there are non-functionlike types present */
+     * short circuit if there are non-functionlike types present */
     @annotation.tailrec
     def filterByArity(tpes: Iterator[ScType], acc: List[FunctionLikeTpe] = List.empty): List[FunctionLikeTpe] =
       if (tpes.isEmpty) acc
       else tpes.next() match {
         case t @ functionLikeType(marker, resTpe, ptpes) =>
-          if (expectedArity.matches(ptpes.size)) {
+          val ptTupleArity =
+            if (canUntuple && ptpes.size == 1)
+              ptpes.head match {
+                case TupleType(comps) => comps.size.toOption
+                case _                => None
+              }
+            else None
+
+          if (expectedArity.matches(ptpes.size) || ptTupleArity.exists(expectedArity.matches)) {
             if (acc.headOption.exists(_.paramTpes.size != ptpes.size)) List.empty
             else {
               val ftpe = FunctionLikeTpe(marker, resTpe, ptpes, t)
