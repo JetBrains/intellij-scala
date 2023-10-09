@@ -64,6 +64,7 @@ object SmartJDKLoader {
       userHome + "/Library/Java/JavaVirtualMachines", // mac style
       userHome + "/.jabba/jdk", // jabba (for github actions)
       userHome + "/.jdks", // by default IDEA downloads JDKs here
+      userHome + "/.sdkman/candidates/java" // SDKMAN style
     )
   }
 
@@ -98,7 +99,7 @@ object SmartJDKLoader {
     val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor", s"jdk$versionMajor")
     val fromEnv = sys.env.get(jdkVersion.toString).orElse(sys.env.get(s"${jdkVersion}_0"))
     val fromEnv64 = sys.env.get(s"${jdkVersion}_x64").orElse(sys.env.get(s"${jdkVersion}_0_x64")) // teamcity style
-    val priorityPaths = Seq(currentJava(versionMajor), fromEnv.orElse(fromEnv64).map(new File(_))).flatten
+    val priorityPaths = Seq(currentJava(versionMajor), fromEnv.orElse(fromEnv64)).flatten.map(new File(_))
 
     priorityPaths.headOption
       .orElse {
@@ -119,7 +120,7 @@ object SmartJDKLoader {
           b.getName == "bin" &&
             b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
         }
-    }
+      }.orElse(Some(dir))
   }
 
   private def inJvm(path: String, versionString: String): List[File] =
@@ -132,13 +133,12 @@ object SmartJDKLoader {
           .reverse
           .filter(_.getName.contains(versionString))
           .flatMap(findJDK)
-        }
+      }
 
   private def currentJava(versionMajor: String) =
     Some(SystemInfo.JAVA_VERSION)
       .filter(v => v.startsWith(s"1.$versionMajor") || v.startsWith(versionMajor))
       .flatMap(_ => sys.props.get("java.home"))
-      .flatMap(d => findJDK(new File(d).getParentFile))
 }
 
 
