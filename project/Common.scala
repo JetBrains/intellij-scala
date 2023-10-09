@@ -62,7 +62,9 @@ object Common {
       (Compile / scalacOptions) := globalScalacOptions,
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
       (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
-      (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
+      //Note: we explicitly don't mark "testdata" directories as "test resources", because they are not test resources
+      // (those directories don't contain files which are supposed to be copied to `target/scala-2.13/test-classes
+      //(Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
       libraryDependencies ++= Seq(
         Dependencies.jetbrainsAnnotations % Provided,
         Dependencies.junit % Test,
