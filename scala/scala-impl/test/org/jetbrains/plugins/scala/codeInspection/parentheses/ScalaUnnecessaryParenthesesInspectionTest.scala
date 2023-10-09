@@ -553,6 +553,42 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
 
   def test_case_clause_with_destructuring(): Unit =
     checkTextHasNoErrors(s"object A { 1 match { case (_: _) *: _ => } }")
+
+  def test_parenthesized_non_tuple_match_scrutinee(): Unit =
+    checkTextHasErrors(s"$START(1)$END match { case _ => }")
+
+  def test_tuple_match_scrutinee(): Unit =
+    checkTextHasNoErrors(s"(1, 2) match { case _ => }")
+
+  def test_parenthesized_tuple_match_scrutinee(): Unit =
+    checkTextHasErrors(s"$START((1, 2))$END match { case _ => }")
+
+  def test_annotated_expression(): Unit = checkTextHasErrors(
+    s"""import scala.annotation.nowarn
+       |
+       |object Scope {
+       |  val foo = $START(true)$END : @nowarn("cat=deprecation")
+       |}
+       |""".stripMargin)
+
+  def test_annotated_match_expression(): Unit = checkTextHasNoErrors(
+    s"""import scala.annotation.nowarn
+       |object Scope {
+       |  (1 match { case _ => }) : @nowarn("msg=exhaustive")
+       |}
+       |""".stripMargin)
+
+  def test_underscore_function(): Unit =
+    checkTextHasNoErrors("object A { val x = (_.length): String => Int }")
+
+  def test_sequence_argument(): Unit =
+    checkTextHasErrors(s"""object A { def f(s: String*): Unit = (); f($START(Seq(""))$END: _*) }""")
+
+  def test_literal_typed_expression(): Unit =
+    checkTextHasErrors(s"""object A { $START("foo")$END: "foo"; $START(1)$END: 1 }""")
+
+  def test_typed_argument(): Unit =
+    checkTextHasErrors(s"""object A { val l = Seq($START("")$END: Any) }""")
 }
 
 class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryParenthesesInspectionTestBase {
