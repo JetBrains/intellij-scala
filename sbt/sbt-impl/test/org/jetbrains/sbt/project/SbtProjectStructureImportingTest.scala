@@ -660,4 +660,24 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       )
     }
   )
+
+  def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
+    new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
+      modules := Seq(
+        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
+        new module ("same module name", Array("same module name")),
+        new module ("same module name1", Array("same module name")),
+        new module ("same module name2", Array("same module name")),
+        new module ("X_MY_MODULE_ID2"),
+        new module ("X_My_Module_Id1"),
+        new module ("X_my_module_id"),
+        new module ("Y_MY_MODULE_Name2"),
+        new module ("Y_My_Module_Name1"),
+        new module ("Y_my_module_name"),
+        new module ("Z_MY_MODULE_Name2"),
+        new module ("Z_My_Module_Name1"),
+        new module ("Z_my_module_name"),
+      )
+    }
+  )
 }

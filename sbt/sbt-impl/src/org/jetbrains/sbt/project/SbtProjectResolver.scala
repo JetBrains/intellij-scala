@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
@@ -454,14 +454,42 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
+  /**
+   * The class is designed to generate unique module internal names.
+   *
+   * We use lowercase version of module internal name to determine uniqueness.
+   * This is done because later this name will be used to calculate module file path.
+   * And this path will be used to distinguish unique modules later during the import.
+   * On some OS (like Mac OS) file paths are case insensitive.
+   * When creating a new module in it can skip some module and return an existing one because their path are equal ignoring case
+   *
+   * Here we always use lower-case version on all OS-ses for easier reproducibility and testing
+   * (though technically it's not mandatory to do it on all OS)
+   *
+   * @see [[com.intellij.workspaceModel.ide.impl.legacyBridge.module.ModifiableModuleModelBridgeImpl.newModule]]
+   * @see [[com.intellij.workspaceModel.ide.impl.legacyBridge.module.ModifiableModuleModelBridgeImpl.getModuleByFilePath]]
+   */
+  private class ModuleUniqueInternalNameGenerator {
+    private val reservedNames = new java.util.concurrent.ConcurrentHashMap[String, Int]
+
+    def getUniqueInternalNameAndUpdateRegistry(name: String): Option[String] = {
+      val nameLowerCased = name.toLowerCase //using lowercase, see scaladoc
+      val numberOfCreatedModulesWithSameName = reservedNames.compute(nameLowerCased, (_, v) => v + 1) - 1
+      if (numberOfCreatedModulesWithSameName == 0) //the name is not reserved yet, current name is the first one
+        None
+      else
+        Some(name + numberOfCreatedModulesWithSameName.toString)
+    }
+  }
+
   private def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Map[ProjectData,ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
 
     val nameToProjects = projects.groupBy(_.name)
     val namesAreUnique = nameToProjects.size == projects.size
 
+    val moduleInternalNameGenerator = new ModuleUniqueInternalNameGenerator()
     val projectToModule = projects.map { project =>
-
       val moduleName =
         if (namesAreUnique) project.name
         else project.id
@@ -470,13 +498,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         if (nameToProjects(project.name).size > 1) Array(project.name)
         else null
 
-      val moduleNode = createModule(project, moduleFilesDirectory, moduleName)
+      val moduleNode = createModule(project, moduleFilesDirectory, moduleName, moduleInternalNameGenerator)
 
       moduleNode.setIdeModuleGroup(groupName): @nowarn("cat=deprecation") // TODO: SCL-21288
 
       val contentRootNode = createContentRoot(project)
       moduleNode.add(contentRootNode)
-      moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
+      val libraryDependenciesNodes = createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data))
+      moduleNode.addAll(libraryDependenciesNodes)
       moduleNode.add(createModuleExtData(project))
       moduleNode.add(createScalaSdkData(project.scala))
       moduleNode.add(new SbtModuleNode(SbtModuleData(project.id, project.buildURI)))
@@ -586,7 +615,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, moduleName: String): ModuleNode = {
+  private def createModule(
+    project: sbtStructure.ProjectData,
+    moduleFilesDirectory: File,
+    moduleName: String,
+    moduleInternalNameRegistry: ModuleUniqueInternalNameGenerator
+  ): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
@@ -598,6 +632,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project.base.canonicalPath
     )
     result.setInheritProjectCompileOutputPath(false)
+
+    val moduleInternalNameOpt = moduleInternalNameRegistry.getUniqueInternalNameAndUpdateRegistry(result.getInternalName)
+    //Using `setInternalName` because there is no way to pass the internal name via constructor
+    moduleInternalNameOpt.foreach(result.setInternalName)
 
     def setCompileOutputPath(scope: String, sourceType: ExternalSystemSourceType): Unit = {
       val configuration = project.configurations.find(_.id == scope)
