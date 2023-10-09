@@ -486,16 +486,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
 
     val nameToProjects = projects.groupBy(_.name)
-    val namesAreUnique = nameToProjects.size == projects.size
 
     val moduleInternalNameGenerator = new ModuleUniqueInternalNameGenerator()
     val projectToModule = projects.map { project =>
+      val projectName = project.name
+      val projectsWithSameName = nameToProjects(projectName)
+      val nameIsUnique = projectsWithSameName.size == 1
       val moduleName =
-        if (namesAreUnique) project.name
+        if (nameIsUnique) projectName
         else project.id
 
       val groupName =
-        if (nameToProjects(project.name).size > 1) Array(project.name)
+        if (projectsWithSameName.size > 1) Array(projectName)
         else null
 
       val moduleNode = createModule(project, moduleFilesDirectory, moduleName, moduleInternalNameGenerator)

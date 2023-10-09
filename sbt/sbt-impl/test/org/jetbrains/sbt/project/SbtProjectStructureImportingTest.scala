@@ -665,9 +665,9 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
     new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
       modules := Seq(
         new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
-        new module ("same module name", Array("same module name")),
-        new module ("same module name1", Array("same module name")),
-        new module ("same module name2", Array("same module name")),
+        new module ("U_MY_MODULE_ID2", Array("same module name")),
+        new module ("U_My_Module_Id1", Array("same module name")),
+        new module ("U_my_module_id", Array("same module name")),
         new module ("X_MY_MODULE_ID2"),
         new module ("X_My_Module_Id1"),
         new module ("X_my_module_id"),
