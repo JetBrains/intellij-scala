@@ -293,4 +293,27 @@ class ExportsResolveTest extends SimpleResolveTestBase {
          |""".stripMargin
     )
   }
+
+  def testClassParameters(): Unit = checkTextHasNoErrors(
+    """
+      |case class MyCaseClass(param1: Int):
+      |  def foo: Int = 1
+      |  val value: Int = 23
+      |
+      |class MyClass(val param2: Int, param3: Int)
+      |
+      |object usage:
+      |  val innerCaseClass: MyCaseClass = ???
+      |  val innerClass: MyClass = ???
+      |
+      |  export innerCaseClass.*
+      |  export innerClass.*
+      |
+      |  param1
+      |  param2
+      |  //param3 //should not be resolved, it's not a member of MyClass
+      |  foo
+      |  value
+      |""".stripMargin
+  )
 }
