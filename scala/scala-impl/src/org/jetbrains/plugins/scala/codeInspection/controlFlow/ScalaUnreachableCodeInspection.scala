@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 import scala.annotation.{nowarn, tailrec}
-import scala.collection.mutable
+import scala.collection.{SortedSet, mutable}
 
 final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
 
@@ -60,7 +60,7 @@ object ScalaUnreachableCodeInspection {
     (x: PsiElement, y: PsiElement) => x.getTextRange.getStartOffset
       .compareTo(y.getTextRange.getStartOffset)
 
-  private def fragments(elements: collection.SortedSet[PsiElement]) = {
+  private def fragments(elements: collection.SortedSet[PsiElement]): Iterable[SortedSet[PsiElement]] = {
     @tailrec
     def parentStatement(element: PsiElement): Option[PsiElement] = element.getParent match {
       case _: ScBlock |

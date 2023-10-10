@@ -75,26 +75,22 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myHead = instr
   }
 
-  private def addEdge(from: InstructionImpl, to: InstructionImpl): Unit = {
-    if (from == null || to == null) return
-    if (!from.succ.contains(to)) from.addSucc(to)
-    if (!to.pred.contains(from)) to.addPred(from)
-  }
+  private def addEdge(from: InstructionImpl, to: InstructionImpl): Unit =
+    InstructionImpl.addEdge(from, to)
 
   private def checkPendingEdges(instruction: InstructionImpl): Unit = {
     instruction.element match {
       case Some(elem) =>
-        val ab = new ArrayBuffer[Int]
-        for (i <- myPending.size - 1 to (0, -1)) {
-          val (inst, scope) = myPending(i)
-          if (scope != null &&
-                  !PsiTreeUtil.isAncestor(scope, elem, false)) {
-            addEdge(inst, instruction)
-            ab += i
-          }
+        myPending.filterInPlace {
+          case (inst, scope) =>
+            if (scope != null &&
+              !PsiTreeUtil.isAncestor(scope, elem, false)) {
+              addEdge(inst, instruction)
+              false
+            } else {
+              true
+            }
         }
-        // remove registered pending edges
-        for (k <- ab) myPending.remove(k)
       case None =>
         for ((from, _) <- myPending) addEdge(from, instruction)
         myPending.clear()
@@ -252,7 +248,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitMethodCallExpression(call: ScMethodCall): Unit = {
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {
-      val param = matchedParams.toMap.get(arg)
+      val param = matchedParams.find(_._1 == arg).map(_._2)
       param.isEmpty || param.exists(_.isByName) || param.exists(p => FunctionType.isFunctionType(p.paramType))
     }
     val receiver = call.getInvokedExpr
@@ -468,13 +464,12 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myCatchedExnStack = handledExnTypes.toList.reverse ++ myCatchedExnStack
     var catchedExnCount = handledExnTypes.size
 
-    val fBlock = tryStmt.finallyBlock match {
-      case None => null
-      case Some(x) => x
-    }
-    if (fBlock != null) {
-      myCatchedExnStack = FinallyInfo(fBlock) :: myCatchedExnStack
-      catchedExnCount += 1
+    val fBlock = tryStmt.finallyBlock
+    fBlock match {
+      case Some(fBlock) =>
+        myCatchedExnStack = FinallyInfo(fBlock) :: myCatchedExnStack
+        catchedExnCount += 1
+      case _ =>
     }
 
     startNode(Some(tryStmt)) {tryStmtInstr =>
@@ -525,22 +520,22 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         }
       }
 
-      if (fBlock == null) {
-        processCatch(null)
-      } else {
-        startNode(Some(fBlock)) {finInstr =>
-          val myTransitionInstructionsCopy = myTransitionInstructions.toSeq
-          for {
-            p@(instr, info) <- myTransitionInstructionsCopy
-            if info.elem eq fBlock
-          } {
-            addEdge(instr, finInstr)
-            myTransitionInstructions -= p
+      fBlock match {
+        case None => processCatch(null)
+        case Some(fBlock) =>
+          startNode(Some(fBlock)) { finInstr =>
+            val myTransitionInstructionsCopy = myTransitionInstructions.toSeq
+            for {
+              p@(instr, info) <- myTransitionInstructionsCopy
+              if info.elem eq fBlock
+            } {
+              addEdge(instr, finInstr)
+              myTransitionInstructions -= p
+            }
+            processCatch(finInstr)
+            myHead = finInstr
+            fBlock.accept(this)
           }
-          processCatch(finInstr)
-          myHead = finInstr
-          fBlock.accept(this)
-        }
       }
     }
   }

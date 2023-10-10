@@ -18,11 +18,13 @@ sealed class InstructionImpl(override val num: Int,
 
   override def succ: ArrayBuffer[Instruction] = mySucc
 
-  override def addPred(p: Instruction): Unit = {
-    myPred += p
+  private final def addPredecessor(p: Instruction): Unit = {
+    if (!myPred.contains(p))
+      myPred += p
   }
 
-  override def addSucc(s: Instruction): Unit = {
+  private final def addSuccessor(s: Instruction): Unit = {
+    if (!mySucc.contains(s))
     mySucc += s
   }
 
@@ -43,6 +45,16 @@ sealed class InstructionImpl(override val num: Int,
     case Some(x) => x
     case z => z
   })
+}
+
+object InstructionImpl {
+  def addEdge(from: InstructionImpl, to: InstructionImpl): InstructionImpl = {
+    if (to != null && from != null) {
+      from.addSuccessor(to)
+      to.addPredecessor(from)
+    }
+    to
+  }
 }
 
 case class DefinitionInstruction(override val num: Int,
