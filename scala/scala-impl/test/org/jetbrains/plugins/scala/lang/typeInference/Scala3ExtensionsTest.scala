@@ -589,4 +589,15 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
         |""".stripMargin
     )
   }
+
+  def testSCL21637(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val v = "".test()
+      |
+      |  extension (string: String)
+      |    private def test() = string
+      |}
+      |""".stripMargin
+  )
 }
