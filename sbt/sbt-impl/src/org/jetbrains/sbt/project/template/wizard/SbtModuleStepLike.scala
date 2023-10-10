@@ -1,8 +1,7 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.DocumentAdapter
 import org.jetbrains.plugins.scala.extensions._
@@ -39,21 +38,19 @@ private[template] trait SbtModuleStepLike extends PackagePrefixStepLike with Asy
   protected lazy val scalaVersionComboBox: SComboBox[String] = createSComboBoxWithSearchingListRenderer(ListSet(defaultAvailableScalaVersions.versions: _*), None, isScalaLoading)
 
   private def downloadAvailableVersions(disposable: Disposable): Unit = {
-    val sbtIndicator = new EmptyProgressIndicator
-    val scalaIndicator = new EmptyProgressIndicator
-    Disposer.register(disposable, () => {
-      Seq(sbtIndicator, scalaIndicator).foreach(_.cancel)
-    })
-
-    val sbtDownloadVersions: () => Versions = () => Versions.SBT.loadVersionsWithProgress(sbtIndicator)
-    downloadVersionsAsynchronously(isSbtLoading, sbtIndicator, sbtDownloadVersions, Versions.SBT.toString) { v =>
+    val sbtDownloadVersions: ProgressIndicator => Versions = indicator => {
+      Versions.SBT.loadVersionsWithProgress(indicator)
+    }
+    downloadVersionsAsynchronously(isSbtLoading, disposable, sbtDownloadVersions, Versions.SBT.toString) { v =>
       availableSbtVersions.set(v.toOption)
       availableSbtVersionsForScala3.set(Versions.SBT.sbtVersionsForScala3(v).toOption)
       updateSelectionsAndElementsModelForSbt(v)
     }
 
-    val scalaDownloadVersions: () => Versions = () => Versions.Scala.loadVersionsWithProgress(scalaIndicator)
-    downloadVersionsAsynchronously(isScalaLoading, scalaIndicator, scalaDownloadVersions, Versions.Scala.toString) { v =>
+    val scalaDownloadVersions: ProgressIndicator => Versions = indicator => {
+      Versions.Scala.loadVersionsWithProgress(indicator)
+    }
+    downloadVersionsAsynchronously(isScalaLoading, disposable, scalaDownloadVersions, Versions.Scala.toString) { v =>
       updateSelectionsAndElementsModelForScala(v)
     }
   }

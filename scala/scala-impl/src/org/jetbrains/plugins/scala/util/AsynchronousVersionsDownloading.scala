@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -19,10 +21,14 @@ trait AsynchronousVersionsDownloading {
 
   protected def downloadVersionsAsynchronously[V](
     isRunning: AtomicBoolean,
-    indicator: ProgressIndicator,
-    downloadVersions: () => V,
+    disposable: Disposable,
+    downloadVersions: ProgressIndicator => V,
     versionType: String
   )(successCallback: V => Unit): Unit = {
+    // note: we mock indicator for com.intellij.openapi.progress.ProgressManager.runProcessWithProgressAsynchronously
+    // It will allow to cancel downloading process when user creates the project with default values or closes the new project wizard
+    val indicator = new EmptyProgressIndicator
+    registerChildDisposable(disposable, indicator)
     val onComplete: Try[V] => Unit = { result =>
       result match {
         case Success(x) => successCallback(x)
@@ -33,10 +39,15 @@ trait AsynchronousVersionsDownloading {
     }
     val task = createBackgroundableTask(ScalaBundle.message("title.fetching.available.this.versions", versionType), onComplete) {
       isRunning.set(true)
-      downloadVersions()
+      downloadVersions(indicator)
     }
     ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
   }
+
+  private def registerChildDisposable(disposable: Disposable, indicator: ProgressIndicator): Unit =
+    Disposer.register(disposable, () =>
+      indicator.cancel()
+    )
 
   protected def createSComboBoxWithSearchingListRenderer[T <: Object : ClassTag](elements: ListSet[T], textCustomizer: Option[T => String], isLoading: AtomicBoolean): SComboBox[T] = {
     val searchingListCellRenderer = new SearchingListCellRenderer[T](isLoading, textCustomizer)
