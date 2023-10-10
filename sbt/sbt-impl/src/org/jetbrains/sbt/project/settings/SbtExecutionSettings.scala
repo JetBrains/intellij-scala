@@ -20,6 +20,7 @@ class SbtExecutionSettings(val realProjectPath: String,
                            val useShellForImport: Boolean,
                            val shellDebugMode: Boolean,
                            val preferScala2: Boolean,
+                           val groupProjectsFromSameBuild: Boolean,
                            val userSetEnvironment: Map[String, String],
                            val passParentEnvironment: Boolean
                           ) extends ExternalSystemExecutionSettings

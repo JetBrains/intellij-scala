@@ -309,18 +309,11 @@ trait ProjectStructureMatcher {
     val actualPath: Array[String] =
       ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
 
-    if (expected.group == null) {
-      val actualPathString: String =
-        Option(actualPath).map(_.mkString("Array(", ", ", ")")).orNull
-      Assert.assertNull(s"Group of module ${actual.getName} should be null", actualPathString)
-    }
-    else {
-      assertCollectionEquals(
-        "Wrong module group path",
-        expected.group.toSeq,
-        if (actualPath != null) actualPath.toSeq else null
-      )
-    }
+    assertCollectionEquals(
+      s"Wrong module group path for module `${actual.getName}`",
+      if (expected.group != null) expected.group.toSeq else null,
+      if (actualPath != null) actualPath.toSeq else null
+    )
   }
 
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {

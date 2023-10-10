@@ -305,88 +305,131 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
    * due to references to different builds, or multiple sbt projects being imported independently from IDEA
    */
   def testSCL13600(): Unit = runTest(
-    new project("scl13600") {
+    new project("root") {
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
-      lazy val root: module = new module("root") {
-        sbtBuildURI := buildURI
-        sbtProjectId := "root"
 
+      val rootC1: module = new module("Build C1 Name", Array("Build C1 Name")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("c1/")
+        moduleDependencies := Seq()
+      }
+      val rootC2: module = new module("Build C2 Name", Array("Build C2 Name")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("c2/")
+        moduleDependencies := Seq()
+      }
+      val rootC3: module = new module("suffix2.root", Array("root1")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
+        moduleDependencies := Seq()
+      }
+      val rootC4: module = new module("suffix1.suffix2.root", Array("root2")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
+        moduleDependencies := Seq()
+      }
+      val root: module = new module("root") {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI
         moduleDependencies := Seq(
-          new dependency(c1) { isExported := true },
-          new dependency(c2) { isExported := true },
+          new dependency(rootC1) {isExported := true },
+          new dependency(rootC2) {isExported := true },
+          new dependency(rootC3) {isExported := true },
+          new dependency(rootC4) {isExported := true },
         )
       }
 
-      lazy val c1: module = new module("c1") {
-        sbtBuildURI := buildURI.resolve("c1/")
-        sbtProjectId := "c1"
-        moduleDependencies := Seq()
-      }
-      lazy val c1Root: module = new module("c1.root", Array("root")) {
-        sbtBuildURI := buildURI.resolve("c1/")
-        sbtProjectId := "root"
-        moduleDependencies := Seq()
-      }
+      val modulesFromRoot: Seq[module] = Seq(
+        new module("project1InRootBuild"),
+        new module("project2InRootBuild"),
+        new module("project3InRootBuildWithSameName", Array("same name in root build")),
+        new module("project4InRootBuildWithSameName", Array("same name in root build")),
+        new module("project5InRootBuildWithSameGlobalName", Array("same global name")),
+        new module("project6InRootBuildWithSameGlobalName", Array("same global name")),
+      )
+      val modulesFromC1: Seq[module] = Seq(
+        rootC1,
+        new module("project1InC1", Array("Build C1 Name")),
+        new module("project2InC1", Array("Build C1 Name")),
+        new module("project3InC1WithSameName", Array("Build C1 Name", "same name in c1")),
+        new module("project4InC1WithSameName", Array("Build C1 Name", "same name in c1")),
+        new module("project5InC1WithSameGlobalName", Array("Build C1 Name", "same global name")),
+        new module("project6InC1WithSameGlobalName", Array("Build C1 Name", "same global name")),
+      )
+      val modulesFromC2: Seq[module] = Seq(
+        rootC2,
+        new module("project1InC2", Array("Build C2 Name")),
+        new module("project2InC2", Array("Build C2 Name")),
+        new module("project3InC2WithSameName", Array("Build C2 Name", "same name in c2")),
+        new module("project4InC2WithSameName", Array("Build C2 Name", "same name in c2")),
+        new module("project5InC2WithSameGlobalName", Array("Build C2 Name", "same global name")),
+        new module("project6InC2WithSameGlobalName", Array("Build C2 Name", "same global name")),
+      )
+      val modulesFromC3: Seq[module] = Seq(
+        rootC3,
+        new module("project1InC3", Array("root1")),
+        new module("project2InC3", Array("root1")),
+        new module("project3InC3WithSameName", Array("root1", "same name in c3")),
+        new module("project4InC3WithSameName", Array("root1", "same name in c3")),
+        new module("project5InC3WithSameGlobalName", Array("root1", "same global name")),
+        new module("project6InC3WithSameGlobalName", Array("root1", "same global name")),
+      )
+      val modulesFromC4: Seq[module] = Seq(
+        rootC4,
+        new module("project1InC4", Array("root2")),
+        new module("project2InC4", Array("root2")),
+        new module("project3InC4WithSameName", Array("root2", "same name in c4")),
+        new module("project4InC4WithSameName", Array("root2", "same name in c4")),
+        new module("project5InC4WithSameGlobalName", Array("root2", "same global name")),
+        new module("project6InC4WithSameGlobalName", Array("root2", "same global name")),
+      )
 
-      lazy val c2: module = new module("c2") {
-        sbtBuildURI := buildURI.resolve("c2/")
-        sbtProjectId := "c2"
-        moduleDependencies := Seq()
-      }
-      lazy val c2Root: module = new module("c2.root", Array("root")) {
-        sbtBuildURI := buildURI.resolve("c2/")
-        sbtProjectId := "root"
-        moduleDependencies := Seq()
-      }
-
-      modules := Seq(root, c1, c1Root, c2, c2Root)
+      modules := root +:
+        modulesFromRoot ++:
+        modulesFromC1 ++:
+        modulesFromC2 ++:
+        modulesFromC3 ++:
+        modulesFromC4
     }
   )
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
       private val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
-      private val buildModulesGroup = Array("sbt-build-modules")
 
-      lazy val base: module = new module("SCL-14635") {
-        sbtBuildURI := buildURI
-        sbtProjectId := "root"
-      }
-
-      // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
-      lazy val ideaPluginRoot: module = new module("sbtIdeaPlugin") {
-        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
-        sbtProjectId := "sbtIdeaPlugin"
-      }
-
-      lazy val ideaPluginInnerModule = new module("sbt-idea-plugin")
-
-      lazy val ideaShell: module = new module("sbt-idea-shell") {
-        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
-        sbtProjectId := "root"
-      }
-
-      lazy val ideSettings: module = new module("sbt-ide-settings") {
-        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
-        sbtProjectId := "sbt-ide-settings"
-      }
+      private val sbtIdeaPluginGroup = Array("sbtIdeaPlugin")
+      private val sbtIdeaShellGroup = Array("sbt-idea-shell")
+      private val sbtIdeSettingsGroup = Array("sbt-ide-settings")
 
       modules := Seq(
-        base,
-        ideaPluginRoot,
-        ideaPluginInnerModule,
-        ideaShell,
-        ideSettings,
+        new module("SCL-14635") {
+          sbtBuildURI := buildURI
+          sbtProjectId := "root"
+        },
+        new module("SCL-14635-build"),
 
-        new module("sbt-declarative-core"),
-        new module("sbt-declarative-packaging"),
-        new module("sbt-declarative-visualizer"),
+        // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
+        new module("sbtIdeaPlugin", sbtIdeaPluginGroup) {
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
+          sbtProjectId := "sbtIdeaPlugin"
+        },
+        new module("sbt-idea-plugin", sbtIdeaPluginGroup),
+        new module("sbt-declarative-core", sbtIdeaPluginGroup),
+        new module("sbt-declarative-packaging", sbtIdeaPluginGroup),
+        new module("sbt-declarative-visualizer", sbtIdeaPluginGroup),
+        new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
 
-        //build-modules
-        new module("SCL-14635-build", buildModulesGroup),
-        new module("sbtIdeaPlugin-build", buildModulesGroup),
-        new module("sbt-idea-shell-build", buildModulesGroup),
-        new module("sbt-ide-settings-build", buildModulesGroup)
+        new module("sbt-idea-shell", sbtIdeaShellGroup) {
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
+          sbtProjectId := "root"
+        },
+        new module("sbt-idea-shell-build", sbtIdeaShellGroup),
+
+        new module("sbt-ide-settings", sbtIdeSettingsGroup) {
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
+          sbtProjectId := "sbt-ide-settings"
+        },
+        new module("sbt-ide-settings-build", sbtIdeSettingsGroup)
       )
     }
   )

@@ -104,6 +104,7 @@ object SbtExternalSystemManager {
       projectSettings.useSbtShellForImport,
       projectSettings.enableDebugSbtShell,
       projectSettings.preferScala2,
+      projectSettings.groupProjectsFromSameBuild,
       settingsState.sbtEnvironment.asScala.toMap,
       settingsState.sbtPassParentEnvironment
     )
