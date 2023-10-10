@@ -339,7 +339,7 @@ trait ScalaTypePresentation extends TypePresentation {
       case ScOrType(lhs, rhs) =>
         val l = innerTypeText(lhs)
         val r = innerTypeText(rhs)
-        if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala.|[" + l + ", " + r + "]" else l + " & " + r // SCL-21559
+        if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala.|[" + l + ", " + r + "]" else l + " | " + r // SCL-21559
       case c: ScCompoundType =>
         compoundTypeText(c)
       case ex: ScExistentialType =>
