@@ -57,7 +57,12 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
     // In practice, there will only ever be one running computation, because this method is called on a single thread.
     while (!queue.isEmpty) {
       val head = queue.poll()
-      head.obsolete = true
+
+      // It can happen that the queue was emptied between `queue.isEmpty` and `queue.poll`, due to a concurrent
+      // `queue.remove` later.
+      if (head ne null) {
+        head.obsolete = true
+      }
     }
 
     val executionState = new ExecutionState()
