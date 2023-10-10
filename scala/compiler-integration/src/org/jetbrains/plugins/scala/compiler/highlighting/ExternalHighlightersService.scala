@@ -40,7 +40,7 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
   private val executor: ExecutorService =
     AppExecutorUtil.createBoundedApplicationPoolExecutor(classOf[ExternalHighlightersService].getSimpleName, 1)
 
-  final class ExecutionState {
+  private final class ExecutionState {
     @volatile var obsolete: Boolean = false
   }
 
@@ -129,7 +129,7 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
   }
 
-  def informWolf(state: HighlightingState): Unit =
+  private def informWolf(state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
