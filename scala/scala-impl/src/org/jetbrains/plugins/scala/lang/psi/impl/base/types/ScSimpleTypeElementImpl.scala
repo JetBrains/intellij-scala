@@ -253,13 +253,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 lastClauseAndImplicits(withoutLast, withExpected = false)
             }
 
-          if (inferValueType) {
-            val pts = nonValueType match {
-              case t: ScTypePolymorphicType => t.polymorphicTypeSubstitutor
-              case _                        => ScSubstitutor.empty
-            }
-            pts(nonValueType.internalType)
-          } else nonValueType
+          if (inferValueType) nonValueType.inferValueType
+          else                nonValueType
         case None => res
       }
     }
