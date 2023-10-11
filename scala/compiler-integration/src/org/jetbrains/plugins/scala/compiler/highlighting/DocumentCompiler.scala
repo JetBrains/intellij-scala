@@ -100,8 +100,11 @@ private final class DocumentCompiler(project: Project) extends Disposable {
         case SourceScope.Production => false
         case SourceScope.Test => true
       }
-      val outputDir = CompilerPaths.getModuleOutputPath(module, forTestClasses)
-      (fromSuper :+ Path.of(outputDir).toFile).distinct
+
+      val outputDir =
+        Option(CompilerPaths.getModuleOutputPath(module, forTestClasses))
+          .map(Path.of(_).toFile)
+      (fromSuper ++ outputDir).distinct
     }
 
     def compile(originalSourceFile: File, client: Client): Unit = {
