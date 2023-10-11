@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.compiler.{CompileContext, CompileTask}
+import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.util.registry.Registry
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 /**
  * See registry key description
  */
-class EraseCompilerProcessJdkOnce
-  extends CompileTask {
+class EraseCompilerProcessJdkOnce extends ScalaCompileTask {
 
   import EraseCompilerProcessJdkOnce.RegistryKey
 
-  override def execute(context: CompileContext): Boolean = {
+  override def run(context: CompileContext): Boolean = {
     val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
     val needErase = Registry.is(RegistryKey)
     if (!isUnitTestMode && context.getProject.hasScala && needErase) {
@@ -22,6 +24,9 @@ class EraseCompilerProcessJdkOnce
     }
     true
   }
+
+  @Nls
+  override def presentableName: String = CompilerIntegrationBundle.message("erase.compiler.process.jdk.once.compile.task.presentable.name")
 }
 
 object EraseCompilerProcessJdkOnce {
