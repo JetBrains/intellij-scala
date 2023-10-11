@@ -20,7 +20,7 @@ final class JpsSbtDependenciesEnumerationHandler extends JpsJavaDependenciesEnum
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    super.shouldProcessDependenciesRecursively
+    Option(System.getProperty("sbt.process.dependencies.recursively")).flatMap(_.toBooleanOption).getOrElse(true)
 }
 
 object JpsSbtDependenciesEnumerationHandler {

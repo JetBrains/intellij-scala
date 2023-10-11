@@ -7,32 +7,54 @@ import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.structure.ProjectData
+import org.jetbrains.sbt.structure.{Dependencies, ProjectData, ProjectDependencyData}
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
 import scala.annotation.nowarn
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
-
-  def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
-                                libraryNodes: Seq[LibraryNode],
-                                moduleFilesDirectory: File
-                               ): Seq[ModuleNode] = {
-
+  def createSharedSourceModules(
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    libraryNodes: Seq[LibraryNode],
+    moduleFilesDirectory: File,
+    insertProjectTransitiveDependencies: Boolean
+  ): Seq[ModuleNode] = {
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
     grouped.map { group =>
-      createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
+      createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies)
     }
+  }
+
+  protected def createModuleDependencies(
+    projectDependencies: Dependencies[ProjectDependencyData],
+    allModules: Seq[ModuleNode],
+    moduleNode: ModuleNode,
+    insertProjectTransitiveDependencies: Boolean
+  ): Unit = {
+    // TODO: Use production and test dependencies when production and test sources are separated
+    projectDependencies.production
+      .foreach { dependencyId =>
+        val dependency = allModules
+          .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
+          .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+
+        val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
+        dependencyNode.setScope(scopeFor(dependencyId.configurations.distinct))
+        val exported = if (insertProjectTransitiveDependencies) false else true
+        dependencyNode.setExported(exported)
+        moduleNode.add(dependencyNode)
+      }
   }
 
   private def createSourceModuleNodesAndDependencies(
     rootGroup: RootGroup,
     projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
     libraryNodes: Seq[LibraryNode],
-    moduleFilesDirectory: File
+    moduleFilesDirectory: File,
+    insertProjectTransitiveDependencies: Boolean
   ): ModuleNode = {
     val projects = rootGroup.projects
 
@@ -58,18 +80,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       val unmanagedLibraryDependencies = representativeProjectDependencies.jars
       moduleNode.addAll(createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode))
 
-      //add library dependencies of the representative project
-      val projectDependencies = representativeProjectDependencies.projects
-      projectDependencies.foreach { dependencyId =>
-        val dependency =
-          projectToModuleNode.values
-            .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
-            .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
-
-        val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
-        dependencyNode.setScope(scopeFor(dependencyId.configuration))
-        moduleNode.add(dependencyNode)
-      }
+      //add project dependencies of the representative project
+      createModuleDependencies(representativeProjectDependencies.projects, projectToModuleNode.values.toSeq, moduleNode, insertProjectTransitiveDependencies)
 
       //add some managed sources of the representative project
       //(see description of `getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots` method for the details)
