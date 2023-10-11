@@ -31,16 +31,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
         (1873, 1879), // Cannot resolve symbol concat
         (1887, 1899), // Cannot resolve symbol asInstanceOf
       ),
-      "scala/collection/concurrent/TrieMap.scala" -> Set(
-        (26365, 26380), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
-        (26396, 26398), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
-      ),
-      "scala/collection/immutable/HashMap.scala" -> Set(
-        (1612, 1625), // Type mismatch, expected: BitmapIndexedMapNode[K, V], actual: BitmapIndexedMapNode[Nothing, Nothing]
-      ),
-      "scala/collection/immutable/HashSet.scala" -> Set(
-        (1326, 1339), // Type mismatch, expected: BitmapIndexedSetNode[A], actual: BitmapIndexedSetNode[Nothing]
-      ),
       "scala/collection/immutable/IntMap.scala" -> Set(
         (10799, 10804), // Method annotated with @tailrec contains no recursive calls
       ),
@@ -58,12 +48,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
         (2271, 2277), // Cannot resolve symbol addOne
         (4046, 4140), // Expression of type mutable.Builder[(K, Nothing), Nothing] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
         (4081, 4096), // Type mismatch, expected: mutable.SortedMap[K, Nothing], actual: SortedMap[K, V]
-      ),
-      "scala/collection/mutable/TreeMap.scala" -> Set(
-        (1614, 1627), // Type mismatch, expected: mutable.RedBlackTree.Tree[K, V], actual: mutable.RedBlackTree.Tree[Nothing, Nothing]
-      ),
-      "scala/collection/mutable/TreeSet.scala" -> Set(
-        (1714, 1727), // Type mismatch, expected: mutable.RedBlackTree.Tree[A, Null], actual: mutable.RedBlackTree.Tree[Nothing, Null]
       ),
       "scala/concurrent/duration/DurationConversions.scala" -> Set(
         (1748, 1762), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R

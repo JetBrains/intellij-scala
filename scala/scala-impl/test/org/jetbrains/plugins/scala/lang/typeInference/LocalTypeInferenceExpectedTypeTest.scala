@@ -160,4 +160,20 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |pay copy(v1 = 42, v2 = 23): Pay[String]
       |""".stripMargin
   )
+
+  def testSCL4687(): Unit = checkTextHasNoErrors(
+      """
+        |object A {
+        |  class Z[T] {
+        |    def m(t: T): T = t
+        |  }
+        |
+        |  def foo[T]: Z[T] = null.asInstanceOf[Z[T]]
+        |
+        |  def goo[G](z: Z[G]): Z[G] = z
+        |
+        |  goo(foo).m(1)
+        |}
+        """.stripMargin
+  )
 }
