@@ -7,6 +7,7 @@ import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
+import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util.Collections
 import scala.jdk.CollectionConverters._
@@ -20,12 +21,18 @@ class ScalaBuildProcessParametersProvider(project: Project)
         customScalaCompilerInterfaceDir().toSeq ++
           parallelCompilationOptions() ++
           addOpens() ++
+          transitiveProjectDependenciesParams() ++
           java9rtParams() :+
           scalaCompileServerSystemDir() :+
           // this is the only way to propagate registry values to the JPS process
           s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
       ).asJava
     } else Collections.emptyList()
+
+  private def transitiveProjectDependenciesParams(): Seq[String] = {
+    val settingsState = SbtSettings.getInstance(project).getState
+    Seq(s"-Dsbt.process.dependencies.recursively=${!settingsState.insertProjectTransitiveDependencies}")
+  }
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
     val key = SbtData.compilerInterfacesKey

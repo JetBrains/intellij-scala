@@ -106,7 +106,8 @@ object SbtExternalSystemManager {
       projectSettings.preferScala2,
       projectSettings.groupProjectsFromSameBuild,
       settingsState.sbtEnvironment.asScala.toMap,
-      settingsState.sbtPassParentEnvironment
+      settingsState.sbtPassParentEnvironment,
+      settingsState.insertProjectTransitiveDependencies
     )
   }
 

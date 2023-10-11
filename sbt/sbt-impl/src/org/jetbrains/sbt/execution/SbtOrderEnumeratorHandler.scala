@@ -6,6 +6,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util
 
@@ -13,7 +14,7 @@ import java.util
  * ATTENTION: implementation should be in sync with<br>
  * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
  */
-class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
+class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
       case (library: LibraryOrderEntry, enumerator: ModuleOrderEnumerator) =>
@@ -34,6 +35,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     modules.asScala.headOption
   }
 
+  //TODO: after splitting sources to production and test it should be changes to false SCL-21157
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
@@ -46,11 +48,17 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    super.shouldProcessDependenciesRecursively
+    if (insertProjectTransitiveDependencies) false
+    else true
+
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
-  override def createHandler(module: Module): OrderEnumerationHandler = new SbtOrderEnumeratorHandler
+  override def createHandler(module: Module): OrderEnumerationHandler = {
+    val project = module.getProject
+    val settingsState = SbtSettings.getInstance(project).getState
+    new SbtOrderEnumeratorHandler(settingsState.insertProjectTransitiveDependencies)
+  }
 
   override def isApplicable(module: Module): Boolean =
     SbtUtil.isSbtModule(module)

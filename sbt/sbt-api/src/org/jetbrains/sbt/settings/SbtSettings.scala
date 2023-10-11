@@ -37,6 +37,7 @@ final class SbtSettings(project: Project)
   @BeanProperty var customSbtStructurePath: String = ""
   @BeanProperty var sbtEnvironment: j.Map[String, String] = j.Collections.emptyMap
   @BeanProperty var sbtPassParentEnvironment: Boolean = true
+  @BeanProperty var insertProjectTransitiveDependencies: Boolean = false
 
   override def getState: SbtSettings.State = {
     val state = new SbtSettings.State
@@ -52,6 +53,7 @@ final class SbtSettings(project: Project)
     state.sbtOptions = sbtOptions
     state.sbtEnvironment = sbtEnvironment
     state.sbtPassParentEnvironment = sbtPassParentEnvironment
+    state.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
 
     state
   }
@@ -69,6 +71,7 @@ final class SbtSettings(project: Project)
     customSbtStructurePath = state.customSbtStructurePath
     sbtEnvironment = state.sbtEnvironment
     sbtPassParentEnvironment = state.sbtPassParentEnvironment
+    insertProjectTransitiveDependencies = state.insertProjectTransitiveDependencies
   }
 
   override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]): Unit = {
@@ -145,6 +148,9 @@ object SbtSettings {
 
     @BeanProperty
     var sbtPassParentEnvironment: Boolean = true
+
+    @BeanProperty
+    var insertProjectTransitiveDependencies: Boolean = false
 
     private val linkedProjectSettings: j.TreeSet[SbtProjectSettings] = new j.TreeSet[SbtProjectSettings]
 
