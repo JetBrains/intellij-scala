@@ -1,0 +1,15 @@
+def some_func(x: =>Any): Unit = ()
+before = 0
+some_func {
+    throw e
+}
+after = 0
+-----
+0(1) element: None
+1(2) DEF some_func
+2(3) WRITE before
+3(4,6) READ some_func
+4(5) READ e
+5(6) element: ThrowStatement
+6(7) WRITE after
+7() element: None

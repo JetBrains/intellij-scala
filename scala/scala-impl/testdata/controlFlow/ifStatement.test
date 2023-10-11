@@ -16,6 +16,6 @@ println(b)
 7(8) READ b
 8(10) WRITE a
 9(10) WRITE b
-10(11) READ println
+10(11,12) READ println
 11(12) READ b
 12() element: None

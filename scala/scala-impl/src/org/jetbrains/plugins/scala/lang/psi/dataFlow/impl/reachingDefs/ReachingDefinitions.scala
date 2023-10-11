@@ -17,11 +17,11 @@ object ReachingDefinitions {
 
     override def fun(i: Instruction)(set: RDSet): RDSet = i match {
       case dv: DefinitionInstruction => set + dv
-      case wr@ReadWriteVariableInstruction(_, _, Some(target), true) =>
+      case wr@ReadWriteVariableInstruction(_, Some(target), true) =>
 
         def previousAssignments(i: Instruction) = i match {
-          case DefinitionInstruction(_, named, DefinitionType.VAR) => named == target
-          case ReadWriteVariableInstruction(_, _, Some(target1), true) => target1 == target
+          case DefinitionInstruction(named, DefinitionType.VAR) => named == target
+          case ReadWriteVariableInstruction(_, Some(target1), true) => target1 == target
           case _ => false
         }
 

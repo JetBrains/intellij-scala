@@ -7,9 +7,9 @@ else {
 0(1) element: None
 1(2,4) element: IfStatement
 2(3) READ a
-3(8) element: ReturnStatement
+3() element: ReturnStatement
 4(5) READ b
-5(8) element: ReturnStatement
-6(7) READ println
+5() element: ReturnStatement
+6(7,8) READ println
 7(8) READ b
 8() element: None

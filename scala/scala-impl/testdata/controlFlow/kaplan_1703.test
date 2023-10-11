@@ -12,10 +12,10 @@ def process(exchange: Exchange) {
 0(1) element: None
 1(2) READ exchange
 2(3) VAL event
-3(4,12,19) element: MatchStatement
-4(5) READ eventFacts
-5(6) READ keyExtractor
-6(7) READ event
+3(4) element: MatchStatement
+4(5,7,12) READ eventFacts
+5(6,7,12) READ keyExtractor
+6(7,12) READ event
 7(8) VAL fact
 8(9) READ session
 9(10) READ update
@@ -23,7 +23,7 @@ def process(exchange: Exchange) {
 11(19) READ event
 12(13) READ eventFacts
 13(14) READ update
-14(15) READ keyExtractor
+14(15,16) READ keyExtractor
 15(16) READ event
 16(17) READ session
 17(18) READ insert

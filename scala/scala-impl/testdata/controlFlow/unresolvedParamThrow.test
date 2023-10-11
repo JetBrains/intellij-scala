@@ -4,7 +4,7 @@ x + 1
 -----
 0(1) element: None
 1(2,3) READ blablabla
-2(6) element: ThrowStatement
+2(3) element: ThrowStatement
 3(4) VAL x
 4(5) READ x
 5(6) READ +

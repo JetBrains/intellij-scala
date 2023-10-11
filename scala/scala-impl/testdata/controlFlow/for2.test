@@ -7,6 +7,6 @@ println
 1(2,5) element: ForStatement
 2(3) READ Nil
 3(4) VAL foo
-4(6) element: ReturnStatement
+4() element: ReturnStatement
 5(6) READ println
 6() element: None

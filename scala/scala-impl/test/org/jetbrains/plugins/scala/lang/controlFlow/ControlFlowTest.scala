@@ -35,25 +35,56 @@ class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
 
   protected def dumpControlFlow(instructions: Seq[Instruction]) = instructions.mkString("\n")
 
-  def testAssignment(): Unit = {doTest()}
-  def testIfStatement(): Unit = {doTest()}
-  def testIfStatement2(): Unit = {doTest()}
-  def testWhile(): Unit = {doTest()}
-  def testWhile2(): Unit = {doTest()}
-  def testMatch1(): Unit = {doTest()}
-  def testFor1(): Unit = {doTest()}
-  def testFor2(): Unit = {doTest()}
-  def testDoWhile1(): Unit = {doTest()}
-  def testReturn1(): Unit = {doTest()}
-  def testMethod1(): Unit = {doTest()}
-  def testThrow1(): Unit = {doTest()}
-  def testKaplan_1703(): Unit = {doTest()}
-  def testKaplan_1703_2(): Unit = {doTest()}
-  def testTry1(): Unit = {doTest()}
-  def testTry2(): Unit = {doTest()}
-  def testTry3(): Unit = {doTest()}
+  def testAssignment(): Unit = doTest()
+  def testIfStatement(): Unit = doTest()
+  def testIfStatement2(): Unit = doTest()
+  def testWhile(): Unit = doTest()
+  def testWhile2(): Unit = doTest()
+  def testMatch1(): Unit = doTest()
+  def testFor1(): Unit = doTest()
+  def testFor2(): Unit = doTest()
+  def testDoWhile1(): Unit = doTest()
+  def testReturn1(): Unit = doTest()
+  def testMethod1(): Unit = doTest()
+  def testThrow1(): Unit = doTest()
+  def testKaplan_1703(): Unit = doTest()
+  def testKaplan_1703_2(): Unit = doTest()
+  def testTry1(): Unit = doTest()
+  def testTry2(): Unit = doTest()
+  def testTry3(): Unit = doTest()
+  def testTryThrow(): Unit = doTest()
   def testNoneThrow(): Unit = doTest()
   def testScl_7393(): Unit = doTest()
   def testUnresolvedParamThrow(): Unit = doTest()
+  def testBlockArgByValue(): Unit = doTest()
+  def testBlockArgByName(): Unit = doTest()
+  def testBlockArgUnknown(): Unit = doTest()
+
+
+  def xxxtest(): Unit = {
+    var try1, try2, catch1, catch2, finally1, after = 1
+    try {
+      println(try1)
+      throw new RuntimeException()
+      try2 = 0
+    } finally {
+      finally1 = 0
+    }
+    after = 0
+  }
+
+  def xxtest2(): Unit = {
+    try {
+      println("test")
+      throw new RuntimeException()
+      println("test")
+      println("test 2")
+    } finally {
+      println("blub")
+    }
+
+    println("blub")
+  }
+
 }
 

@@ -14,7 +14,7 @@ d
 9(10) READ *
 10(11) READ e
 11(12) VAL c
-12(13) READ c
+12(3) READ c
 13(14) VAL d
 14(15) READ d
 15() element: None

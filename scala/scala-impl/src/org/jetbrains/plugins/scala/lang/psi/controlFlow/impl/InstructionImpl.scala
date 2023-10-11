@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 import scala.collection.mutable.ArrayBuffer
 
-sealed class InstructionImpl(override val num: Int,
-                             override val element: Option[ScalaPsiElement])
+sealed abstract class InstructionImpl(override val num: Int,
+                                      override val element: Option[ScalaPsiElement])
         extends Instruction with Cloneable {
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
@@ -57,9 +57,12 @@ object InstructionImpl {
   }
 }
 
-case class DefinitionInstruction(override val num: Int,
-                                 namedElement: ScNamedElement,
+class ElementInstruction(num: Int, element: Option[ScalaPsiElement])
+  extends InstructionImpl(num, element)
+
+case class DefinitionInstruction(namedElement: ScNamedElement,
                                  defType: DefinitionType)
+                                (num: Int)
         extends InstructionImpl(num, Some(namedElement)) {
   private val myName = namedElement.name
 
@@ -68,10 +71,10 @@ case class DefinitionInstruction(override val num: Int,
   override protected def getPresentation = s"${defType.name} $getName"
 }
 
-case class ReadWriteVariableInstruction(override val num: Int,
-                                        ref: ScReferenceExpression,
+case class ReadWriteVariableInstruction(ref: ScReferenceExpression,
                                         variable: Option[PsiNamedElement],
                                         write: Boolean)
+                                       (num: Int)
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText
   def getName: String = myName
