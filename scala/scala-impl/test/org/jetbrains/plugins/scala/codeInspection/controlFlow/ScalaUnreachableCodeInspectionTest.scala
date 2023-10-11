@@ -161,9 +161,9 @@ class ScalaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
   // SCL-14070
   def test_14070(): Unit = checkTextHasError(
     s"""def stream: Stream[Int] = 5 #:: {
-      |  throw new RuntimeException("unexpected")
-      |} ${START}#:: Stream.empty[Int]$END
-      |""".stripMargin
+     |  throw new RuntimeException("unexpected")
+     |} ${START}#:: Stream.empty[Int]$END
+     |""".stripMargin
   )
 
   def test_SCL_17712_1(): Unit = checkTextHasError(
@@ -285,6 +285,25 @@ class ScalaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
        |  ${START}println("outside try 1")$END
        |}
        |fooBAD2()
+       |""".stripMargin
+  )
+
+  // SCL-16859
+  def test_throw_in_lazy_val(): Unit = checkTextHasError(
+    s"""
+       |def fooBar(x: Int): Unit = {
+       |  println("here2")
+       |
+       |  implicit lazy val str: Any = {
+       |    throw new RuntimeException()
+       |    ${START}println("")$END
+       |  }
+       |  val x: Int = 1
+       |  x match {
+       |    case 1 => println("here1")
+       |    case 2 => fooBar(x)
+       |  }
+       |}
        |""".stripMargin
   )
 }

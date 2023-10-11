@@ -59,7 +59,14 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
    **************************************/
 
   override def visitPatternDefinition(pattern: ScPatternDefinition): Unit = {
+    val isLazy = pattern.getModifierList.isLazy
+
+    val beforeBinding = builder.getPending
     pattern.expr.foreach(_.accept(this))
+    if (isLazy) {
+      builder.connectHereFrom(beforeBinding)
+    }
+
     for (b <- pattern.bindings) {
       builder.addDefInstr(b, DefinitionType.VAL)
     }
