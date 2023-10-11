@@ -1,23 +1,24 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.compiler.{CompileContext, CompileTask}
+import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 /**
  * Checks whether all modules have different output directories for production files.
  * Shows a notification suggesting to fix it if output directories are the same.
  */
-final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends CompileTask {
+final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends ScalaCompileTask {
 
-  override def execute(context: CompileContext): Boolean = {
+  override def run(context: CompileContext): Boolean = {
     val project = context.getProject
 
     if (!project.hasScala) {
@@ -26,6 +27,9 @@ final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends CompileTask
 
     checkCompilationSettings(project)
   }
+
+  @Nls
+  override def presentableName: String = CompilerIntegrationBundle.message("ensure.modules.compile.task.presentable.name")
 
   private def checkCompilationSettings(project: Project): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {

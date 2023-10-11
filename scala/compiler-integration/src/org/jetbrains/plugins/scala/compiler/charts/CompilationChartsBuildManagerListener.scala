@@ -1,25 +1,25 @@
 package org.jetbrains.plugins.scala.compiler.charts
 
 import com.intellij.compiler.server.BuildManagerListener
-import com.intellij.openapi.compiler.{CompileContext, CompileTask}
+import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsComponentHolder
-import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.util.ScheduledService
+import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 import java.util.UUID
 import scala.concurrent.duration.DurationInt
 
-class CompilationChartsBuildManagerListener
-  extends BuildManagerListener
-    with CompileTask {
+class CompilationChartsBuildManagerListener extends BuildManagerListener with ScalaCompileTask {
 
   // It runs BEFORE compilation.
   // We use it instead of buildStarted or beforeBuildProcessStarted methods to avoid an exception (EA-263973).
   // Also it's an optimization. We need to schedule updates only for compilation not for UP_TO_DATE_CHECK.
-  override def execute(compileContext: CompileContext): Boolean = {
+  override def run(compileContext: CompileContext): Boolean = {
     if (isUnitTestMode)
       return true
 
@@ -32,6 +32,9 @@ class CompilationChartsBuildManagerListener
     updater.startScheduling()
     true
   }
+
+  @Nls
+  override def presentableName: String = CompilerIntegrationBundle.message("compilation.charts.compile.task.presentable.name")
 
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
   }
