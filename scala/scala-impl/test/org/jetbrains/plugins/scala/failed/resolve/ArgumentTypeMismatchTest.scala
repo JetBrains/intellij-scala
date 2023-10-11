@@ -13,25 +13,7 @@ import org.junit.experimental.categories.Category
 class ArgumentTypeMismatchTest extends SimpleTestCase {
   override protected def shouldPass: Boolean = false
 
-  def testSCL4687(): Unit = {
-    val code =
-      """
-        |object A {
-        |  class Z[T] {
-        |    def m(t: T): T = t
-        |  }
-        |
-        |  def foo[T]: Z[T] = null.asInstanceOf[Z[T]]
-        |
-        |  def goo[G](z: Z[G]): Z[G] = z
-        |
-        |  goo(foo).m(1)
-        |}
-      """.stripMargin
-    assertNothing(messages(code))
-  }
-
-  def testSCL9686(): Unit = assertNothing(
+   def testSCL9686(): Unit = assertNothing(
     messages {
       """
         |class Scl9686 {

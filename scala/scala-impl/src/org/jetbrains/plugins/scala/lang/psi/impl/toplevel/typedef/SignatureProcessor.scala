@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -198,6 +199,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     case f: ScFunction                => Seq(new PhysicalMethodSignature(f, subst, renamed = name, exportedIn = exportedIn))
     case o: ScObject                  => Seq(TermSignature(o, subst, renamed = name, exportedIn = exportedIn))
     case c: ScTypeDefinition          => syntheticSignaturesFromInnerClass(c, subst)
+    case cp: ScClassParameter if cp.isClassMember => propertySignatures(cp, subst, exportedIn = exportedIn)
     case ext: ScExtension =>
       ext.extensionMethods
         .map(m =>

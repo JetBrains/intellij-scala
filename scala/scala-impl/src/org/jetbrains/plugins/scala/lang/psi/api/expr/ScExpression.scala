@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -244,9 +245,35 @@ object ScExpression {
             val widened      = nonValueType.widenLiteralType(expr, expectedType)
             val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
 
+            def inferValueTypeRetractingNothing(tpe: ScType): ScType = tpe match {
+              case tpt @ ScTypePolymorphicType(internalType, _) =>
+                val subst = tpt.polymorphicTypeSubstitutor
+
+                internalType.inferValueType.recursiveVarianceUpdate() {
+                  case (tpt: TypeParameterType, variance) =>
+
+                    /**
+                     * See `adjustTypeArgs` in scalac, if type parameter of a polymorphic method
+                     * is inferred to scala.Nothing and it is not covariant in `internalType`, it is
+                     * considered to be undetermined.
+                     */
+                    val substed = subst(tpt)
+                    val retractNothing = substed.isNothing && !variance.isPositive
+
+                    val result =
+                      if (retractNothing) ScAbstractType(tpt.typeParameter, tpt.lowerType, tpt.upperType)
+                      else                substed
+
+                    ReplaceWith(result)
+                  case _ => ProcessSubtypes
+                }
+              case _ => tpe.inferValueType
+            }
+
             def inferValueType(tpe: ScType): ScType =
-              if (expr.is[ScPolyFunctionExpr]) tpe
-              else                             tpe.inferValueType
+              if (expr.is[ScPolyFunctionExpr])                 tpe
+              else if (expr.getContext.is[ScArgumentExprList]) inferValueTypeRetractingNothing(tpe)
+              else                                             tpe.inferValueType
 
             val valueType =
               inferValueType(

@@ -205,7 +205,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_ensuring(): Unit = doTest("ensuring", true)
   def test_enum_companion_first(): Unit = doTest("enum-companion-first", true) // #enum
   def test_enum_interop(): Unit = doTest("enum-interop", true)
-  def test_enum_List_control(): Unit = doTest("enum-List-control", false)
+  def test_enum_List_control(): Unit = doTest("enum-List-control", true)
   def test_enum_variance(): Unit = doTest("enum-variance", false) // #enum
   def test_enum_widen(): Unit = doTest("enum-widen", false) // #enum, #intersectionType
   def test_enums_capture(): Unit = doTest("enums-capture", false) // #enum

@@ -20,6 +20,8 @@ class OverloadedResolutionTest extends ScalaResolveTestCase {
 
   def testSCL15408(): Unit = doTest()
 
+  def testScalaPluginCachedMethods(): Unit = doTest()
+
   private def doTest(): Unit = {
     findReferenceAtCaret() match {
       case ref: ScReference =>
