@@ -15,6 +15,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testAnonymousClass(): Unit = doTest()
 
+  def testAnonymousClassWithStaticMethods(): Unit = doTest()
+
   def testDeprecated(): Unit = doTest()
 
   def testEnum(): Unit = doTest()

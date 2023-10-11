@@ -526,8 +526,15 @@ object JavaToScala {
         convertToParameterConstruction(p)
 
       case n: PsiNewExpression =>
-        if (n.getAnonymousClass != null) {
-          return AnonymousClassExpression(convertPsiToIntermediate(n.getAnonymousClass, externalProperties).asInstanceOf[AnonymousClass])
+        val anonymousClass = n.getAnonymousClass
+        if (anonymousClass != null) {
+          val node = convertPsiToIntermediate(anonymousClass, externalProperties)
+          node match {
+            case ac: AnonymousClass =>
+              return AnonymousClassExpression(ac)
+            case other =>
+              return other
+          }
         }
 
         val iType = convertTypePsiToIntermediate(n.getType, n.getClassReference, n.getProject)
@@ -789,9 +796,18 @@ object JavaToScala {
       def handleAnonymousClass(clazz: PsiAnonymousClass): IntermediateNode = {
         val tp = convertTypePsiToIntermediate(clazz.getBaseClassType, clazz.getBaseClassReference, clazz.getProject)
         val argList = convertPsiToIntermediate(clazz.getArgumentList, externalProperties)
+        val classMembersNodes = classMembers.map(convertPsiToIntermediate(_, externalProperties))
+        val objectMembersNodes = objectMembers.map { m =>
+          val node = convertPsiToIntermediate(m, externalProperties)
+          //NOTE: for non-anonimous classes we would move static members to the companion object
+          // However in Scala anonimous classes can't have companion object so we can't move them there
+          node.comments.beforeComments.append(LiteralExpression("//TODO: 'static' modifier is not supported\n"))
+          node
+        }
+        val members = classMembersNodes ++ objectMembersNodes
         AnonymousClass(
           tp, argList,
-          classMembers.map(convertPsiToIntermediate(_, externalProperties)),
+          members,
           extendList.map(el => convertTypePsiToIntermediate(el._1, el._2, clazz.getProject))
         )
       }
@@ -849,7 +865,12 @@ object JavaToScala {
           convertTypePsiToIntermediate(a, b, inClass.getProject)
         }
 
-      if (classMembers.nonEmpty || objectMembers.isEmpty || extendList.nonEmpty || couldFindInstancesForClass) {
+      val condition = classMembers.nonEmpty ||
+        (objectMembers.isEmpty || inClass.is[PsiAnonymousClass]) ||
+        extendList.nonEmpty ||
+        couldFindInstancesForClass
+
+      if (condition) {
         context.push((false, inClass.qualifiedName))
         try {
           inClass match {
