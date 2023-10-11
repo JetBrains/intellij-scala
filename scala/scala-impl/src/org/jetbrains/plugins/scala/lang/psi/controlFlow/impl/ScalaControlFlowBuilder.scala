@@ -44,6 +44,16 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     case _ => None
   }
 
+  private def inImplicitConversion[R](expr: ScExpression)(f: => R): R = {
+    expr.implicitElement() match {
+      case Some(elem: ScParameterOwner) if elem.parameters.headOption.exists(_.isCallByNameParameter) =>
+        val beforeConversion = builder.getPending
+        try f
+        finally builder.connectHereFrom(beforeConversion)
+      case _ => f
+    }
+  }
+
   /**************************************
    * VISITOR METHODS
    **************************************/
@@ -62,7 +72,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = inImplicitConversion(ref) {
     ref.qualifier match {
       case None =>
         builder.addRWInstr(ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
@@ -221,25 +231,26 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitBlockExpression(block: ScBlockExpr): Unit = {
     if (block.isPartialFunction) {
       // Do not visit closures
-    } else super.visitBlockExpression(block)
+    } else inImplicitConversion(block) {
+      super.visitBlockExpression(block)
+    }
   }
 
 
-  override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-    def accept(): Unit = {
+  override def visitInfixExpression(infix: ScInfixExpr): Unit = inImplicitConversion(infix) {
+    val byNameParam = infix.matchedParameters.headOption.exists(_._2.isByName)
+    if (byNameParam) {
       val ScInfixExpr.withAssoc(base, operation, argument) = infix
       base.accept(this)
       operation.accept(this)
+      val beforeArgument = builder.getPending
       argument.accept(this)
+      builder.connectHereFrom(beforeArgument)
+    } else {
+      infix.left.accept(this)
+      infix.operation.accept(this)
+      infix.rightOption.foreach(_.accept(this))
     }
-
-    val byNameParam = infix.matchedParameters.headOption.forall(_._2.isByName)
-    if (byNameParam) {
-      val infixInstr = builder.addElementInstr(infix)
-      accept()
-      builder.connectHereFrom(infixInstr)
-    } else accept()
-
   }
 
   override def visitFunction(fun: ScFunction): Unit = {

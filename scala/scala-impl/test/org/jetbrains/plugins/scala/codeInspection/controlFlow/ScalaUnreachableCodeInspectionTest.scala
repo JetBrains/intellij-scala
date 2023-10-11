@@ -158,6 +158,14 @@ class ScalaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
       |""".stripMargin
   )
 
+  // SCL-14070
+  def test_14070(): Unit = checkTextHasError(
+    s"""def stream: Stream[Int] = 5 #:: {
+      |  throw new RuntimeException("unexpected")
+      |} ${START}#:: Stream.empty[Int]$END
+      |""".stripMargin
+  )
+
   def test_SCL_17712_1(): Unit = checkTextHasError(
     s"""
        |def foo = {
