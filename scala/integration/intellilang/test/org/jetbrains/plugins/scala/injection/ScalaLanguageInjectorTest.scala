@@ -497,6 +497,24 @@ class ScalaLanguageInjectorTest extends ScalaLanguageInjectionTestBase {
     scalaInjectionTestFixture.doTest(RegexpLangId, body, expected)
   }
 
+  def testPatternInjection_JavaMethodsPattern_String_matches(): Unit = {
+    val body = s""""42".matches("[0-9]+\\\\d+$CARET")""".stripMargin
+    val expected = """[0-9]+\d+""".stripMargin
+    scalaInjectionTestFixture.doTest(RegexpLangId, body, expected)
+  }
+
+  def testPatternInjection_JavaMethodsPattern_String_replaceAll(): Unit = {
+    val body = s""""42".replaceAll("[0-9]+\\\\d+$CARET", "23")""".stripMargin
+    val expected = """[0-9]+\d+""".stripMargin
+    scalaInjectionTestFixture.doTest(RegexpLangId, body, expected)
+  }
+
+  def testPatternInjection_JavaMethodsPattern_Pattern_compile(): Unit = {
+    val body = """java.util.regex.Pattern.compile("[0-9]+\\d+")""".stripMargin
+    val expected = """[0-9]+\d+""".stripMargin
+    scalaInjectionTestFixture.doTest(RegexpLangId, body, expected)
+  }
+
   //TODO: s trip margin + pattern not supported yet
 //  def test PatternInjection_Multiline_WithMargins(): Unit = {
 //    val body =

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.patterns.ScalaPatterns
 
 final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
-  override def getId: String = "scala"
+  override def getId: String = ScalaLanguageInjectionSupport.Id
 
   override def isApplicableTo(host: PsiLanguageInjectionHost): Boolean = host.isInstanceOf[ScLiteral] || host.isInstanceOf[ScInfixExpr]
 
@@ -26,4 +26,8 @@ final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSuppo
       return false
     registry.removeHostWithUndo(project, host)
   }
+}
+
+object ScalaLanguageInjectionSupport {
+  val Id = "scala"
 }

@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.patterns
 
 import com.intellij.patterns.ElementPattern
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 
-private object ScalaElementPatternImpl {
+private[scala]
+object ScalaElementPatternImpl {
 
   def isRegExpLiteral[T <: ScalaPsiElement](literal: T): Boolean =
     literal.getParent match {
@@ -16,6 +17,9 @@ private object ScalaElementPatternImpl {
       case _                          => false
     }
 
+  //TODO: support infix expressions
+  // "qwe".matches("[0-9]+\\w+") //WORKS
+  // "qwe" matches "[0-9]+\\w+"  //DOES NOT WORK
   def isMethodCallArgument[T <: ScalaPsiElement](
     host: T, context: ProcessingContext,
     index: Int,
@@ -43,5 +47,30 @@ private object ScalaElementPatternImpl {
       case _ =>
     }
     false
+  }
+
+  //TODO: support infix expressions
+  // "qwe".matches("[0-9]+\\w+") //WORKS
+  // "qwe" matches "[0-9]+\\w+"  //DOES NOT WORK
+  def methodRefWithArgumentIndex(host: PsiElement): Option[(ScReference, Int)] = {
+    host.getParent match {
+      case argsList: ScArgumentExprList =>
+        val args = argsList.exprs
+        val index = args.indexWhere(_ eq host)
+        if (index != -1) {
+          argsList.getParent match {
+            case call: ScMethodCall =>
+              call.getEffectiveInvokedExpr match {
+                case ref: ScReference =>
+                  return Some((ref, index))
+                case _ =>
+              }
+            case _ =>
+          }
+        }
+      case _ =>
+    }
+
+    None
   }
 }
