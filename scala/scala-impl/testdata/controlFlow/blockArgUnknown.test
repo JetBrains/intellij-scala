@@ -5,9 +5,11 @@ some_func {
 after = 0
 -----
 0(1) element: None
-1(2) WRITE before
-2(3,5) READ some_func
-3(4) READ e
-4(5) element: ThrowStatement
-5(6) WRITE after
-6() element: None
+1(2) Lit: 0
+2(3) WRITE before
+3(4,6) READ some_func
+4(5) READ e
+5(6) element: ThrowStatement
+6(7) Lit: 0
+7(8) WRITE after
+8() element: None

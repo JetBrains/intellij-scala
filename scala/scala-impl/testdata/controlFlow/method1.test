@@ -4,7 +4,8 @@ def foo(cond: Boolean, a: Int) =
 0(1) element: None
 1(2) element: IfStatement
 2(3,4) READ cond
-3(6) READ cond
-4(5) WRITE a
-5(6) READ a
-6() element: None
+3(7) READ cond
+4(5) Lit: 42
+5(6) WRITE a
+6(7) READ a
+7() element: None

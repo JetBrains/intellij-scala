@@ -3,9 +3,12 @@ val x = 0
 x + 1
 -----
 0(1) element: None
-1(2,3) READ blablabla
-2(3) element: ThrowStatement
-3(4) VAL x
-4(5) READ x
-5(6) READ +
-6() element: None
+1(2,4) READ blablabla
+2(3) Lit: ""
+3(4) element: ThrowStatement
+4(5) Lit: 0
+5(6) VAL x
+6(7) READ x
+7(8) READ +
+8(9) Lit: 1
+9() element: None

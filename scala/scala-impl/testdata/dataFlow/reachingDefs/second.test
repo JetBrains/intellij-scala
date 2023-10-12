@@ -3,11 +3,16 @@ a = 6
 a = 7
 -----
 0(1) element: None
-1(2) VAR a
-  1(2) VAR a
-2(3) WRITE a
-  2(3) WRITE a
-3(4) WRITE a
-  3(4) WRITE a
-4() element: None
-  3(4) WRITE a
+1(2) Lit: 5
+2(3) VAR a
+  2(3) VAR a
+3(4) Lit: 6
+  2(3) VAR a
+4(5) WRITE a
+  4(5) WRITE a
+5(6) Lit: 7
+  4(5) WRITE a
+6(7) WRITE a
+  6(7) WRITE a
+7() element: None
+  6(7) WRITE a

@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
@@ -57,13 +59,20 @@ object InstructionImpl {
   }
 }
 
-class ElementInstruction(num: Int, element: Option[ScalaPsiElement])
+final class LiteralInstruction(num: Int, element: ScLiteral)
+  extends InstructionImpl(num, Some(element)) {
+
+  override def getPresentation: String = "Lit: " + element.getText.shorten(50)
+}
+
+final class ElementInstruction(num: Int, element: Option[ScalaPsiElement])
   extends InstructionImpl(num, element)
 
-case class DefinitionInstruction(namedElement: ScNamedElement,
-                                 defType: DefinitionType)
-                                (num: Int)
-        extends InstructionImpl(num, Some(namedElement)) {
+final case class DefinitionInstruction(namedElement: ScNamedElement,
+                                       defType: DefinitionType)
+                                      (num: Int)
+        extends InstructionImpl(num, Some(namedElement))
+{
   private val myName = namedElement.name
 
   def getName: String = myName
@@ -71,11 +80,12 @@ case class DefinitionInstruction(namedElement: ScNamedElement,
   override protected def getPresentation = s"${defType.name} $getName"
 }
 
-case class ReadWriteVariableInstruction(ref: ScReferenceExpression,
-                                        variable: Option[PsiNamedElement],
-                                        write: Boolean)
-                                       (num: Int)
-        extends InstructionImpl(num, Some(ref)) {
+final case class ReadWriteVariableInstruction(ref: ScReferenceExpression,
+                                              variable: Option[PsiNamedElement],
+                                              write: Boolean)
+                                             (num: Int)
+        extends InstructionImpl(num, Some(ref))
+{
   private val myName = ref.getText
   def getName: String = myName
   override protected def getPresentation: String = (if (write) "WRITE " else "READ ") + getName

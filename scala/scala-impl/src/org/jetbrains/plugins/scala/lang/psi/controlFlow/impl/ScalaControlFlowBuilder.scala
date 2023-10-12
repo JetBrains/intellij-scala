@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRe
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScCaseClauses, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -54,9 +54,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  /**************************************
+  /** ************************************
    * VISITOR METHODS
-   **************************************/
+   * ************************************ */
+
+  override def visitLiteral(lit: ScLiteral): Unit = {
+    builder.addLiteralInstr(lit)
+    // the literal could contain more nodes (like in an interpolated string)
+    super.visitLiteral(lit)
+  }
 
   override def visitPatternDefinition(pattern: ScPatternDefinition): Unit = {
     val isLazy = pattern.getModifierList.isLazy
@@ -358,6 +364,9 @@ object ScalaControlFlowBuilder {
 
     def addElementInstr(elem: ScalaPsiElement): InstructionImpl =
       addInstruction(new ElementInstruction(nextInstructionNum, Some(elem)))
+
+    def addLiteralInstr(literal: ScLiteral): InstructionImpl =
+      addInstruction(new LiteralInstruction(nextInstructionNum, literal))
 
     def addDefInstr(namedElement: ScNamedElement, defType: DefinitionType): InstructionImpl =
       addInstruction(DefinitionInstruction(namedElement, defType)(nextInstructionNum))

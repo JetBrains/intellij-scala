@@ -59,32 +59,5 @@ class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
   def testBlockArgByValue(): Unit = doTest()
   def testBlockArgByName(): Unit = doTest()
   def testBlockArgUnknown(): Unit = doTest()
-
-
-  def xxxtest(): Unit = {
-    var try1, try2, catch1, catch2, finally1, after = 1
-    try {
-      println(try1)
-      throw new RuntimeException()
-      try2 = 0
-    } finally {
-      finally1 = 0
-    }
-    after = 0
-  }
-
-  def xxtest2(): Unit = {
-    try {
-      println("test")
-      throw new RuntimeException()
-      println("test")
-      println("test 2")
-    } finally {
-      println("blub")
-    }
-
-    println("blub")
-  }
-
 }
 

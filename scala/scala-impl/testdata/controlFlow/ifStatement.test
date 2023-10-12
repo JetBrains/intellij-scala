@@ -7,15 +7,18 @@ else
 println(b)
 -----
 0(1) element: None
-1(2) VAR a
-2(3) READ a
-3(4) VAR b
-4(5) element: IfStatement
-5(6) READ a
-6(7,9) READ >
-7(8) READ b
-8(10) WRITE a
-9(10) WRITE b
-10(11,12) READ println
-11(12) READ b
-12() element: None
+1(2) Lit: 42
+2(3) VAR a
+3(4) READ a
+4(5) VAR b
+5(6) element: IfStatement
+6(7) READ a
+7(8) READ >
+8(9,11) Lit: 0
+9(10) READ b
+10(13) WRITE a
+11(12) Lit: 239
+12(13) WRITE b
+13(14,15) READ println
+14(15) READ b
+15() element: None

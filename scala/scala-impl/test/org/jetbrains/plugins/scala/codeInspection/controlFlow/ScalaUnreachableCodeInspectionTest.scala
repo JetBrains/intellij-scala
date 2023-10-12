@@ -312,4 +312,13 @@ class ScalaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
       |def test =
       |""".stripMargin
   )
+
+  def test_unreachable_literal(): Unit = checkTextHasError(
+    s"""
+       |def fun(): String = {
+       |  throw new Exception()
+       |  ${START}"I'm unreachable"$END
+       |}
+       |""".stripMargin
+  )
 }
