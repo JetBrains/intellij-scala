@@ -26,6 +26,7 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
       case definition: ScFunctionDefinition =>
         for {
           cfg <- Seq(definition.getControlFlow)
+          if cfg.nonEmpty
           unreachableInstructions = findUnreachableInstructions(cfg)
           if unreachableInstructions.nonEmpty
 

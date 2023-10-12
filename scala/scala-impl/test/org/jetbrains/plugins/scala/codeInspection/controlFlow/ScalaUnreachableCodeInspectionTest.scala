@@ -306,4 +306,10 @@ class ScalaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
        |}
        |""".stripMargin
   )
+
+  def test_error_def(): Unit = checkTextHasNoErrors(
+    """
+      |def test =
+      |""".stripMargin
+  )
 }
