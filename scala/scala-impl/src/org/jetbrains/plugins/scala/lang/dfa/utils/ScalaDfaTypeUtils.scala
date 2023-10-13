@@ -123,11 +123,6 @@ object ScalaDfaTypeUtils {
     case _ => false
   }
 
-  def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
-    case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
-    case _ => None
-  }
-
   def resolveExpressionType(expression: ScExpression): ScType = {
     implicit val context: ProjectContext = expression.getProject
     expression match {

@@ -3,9 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
@@ -13,13 +11,10 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOpe
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None)
-  extends ExpressionTransformer(wrappedInvocation) {
+trait InvocationTransformer extends Transformer { this: ScalaPsiElementTransformer =>
 
-  override def toString: String = s"InvocationTransformer: $wrappedInvocation"
-
-  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    val invocationsInfo = wrappedInvocation match {
+  final def transformInvocation(invocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None): Unit = {
+    val invocationsInfo = invocation match {
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
       case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
       case referenceExpression: ScReferenceExpression => List(InvocationInfo.fromReferenceExpression(referenceExpression))
@@ -27,16 +22,16 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
       case _ => Nil
     }
 
-    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo) ||
+    if (invocationsInfo.isEmpty || isUnsupportedInvocation(invocation, invocationsInfo) ||
       invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
-      builder.pushUnknownCall(wrappedInvocation, 0)
-    } else if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
-      invocationsInfo.tail.foreach(invocation => {
-        transformMethodInvocation(invocation, builder)
+      builder.pushUnknownCall(invocation, 0)
+    } else if (!tryTransformIntoSpecialRepresentation(invocation, invocationsInfo)) {
+      invocationsInfo.tail.foreach(invocationInfo => {
+        transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
         builder.popReturnValue()
       })
 
-      transformMethodInvocation(invocationsInfo.head, builder)
+      transformMethodInvocation(invocation, invocationsInfo.head, instanceQualifier)
     }
   }
 
@@ -66,30 +61,32 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
   }
 
-  private def addAdditionalAssertions(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
-    addCollectionAccessAssertions(wrappedInvocation, invocationInfo, builder)
+  private def addAdditionalAssertions(invocation: ScExpression, invocationInfo: InvocationInfo): Unit = {
+    addCollectionAccessAssertions(invocation, invocationInfo)
   }
 
-  private def transformMethodInvocation(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
-    addAdditionalAssertions(invocationInfo, builder)
+  private def transformMethodInvocation(invocation: ScExpression,
+                                        invocationInfo: InvocationInfo,
+                                        instanceQualifier: Option[ScalaDfaVariableDescriptor]): Unit = {
+    addAdditionalAssertions(invocation, invocationInfo)
 
     val byValueArgs = invocationInfo.argListsInEvaluationOrder.flatMap(_.filter(_.passingMechanism == PassByValue))
-    byValueArgs.foreach(_.content.transform(builder))
+    byValueArgs.foreach(arg => transformExpression(arg.content))
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,
-      ScalaStatementAnchor(wrappedInvocation), instanceQualifier, transfer, builder.analysedMethodInfo))
+      ScalaStatementAnchor(invocation), instanceQualifier, transfer, builder.analysedMethodInfo))
   }
 
-  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo],
-                                                    builder: ScalaDfaControlFlowBuilder): Boolean = {
+  private def tryTransformIntoSpecialRepresentation(invocation: ScExpression,
+                                                    invocationsInfo: Seq[InvocationInfo]): Boolean = {
     if (invocationsInfo.size > 1) return false
     val invocationInfo = invocationsInfo.head
 
     invocationInfo.invokedElement match {
       case Some(InvokedElement(psiElement)) => psiElement match {
         case function: ScSyntheticFunction =>
-          tryTransformSyntheticFunctionSpecially(function, invocationInfo, wrappedInvocation, builder)
+          tryTransformSyntheticFunctionSpecially(function, invocationInfo, invocation)
         case _ => false
       }
       case _ => false

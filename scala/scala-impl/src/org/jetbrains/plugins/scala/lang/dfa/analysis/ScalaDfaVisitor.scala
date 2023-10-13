@@ -42,7 +42,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
 
     val analysedMethodInfo = AnalysedMethodInfo(function, 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
-    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
+    new ScalaPsiElementTransformer(controlFlowBuilder).transformPsiElement(body)
     val flow = controlFlowBuilder.build()
 
     val listener = new ScalaDfaListener
