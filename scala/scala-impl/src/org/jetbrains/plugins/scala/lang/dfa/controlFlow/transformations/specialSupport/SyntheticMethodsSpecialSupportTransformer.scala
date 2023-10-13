@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-trait SyntheticMethodsSpecialSupportTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends Transformer { this: ScalaPsiElementTransformer =>
 
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,
                                                    invocationInfo: InvocationInfo,

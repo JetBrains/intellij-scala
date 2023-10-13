@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
  * It is the most likely entrypoint for building control flow for Scala code.
  * It passes responsibility further to more specific transformers.
  */
-class ScalaPsiElementTransformer(override val builder: ScalaDfaControlFlowBuilder)
+private class ScalaPsiElementTransformer(override val builder: ScalaDfaControlFlowBuilder)
   extends Transformer
     with DefinitionTransformer
     with ExpressionTransformer
@@ -34,4 +34,9 @@ class ScalaPsiElementTransformer(override val builder: ScalaDfaControlFlowBuilde
 
     builder.finishElement(element)
   }
+}
+
+object ScalaPsiElementTransformer {
+  def transform(element: ScalaPsiElement, builder: ScalaDfaControlFlowBuilder): Unit =
+    new ScalaPsiElementTransformer(builder).transformPsiElement(element)
 }

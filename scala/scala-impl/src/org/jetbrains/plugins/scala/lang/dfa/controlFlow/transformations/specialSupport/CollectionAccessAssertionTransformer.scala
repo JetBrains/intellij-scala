@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.cre
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-trait CollectionAccessAssertionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+private[transformations] trait CollectionAccessAssertionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
   def addCollectionAccessAssertions(invocationExpression: ScExpression,
                                     invocationInfo: InvocationInfo): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
