@@ -293,6 +293,8 @@
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
+        <fileStructureGroupRuleProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.rules.ScalaDeclarationGroupRuleProvider"/>
+        <fileStructureGroupRuleProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.rules.ScalaDeclarationSecondLevelGroupRuleProvider"/>
 
         <useScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaSharedSourcesUseScopeEnlarger"/>
         <resolveScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaSharedSourcesResolveScopeEnlarger"/>
