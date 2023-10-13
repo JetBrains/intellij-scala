@@ -4,6 +4,7 @@ package project
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtilRt
+import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
@@ -99,14 +100,44 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       moduleNode
     }
 
+    val dependentModulesThatRequireSharedSourcesModule = if (insertProjectTransitiveDependencies) {
+      getAllModulesThatRequireSharedSourcesModule(projectToModuleNode, projects)
+    } else {
+      Seq.empty
+    }
+
     //add shared sources module as a dependency to platform modules
-    projects.map(projectToModuleNode).foreach { ownerModule =>
-      val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
-      node.setExported(true)
-      ownerModule.add(node)
+    (projects.map(projectToModuleNode).map((_, DependencyScope.COMPILE)) ++ dependentModulesThatRequireSharedSourcesModule)
+      .foreach { case(ownerModule, dependencyScope) =>
+        val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
+        node.setScope(dependencyScope)
+        node.setExported(true)
+        ownerModule.add(node)
     }
 
     sourceModuleNode
+  }
+
+  /**
+   * if project transitive dependencies feature is on, it is required to put shared sources module not only in it's owner module (module with shared sources),
+   * but in all modules which depend on modules that have shared resources
+   */
+  private def getAllModulesThatRequireSharedSourcesModule(
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    sharedSourcesProjects: Seq[ProjectData]
+  ): Seq[(ModuleNode, DependencyScope)] = {
+    projectToModuleNode
+      .filterNot { case (project, _) => sharedSourcesProjects.contains(project) }
+      .flatMap { case (project, moduleNode) =>
+        val projectsDependentOnSharedSourceProjects = for {
+          // TODO: Use production and test dependencies when production and test sources are separated
+          projectDependencyData <- project.dependencies.projects.production
+          projectData <- sharedSourcesProjects
+          if Option(projectData.buildURI) == projectDependencyData.buildURI && projectData.id == projectDependencyData.project
+        } yield projectDependencyData
+        Option(projectsDependentOnSharedSourceProjects).filter(_.nonEmpty)
+          .map { dependency => (moduleNode, scopeFor(dependency.flatMap(_.configurations))) }
+      }.toSeq
   }
 
   /**
