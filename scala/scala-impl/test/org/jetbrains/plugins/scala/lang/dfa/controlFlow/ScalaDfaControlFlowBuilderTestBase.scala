@@ -27,7 +27,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           val factory = new DfaValueFactory(getProject)
           val analysedMethodInfo = AnalysedMethodInfo(function, 1)
           val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
-          new ScalaPsiElementTransformer(controlFlowBuilder).transformPsiElement(body)
+          ScalaPsiElementTransformer.transform(body, controlFlowBuilder)
           val flow = controlFlowBuilder.build()
 
           flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim.withNormalizedSeparator

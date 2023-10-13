@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.resolveExpre
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-trait TransformerUtils extends Transformer { this: ScalaPsiElementTransformer =>
-
+private trait TransformerUtils extends Transformer { this: ScalaPsiElementTransformer =>
   def assignVariableValue(descriptor: ScalaDfaVariableDescriptor,
                           valueExpression: Option[ScExpression],
                           definedType: ScType): Unit = {

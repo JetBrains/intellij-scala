@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
-trait ExpressionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
   def transformExpression(element: ScExpression): Unit = element match {
     case someExpression if isUnsupportedPureExpressionType(someExpression) => builder.pushUnknownValue()
     case someExpression if isUnsupportedImpureExpressionType(someExpression) => builder.pushUnknownCall(someExpression, 0)

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOpe
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-trait InvocationTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+private trait InvocationTransformer extends Transformer { this: ScalaPsiElementTransformer =>
 
   final def transformInvocation(invocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None): Unit = {
     val invocationsInfo = invocation match {

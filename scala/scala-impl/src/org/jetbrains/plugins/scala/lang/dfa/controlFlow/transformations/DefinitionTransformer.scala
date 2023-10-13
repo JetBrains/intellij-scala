@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-trait DefinitionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
   def transformDefinition(element: ScDefinitionWithAssignment): Unit = element match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition)
     case variableDefinition: ScVariableDefinition => transformVariableDefinition(variableDefinition)
