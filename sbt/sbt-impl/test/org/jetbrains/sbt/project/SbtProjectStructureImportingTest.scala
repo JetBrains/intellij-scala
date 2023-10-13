@@ -363,7 +363,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
       lazy val ideaShell: module = new module("sbt-idea-shell") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
-        sbtProjectId := "sbt-idea-shell"
+        sbtProjectId := "root"
       }
 
       lazy val ideSettings: module = new module("sbt-ide-settings") {
