@@ -112,7 +112,7 @@ object InterproceduralAnalysis {
     implicit val context: ProjectContext = method.getProject
     controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endOffset))
 
-    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
+    new ScalaPsiElementTransformer(controlFlowBuilder).transformPsiElement(body)
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))
     val flow = controlFlowBuilder.buildForExternalMethod(resultDestination, endOffset)
 

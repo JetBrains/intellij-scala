@@ -2,22 +2,18 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaClassDef
-import com.intellij.codeInspection.dataFlow.java.inst.{JvmPushInstruction, PrimitiveConversionInstruction}
+import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.{CommonClassNames, PsiPrimitiveType}
+import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, InvocationTransformer, Transformable}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.resolveExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Stack-based control flow builder for Scala, similar that supports analysis of dataflow.
@@ -108,36 +104,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     }
   }
 
-  def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression],
-                          definedType: ScType): Unit = {
-    val dfaVariable = createVariable(descriptor)
-    val anchor = valueExpression.map(ScalaStatementAnchor(_)).orNull
-
-    valueExpression match {
-      case Some(expression) => new ExpressionTransformer(expression).transform(this)
-        addImplicitConversion(Some(expression), Some(definedType))
-      case _ => pushUnknownValue()
-    }
-
-    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
-  }
-
-  def assignVariableValueWithInstanceQualifier(descriptor: ScalaDfaVariableDescriptor,
-                                               instantiationExpression: Option[ScExpression],
-                                               instanceQualifier: ScBindingPattern, definedType: ScType): Unit = {
-    val dfaVariable = createVariable(descriptor)
-    val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
-    val qualifierVariable = ScalaDfaVariableDescriptor(instanceQualifier, None, instanceQualifier.isStable)
-
-    instantiationExpression match {
-      case Some(expression) => new InvocationTransformer(expression, Some(qualifierVariable)).transform(this)
-        addImplicitConversion(Some(expression), Some(definedType))
-      case _ => pushUnknownValue()
-    }
-
-    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
-  }
-
   def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
@@ -147,19 +113,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
 
   def transferValue(transfer: ExceptionTransfer): DfaControlTransferValue = trapTracker.transferValue(transfer)
-
-  def addImplicitConversion(expression: Option[ScExpression], balancedType: Option[ScType]): Unit = {
-    val actualType = expression.map(resolveExpressionType)
-    for (balancedType <- balancedType; actualType <- actualType) {
-      if (actualType != balancedType) {
-        balancedType.toPsiType match {
-          case balancedPrimitiveType: PsiPrimitiveType =>
-            addInstruction(new PrimitiveConversionInstruction(balancedPrimitiveType, null))
-          case _ =>
-        }
-      }
-    }
-  }
 
   def addReturnInstruction(expression: Option[ScExpression]): Unit = {
     addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), expression.orNull))

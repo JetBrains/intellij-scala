@@ -12,32 +12,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
  * It is the most likely entrypoint for building control flow for Scala code.
  * It passes responsibility further to more specific transformers.
  */
-class ScalaPsiElementTransformer(val wrappedElement: ScalaPsiElement) extends Transformable {
+class ScalaPsiElementTransformer(override val builder: ScalaDfaControlFlowBuilder)
+  extends Transformer
+    with DefinitionTransformer
+    with ExpressionTransformer
+    with InvocationTransformer
+    with TransformerUtils
+    with specialSupport.CollectionAccessAssertionTransformer
+    with specialSupport.SyntheticMethodsSpecialSupportTransformer
+{
 
-  override def toString: String = s"ScalaPsiElementTransformer: $wrappedElement"
-
-  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    val transformer = wrappedElement match {
-      case expression: ScExpression => new ExpressionTransformer(expression)
-      case definition: ScDefinitionWithAssignment => new DefinitionTransformer(definition)
-      case declarationStatement: ScDeclaration with ScBlockStatement => new UnknownCallTransformer(declarationStatement)
-      case _: ScImportStmt => new UnknownValueTransformer
-      case _: ScImportExpr => new UnknownValueTransformer
-      case _ => throw TransformationFailedException(wrappedElement, "Unsupported PSI element.")
+  def transformPsiElement(element: ScalaPsiElement): Unit = {
+    element match {
+      case expression: ScExpression => transformExpression(expression)
+      case definition: ScDefinitionWithAssignment => transformDefinition(definition)
+      case statement: ScDeclaration with ScBlockStatement => builder.pushUnknownCall(statement, 0)
+      case _: ScImportStmt => builder.pushUnknownValue()
+      case _: ScImportExpr => builder.pushUnknownValue()
+      case _ => throw TransformationFailedException(element, "Unsupported PSI element.")
     }
 
-    transformer.transform(builder)
-    builder.finishElement(wrappedElement)
-  }
-
-  protected def transformPsiElement(element: ScalaPsiElement, builder: ScalaDfaControlFlowBuilder): Unit = {
-    new ScalaPsiElementTransformer(element).transform(builder)
-  }
-
-  protected def transformIfPresent(container: Option[ScalaPsiElement], builder: ScalaDfaControlFlowBuilder): Unit = {
-    container match {
-      case Some(element) => transformPsiElement(element, builder)
-      case _ => builder.pushUnknownValue()
-    }
+    builder.finishElement(element)
   }
 }
