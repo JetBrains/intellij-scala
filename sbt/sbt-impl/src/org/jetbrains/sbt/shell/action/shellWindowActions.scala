@@ -17,6 +17,7 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.wm.IdeFocusManager
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, executeOnPooledThread}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil.shellAlive
@@ -170,15 +171,36 @@ final class FindAction(view: SbtShellConsoleView) extends DumbAwareAction {
   }
 }
 
-//needed to be able to close search panel
+/**
+ * This action is needed to be able to close search panel in history viewer when it's open or remove selection in history viewer.
+ * In a usual situation, history viewer should do that automatically.
+ * However if we manually change focus to the console editor, it won't work so we need custom action for that.
+ */
 final class EscapeAction(view: SbtShellConsoleView) extends DumbAwareAction {
   setShortcutSet(CommonShortcuts.ESCAPE)
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+
+  //We want this action to only active when there is an active search in history viewer otherwise we want the default
+  // behaviour for the ESC button (e.g. loose focus from the tool window and set focus to the code editor)
+  override def update(e: AnActionEvent): Unit = {
+    val historyViewer = view.getHistoryViewer
+    val historyViewerHasSearchSession = EditorSearchSession.get(historyViewer) != null
+    val historyViewerIsFocused = IdeFocusManager.getInstance(view.getProject).getFocusedDescendantFor(historyViewer.getComponent) != null
+    val enabled = historyViewerHasSearchSession || historyViewerIsFocused
+    e.getPresentation.setEnabled(enabled)
+  }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val searchSession = EditorSearchSession.get(view.getEditor)
     if (searchSession != null) {
       searchSession.close()
     }
+
+    //Ensure that focus is set on console editor, without this call even if the console editor is focused,
+    // the focus will jump to the history viewer due to implementation of EditorSearchSession.close
+    view.getHistoryViewer.getSelectionModel.removeSelection()
+    IdeFocusManager.getInstance(view.getProject).requestFocus(view.getConsoleEditor.getContentComponent, false)
   }
 }
 
