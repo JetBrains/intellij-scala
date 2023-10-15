@@ -135,7 +135,7 @@ object SbtShellConsoleView {
 
   /**
    * This listener resents the focus to console editor whenever history viewer is clicked.
-   * This listn is a workaround  to IDEA-302621.
+   * This listener is a workaround  to IDEA-302621.
    * It was originally introduced within SCL-12392.
    * When IDEA-302621 is fixed we might get rid of this workaround.
    */
@@ -143,7 +143,9 @@ object SbtShellConsoleView {
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       //we want to select content on double/triple click in history viewer
       //in this case don't resent focus
-      if (e.getMouseEvent.getClickCount == 1) {
+      val clickCount = e.getMouseEvent.getClickCount
+      val historySelectionIsEmpty = !cv.getHistoryViewer.getSelectionModel.hasSelection //SCL-21593
+      if (clickCount == 1 && historySelectionIsEmpty) {
         val focusManager = IdeFocusManager.getInstance(cv.getProject)
         val focusComponent = cv.getConsoleEditor.getContentComponent
         focusManager.doWhenFocusSettlesDown { () =>
