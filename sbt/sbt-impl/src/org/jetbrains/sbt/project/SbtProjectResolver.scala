@@ -593,22 +593,32 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     //We reuse ModuleUniqueInternalNameGenerator because the reasoning should be the same for group names as for the module names
     val uniqueNameGenerator = new ModuleUniqueInternalNameGenerator
 
-    //NOTE: doing extra sorting Sort for a better reproducibility/testability of resulting project structure
-    //The order can matter for unique group names generation
-    buildToProjects.toSeq.sortBy(_._1).map { case (buildUri, projects) =>
-      val rootProject = findRootProjectInBuild(projects)
+    //NOTE: sort by URI for a better reproducibility/testability of resulting project structure
+    //The matters for unique group names generation
+    //(if the order is not specifies, group names of projects with colliding names can have random index suffixes)
+    buildToProjects
+      .toSeq.sortBy(_._1)
+      .map { case (buildUri, projects) =>
+        val rootProject = findRootProjectInBuild(projects)
 
-      val ideModuleGroup =
-        if (!settings.groupProjectsFromSameBuild)
-          None
-        else if (buildUri == rootProjectUri)
-          None //Don't add a group for the root root build. Root build projects will be in the root of project structure
+        val ideModuleGroup =
+          if (!settings.groupProjectsFromSameBuild)
+            None
+          else
+            Some(rootProject.name)
+
+        val ideModuleGroupUnique = ideModuleGroup.map(uniqueNameGenerator.getUniqueInternalNameAndUpdateRegistry)
+        BuildProjectsGroup(buildUri, rootProject, projects, ideModuleGroupUnique)
+      }
+      .map { group =>
+        //We don't need to add a group for the root build - it's projects will be in the root of project structure
+        //NOTE: we do this early, once group names are generated to avoid collisions between root project name and module group names
+        //  For that we need the root build to take part in module group names generation
+        if (group.buildUri == rootProjectUri)
+          group.copy(buildIdeModuleGroup = None)
         else
-          Some(rootProject.name)
-
-      val ideModuleGroupUnique = ideModuleGroup.map(uniqueNameGenerator.getUniqueInternalNameAndUpdateRegistry)
-      BuildProjectsGroup(buildUri, rootProject, projects, ideModuleGroupUnique)
-    }
+          group
+      }
   }
 
   private def findRootProjectInBuild(projectInSameBuild: Seq[ProjectData]): ProjectData = {
