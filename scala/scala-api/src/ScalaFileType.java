@@ -15,8 +15,8 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 
@@ -35,6 +35,6 @@ final public class ScalaFileType extends LanguageFileTypeBase {
     @Override
     @NotNull
     public Icon getIcon() {
-        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/fileScala.svg", ScalaFileType.class);
+        return Icons.SCALA_FILE;
     }
 }
