@@ -33,27 +33,13 @@ import java.net.URI
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
+// IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
+// SbtProjectStructureImportingWithTransitiveProjectDependenciesTest.scala. Before each test performed in this class
+// insertProjectTransitiveDependencies is set true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestLike
-  with ProjectStructureMatcher
-  with ExactMatch {
+final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
-
-  override protected def getTestProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
-
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-  }
-
-  protected def runTest(expected: project): Unit = {
-    importProject(false)
-
-    assertProjectsEqual(expected, myProject)(ProjectComparisonOptions.Implicit.default)
-    assertNoNotificationsShown(myProject)
-  }
 
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
@@ -256,12 +242,16 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
       lazy val foo: module = new module("foo") {
         libraryDependencies := scalaLibraries
-        moduleDependencies := Seq(sharedSourcesModule)
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModule) { isExported := true }
+        )
       }
 
       lazy val bar: module = new module("bar") {
         libraryDependencies := scalaLibraries
-        moduleDependencies := Seq(sharedSourcesModule)
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModule) { isExported := true }
+        )
       }
 
       modules := Seq(root, foo, bar, sharedSourcesModule)
@@ -289,7 +279,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       }
 
       val jvmModule: module = new module("p1") {
-        moduleDependencies += sharedModule
+        moduleDependencies += new dependency(sharedModule) { isExported := true }
         contentRoots += getProjectPath + "/p1/jvm"
       }
 
