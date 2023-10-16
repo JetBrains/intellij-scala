@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
-private object MyScalaMainMethodUtil {
+private object ScalaApplicationConfigurationProducerMainMethodUtils {
 
   def findMainMethodFromContext(element: PsiElement): Option[MainMethodInfo] = {
     val res1 = findContainingMainMethod(element)
