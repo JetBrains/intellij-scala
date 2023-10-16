@@ -35,6 +35,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     case matchExpression: ScMatch => transformMatchExpression(matchExpression)
     case throwStatement: ScThrow => transformThrowStatement(throwStatement)
     case returnStatement: ScReturn => transformReturnStatement(returnStatement)
+    case _: ScUnitExpr => pushUnit()
     case _: ScTemplateDefinition => pushUnknownValue()
     case _ => throw TransformationFailedException(element, "Unsupported expression.")
   }
@@ -45,7 +46,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def isUnsupportedPureExpressionType(expression: ScExpression): Boolean = {
-    expression.is[ScUnitExpr, ScTuple, ScThisReference, ScSuperReference]
+    expression.is[ScTuple, ScThisReference, ScSuperReference]
   }
 
   private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
@@ -59,7 +60,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   private def transformBlock(block: ScBlockExpr): Unit = {
     val statements = block.statements
     if (statements.isEmpty) {
-      pushUnknownValue()
+      pushUnit()
     } else {
       statements.init.foreach { statement =>
         transformPsiElement(statement)
