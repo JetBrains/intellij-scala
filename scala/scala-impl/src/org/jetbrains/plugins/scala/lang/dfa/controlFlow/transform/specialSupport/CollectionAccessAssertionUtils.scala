@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.specialSupport
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport
 
 import com.intellij.codeInspection.dataFlow.java.inst.EnsureIndexInBoundsInstruction
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.specialSupport.CollectionAccessAssertionTransformer.CollectionAccessAssertion
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, Transformer}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.CollectionAccessAssertionUtils.CollectionAccessAssertion
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.{IndexOutOfBoundsExceptionName, NoSuchElementExceptionName, ScalaCollection}
@@ -12,17 +12,17 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.cre
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-private[transformations] trait CollectionAccessAssertionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
-  def addCollectionAccessAssertions(invocationExpression: ScExpression,
-                                    invocationInfo: InvocationInfo): Unit = {
+trait CollectionAccessAssertionUtils { this: ScalaDfaControlFlowBuilder =>
+  def buildCollectionAccessAssertions(invocationExpression: ScExpression,
+                                      invocationInfo: InvocationInfo): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
       for (thisArgument <- invocationInfo.thisArgument) {
         transformExpression(thisArgument.content)
         transformExpression(accessedIndex)
 
         val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationExpression, exceptionName)
-        val transfer = builder.maybeTransferValue(exceptionName)
-        builder.addInstruction(new EnsureIndexInBoundsInstruction(problem, transfer.orNull))
+        val transfer = maybeTransferValue(exceptionName)
+        addInstruction(new EnsureIndexInBoundsInstruction(problem, transfer.orNull))
       }
     }
   }
@@ -57,6 +57,6 @@ private[transformations] trait CollectionAccessAssertionTransformer extends Tran
   }
 }
 
-object CollectionAccessAssertionTransformer {
+object CollectionAccessAssertionUtils {
   final case class CollectionAccessAssertion(index: Option[ScExpression], exceptionName: String)
 }

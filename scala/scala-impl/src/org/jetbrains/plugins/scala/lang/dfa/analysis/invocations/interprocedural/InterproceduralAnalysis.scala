@@ -11,7 +11,6 @@ import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
@@ -112,7 +111,7 @@ object InterproceduralAnalysis {
     implicit val context: ProjectContext = method.getProject
     controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endOffset))
 
-    ScalaPsiElementTransformer.transform(body, controlFlowBuilder)
+    controlFlowBuilder.transformExpression(body)
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))
     val flow = controlFlowBuilder.buildForExternalMethod(resultDestination, endOffset)
 

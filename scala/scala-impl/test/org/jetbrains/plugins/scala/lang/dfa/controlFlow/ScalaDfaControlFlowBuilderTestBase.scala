@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -27,7 +26,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           val factory = new DfaValueFactory(getProject)
           val analysedMethodInfo = AnalysedMethodInfo(function, 1)
           val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
-          ScalaPsiElementTransformer.transform(body, controlFlowBuilder)
+          controlFlowBuilder.transformExpression(body)
           val flow = controlFlowBuilder.build()
 
           flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim.withNormalizedSeparator

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 package specialSupport
 
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NotInstruction, NumericBinaryInstruction}
@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends Transformer { this: ScalaPsiElementTransformer =>
-
+trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =>
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,
                                                    invocationInfo: InvocationInfo,
                                                    invocation: ScExpression): Boolean = {
@@ -70,9 +69,9 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
     )
 
     transformExpression(leftArg.content)
-    addImplicitConversion(leftExpression, balancedType)
+    buildImplicitConversion(leftExpression, balancedType)
     transformExpression(rightArg.content)
-    addImplicitConversion(rightExpression, balancedType)
+    buildImplicitConversion(rightExpression, balancedType)
 
     val leftType = leftExpression.map(resolveExpressionType)
     val rightType = rightExpression.map(resolveExpressionType)
@@ -91,13 +90,13 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
         val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = false)
 
         if (successful)
-          builder.addInstruction(
+          addInstruction(
             new NumericBinaryInstruction(
               NumericBinary(operationName),
               ScalaStatementAnchor(invocation)
             )
           )
-        else builder.pushUnknownCall(invocation, 2)
+        else pushUnknownCall(invocation, 2)
         return true
       }
     }
@@ -114,9 +113,9 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
 
-        if (successful) builder.addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
+        if (successful) addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
           ScalaStatementAnchor(invocation)))
-        else builder.pushUnknownCall(invocation, 2)
+        else pushUnknownCall(invocation, 2)
         return true
       }
     }
@@ -138,15 +137,15 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
           transformExpression(leftArg.content)
 
           val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-          builder.addInstruction(new ConditionalGotoInstruction(nextConditionOffset, DfTypes.booleanValue(valueNeededToContinue)))
-          builder.addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
-          builder.addInstruction(new GotoInstruction(endOffset))
+          addInstruction(new ConditionalGotoInstruction(nextConditionOffset, DfTypes.booleanValue(valueNeededToContinue)))
+          addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
+          addInstruction(new GotoInstruction(endOffset))
 
-          builder.setOffset(nextConditionOffset)
-          builder.addInstruction(new FinishElementInstruction(null))
+          setOffset(nextConditionOffset)
+          addInstruction(new FinishElementInstruction(null))
           transformExpression(rightArg.content)
-          builder.setOffset(endOffset)
-          builder.addInstruction(new ResultOfInstruction(anchor))
+          setOffset(endOffset)
+          addInstruction(new ResultOfInstruction(anchor))
           return true
         }
       }
@@ -162,10 +161,10 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
         val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
         val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
 
-        builder.addInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
+        addInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
         transformExpression(singleThisArg.content)
 
-        builder.addInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(invocation)))
+        addInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(invocation)))
         return true
       }
     }
@@ -182,7 +181,7 @@ private[transformations] trait SyntheticMethodsSpecialSupportTransformer extends
         LogicalUnary(operationName) match {
           case LogicalOperation.Not if verifyBooleanArgumentType(singleThisArg.content) =>
             transformExpression(singleThisArg.content)
-            builder.addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
+            addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
             return true
           case _ =>
         }

@@ -10,7 +10,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.ProperArgument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._

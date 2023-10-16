@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
@@ -11,8 +11,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOpe
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-private trait InvocationTransformer extends Transformer { this: ScalaPsiElementTransformer =>
-
+trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
   final def transformInvocation(invocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None): Unit = {
     val invocationsInfo = invocation match {
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
@@ -24,11 +23,11 @@ private trait InvocationTransformer extends Transformer { this: ScalaPsiElementT
 
     if (invocationsInfo.isEmpty || isUnsupportedInvocation(invocation, invocationsInfo) ||
       invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
-      builder.pushUnknownCall(invocation, 0)
+      pushUnknownCall(invocation, 0)
     } else if (!tryTransformIntoSpecialRepresentation(invocation, invocationsInfo)) {
       invocationsInfo.tail.foreach(invocationInfo => {
         transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
-        builder.pop()
+        pop()
       })
 
       transformMethodInvocation(invocation, invocationsInfo.head, instanceQualifier)
@@ -61,21 +60,22 @@ private trait InvocationTransformer extends Transformer { this: ScalaPsiElementT
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
   }
 
-  private def addAdditionalAssertions(invocation: ScExpression, invocationInfo: InvocationInfo): Unit = {
-    addCollectionAccessAssertions(invocation, invocationInfo)
-  }
-
   private def transformMethodInvocation(invocation: ScExpression,
                                         invocationInfo: InvocationInfo,
                                         instanceQualifier: Option[ScalaDfaVariableDescriptor]): Unit = {
-    addAdditionalAssertions(invocation, invocationInfo)
+    buildCollectionAccessAssertions(invocation, invocationInfo)
 
     val byValueArgs = invocationInfo.argListsInEvaluationOrder.flatMap(_.filter(_.passingMechanism == PassByValue))
     byValueArgs.foreach(arg => transformExpression(arg.content))
 
-    val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
-    builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,
-      ScalaStatementAnchor(invocation), instanceQualifier, transfer, builder.analysedMethodInfo))
+    val transfer = maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
+    addInstruction(new ScalaInvocationInstruction(
+      invocationInfo,
+      ScalaStatementAnchor(invocation),
+      instanceQualifier,
+      transfer,
+      analysedMethodInfo
+    ))
   }
 
   private def tryTransformIntoSpecialRepresentation(invocation: ScExpression,

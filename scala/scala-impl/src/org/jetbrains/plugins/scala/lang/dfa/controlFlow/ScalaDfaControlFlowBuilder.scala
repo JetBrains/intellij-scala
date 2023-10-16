@@ -6,31 +6,28 @@ import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
-import com.intellij.codeInspection.dataFlow.lang.ir._
+import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
-import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.{DefinitionTransformation, ExpressionTransformation, InvocationTransformation, ScalaPsiElementTransformation, TransformerUtils, specialSupport}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
- * Stack-based control flow builder for Scala, similar that supports analysis of dataflow.
- * It transforms Scala PSI elements into DFA-compatible Intermediate Representation, similar to Java bytecode.
- *
- * '''Usage:''' This builder can be either used directly manually or as a visitor to instances of
- * [[Transformable]].
- *
- * '''Visitor:''' To generate a control flow representation for a PSI element (or other syntactic construct),
- * wrap this element in a proper [[Transformable]]
- * instance. Then pass it an instance of this builder by calling ```transformable.transform(builder)```.
- * After that, call ```builder.build()``` to finalize building and collect the result.
- */
-class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, private val factory: DfaValueFactory,
-                                 context: ScalaPsiElement) {
+
+class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
+                                 private val factory: DfaValueFactory,
+                                 context: ScalaPsiElement)
+  extends DefinitionTransformation
+    with ExpressionTransformation
+    with InvocationTransformation
+    with TransformerUtils
+    with ScalaPsiElementTransformation
+    with specialSupport.CollectionAccessAssertionUtils
+    with specialSupport.SpecialSyntheticMethodsTransformation
+{
 
   private val flow = new ControlFlow(factory, context)
   private val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
@@ -78,8 +75,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   }
 
   def addInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
-
-  def pushUnit(): Unit = addInstruction(new PushValueInstruction(DfUnitType))
 
   def pushUnknownValue(): Unit = addInstruction(new PushValueInstruction(DfType.TOP))
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
 import com.intellij.codeInspection.dataFlow.TypeConstraints
 import com.intellij.codeInspection.dataFlow.java.inst.ThrowInstruction
@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
-private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   def transformExpression(element: ScExpression): Unit = element match {
-    case someExpression if isUnsupportedPureExpressionType(someExpression) => builder.pushUnknownValue()
-    case someExpression if isUnsupportedImpureExpressionType(someExpression) => builder.pushUnknownCall(someExpression, 0)
+    case someExpression if isUnsupportedPureExpressionType(someExpression) => pushUnknownValue()
+    case someExpression if isUnsupportedImpureExpressionType(someExpression) => pushUnknownCall(someExpression, 0)
     case block: ScBlockExpr => transformBlock(block)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised)
     case invocation: MethodInvocation => transformInvocation(invocation)
@@ -35,13 +35,13 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     case matchExpression: ScMatch => transformMatchExpression(matchExpression)
     case throwStatement: ScThrow => transformThrowStatement(throwStatement)
     case returnStatement: ScReturn => transformReturnStatement(returnStatement)
-    case _: ScTemplateDefinition => builder.pushUnknownValue()
+    case _: ScTemplateDefinition => pushUnknownValue()
     case _ => throw TransformationFailedException(element, "Unsupported expression.")
   }
-  
+
   def transformExpression(element: Option[ScExpression]): Unit = element match {
     case Some(element) => transformExpression(element)
-    case None => builder.pushUnknownValue()
+    case None => pushUnknownValue()
   }
 
   private def isUnsupportedPureExpressionType(expression: ScExpression): Boolean = {
@@ -59,15 +59,15 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
   private def transformBlock(block: ScBlockExpr): Unit = {
     val statements = block.statements
     if (statements.isEmpty) {
-      builder.pushUnit()
+      pushUnknownValue()
     } else {
       statements.init.foreach { statement =>
         transformPsiElement(statement)
-        builder.pop()
+        pop()
       }
 
       transformPsiElement(statements.last)
-      builder.addInstruction(new FinishElementInstruction(block))
+      addInstruction(new FinishElementInstruction(block))
     }
   }
 
@@ -76,8 +76,8 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
   }
 
   private def transformLiteral(literal: ScLiteral): Unit = {
-    if (literal.is[ScInterpolatedStringLiteral]) builder.pushUnknownCall(literal, 0)
-    else builder.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
+    if (literal.is[ScInterpolatedStringLiteral]) pushUnknownCall(literal, 0)
+    else addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
   }
 
   private def transformIfExpression(ifExpression: ScIf): Unit = {
@@ -86,20 +86,20 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     val skipElseOffset = new DeferredOffset
 
     transformExpression(ifExpression.condition)
-    builder.addInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, ifExpression.condition.orNull))
+    addInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, ifExpression.condition.orNull))
 
-    builder.addInstruction(new FinishElementInstruction(null))
+    addInstruction(new FinishElementInstruction(null))
     transformExpression(ifExpression.thenExpression)
-    addImplicitConversion(ifExpression.thenExpression, Some(returnType))
-    builder.addInstruction(new GotoInstruction(skipElseOffset))
-    builder.setOffset(skipThenOffset)
+    buildImplicitConversion(ifExpression.thenExpression, Some(returnType))
+    addInstruction(new GotoInstruction(skipElseOffset))
+    setOffset(skipThenOffset)
 
-    builder.addInstruction(new FinishElementInstruction(null))
+    addInstruction(new FinishElementInstruction(null))
     transformExpression(ifExpression.elseExpression)
-    ifExpression.elseExpression.foreach(expression => addImplicitConversion(Some(expression), Some(returnType)))
-    builder.setOffset(skipElseOffset)
+    ifExpression.elseExpression.foreach(expression => buildImplicitConversion(Some(expression), Some(returnType)))
+    setOffset(skipElseOffset)
 
-    builder.addInstruction(new FinishElementInstruction(ifExpression))
+    addInstruction(new FinishElementInstruction(ifExpression))
   }
 
   private def transformReference(expression: ScReferenceExpression): Unit = {
@@ -108,14 +108,14 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     } else {
       expression.qualifier.foreach { qualifier =>
         transformExpression(qualifier)
-        builder.pop()
+        pop()
       }
 
       val expectedType = resolveExpressionType(expression)
       ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
-        case Some(descriptor) => builder.pushVariable(descriptor, expression)
-          addImplicitConversion(Some(expression), Some(expectedType))
-        case _ => builder.pushUnknownCall(expression, 0)
+        case Some(descriptor) => pushVariable(descriptor, expression)
+          buildImplicitConversion(Some(expression), Some(expectedType))
+        case _ => pushUnknownCall(expression, 0)
       }
     }
   }
@@ -133,33 +133,33 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
       case reference: ScReferenceExpression => ScalaDfaVariableDescriptor.fromReferenceExpression(reference) match {
         case Some(descriptor) => val definedType = resolveExpressionType(assignment.leftExpression)
           assignVariableValue(descriptor, assignment.rightExpression, definedType)
-          builder.pushUnknownValue()
-        case _ => builder.pushUnknownCall(assignment, 0)
+          pushUnknownValue()
+        case _ => pushUnknownCall(assignment, 0)
       }
-      case _ => builder.pushUnknownCall(assignment, 0)
+      case _ => pushUnknownCall(assignment, 0)
     }
   }
 
   private def transformDoWhileLoop(doWhileLoop: ScDo): Unit = {
     // TODO implement transformation
-    builder.pushUnknownCall(doWhileLoop, 0)
+    pushUnknownCall(doWhileLoop, 0)
   }
 
   private def transformWhileLoop(whileLoop: ScWhile): Unit = {
     // TODO implement transformation
-    builder.pushUnknownCall(whileLoop, 0)
+    pushUnknownCall(whileLoop, 0)
   }
 
   private def transformForExpression(forExpression: ScFor): Unit = {
     forExpression.desugared() match {
       case Some(desugared) => transformExpression(desugared)
-      case _ => builder.pushUnknownCall(forExpression, 0)
+      case _ => pushUnknownCall(forExpression, 0)
     }
   }
 
   private def transformMatchExpression(matchExpression: ScMatch): Unit = {
     // TODO implement transformation
-    builder.pushUnknownCall(matchExpression, 0)
+    pushUnknownCall(matchExpression, 0)
   }
 
   //noinspection UnstableApiUsage
@@ -167,21 +167,21 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     val exceptionExpression = throwStatement.expression
     exceptionExpression match {
       case Some(exception) => transformExpression(exception)
-        builder.pop()
+        pop()
         val psiType = exception.`type`().getOrAny.toPsiType
         val transfer = new ExceptionTransfer(TypeConstraints.instanceOf(psiType))
-        builder.addInstruction(new ThrowInstruction(builder.transferValue(transfer), exception))
-        builder.pushUnknownValue()
-      case _ => builder.pushUnknownCall(throwStatement, 0)
+        addInstruction(new ThrowInstruction(transferValue(transfer), exception))
+        pushUnknownValue()
+      case _ => pushUnknownCall(throwStatement, 0)
     }
   }
 
   private def transformReturnStatement(returnStatement: ScReturn): Unit = {
     returnStatement.expr match {
       case Some(expression) => transformExpression(expression)
-      case _ => builder.pushUnknownValue()
+      case _ => pushUnknownValue()
     }
 
-    builder.addReturnInstruction(returnStatement.expr)
+    addReturnInstruction(returnStatement.expr)
   }
 }
