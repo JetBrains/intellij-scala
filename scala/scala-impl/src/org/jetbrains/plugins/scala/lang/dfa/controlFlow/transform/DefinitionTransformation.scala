@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementTransformer =>
+trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
   def transformDefinition(element: ScDefinitionWithAssignment): Unit = element match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition)
     case variableDefinition: ScVariableDefinition => transformVariableDefinition(variableDefinition)
-    case _: ScFunctionDefinition => builder.pushUnknownValue()
-    case otherStatementDefinition: ScBlockStatement => builder.pushUnknownCall(otherStatementDefinition, 0)
+    case _: ScFunctionDefinition => pushUnknownValue()
+    case otherStatementDefinition: ScBlockStatement => pushUnknownCall(otherStatementDefinition, 0)
     case _ => throw TransformationFailedException(element, "Unsupported definition.")
   }
 
@@ -28,7 +28,7 @@ private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementT
 
   private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, isStable: Boolean): Unit = {
     if (!definition.isSimple) {
-      builder.pushUnknownCall(definition, 0)
+      pushUnknownCall(definition, 0)
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
@@ -40,7 +40,7 @@ private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementT
         assignVariableValue(descriptor, definition.expr, definedType)
       }
 
-      builder.pushUnknownValue()
+      pushUnknownValue()
     }
   }
 
@@ -51,16 +51,16 @@ private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementT
   private def assignVariableValueWithInstanceQualifier(descriptor: ScalaDfaVariableDescriptor,
                                                        instantiationExpression: Option[ScExpression],
                                                        instanceQualifier: ScBindingPattern, definedType: ScType): Unit = {
-    val dfaVariable = builder.createVariable(descriptor)
+    val dfaVariable = createVariable(descriptor)
     val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
     val qualifierVariable = ScalaDfaVariableDescriptor(instanceQualifier, None, instanceQualifier.isStable)
 
     instantiationExpression match {
       case Some(expression) => transformInvocation(expression, Some(qualifierVariable))
-        addImplicitConversion(Some(expression), Some(definedType))
-      case _ => builder.pushUnknownValue()
+        buildImplicitConversion(Some(expression), Some(definedType))
+      case _ => pushUnknownValue()
     }
 
-    builder.addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
+    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
   }
 }

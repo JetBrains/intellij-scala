@@ -8,7 +8,6 @@ import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -42,7 +41,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
 
     val analysedMethodInfo = AnalysedMethodInfo(function, 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
-    ScalaPsiElementTransformer.transform(body, controlFlowBuilder)
+    controlFlowBuilder.transformPsiElement(body)
     val flow = controlFlowBuilder.build()
 
     val listener = new ScalaDfaListener

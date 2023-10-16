@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilderTestBase
 
