@@ -21,38 +21,24 @@ object ScalaDfaConstants {
     case object Not extends LogicalOperation
   }
 
+
   final object Packages {
-
+    val ScalaUnit = "Scala.Unit"
     val ScalaInt = "scala.Int"
-
     val ScalaLong = "scala.Long"
-
     val ScalaDouble = "scala.Double"
-
     val ScalaFloat = "scala.Float"
-
     val ScalaBoolean = "scala.Boolean"
-
     val ScalaNone = "scala.None"
-
     val ScalaNothing = "scala.Nothing"
-
     val ScalaCollection = "scala.collection"
-
     val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
-
     val ScalaCollectionMutable = s"$ScalaCollection.mutable"
-
     val ScalaMath = "scala.math"
-
     val JavaLangMath = "java.lang.Math"
-
     val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
-
     val NoSuchElementExceptionName = "java.util.NoSuchElementException"
-
     val NullPointerExceptionName = "java.util.NullPointerException"
-
     val Apply = "apply"
   }
 

@@ -59,7 +59,7 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
   private def transformBlock(block: ScBlockExpr): Unit = {
     val statements = block.statements
     if (statements.isEmpty) {
-      builder.pushUnknownValue()
+      builder.pushUnit()
     } else {
       statements.init.foreach { statement =>
         transformPsiElement(statement)
@@ -72,7 +72,7 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
   }
 
   private def transformParenthesisedExpression(parenthesised: ScParenthesisedExpr): Unit = {
-    parenthesised.innerElement.foreach(transformExpression)
+    transformExpression(parenthesised.innerElement)
   }
 
   private def transformLiteral(literal: ScLiteral): Unit = {
