@@ -29,10 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
-import scala.collection.concurrent.TrieMap
-import scala.collection.immutable.SortedSet
+import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture}
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
@@ -48,7 +46,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private val indicatorExecutor: ScheduledExecutorService =
     AppExecutorUtil.createBoundedScheduledExecutorService("CompilerHighlightingIndicator", 1)
 
-  private val scheduledRequests: TrieMap[VirtualFile, ScheduledCompilationRequests] = TrieMap.empty
+  private val priorityQueue: ConcurrentSkipListSet[CompilationRequest] =
+    new ConcurrentSkipListSet(CompilationRequest.compilationRequestOrdering)
+
+  private val compilationTask: AtomicReference[ScheduledFuture[_]] = new AtomicReference()
 
   private val progressIndicator: AtomicReference[ProgressIndicator] = new AtomicReference()
 
@@ -79,7 +80,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     debug("dispose")
     executor.shutdown()
     indicatorExecutor.shutdown()
-    scheduledRequests.clear()
+    priorityQueue.clear()
     val indicator = progressIndicator.getAndSet(null)
     if (indicator ne null) {
       indicator.cancel()
@@ -100,7 +101,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       BuildManager.getInstance().scheduleAutoMake()
       // clearOutputDirectories is invoked in AutomakeBuildManagerListener
     } else {
-      schedule(virtualFile, CompilationRequest.IncrementalRequest(module, sourceScope, document, psiFile, debugReason))
+      schedule(CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, psiFile, debugReason))
     }
   }
 
@@ -111,7 +112,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     document: Document,
     debugReason: String
   ): Unit =
-    schedule(virtualFile, CompilationRequest.DocumentRequest(module, sourceScope, document, debugReason))
+    schedule(CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason))
 
   def triggerWorksheetCompilation(
     virtualFile: VirtualFile,
@@ -120,34 +121,29 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     isFirstTimeHighlighting: Boolean,
     debugReason: String
   ): Unit =
-    schedule(virtualFile, CompilationRequest.WorksheetRequest(psiFile, document, isFirstTimeHighlighting, debugReason))
+    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason))
 
-  private def schedule(virtualFile: VirtualFile, request: CompilationRequest): Unit = {
-    val now = System.nanoTime()
-    scheduledRequests.updateWith(virtualFile) {
-      case Some(ScheduledCompilationRequests(_, reqs)) =>
-        val newReqs = reqs.filter(_.priority < request.priority) + request
-        Some(ScheduledCompilationRequests(now, newReqs))
-      case None =>
-        val reqs = SortedSet(request)
-        Some(ScheduledCompilationRequests(now, reqs))
+  private def schedule(request: CompilationRequest): Unit = {
+    priorityQueue.add(request)
+    val Duration(delay, unit) = ScalaHighlightingMode.compilationDelay
+    val future = executor.schedule(new CompilationTask(), delay, unit)
+    val previous = compilationTask.getAndSet(future)
+    if (previous ne null) {
+      previous.cancel(false)
     }
-
-    val Duration(length, unit) = ScalaHighlightingMode.compilationDelay
-    executor.schedule(new DebouncedTask(virtualFile), length, unit)
   }
 
-  private def execute(virtualFile: VirtualFile, request: CompilationRequest): Unit = request match {
+  private def execute(request: CompilationRequest): Unit = request match {
     case wr: CompilationRequest.WorksheetRequest =>
       executeWorksheetCompilationRequest(wr)
     case ir: CompilationRequest.IncrementalRequest =>
-      executeIncrementalCompilationRequest(virtualFile, ir)
+      executeIncrementalCompilationRequest(ir)
     case dr: CompilationRequest.DocumentRequest =>
-      executeDocumentCompilationRequest(virtualFile, dr)
+      executeDocumentCompilationRequest(dr)
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
-    val CompilationRequest.WorksheetRequest(file, document, isFirstTimeHighlighting, debugReason) = request
+    val CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason) = request
     debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: $isFirstTimeHighlighting)")
 
     //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
@@ -162,20 +158,16 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (isFirstTimeHighlighting) {
       //If we have just opened worksheet we need to invoke incremental compilation to ensure that worksheet module is compiled to avoid red code
       //Otherwise if you open non-compiled project and open worksheet it will contain red code
-      val virtualFile = file.getVirtualFile
       val sourceScope = if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test else SourceScope.Production
-      val incrementalRequest = CompilationRequest.IncrementalRequest(module, sourceScope, document, file, debugReason)
-      executeIncrementalCompilationRequest(virtualFile, incrementalRequest)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, file, debugReason)
+      executeIncrementalCompilationRequest(incrementalRequest)
     }
 
     performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, module, _))
   }
 
-  private def executeIncrementalCompilationRequest(
-    virtualFile: VirtualFile,
-    request: CompilationRequest.IncrementalRequest
-  ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, _, psiFile, debugReason) = request
+  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest): Unit = {
+    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
@@ -194,8 +186,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     }
   }
 
-  private def executeDocumentCompilationRequest(virtualFile: VirtualFile, request: CompilationRequest.DocumentRequest): Unit = {
-    val CompilationRequest.DocumentRequest(module, sourceScope, document, debugReason) = request
+  private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
+    val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
     performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
   }
@@ -262,9 +254,9 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   })
 
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
-    case CompilationRequest.WorksheetRequest(_, document, _, _) => isDocumentReadyForCompilation(document)
-    case CompilationRequest.IncrementalRequest(_, _, _, _, _) => true
-    case CompilationRequest.DocumentRequest(_, _, document, _) => isDocumentReadyForCompilation(document)
+    case CompilationRequest.WorksheetRequest(_, _, document, _, _) => isDocumentReadyForCompilation(document)
+    case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => true
+    case CompilationRequest.DocumentRequest(_, _, _, document, _) => isDocumentReadyForCompilation(document)
   }
 
   private def isDocumentReadyForCompilation(document: Document): Boolean =
@@ -273,48 +265,37 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         TemplateManager.getInstance(project).getActiveTemplate(editor) == null
     }
 
-  private final class DebouncedTask(virtualFile: VirtualFile) extends Runnable { self =>
-    private var requestToRun: CompilationRequest = _
-    private var delay: FiniteDuration = _
-
+  private final class CompilationTask extends Runnable {
     override def run(): Unit = {
-      scheduledRequests.updateWith(virtualFile) {
-        case Some(scheduled @ ScheduledCompilationRequests(scheduledTimestamp, requests)) =>
-          val now = System.nanoTime()
-          val elapsed = (now - scheduledTimestamp).nanoseconds
-          val timeout = ScalaHighlightingMode.compilationDelay
-          if (elapsed >= timeout) {
-            val head = requests.head
-            if (isReadyForExecution(head)) {
-              requestToRun = head
-              val tail = requests.tail
-              if (tail.isEmpty) None
-              else {
-                delay = timeout
-                Some(ScheduledCompilationRequests(now, tail))
-              }
-            } else {
-              delay = timeout
-              Some(scheduled)
-            }
-          } else {
-            val remaining = timeout - elapsed
-            delay = remaining
-            Some(scheduled)
-          }
+      val request = priorityQueue.pollFirst()
+      if (request eq null) return
 
-        case None => None
+      val now = System.nanoTime()
+      val elapsed = (now - request.timestamp).nanoseconds
+      val timeout = ScalaHighlightingMode.compilationDelay
+      if (elapsed >= timeout && isReadyForExecution(request)) {
+        val forRemoval = priorityQueue.tailSet(request)
+        priorityQueue.removeAll(forRemoval)
+        execute(request)
+      } else {
+        priorityQueue.add(request)
       }
 
-      if (requestToRun ne null) {
-        execute(virtualFile, requestToRun)
-        requestToRun = null
-      }
+      reschedule()
+    }
 
-      if (delay ne null) {
-        val Duration(length, unit) = delay
-        executor.schedule(self, length, unit)
-        delay = null
+    private def reschedule(): Unit = {
+      val first =
+        try priorityQueue.first()
+        catch { case _: NoSuchElementException => null }
+
+      if (first ne null) {
+        val Duration(delay, unit) = first.remaining
+        val future = executor.schedule(new CompilationTask(), delay, unit)
+        val previous = compilationTask.getAndSet(future)
+        if (previous ne null) {
+          previous.cancel(false)
+        }
       }
     }
   }
