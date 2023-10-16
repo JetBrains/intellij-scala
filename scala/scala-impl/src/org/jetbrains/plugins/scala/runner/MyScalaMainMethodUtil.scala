@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.runner
 
-import com.intellij.codeInsight.runner.JavaMainMethodProvider
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -10,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
-import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil._
 
 private object MyScalaMainMethodUtil {
 
@@ -26,9 +24,9 @@ private object MyScalaMainMethodUtil {
   private def findContainingMainMethod(element: PsiElement): Option[MainMethodInfo] = {
     val isScala3 = element.isInScala3File
     element.withParentsInFile.collectFirst {
-      case funDef: ScFunctionDefinition if isScala2MainMethod(funDef) =>
+      case funDef: ScFunctionDefinition if ScalaMainMethodUtil.isScala2MainMethod(funDef) =>
         MainMethodInfo.Scala2Style(funDef, funDef.containingClass.asInstanceOf[ScObject], funDef.getFirstChild)
-      case funDef: ScFunctionDefinition if isScala3 && isScala3MainMethod(funDef) =>
+      case funDef: ScFunctionDefinition if isScala3 && ScalaMainMethodUtil.isScala3MainMethod(funDef) =>
         MainMethodInfo.Scala3Style(funDef)
     }
   }
@@ -63,8 +61,8 @@ private object MyScalaMainMethodUtil {
   }
 
   /**
-   * @return main method in containing file or parent packagings
-   * @note there can be several top-level elements in the file in case there are inner packagings, example: {{{
+   * @return main method in containing file or parent packaging statements
+   * @note there can be several top-level elements in the file in case there are inner packaging statements, example: {{{
    * package a
    *
    * object O1 { def main(args: Array[String]): Unit = {} }
@@ -94,34 +92,20 @@ private object MyScalaMainMethodUtil {
     val iterator = for {
       member <- members.iterator
       result <-  member match {
-        case o: ScObject                                      => ScalaMainMethodUtil.findScala2MainMethod(o).map(MainMethodInfo.Scala2Style(_, o, o))
-        case d: ScFunctionDefinition if isScala3MainMethod(d) => Some(MainMethodInfo.Scala3Style(d))
-        case _                                                => None
+        case o: ScObject =>
+          ScalaMainMethodUtil.findScala2MainMethod(o).map(MainMethodInfo.Scala2Style(_, o, o))
+        case d: ScFunctionDefinition if ScalaMainMethodUtil.isScala3MainMethod(d) =>
+          Some(MainMethodInfo.Scala3Style(d))
+        case _ =>
+          None
       }
     } yield result
     iterator.nextOption()
   }
 
-  /**
-   * Mainly required for launching JavaFX without main method (see SCL-12132)
-   *
-   * @note implementation is similar to [[com.intellij.psi.util.PsiMethodUtil.hasMainMethod]], though not completely equal
-   * @note From JavaFX docx:
-   *       "The main() method is not required for JavaFX applications when the JAR file for the application is created with the JavaFX Packager tool..."
-   * @see `org.jetbrains.plugins.javaFX.JavaFxMainMethodRunConfigurationProvider`
-   */
-  def hasMainMethodFromProviders(c: PsiClass): Boolean = {
-    val extensions = JavaMainMethodProvider.EP_NAME.getExtensions
-    val foundExtension = extensions.find { e =>
-      e.isApplicable(c) && e.hasMainMethod(c)
-    }
-    foundExtension.nonEmpty
-  }
-
   private def findMainClassWithProvider(element: PsiElement): Option[MainMethodInfo.WithCustomLauncher] = {
     val classes = element.withParentsInFile.filterByType[ScTypeDefinition]
-    val clazz = classes.find(hasMainMethodFromProviders)
+    val clazz = classes.find(ScalaMainMethodUtil.hasMainMethodFromProvidersOnly)
     clazz.map(MainMethodInfo.WithCustomLauncher.apply)
   }
-
 }

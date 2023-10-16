@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.psi.PsiMethod
+import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.util.PsiMethodUtil
+import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
@@ -45,6 +46,9 @@ object ScalaMainMethodUtil {
 
   def hasScala2MainMethod(obj: ScObject): Boolean = findScala2MainMethod(obj).isDefined
 
+  /**
+   * Return main method if it's declared in object or in one of it's base classes
+   */
   def findScala2MainMethod(obj: ScObject): Option[PsiMethod] = {
     if (!obj.isTopLevel) None
     else {
@@ -56,5 +60,23 @@ object ScalaMainMethodUtil {
         mainMethods.find(PsiMethodUtil.isMainMethod)
       }
     }
+  }
+
+  /**
+   * Checks if a class has main method according to implementations of [[com.intellij.codeInsight.runner.JavaMainMethodProvider]]
+   *
+   * @note implementation is similar to [[com.intellij.psi.util.PsiMethodUtil.hasMainMethod]]
+   *       but our method only checks for providers, it doesn't run extra search for "main" method declaration.
+   *       That is done in our implementation `JavaMainMethodProvider` in [[org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider]]
+   * @note This logic is primarily required for launching JavaFX without main method (see SCL-12132).
+   *       This logic is located in `org.jetbrains.plugins.javaFX.JavaFxMainMethodRunConfigurationProvider`
+   *       From JavaFX docx: "The main() method is not required for JavaFX applications when the JAR file for the application is created with the JavaFX Packager tool..."
+   */
+  def hasMainMethodFromProvidersOnly(c: PsiClass): Boolean = {
+    val mainMethodProviders = JavaMainMethodProvider.EP_NAME.getExtensions
+    val foundProvider = mainMethodProviders.find { provider =>
+      provider.isApplicable(c) && provider.hasMainMethod(c)
+    }
+    foundProvider.nonEmpty
   }
 }

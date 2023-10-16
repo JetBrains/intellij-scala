@@ -26,7 +26,7 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
       case fun: ScFunctionDefinition =>
         ScalaMainMethodUtil.isMainMethod(fun)
       case c: PsiClass =>
-        MyScalaMainMethodUtil.hasMainMethodFromProviders(c)
+        ScalaMainMethodUtil.hasMainMethodFromProvidersOnly(c)
       case _ =>
         false
     }
