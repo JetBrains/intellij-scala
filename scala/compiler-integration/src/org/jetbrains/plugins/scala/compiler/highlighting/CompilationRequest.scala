@@ -16,13 +16,11 @@ private sealed trait CompilationRequest {
   val document: Document
   val debugReason: String
 
-  val timestamp: Long = System.nanoTime()
+  val compilationDelay: FiniteDuration
 
-  def remaining: FiniteDuration = {
-    val deadline = timestamp + ScalaHighlightingMode.compilationDelay.toNanos
-    val now = System.nanoTime()
-    deadline.nanoseconds - now.nanoseconds
-  }
+  private val timestamp: Long = System.nanoTime()
+
+  def remaining: FiniteDuration = Deadline(timestamp.nanoseconds + compilationDelay).timeLeft
 }
 
 private object CompilationRequest {
@@ -37,6 +35,9 @@ private object CompilationRequest {
     debugReason: String,
   ) extends CompilationRequest {
     override val priority: Int = 0
+
+    override val compilationDelay: FiniteDuration =
+      if (isFirstTimeHighlighting) Duration.Zero else ScalaHighlightingMode.compilationDelay
   }
 
   final case class IncrementalRequest(
@@ -48,6 +49,8 @@ private object CompilationRequest {
     debugReason: String
   ) extends CompilationRequest {
     override val priority: Int = 1
+
+    override val compilationDelay: FiniteDuration = Duration.Zero
   }
 
   final case class DocumentRequest(
@@ -58,6 +61,8 @@ private object CompilationRequest {
     debugReason: String
   ) extends CompilationRequest {
     override val priority: Int = 2
+
+    override val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
   }
 
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>

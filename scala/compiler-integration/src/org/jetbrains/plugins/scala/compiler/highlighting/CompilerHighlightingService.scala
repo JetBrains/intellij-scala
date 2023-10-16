@@ -125,7 +125,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
-    val Duration(delay, unit) = ScalaHighlightingMode.compilationDelay
+    val Duration(delay, unit) = request.compilationDelay
     val future = executor.schedule(new CompilationTask(), delay, unit)
     val previous = compilationTask.getAndSet(future)
     if (previous ne null) {
@@ -253,11 +253,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (!project.isDisposed || project.isDefault) project.save()
   })
 
-  private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
-    case CompilationRequest.WorksheetRequest(_, _, document, _, _) => isDocumentReadyForCompilation(document)
-    case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => true
-    case CompilationRequest.DocumentRequest(_, _, _, document, _) => isDocumentReadyForCompilation(document)
-  }
+  private def isReadyForExecution(request: CompilationRequest): Boolean =
+    (request.remaining < Duration.Zero) && (request match {
+      case CompilationRequest.WorksheetRequest(_, _, document, _, _) => isDocumentReadyForCompilation(document)
+      case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => true
+      case CompilationRequest.DocumentRequest(_, _, _, document, _) => isDocumentReadyForCompilation(document)
+    })
 
   private def isDocumentReadyForCompilation(document: Document): Boolean =
     EditorFactory.getInstance().editors(document, project).anyMatch { editor =>
@@ -269,11 +270,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     override def run(): Unit = {
       val request = priorityQueue.pollFirst()
       if (request eq null) return
-
-      val now = System.nanoTime()
-      val elapsed = (now - request.timestamp).nanoseconds
-      val timeout = ScalaHighlightingMode.compilationDelay
-      if (elapsed >= timeout && isReadyForExecution(request)) {
+      if (isReadyForExecution(request)) {
         val forRemoval = priorityQueue.tailSet(request)
         priorityQueue.removeAll(forRemoval)
         execute(request)
