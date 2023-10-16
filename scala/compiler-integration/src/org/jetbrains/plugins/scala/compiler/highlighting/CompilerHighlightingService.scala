@@ -125,12 +125,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
-    val Duration(delay, unit) = request.compilationDelay
-    val future = executor.schedule(new CompilationTask(), delay, unit)
-    val previous = compilationTask.getAndSet(future)
-    if (previous ne null) {
-      previous.cancel(false)
-    }
+    scheduleCompilationTask(request.compilationDelay)
   }
 
   private def execute(request: CompilationRequest): Unit = request match {
@@ -266,6 +261,15 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         TemplateManager.getInstance(project).getActiveTemplate(editor) == null
     }
 
+  private def scheduleCompilationTask(compilationDelay: FiniteDuration): Unit = {
+    val Duration(delay, unit) = compilationDelay
+    val future = executor.schedule(new CompilationTask(), delay, unit)
+    val previous = compilationTask.getAndSet(future)
+    if (previous ne null) {
+      previous.cancel(false)
+    }
+  }
+
   private final class CompilationTask extends Runnable {
     override def run(): Unit = {
       val request = priorityQueue.pollFirst()
@@ -287,12 +291,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         catch { case _: NoSuchElementException => null }
 
       if (first ne null) {
-        val Duration(delay, unit) = first.remaining
-        val future = executor.schedule(new CompilationTask(), delay, unit)
-        val previous = compilationTask.getAndSet(future)
-        if (previous ne null) {
-          previous.cancel(false)
-        }
+        scheduleCompilationTask(first.remaining)
       }
     }
   }
