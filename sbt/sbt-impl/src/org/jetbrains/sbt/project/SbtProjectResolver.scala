@@ -316,7 +316,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val libraryNodes = Seq.empty[LibraryNode]
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, projects, None))
-    val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies = true)
 
     val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
@@ -367,7 +367,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] =
       createBuildProjectGroups(projectRootFile.toURI, projects, settings)
-    val projectToModule = createModules(buildProjectsGroups, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(buildProjectsGroups, libraryNodes, moduleFilesDirectory, settings.insertProjectTransitiveDependencies)
 
     //Sort modules by id to make project imports more reproducible
     //In particular this will easy testing of `org.jetbrains.sbt.project.SbtProjectImportingTest.testSCL13600`
@@ -375,7 +375,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleNode] = projectToModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(modulesSorted)
 
-    val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
+    val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory, settings.insertProjectTransitiveDependencies)
     projectNode.addAll(sharedSourceModules)
 
     val buildModuleForProject: BuildData => BuildModuleNodeWithBuildBaseDir =
