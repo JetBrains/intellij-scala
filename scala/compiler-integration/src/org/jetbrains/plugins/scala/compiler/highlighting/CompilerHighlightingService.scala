@@ -275,8 +275,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       val request = priorityQueue.pollFirst()
       if (request eq null) return
       if (isReadyForExecution(request)) {
-        val forRemoval = priorityQueue.tailSet(request)
-        priorityQueue.removeAll(forRemoval)
+        priorityQueue.tailSet(request).forEach { r =>
+          // remove less important compilation requests for the same file
+          if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
+            priorityQueue.remove(r)
+          }
+        }
         execute(request)
       } else {
         priorityQueue.add(request)

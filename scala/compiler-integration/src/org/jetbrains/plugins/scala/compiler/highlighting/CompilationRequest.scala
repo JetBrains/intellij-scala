@@ -20,7 +20,9 @@ private sealed trait CompilationRequest {
 
   private val timestamp: Long = System.nanoTime()
 
-  def remaining: FiniteDuration = Deadline(timestamp.nanoseconds + compilationDelay).timeLeft
+  private def deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
+
+  def remaining: FiniteDuration = deadline.timeLeft
 }
 
 private object CompilationRequest {
@@ -34,7 +36,7 @@ private object CompilationRequest {
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
   ) extends CompilationRequest {
-    override val priority: Int = 0
+    override val priority: Int = 1
 
     override val compilationDelay: FiniteDuration =
       if (isFirstTimeHighlighting) Duration.Zero else ScalaHighlightingMode.compilationDelay
@@ -67,11 +69,13 @@ private object CompilationRequest {
 
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
     if (x.priority != y.priority)
-      Ordering.Int.compare(x.priority, y.priority)
+      implicitly[Ordering[Int]].compare(x.priority, y.priority)
     else {
-      val res = Ordering.String.compare(x.virtualFile.getCanonicalPath, y.virtualFile.getCanonicalPath)
-      if (res != 0) res
-      else Ordering.Long.compare(x.timestamp, y.timestamp)
+      val byDeadline = implicitly[Ordering[Deadline]].compare(x.deadline, y.deadline)
+      if (byDeadline != 0)
+        byDeadline
+      else
+        implicitly[Ordering[String]].compare(x.virtualFile.getCanonicalPath, y.virtualFile.getCanonicalPath)
     }
   }
 }
