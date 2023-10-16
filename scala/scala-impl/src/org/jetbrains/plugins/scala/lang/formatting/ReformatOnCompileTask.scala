@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
-  override def run(context: CompileContext): Boolean = {
+  override protected def run(context: CompileContext): Boolean = {
     val scalaSettings: ScalaCodeStyleSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (scalaSettings.REFORMAT_ON_COMPILE) {
       ScalaFmtPreFormatProcessor.inFailSilentMode {
@@ -27,7 +27,7 @@ final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
   }
 
   @Nls
-  override def presentableName: String = ScalaBundle.message("reformat.on.compile.task.presentable.name")
+  override protected def presentableName: String = ScalaBundle.message("reformat.on.compile.task.presentable.name")
 
   private def reformatScopeFiles(compileScope: CompileScope, scalaSettings: ScalaCodeStyleSettings): Unit = for {
     virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)

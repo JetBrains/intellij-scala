@@ -22,10 +22,10 @@ trait ScalaCompileTask extends CompileTask {
     }
   }
 
-  def run(context: CompileContext): Boolean
+  protected def run(context: CompileContext): Boolean
 
   @Nls
-  def presentableName: String
+  protected def presentableName: String
 
   private def pretty(duration: FiniteDuration): String = {
     var rest = duration
