@@ -44,7 +44,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
    */
   def build(): ControlFlow = {
     addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), null))
-    popReturnValue()
+    pop()
     flow.finish()
     flow
   }
@@ -81,7 +81,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def pushUnknownValue(): Unit = addInstruction(new PushValueInstruction(DfType.TOP))
 
   def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
-    popArguments(argCount)
+    pop(argCount)
     addInstruction(new PushValueInstruction(DfType.TOP, ScalaStatementAnchor(statement)))
     addInstruction(new FlushFieldsInstruction)
 
@@ -95,15 +95,12 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     addInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
 
-  def popReturnValue(): Unit = addInstruction(new PopInstruction)
-
-  def popArguments(argCount: Int): Unit = {
-    if (argCount > 1) {
-      addInstruction(new SpliceInstruction(argCount))
-    } else if (argCount == 1) {
+  def pop(times: Int = 1): Unit =
+    if (times == 1) {
       addInstruction(new PopInstruction)
+    } else if (times > 1) {
+      addInstruction(new SpliceInstruction(times))
     }
-  }
 
   def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 

@@ -26,8 +26,7 @@ private trait DefinitionTransformer extends Transformer { this: ScalaPsiElementT
     transformDefinitionIfSimple(definition, isStable = false)
   }
 
-  private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition,
-                                          isStable: Boolean): Unit = {
+  private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, isStable: Boolean): Unit = {
     if (!definition.isSimple) {
       builder.pushUnknownCall(definition, 0)
     } else {

@@ -28,7 +28,7 @@ private trait InvocationTransformer extends Transformer { this: ScalaPsiElementT
     } else if (!tryTransformIntoSpecialRepresentation(invocation, invocationsInfo)) {
       invocationsInfo.tail.foreach(invocationInfo => {
         transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
-        builder.popReturnValue()
+        builder.pop()
       })
 
       transformMethodInvocation(invocation, invocationsInfo.head, instanceQualifier)
