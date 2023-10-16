@@ -56,7 +56,10 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
 
               if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
                 val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-                doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+                if (psiFile.isScalaWorksheet)
+                  doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+                else
+                  doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
               }
             }
           }
