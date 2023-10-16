@@ -27,7 +27,7 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
                                  order="first"/>
 
-        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsProvider" />
+        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayHintsSettingsProvider" />
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener"/>
 
@@ -47,9 +47,9 @@
         <liveTemplateContext contextId="SCALA_CODE"
                              baseContextId="SCALA"
                              implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
-        <liveTemplateContext contextId="SCALA_IMPLICIT_VALUE_CLASS"
+        <liveTemplateContext contextId="SCALA_IMPLICIT_CLASS"
                              baseContextId="SCALA"
-                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitValueClassContextType"/>
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitClassContextType"/>
         <liveTemplateContext contextId="SCALA_BLANK_LINE"
                              baseContextId="SCALA"
                              implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaBlankLineContextType"/>
@@ -60,7 +60,8 @@
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$IterableVariable"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSuggestVariableNameByTypeMacro"/>
-        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitValueClassNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitClassNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitClassExtendsAnyValOptionalTextMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaComponentTypeOfMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaCurrentPackageMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaExpressionTypeMacro"/>
@@ -349,7 +350,6 @@
         </group>
 
         <group id="TypeHintsMenu">
-            <action id="ToggleTypeHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction"/>
             <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
             <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
             <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />

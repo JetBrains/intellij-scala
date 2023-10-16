@@ -1,12 +1,13 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.editor.documentationProvider.{DocumentationProviderTestBase, ScalaDocumentationsSectionsTesting}
+import org.jetbrains.plugins.scala.editor.documentationProvider.base.DocumentationProviderTestBase
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsScalaDocContentTesting
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.sbt.language.SbtFileType
 
-// TODO: it takes too long to setup project, we should reuse project in each test case
-abstract class SbtDocumentationProviderTestBase extends DocumentationProviderTestBase with ScalaDocumentationsSectionsTesting {
+abstract class SbtDocumentationProviderTestBase extends DocumentationProviderTestBase
+  with ScalaDocumentationsScalaDocContentTesting {
 
   protected val commonDescription = """This is a description for some-key"""
 

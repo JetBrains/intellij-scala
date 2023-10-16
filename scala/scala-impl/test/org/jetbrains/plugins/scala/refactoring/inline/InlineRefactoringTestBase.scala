@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.refactoring.inline
 
 import com.intellij.ide.DataManager
+import com.intellij.lang.refactoring.InlineActionHandler
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.refactoring.actions.BaseRefactoringAction
-import com.intellij.refactoring.inline.GenericInlineHandler
 import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
 import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
@@ -50,15 +47,22 @@ abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTes
     val warning = firstPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT =>
         //noinspection DynamicPropertyKey
-        ScalaBundle.message(firstPsi.getText.substring(2).trim)
+        firstPsi.getText.substring(2).split(',').toList.map(_.trim) match {
+          case key :: args =>
+            ScalaBundle.message(key, args: _*)
+          case _ =>
+            fail("Unexpected warning message format")
+        }
       case _ => null
     }
 
     //start to inline
     try {
-      executeWriteActionCommand("Test", UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION) {
-        GenericInlineHandler.invoke(element, editor, new ScalaInlineHandler)
-      }(getProject)
+      InlineActionHandler.EP_NAME.getExtensions.find(_.canInlineElement(element)) match {
+        case Some(handler) =>
+          handler.inlineElement(getProject, editor, element)
+        case None => fail("No inline refactoring handler available")
+      }
     }
     catch {
       case e: RefactoringErrorHintException =>

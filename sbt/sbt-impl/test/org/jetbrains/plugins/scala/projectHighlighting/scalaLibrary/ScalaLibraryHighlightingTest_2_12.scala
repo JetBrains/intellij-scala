@@ -23,10 +23,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/LinearSeqLike.scala" -> Set(
       (2448,2459), // Recursive call not in tail position (in @tailrec annotated method)
     ),
-    "scala/collection/concurrent/TrieMap.scala" -> Set(
-      (23034,23049), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
-      (23065,23067), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
-    ),
     "scala/collection/generic/ClassTagTraversableFactory.scala" -> Set(
       (1010,1032), // Cannot resolve symbol genericClassTagBuilder
     ),
@@ -63,20 +59,11 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
       (1680,1688), // Cannot resolve symbol getClass
       (1689,1696), // Cannot resolve symbol isArray
     ),
-    "scala/collection/mutable/TreeMap.scala" -> Set(
-      (1746,1759), // Type mismatch, expected: mutable.RedBlackTree.Tree[A, B], actual: mutable.RedBlackTree.Tree[Nothing, Nothing]
-    ),
-    "scala/collection/mutable/TreeSet.scala" -> Set(
-      (1914,1927), // Type mismatch, expected: mutable.RedBlackTree.Tree[A, Null], actual: mutable.RedBlackTree.Tree[Nothing, Null]
-    ),
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
       (36189,36191), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
     ),
     "scala/collection/parallel/RemainsIterator.scala" -> Set(
       (20818,20819), // Expression of type Seq[Zipped[S]] doesn't conform to expected type Seq[SeqSplitter[(U, S)]]
-    ),
-    "scala/collection/parallel/mutable/ParTrieMap.scala" -> Set(
-      (1658,1669), // Type mismatch, expected: TrieMap[K, V], actual: TrieMap[Nothing, Nothing]
     ),
     "scala/concurrent/duration/DurationConversions.scala" -> Set(
       (1420,1434), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R

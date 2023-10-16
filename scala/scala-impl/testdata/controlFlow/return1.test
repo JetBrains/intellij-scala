@@ -5,11 +5,12 @@ else {
 }
 -----
 0(1) element: None
-1(2,4) element: IfStatement
-2(3) READ a
-3(8) element: ReturnStatement
-4(5) READ b
-5(8) element: ReturnStatement
-6(7) READ println
-7(8) READ b
-8() element: None
+1(2) element: IfStatement
+2(3,5) Lit: true
+3(4) READ a
+4() element: ReturnStatement
+5(6) READ b
+6() element: ReturnStatement
+7(8,9) READ println
+8(9) READ b
+9() element: None

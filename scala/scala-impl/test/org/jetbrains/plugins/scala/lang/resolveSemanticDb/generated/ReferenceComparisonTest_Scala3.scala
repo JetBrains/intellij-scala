@@ -205,7 +205,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_ensuring(): Unit = doTest("ensuring", true)
   def test_enum_companion_first(): Unit = doTest("enum-companion-first", true) // #enum
   def test_enum_interop(): Unit = doTest("enum-interop", true)
-  def test_enum_List_control(): Unit = doTest("enum-List-control", false)
+  def test_enum_List_control(): Unit = doTest("enum-List-control", true)
   def test_enum_variance(): Unit = doTest("enum-variance", false) // #enum
   def test_enum_widen(): Unit = doTest("enum-widen", false) // #enum, #intersectionType
   def test_enums_capture(): Unit = doTest("enums-capture", false) // #enum
@@ -838,7 +838,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i7740b(): Unit = doTest("i7740b", true)
   def test_i7743(): Unit = doTest("i7743", true)
   def test_i7744(): Unit = doTest("i7744", true)
-  def test_i7757(): Unit = doTest("i7757", false)
+  def test_i7757(): Unit = doTest("i7757", true)
   def test_i7778b(): Unit = doTest("i7778b", true)
   def test_i7793(): Unit = doTest("i7793", false)
   def test_i7807(): Unit = doTest("i7807", false) // #intersectionType, #matchType
@@ -1368,7 +1368,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15612(): Unit = doTest("i15612", false) // #intersectionType, #extension
   def test_i15649(): Unit = doTest("i15649", true)
   def test_i15650(): Unit = doTest("i15650", false)
-  def test_i15652(): Unit = doTest("i15652", false)
+  def test_i15652(): Unit = doTest("i15652", true)
   def test_i15664(): Unit = doTest("i15664", true) // #typeLambda
   def test_i15666(): Unit = doTest("i15666", true)
   def test_i15670(): Unit = doTest("i15670", false) // #givenImport

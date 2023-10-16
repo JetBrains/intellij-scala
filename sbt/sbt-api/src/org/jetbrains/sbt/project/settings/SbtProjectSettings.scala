@@ -55,6 +55,12 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var preferScala2 = true
 
+  //See SCL-21694 for details
+  //NOTE: if by ~2024.2 release we don't observe any major issues related to this new grouping logic
+  // we can remove the setting completely (with all the code using it)
+  @BeanProperty
+  var groupProjectsFromSameBuild = true
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = _
@@ -75,6 +81,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useSbtShellForImport = useSbtShellForImport
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
+    result.preferScala2 = preferScala2
+    result.groupProjectsFromSameBuild = groupProjectsFromSameBuild
     result
   }
 }

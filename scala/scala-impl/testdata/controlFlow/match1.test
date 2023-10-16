@@ -7,13 +7,14 @@ var c = a match {
 c
 -----
 0(1) element: None
-1(2) VAR a
-2(3,5,6,8) element: MatchStatement
-3(4) READ a
-4(8) READ a
-5(8) READ a
-6(7) VAL b
-7(8) READ b
-8(9) VAR c
-9(10) READ c
-10() element: None
+1(2) Lit: 0
+2(3) VAR a
+3(4) element: MatchStatement
+4(5,6,7) READ a
+5(9) READ a
+6(9) READ a
+7(8) VAL b
+8(9) READ b
+9(10) VAR c
+10(11) READ c
+11() element: None

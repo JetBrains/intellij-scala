@@ -23,6 +23,8 @@ import java.net.URL
 import java.nio.file.{Files, Paths}
 import scala.jdk.CollectionConverters._
 
+object DependencyManager extends DependencyManagerBase
+
 abstract class DependencyManagerBase {
   import DependencyManagerBase._
 
@@ -365,32 +367,3 @@ object DependencyManagerBase {
     final case class UnknownException(exception: Throwable) extends ResolveFailure
   }
 }
-
-final class TestDependencyManager extends DependencyManagerBase {
-
-  // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
-  // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
-  //TODO: should we add scala3-* here?
-  override val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
-}
-
-/**
- * Adds additional resolver for typesafe repository<br>
- * It's needed to be able to resolve sbt 0.13 releases, which is not published to maven central
- */
-final class DependencyManagerForSbt(sbtVersion: Version) extends DependencyManagerBase {
-
-  private val includeTypesafeRepo = sbtVersion < Version("1.0.0")
-
-  private val typeSafeResolver = IvyResolver(
-    "typesafe-releases",
-    "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
-  )
-
-  override protected def resolvers: Seq[DependencyManagerBase.Resolver] = {
-    val extraResolvers = if (includeTypesafeRepo) Seq(typeSafeResolver) else Nil
-    super.resolvers ++ extraResolvers
-  }
-}
-
-object DependencyManager extends DependencyManagerBase

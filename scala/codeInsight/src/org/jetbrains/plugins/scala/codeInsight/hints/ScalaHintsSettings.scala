@@ -35,9 +35,9 @@ object ScalaHintsSettings {
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
 
-    override def showMethodResultType: Boolean = xRayMode || (settings.showTypeHints && settings.showFunctionReturnType)
-    override def showMemberVariableType: Boolean = xRayMode || (settings.showTypeHints && settings.showPropertyType)
-    override def showLocalVariableType: Boolean = xRayMode || (settings.showTypeHints && settings.showLocalVariableType)
+    override def showMethodResultType: Boolean = xRayMode || settings.showFunctionReturnType
+    override def showMemberVariableType: Boolean = xRayMode || settings.showPropertyType
+    override def showLocalVariableType: Boolean = xRayMode || settings.showLocalVariableType
     override def showMethodChainInlayHints: Boolean = xRayMode || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains

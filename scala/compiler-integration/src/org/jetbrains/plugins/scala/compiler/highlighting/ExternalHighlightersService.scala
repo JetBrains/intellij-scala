@@ -40,7 +40,7 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
   private val executor: ExecutorService =
     AppExecutorUtil.createBoundedApplicationPoolExecutor(classOf[ExternalHighlightersService].getSimpleName, 1)
 
-  final class ExecutionState {
+  private final class ExecutionState {
     @volatile var obsolete: Boolean = false
   }
 
@@ -57,7 +57,12 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
     // In practice, there will only ever be one running computation, because this method is called on a single thread.
     while (!queue.isEmpty) {
       val head = queue.poll()
-      head.obsolete = true
+
+      // It can happen that the queue was emptied between `queue.isEmpty` and `queue.poll`, due to a concurrent
+      // `queue.remove` later.
+      if (head ne null) {
+        head.obsolete = true
+      }
     }
 
     val executionState = new ExecutionState()
@@ -124,7 +129,7 @@ private final class ExternalHighlightersService(project: Project) extends Dispos
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
   }
 
-  def informWolf(state: HighlightingState): Unit =
+  private def informWolf(state: HighlightingState): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)

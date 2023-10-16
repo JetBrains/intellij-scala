@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 import scala.collection.mutable.ArrayBuffer
 
-sealed class InstructionImpl(override val num: Int,
-                             override val element: Option[ScalaPsiElement])
+sealed abstract class InstructionImpl(override val num: Int,
+                                      override val element: Option[ScalaPsiElement])
         extends Instruction with Cloneable {
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
@@ -18,11 +20,13 @@ sealed class InstructionImpl(override val num: Int,
 
   override def succ: ArrayBuffer[Instruction] = mySucc
 
-  override def addPred(p: Instruction): Unit = {
-    myPred += p
+  private final def addPredecessor(p: Instruction): Unit = {
+    if (!myPred.contains(p))
+      myPred += p
   }
 
-  override def addSucc(s: Instruction): Unit = {
+  private final def addSuccessor(s: Instruction): Unit = {
+    if (!mySucc.contains(s))
     mySucc += s
   }
 
@@ -45,10 +49,30 @@ sealed class InstructionImpl(override val num: Int,
   })
 }
 
-case class DefinitionInstruction(override val num: Int,
-                                 namedElement: ScNamedElement,
-                                 defType: DefinitionType)
-        extends InstructionImpl(num, Some(namedElement)) {
+object InstructionImpl {
+  def addEdge(from: InstructionImpl, to: InstructionImpl): InstructionImpl = {
+    if (to != null && from != null) {
+      from.addSuccessor(to)
+      to.addPredecessor(from)
+    }
+    to
+  }
+}
+
+final class LiteralInstruction(num: Int, element: ScLiteral)
+  extends InstructionImpl(num, Some(element)) {
+
+  override def getPresentation: String = "Lit: " + element.getText.shorten(50)
+}
+
+final class ElementInstruction(num: Int, element: Option[ScalaPsiElement])
+  extends InstructionImpl(num, element)
+
+final case class DefinitionInstruction(namedElement: ScNamedElement,
+                                       defType: DefinitionType)
+                                      (num: Int)
+        extends InstructionImpl(num, Some(namedElement))
+{
   private val myName = namedElement.name
 
   def getName: String = myName
@@ -56,11 +80,12 @@ case class DefinitionInstruction(override val num: Int,
   override protected def getPresentation = s"${defType.name} $getName"
 }
 
-case class ReadWriteVariableInstruction(override val num: Int,
-                                        ref: ScReferenceExpression,
-                                        variable: Option[PsiNamedElement],
-                                        write: Boolean)
-        extends InstructionImpl(num, Some(ref)) {
+final case class ReadWriteVariableInstruction(ref: ScReferenceExpression,
+                                              variable: Option[PsiNamedElement],
+                                              write: Boolean)
+                                             (num: Int)
+        extends InstructionImpl(num, Some(ref))
+{
   private val myName = ref.getText
   def getName: String = myName
   override protected def getPresentation: String = (if (write) "WRITE " else "READ ") + getName

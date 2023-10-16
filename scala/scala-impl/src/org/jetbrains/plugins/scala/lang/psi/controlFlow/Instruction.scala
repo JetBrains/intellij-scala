@@ -7,9 +7,6 @@ trait Instruction {
   def succ: Iterable[Instruction]
   def pred: Iterable[Instruction]
 
-  def addSucc(s: Instruction): Unit
-  def addPred(p: Instruction): Unit
-
   val num: Int
 
   @Nullable

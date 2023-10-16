@@ -55,7 +55,7 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
     }
 
     c.getElement match {
-      case fun: ScFunction if fun.returnTypeElement.isEmpty => lowerInFile(fun)
+      case fun: ScFunction if fun.returnTypeElement.isEmpty && !fun.isExtensionMethod => lowerInFile(fun)
       case pattern @ ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
           if pd.typeElement.isEmpty =>
         lowerInFile(pattern)

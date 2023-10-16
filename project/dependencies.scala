@@ -5,17 +5,17 @@ import sbt.*
 
 object Versions {
   val scalaVersion: String = "2.13.12"
-  val scala3Version: String = "3.3.0"
+  val scala3Version: String = "3.3.1"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.6"
-  val zincVersion = "1.9.3"
+  val zincVersion = "1.9.5"
 
   // ATTENTION: check the comment in CommonUltimate when updating this version
-  val intellijVersion = "233.9102.4"
+  val intellijVersion = "233.9802.16"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -49,7 +49,7 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.9.4"
+    val latest_1_0 = "1.9.6"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion

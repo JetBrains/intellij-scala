@@ -293,6 +293,8 @@
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
+        <fileStructureGroupRuleProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.rules.ScalaDeclarationGroupRuleProvider"/>
+        <fileStructureGroupRuleProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.rules.ScalaDeclarationSecondLevelGroupRuleProvider"/>
 
         <useScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaSharedSourcesUseScopeEnlarger"/>
         <resolveScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaSharedSourcesResolveScopeEnlarger"/>
@@ -347,7 +349,9 @@
         <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper"/>
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
-        <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
+        <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.method.ScalaInlineMethodHandler" id="scalaInlineMethodHandler" order="first"/> <!-- TODO: should be before Java's InlineToAnonymousClassHandler that doesn't have an id yet -->
+        <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.typeAlias.ScalaInlineTypeAliasHandler" id="scalaInlineTypeAliasHandler"/>
+        <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.variable.ScalaInlineVariableHandler" id="scalaInlineVariableHandler"/>
         <refactoring.safeDeleteProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.delete.ScalaSafeDeleteProcessorDelegate" order="first"/>
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order="first" id="scalaProcessor"/>
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order="first" id="scalaIntroduceParamterProcessor"/>

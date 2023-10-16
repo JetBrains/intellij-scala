@@ -61,8 +61,14 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     def hasNoFreeTypeVariables(pattern: ScPattern): Boolean =
       pattern.typeVariables.isEmpty && freeTypeParams.isEmpty
 
+    val patternTypeAsTuple =
+      ScPattern.ByNameExtractor(pattern).unapply(patType).map {
+        productElements =>
+          TupleType(productElements)(pattern.elementScope)
+      }
+
     val neverMatches =
-      !matchesPattern(exTp, patType) &&
+      !matchesPattern(exTp, patternTypeAsTuple.getOrElse(patType)) &&
         isNeverSubType(abstraction(patType), exTp) &&
         hasNoFreeTypeVariables(pattern)
 

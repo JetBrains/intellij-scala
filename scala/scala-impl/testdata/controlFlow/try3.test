@@ -3,8 +3,8 @@ try { return a } finally { return b }
 0(1) element: None
 1(2,4) element: TryStatement
 2(3) READ a
-3(4,7) element: ReturnStatement
+3(4) element: ReturnStatement
 4(5) element: FinallyBlock
 5(6) READ b
-6(7) element: ReturnStatement
+6() element: ReturnStatement
 7() element: None

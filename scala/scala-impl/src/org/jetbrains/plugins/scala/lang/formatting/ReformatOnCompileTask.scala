@@ -6,15 +6,17 @@ import com.intellij.openapi.compiler._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiFile, PsiManager}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
-final class ReformatOnCompileTask(project: Project) extends CompileTask {
-  override def execute(context: CompileContext): Boolean = {
+final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
+  override def run(context: CompileContext): Boolean = {
     val scalaSettings: ScalaCodeStyleSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (scalaSettings.REFORMAT_ON_COMPILE) {
       ScalaFmtPreFormatProcessor.inFailSilentMode {
@@ -23,6 +25,9 @@ final class ReformatOnCompileTask(project: Project) extends CompileTask {
     }
     true
   }
+
+  @Nls
+  override def presentableName: String = "Reformatting Scala sources on compile"
 
   private def reformatScopeFiles(compileScope: CompileScope, scalaSettings: ScalaCodeStyleSettings): Unit = for {
     virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)

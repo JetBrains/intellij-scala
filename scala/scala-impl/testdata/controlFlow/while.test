@@ -7,16 +7,21 @@ while (i > 0) {
 j
 -----
 0(1) element: None
-1(2) VAR i
-2(3) VAR j
-3(4,12) element: WhileStatement
-4(5) READ i
-5(6) READ >
+1(2) Lit: 5
+2(3) VAR i
+3(4) Lit: 0
+4(5) VAR j
+5(6,17) element: WhileStatement
 6(7) READ i
-7(8) READ -
-8(9) WRITE i
-9(10) READ j
-10(11) READ +
-11(3) WRITE j
-12(13) READ j
-13() element: None
+7(8) READ >
+8(9) Lit: 0
+9(10) READ i
+10(11) READ -
+11(12) Lit: 1
+12(13) WRITE i
+13(14) READ j
+14(15) READ +
+15(16) Lit: 1
+16(5) WRITE j
+17(18) READ j
+18() element: None

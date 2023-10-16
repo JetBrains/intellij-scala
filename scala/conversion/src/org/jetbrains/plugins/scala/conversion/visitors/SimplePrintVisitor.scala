@@ -240,14 +240,12 @@ class SimplePrintVisitor protected() {
     printer.append(")")
 
     if (extendsList != null && extendsList.nonEmpty) {
-      printer.append(" ")
-        .append("with")
-        .append(" ")
+      printer.append(" with ")
       printWithSeparator(extendsList, " with ")
     }
 
     printBodyWithBraces(ac) {
-      printWithSeparator(body, " ")
+      printWithSeparator(body, "\n", "", "\n", body.nonEmpty)
     }
   }
 

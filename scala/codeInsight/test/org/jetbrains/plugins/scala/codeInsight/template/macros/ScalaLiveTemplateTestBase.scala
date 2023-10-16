@@ -5,12 +5,14 @@ import com.intellij.codeInsight.template.{TemplateActionContext, TemplateManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override def setUp(): Unit = {
     super.setUp()

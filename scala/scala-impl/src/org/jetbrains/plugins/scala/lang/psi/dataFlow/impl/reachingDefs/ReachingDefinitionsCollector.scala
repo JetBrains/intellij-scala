@@ -93,9 +93,9 @@ object ReachingDefinitionsCollector {
                                      dfaResult: mutable.Map[Instruction, RDSet]): Seq[VariableInfo] = {
     val result = mutable.SortedSet.empty[PsiNamedElement](Ordering.by(_.getTextRange.getStartOffset))
     for {
-      (read@ReadWriteVariableInstruction(_, _, Some(definitionToRead), false), rdset) <- dfaResult
+      (read@ReadWriteVariableInstruction(_, Some(definitionToRead), false), rdset) <- dfaResult
       if !innerInstructions.contains(read)
-      reaching@DefinitionInstruction(_, named, _) <- rdset
+      reaching@DefinitionInstruction(named, _) <- rdset
       if named == definitionToRead
       if innerInstructions.contains(reaching)
     } {
@@ -106,12 +106,12 @@ object ReachingDefinitionsCollector {
 
   private def computeInputVariables(innerInstructions: Seq[Instruction]): Seq[VariableInfo] = {
     val isDefinedHere = innerInstructions.collect {
-      case DefinitionInstruction(_, named, _) => named
+      case DefinitionInstruction(named, _) => named
     }.toSet[PsiNamedElement]
 
     innerInstructions
       .flatMap {
-        case ReadWriteVariableInstruction(_, _, Some(definition), _) if !isDefinedHere(definition) =>
+        case ReadWriteVariableInstruction(_, Some(definition), _) if !isDefinedHere(definition) =>
           definition match {
             case _: PsiPackage => None
             case _ => Some(definition)

@@ -1,7 +1,7 @@
 import Common.*
 import Dependencies.provided
-import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import DynamicDependenciesFetcher.*
+import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys.*
 
 import java.nio.file.Path
@@ -367,6 +367,13 @@ lazy val compilerIntegration =
       sbtImpl % "test->test;compile->compile",
       jps
     )
+    .settings(
+      intellijPlugins ++= Seq(
+        "com.intellij.gradle",
+        "org.jetbrains.idea.maven"
+      ).map(_.toPlugin), // Used only in tests
+      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive()
+    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val debugger =
@@ -602,12 +609,18 @@ lazy val bsp =
 
 // Integration with other IDEA plugins
 
+// TODO: ideally intellij plugin dependency should be used
+//       but if the plugin cannot be resolved use the library dependency below as a workaround
+lazy val devKitPluginDependency = intellijPlugins += "DevKit".toPlugin
+//lazy val devKitPluginDependency = Seq(
+//  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive(),
+//  resolvers += org.jetbrains.sbtidea.download.idea.IntellijRepositories.Eap,
+//)
+
 lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
     .dependsOn(scalaImpl, sbtImpl)
-    .settings(
-      intellijPlugins += "DevKit".toPlugin
-    )
+    .settings(devKitPluginDependency)
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))

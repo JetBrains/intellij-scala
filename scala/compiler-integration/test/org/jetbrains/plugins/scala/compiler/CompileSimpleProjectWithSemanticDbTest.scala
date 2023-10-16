@@ -108,7 +108,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
       //BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
       //Registry.get("compiler.process.debug.port").setValue(5432)
 
-      val compiler: CompilerTester = new CompilerTester(myTestFixture.getModule)
+      val compiler = new CompilerTester(myProject, java.util.List.of(myTestFixture.getModule), null, false)
       try {
         compiler.rebuild().assertNoProblems()
       } finally {

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.psi.{PsiElementVisitor, PsiFile, PsiRecursiveVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
@@ -109,6 +109,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitVariable(varr: ScVariable): Unit = visitScalaElement(varr)
   // TODO visitValueOrVariable
   def visitValue(v: ScValue): Unit = visitScalaElement(v)
+  def visitCaseClauses(ccs: ScCaseClauses): Unit = visitScalaElement(ccs)
   def visitCaseClause(cc: ScCaseClause): Unit = visitScalaElement(cc)
   def visitPattern(pat: ScPattern): Unit = visitScalaElement(pat)
   def visitForBinding(forBinding: ScForBinding): Unit = visitScalaElement(forBinding)

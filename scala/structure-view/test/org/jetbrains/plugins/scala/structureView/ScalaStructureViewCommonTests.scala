@@ -336,7 +336,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "Container",
-        Node(getPlatformIcon(PlatformIcons.AbstractMethod), "m: Int")))
+        Node(AbstractMethodIcon, "m: Int")))
   }
 
   def testFinalMethod(): Unit = {

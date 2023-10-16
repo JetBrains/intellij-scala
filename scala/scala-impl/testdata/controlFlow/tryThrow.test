@@ -1,0 +1,34 @@
+try {
+  try1 = 0
+  throw e
+  try2 = 0
+} catch {
+  case x =>
+    catch1 = 0
+  case _ =>
+    catch2 = 0
+} finally {
+  finally1 = 0
+}
+after = 0
+-----
+0(1) element: None
+1(2,8,14) element: TryStatement
+2(3) Lit: 0
+3(4) WRITE try1
+4(5) READ e
+5(8) element: ThrowStatement
+6(7) Lit: 0
+7(14,17) WRITE try2
+8(9,12) element: CatchBlock
+9(10) VAL x
+10(11) Lit: 0
+11(14,17) WRITE catch1
+12(13) Lit: 0
+13(14,17) WRITE catch2
+14(15) element: FinallyBlock
+15(16) Lit: 0
+16() WRITE finally1
+17(18) Lit: 0
+18(19) WRITE after
+19() element: None

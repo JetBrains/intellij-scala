@@ -11,10 +11,12 @@ import org.intellij.plugins.intelliLang.Configuration
 import java.{util => ju}
 import org.intellij.plugins.intelliLang.inject._
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
+import org.intellij.plugins.intelliLang.inject.java.JavaLanguageInjectionSupport
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.injection.ScalaInjectionInfosCollector.InjectionSplitResult
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
@@ -22,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
+import org.jetbrains.plugins.scala.patterns.ScalaElementPatternImpl
 import org.jetbrains.plugins.scala.settings._
 
 import scala.annotation.tailrec
@@ -31,13 +34,11 @@ final class ScalaLanguageInjector extends MultiHostInjector {
 
   import ScalaLanguageInjector._
 
-  private lazy val myInjectionConfiguration: Configuration = Configuration.getInstance()
-
   override def elementsToInjectIn: ju.List[_ <: Class[_ <: PsiElement]] = ElementsToInjectIn
 
   // TODO: rethink, add caching
   //  this adds significant typing performance overhead if file contains many injected literals
-  override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement): Unit =  {
+  override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement): Unit = {
     implicit val support: ScalaLanguageInjectionSupport = LanguageInjectionSupport.EP_NAME.findExtension(classOf[ScalaLanguageInjectionSupport])
     if (support == null)
       return
@@ -53,7 +54,8 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     if (injectUsingComment(host, literals))
       return
 
-    implicit val projectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(host.getProject)
+    val project = host.getProject
+    implicit val projectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (injectUsingInterpolatedStringPrefix(host, literals, projectSettings.getIntInjectionMapping))
       return
 
@@ -64,7 +66,11 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     if (injectUsingAnnotation(host, literals))
       return
 
-    if (injectUsingPatterns(host, literals, myInjectionConfiguration.getInjections(support.getId)))
+    val injectionConfiguration = Configuration.getProjectInstance(project)
+    if (injectUsingScalaPatterns(host, literals, injectionConfiguration))
+      return
+
+    if (injectUsingJavaPatterns(host, literals, injectionConfiguration))
       return
 
     // final expression uses return for easy debugging
@@ -194,7 +200,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean =
     host match {
       case expression: ScExpression if isDfaEnabled =>
-        val annotationName = myInjectionConfiguration.getAdvancedConfiguration.getLanguageAnnotationClass
+        val annotationName = Configuration.getProjectInstance(expression.getProject).getAdvancedConfiguration.getLanguageAnnotationClass
         injectUsingAnnotation(expression, literals, annotationName)
       case _ =>
         false
@@ -264,15 +270,56 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   }
 
   /**
-   * All patterns are defined in<br>
+   * Scala patterns are defined in<br>
    * `resources/org/jetbrains/plugins/scala/injection/scalaInjections.xml`
    *
    * @example {{{
    *    "Hello [\\d\\w]+!".r
    * }}}
    */
+  private def injectUsingScalaPatterns(
+    host: PsiElement,
+    literals: Seq[ScStringLiteral],
+    injectionConfiguration: Configuration
+  )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean = {
+    val injectionsForScala = injectionConfiguration.getInjections(ScalaLanguageInjectionSupport.Id)
+    injectUsingPatterns(host, host, literals, injectionsForScala)
+  }
+
+  private def injectUsingJavaPatterns(
+    host: PsiElement,
+    literals: Seq[ScStringLiteral],
+    injectionConfiguration: Configuration
+  )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean = {
+    if (shouldAvoidResolve)
+      return false
+
+    val (ref, argumentIndex) = ScalaElementPatternImpl.methodRefWithArgumentIndex(host) match {
+      case Some(value) => value
+      case _ =>
+        return false
+    }
+
+    val javaMethod = ref.resolve() match {
+      case _: ScalaPsiElement =>
+        return false //skip scala code, we are only interested in java methods
+      case javaMethod: PsiMethod =>
+        javaMethod
+      case _ =>
+        return false
+    }
+
+    val javaParameter = javaMethod.getParameterList.getParameters.applyOrElse(argumentIndex, null)
+    if (javaParameter == null)
+      return false
+
+    val injectionsForJava = injectionConfiguration.getInjections(JavaLanguageInjectionSupport.JAVA_SUPPORT_ID)
+    injectUsingPatterns(host, javaParameter, literals, injectionsForJava)
+  }
+
   private def injectUsingPatterns(
     host: PsiElement,
+    elementToAccept: PsiElement,
     literals: Seq[ScStringLiteral],
     injections: ju.List[BaseInjection]
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean = {
@@ -287,7 +334,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     if (shouldAvoidResolve)
       return false
 
-    val baseInjection = injections.iterator.asScala.find(_.acceptsPsiElement(host)).orNull
+    val baseInjection = injections.iterator.asScala.find(_.acceptsPsiElement(elementToAccept)).orNull
     if (baseInjection == null)
       return false
 
@@ -301,7 +348,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   }
 }
 
-object ScalaLanguageInjector {
+private object ScalaLanguageInjector {
 
   private val ElementsToInjectIn = ju.Arrays.asList(
     classOf[ScInterpolatedStringLiteral],
@@ -410,7 +457,7 @@ object ScalaLanguageInjector {
             case Some(f: ScFunction) =>
               val parameters = f.parameters
               parameters.lift(index)
-            case Some(m: PsiMethod)  =>
+            case Some(m: PsiMethod) =>
               val parameters = m.parameters
               parameters.lift(index).safeMap(_.getModifierList)
             case _ => None

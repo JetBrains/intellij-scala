@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import org.jetbrains.plugins.scala.TestDependencyManager
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
+import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManager
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
@@ -45,7 +45,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
      * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
      */
     import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-    new TestDependencyManager().resolve("jline" % "jline" % "2.14.6")
+    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
 
     val left =
       """val a = 1

@@ -16,6 +16,7 @@
               "classScala.svg": "org/jetbrains/plugins/scala/images/classScala.svg",
               "compileServer.svg": "org/jetbrains/plugins/scala/images/compileServer.svg",
               "enumScala.svg": "org/jetbrains/plugins/scala/images/enumScala.svg",
+              "enumObjectScala.svg": "org/jetbrains/plugins/scala/images/enumObjectScala.svg",
               "fieldValue.svg": "org/jetbrains/plugins/scala/images/fieldValue.svg",
               "fieldVariable.svg": "org/jetbrains/plugins/scala/images/fieldVariable.svg",
               "function.svg": "org/jetbrains/plugins/scala/images/function.svg",

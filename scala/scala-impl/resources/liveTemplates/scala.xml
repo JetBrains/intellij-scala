@@ -99,15 +99,16 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
 
-  <template name="imc" value="implicit class $CLASS_NAME$$SUFFIX$(private val $RECEIVER_NAME$: $TYPE_NAME$) extends AnyVal {&#13;$END$&#13;}"
+  <template name="imc" value="implicit class $CLASS_NAME$$SUFFIX$(private val $RECEIVER_NAME$: $TYPE_NAME$)$EXTENDS_ANY_VAL${&#13;$END$&#13;}"
             resource-bundle="messages.ScalaEditorBundle" key="template.for.extension.methods.container"
             toReformat="true" toShortenFQNames="true">
     <variable name="TYPE_NAME" defaultValue="&quot;Any&quot;" alwaysStopAt="true"/>
     <variable name="RECEIVER_NAME" expression="scala_suggestVariableNameByTypeText(TYPE_NAME)" defaultValue="&quot;target&quot;" alwaysStopAt="true"/>
     <variable name="CLASS_NAME" expression="scala_implicitValueClassName(TYPE_NAME)" alwaysStopAt="false" />
+    <variable name="EXTENDS_ANY_VAL" expression="scala_implicitValueExtendsValueClassOptionalText" alwaysStopAt="false" />
     <context>
       <option name="SCALA_CODE" value="false"/>
-      <option name="SCALA_IMPLICIT_VALUE_CLASS" value="true"/>
+      <option name="SCALA_IMPLICIT_CLASS" value="true"/>
     </context>
   </template>
 </templateSet>

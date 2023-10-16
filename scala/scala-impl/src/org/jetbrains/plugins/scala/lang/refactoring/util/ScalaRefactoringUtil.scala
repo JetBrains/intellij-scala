@@ -216,11 +216,10 @@ object ScalaRefactoringUtil {
               document.deleteString(startOffset, startOffset + 1)
               documentManager.commitDocument(document)
             }
-            return res
-          } else return None
-        case _ => return None
+            res
+          } else None
+        case _ =>  None
       }
-      None
     }
 
     def partOfStringLiteral(): Option[(ScExpression, ArraySeq[ScType])] = {

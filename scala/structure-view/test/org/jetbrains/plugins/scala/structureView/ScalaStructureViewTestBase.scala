@@ -10,16 +10,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
-import com.intellij.ui.icons.CoreIconManager
-import com.intellij.ui.{IconManager, LayeredIcon, PlatformIcons}
+import com.intellij.ui.{IconManager, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
+import org.jetbrains.plugins.scala.util.IconUtils
 import org.junit.Assert
-import org.junit.Assert.fail
 
 import java.util.Comparator
 import javax.swing.Icon
@@ -38,28 +37,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
   override def setUp(): Unit = {
     super.setUp()
-
-    /**
-     * By default IconManager is deactivated and `com.intellij.ui.DummyIconManager` is used
-     * We need a proper IconManager implementation, in order layered icons are properly built in structure view tests.
-     * (see [[org.jetbrains.plugins.scala.util.BaseIconProvider.getIcon]])
-     */
-    IconManager.getInstance() match {
-      case iconManager: CoreIconManager =>
-        // workaround for IDEA-274148 (can remove it when the issue is fixed)
-        // copied from com.intellij.psi.impl.ElementPresentationUtil static initializer
-        val FLAGS_STATIC = 0x200
-        val FLAGS_FINAL = 0x400
-        val FLAGS_JUNIT_TEST = 0x2000
-        val FLAGS_RUNNABLE = 0x4000
-
-        iconManager.registerIconLayer(FLAGS_STATIC, AllIcons.Nodes.StaticMark)
-        iconManager.registerIconLayer(FLAGS_FINAL, AllIcons.Nodes.FinalMark)
-        iconManager.registerIconLayer(FLAGS_JUNIT_TEST, AllIcons.Nodes.JunitTestMark)
-        iconManager.registerIconLayer(FLAGS_RUNNABLE, AllIcons.Nodes.RunnableMark)
-      case m =>
-        fail(s"Unexpected icon manager: ${m.getClass} (expected ${classOf[CoreIconManager]})")
-    }
+    IconUtils.registerIconLayersInIconManager()
   }
 
   protected def check(@Language("Scala") code: String, nodes: Node*): Unit = {
@@ -112,11 +90,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
       .asInstanceOf[ScalaFile]
   }
 
-  protected def layered(icons: Icon*): Icon = {
-    val result = new LayeredIcon(icons.length)
-    icons.zipWithIndex.foreach { case (icon, index) => result.setIcon(icon, index) }
-    result
-  }
+  protected def layered(icons: Icon*): Icon = IconUtils.createLayeredIcon(icons: _*)
 }
 
 private object ScalaStructureViewTestBase {

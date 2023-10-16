@@ -993,7 +993,8 @@ object ScalaPsiUtil {
         case (infix: ScInfixExpr, call: ScMethodCall) if infix.left == from && call.args.isColonArgs => true
         case (infix: ScInfixExpr, _: ScTuple) => tupleInInfixNeedParentheses(infix, from)
         case (_: ScSugarCallExpr |
-              _: ScReferenceExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
+              _: ScReferenceExpression |
+              _: ScTypedExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
         case (_, _: ScReferenceExpression | _: ScMethodCall |
                  _: ScGenericCall | _: ScLiteral | _: ScTuple |
                  _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |

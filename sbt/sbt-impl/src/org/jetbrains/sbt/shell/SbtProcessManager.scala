@@ -78,8 +78,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
    */
   @NonNls private def pluginResolverSetting: String =
     raw"""resolvers += {
-         |  val resolver = Resolver.file("Scala Plugin Bundled Repository", file(raw"$repoPath"))(Resolver.mavenStylePatterns)
-         |  resolver.withPatterns(resolver.patterns.withIvyPatterns(resolver.patterns.artifactPatterns))
+         |  import sbt.Resolver.mavenStyleBasePattern
+         |  val artifactPatterns = Vector(mavenStyleBasePattern)
+         |  val patterns = Patterns.apply(artifactPatterns, artifactPatterns, true, false, false)
+         |  Resolver.file("Scala Plugin Bundled Repository", file(raw"$repoPath"))(patterns)
          |}""".stripMargin
 
   /** Plugins injected into user's global sbt build. */

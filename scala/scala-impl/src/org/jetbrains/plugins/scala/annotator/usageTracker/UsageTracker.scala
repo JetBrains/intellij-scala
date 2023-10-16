@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -96,6 +96,9 @@ object UsageTracker {
       case ScEnumCase.Original(enumCase) => Seq(enumCase)
       case ScEnum.FromObject(enum) => Seq(enum)
       case ScEnum.FromSyntheticMethod(enum) => enum.cases
+      case o: ScObject if o.isSyntheticObject => Seq(o.syntheticNavigationElement).collect {
+        case n: ScNamedElement => n
+      }
       case f: ScFunctionDefinition if f.isSynthetic => Seq(f.syntheticNavigationElement).collect {
         case n: ScNamedElement => n
       }

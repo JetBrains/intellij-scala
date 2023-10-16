@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, FileStatusMap}
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.compiler.CompilerWorkspaceConfiguration
@@ -22,7 +21,6 @@ import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
@@ -139,22 +137,18 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     executor.schedule(new DebouncedTask(virtualFile), length, unit)
   }
 
-  private def execute(virtualFile: VirtualFile, request: CompilationRequest): Unit = {
-    if (!hasAnnotatorErrors(project, request.document)) {
-      request match {
-        case wr: CompilationRequest.WorksheetRequest =>
-          executeWorksheetCompilationRequest(wr)
-        case ir: CompilationRequest.IncrementalRequest =>
-          executeIncrementalCompilationRequest(virtualFile, ir)
-        case dr: CompilationRequest.DocumentRequest =>
-          executeDocumentCompilationRequest(virtualFile, dr)
-      }
-    }
+  private def execute(virtualFile: VirtualFile, request: CompilationRequest): Unit = request match {
+    case wr: CompilationRequest.WorksheetRequest =>
+      executeWorksheetCompilationRequest(wr)
+    case ir: CompilationRequest.IncrementalRequest =>
+      executeIncrementalCompilationRequest(virtualFile, ir)
+    case dr: CompilationRequest.DocumentRequest =>
+      executeDocumentCompilationRequest(virtualFile, dr)
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
     val CompilationRequest.WorksheetRequest(file, document, isFirstTimeHighlighting, debugReason) = request
-    debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: ${isFirstTimeHighlighting})")
+    debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: $isFirstTimeHighlighting)")
 
     //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
     //because it's already called for all worksheets in WorksheetSyntheticModuleService
@@ -354,14 +348,4 @@ private object CompilerHighlightingService {
 
   def platformAutomakeEnabled(project: Project): Boolean =
     CompilerWorkspaceConfiguration.getInstance(project).MAKE_PROJECT_ON_SAVE
-
-  private def hasAnnotatorErrors(project: Project, document: Document): Boolean = {
-    val fileStatusMap = DaemonCodeAnalyzerEx.getInstanceEx(project).getFileStatusMap
-    wasErrorFoundMethod.invoke(fileStatusMap, document).asInstanceOf[Boolean]
-  }
-
-  private final val wasErrorFoundMethod: java.lang.reflect.Method =
-    classOf[FileStatusMap].getDeclaredMethod("wasErrorFound", classOf[Document])
-
-  wasErrorFoundMethod.setAccessible(true)
 }

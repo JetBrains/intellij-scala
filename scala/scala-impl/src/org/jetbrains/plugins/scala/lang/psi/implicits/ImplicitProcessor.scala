@@ -151,7 +151,9 @@ object ImplicitProcessor {
 
   private def checkFunctionIsEligible(function: ScFunction, place: PsiElement): Boolean = {
 
-    if (function.hasExplicitType || !isContextAncestor(function.getContainingFile, place, false))
+    if (function.hasExplicitType ||
+      function.isExtensionMethod ||
+      !isContextAncestor(function.getContainingFile, place, false))
       return true
 
     val commonContext = PsiTreeUtil.findCommonContext(function, place)

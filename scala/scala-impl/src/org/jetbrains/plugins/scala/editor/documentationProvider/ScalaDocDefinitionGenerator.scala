@@ -64,7 +64,10 @@ private class ScalaDocDefinitionGenerator private(
       qn      <- Option(clazz.qualifiedName)
       psiLink =  classLinkWithLabel(clazz, qn, defLinkHighlight = true)
     } {
-      builder.append(psiLink).append("<br/>\n")
+      builder.append(psiLink)
+        .append(NewLineSeparatorInDefinitionSection)
+        //append extra line separator between the containing class and the main definition part (like in JavaDoc)
+        .append(NewLineSeparatorInDefinitionSection)
     }
 
   private def appendDeclMainSection(element: PsiElement): Unit =
@@ -134,7 +137,9 @@ private class ScalaDocDefinitionGenerator private(
         builder
           .append("<icon src=\"AllIcons.Nodes.Package\"/> ")
           .append(HtmlPsiUtils.psiElementLink(path, path))
-          .append("<br/>\n")
+          .append(NewLineSeparatorInDefinitionSection)
+          //append extra line separator between the containing class and the main definition part (like in JavaDoc)
+          .append(NewLineSeparatorInDefinitionSection)
       }
       appendDeclMainSection(typedef)
       val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
@@ -216,11 +221,12 @@ private class ScalaDocDefinitionGenerator private(
           buffer.append(typeToString(seq.head.`type`().getOrAny))
           if (seq.length > 1) {
             buffer.append("\n")
-            val typeElementsSeparator = if (seq.length > 3) "<br/>" else " "
+            val typeElementsSeparator = if (seq.length > 3) NewLineSeparatorInDefinitionSection else " "
             for (i <- 1 until seq.length) {
               if (i > 1) buffer.append(typeElementsSeparator)
               buffer
-                .appendKeyword("with ")
+                .appendKeyword("with")
+                .append(" ")
                 .append(typeToString(seq(i).`type`().getOrAny))
             }
           }
@@ -233,7 +239,8 @@ private class ScalaDocDefinitionGenerator private(
       EmptyDoc
     else
       (new StringBuilder)
-        .appendKeyword("extends ")
+        .appendKeyword("extends")
+        .append(" ")
         .append(result)
         .toString
   }

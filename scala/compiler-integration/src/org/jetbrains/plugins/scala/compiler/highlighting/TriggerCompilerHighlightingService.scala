@@ -6,7 +6,7 @@ import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, EditorFactory}
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
@@ -142,8 +142,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   def enableDocumentCompiler(virtualFile: VirtualFile): Unit = {
-    DocumentCompiler.get(project).clearOutputDirectories()
-    documentCompilerAvailable.put(virtualFile, java.lang.Boolean.TRUE)
+    if (project.isDisposed) return
+    val fileBeingEdited = FileEditorManager.getInstance(project).getSelectedEditor.getFile
+    if (fileBeingEdited == virtualFile) {
+      DocumentCompiler.get(project).clearOutputDirectories()
+      documentCompilerAvailable.put(virtualFile, java.lang.Boolean.TRUE)
+    }
   }
 
   def disableDocumentCompiler(virtualFile: VirtualFile): Unit = {
