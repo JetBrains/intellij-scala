@@ -13,6 +13,7 @@ import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
+import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 
@@ -77,6 +78,8 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   }
 
   def addInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
+
+  def pushUnit(): Unit = addInstruction(new PushValueInstruction(DfUnitType))
 
   def pushUnknownValue(): Unit = addInstruction(new PushValueInstruction(DfType.TOP))
 
