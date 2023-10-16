@@ -63,7 +63,7 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     } else {
       statements.init.foreach { statement =>
         transformPsiElement(statement)
-        builder.popReturnValue()
+        builder.pop()
       }
 
       transformPsiElement(statements.last)
@@ -108,7 +108,7 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     } else {
       expression.qualifier.foreach { qualifier =>
         transformExpression(qualifier)
-        builder.popReturnValue()
+        builder.pop()
       }
 
       val expectedType = resolveExpressionType(expression)
@@ -167,7 +167,7 @@ private trait ExpressionTransformer extends Transformer { this: ScalaPsiElementT
     val exceptionExpression = throwStatement.expression
     exceptionExpression match {
       case Some(exception) => transformExpression(exception)
-        builder.popReturnValue()
+        builder.pop()
         val psiType = exception.`type`().getOrAny.toPsiType
         val transfer = new ExceptionTransfer(TypeConstraints.instanceOf(psiType))
         builder.addInstruction(new ThrowInstruction(builder.transferValue(transfer), exception))
