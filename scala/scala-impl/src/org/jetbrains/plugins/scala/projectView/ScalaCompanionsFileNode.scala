@@ -7,7 +7,7 @@ import com.intellij.openapi.ui.Queryable
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.util.ScalaElementPresentationUtil
+import org.jetbrains.plugins.scala.util.ElementPresentationUtilScala
 
 import java.util
 import javax.swing.Icon
@@ -15,7 +15,6 @@ import javax.swing.Icon
 final class ScalaCompanionsFileNode(
   project: Project,
   delegate: ScTypeDefinition,
-  companionObject: ScObject,
   settings: ViewSettings,
 ) extends PsiFileNode(
   project,
@@ -40,9 +39,8 @@ final class ScalaCompanionsFileNode(
 
   override def getIcon(flags: Int): Icon = {
     val icon = baseCompanionIcon
-    val layerFlagsBase = ScalaElementPresentationUtil.getBaseLayerFlags(delegate, flags)
-    val layerFlagsRunnable = ScalaElementPresentationUtil.getRunnableObjectFlags(companionObject)
-    ScalaElementPresentationUtil.getIconWithLayeredFlags(delegate, flags, icon, layerFlagsBase | layerFlagsRunnable)
+    val layerFlags = ElementPresentationUtilScala.getBaseLayerFlags(delegate, flags)
+    ElementPresentationUtilScala.getIconWithLayeredFlags(delegate, flags, icon, layerFlags)
   }
 
   private def baseCompanionIcon: Icon = delegate match {

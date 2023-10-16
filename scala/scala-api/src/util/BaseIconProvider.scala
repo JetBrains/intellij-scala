@@ -26,8 +26,8 @@ trait BaseIconProvider extends Iconable {
     val icon = baseIcon
     // TODO baseIcon shouldn't return null in ScVariable and ScFunction
     if (icon != null && delegate.isValid) {
-      val layerFlags = ScalaElementPresentationUtil.getBaseLayerFlags(delegate, flags) | extraLayerFlags
-      ScalaElementPresentationUtil.getIconWithLayeredFlags(delegate, flags, icon, layerFlags)
+      val layerFlags = ElementPresentationUtilScala.getBaseLayerFlags(delegate, flags) | extraLayerFlags
+      ElementPresentationUtilScala.getIconWithLayeredFlags(delegate, flags, icon, layerFlags)
     }
     else null
   }

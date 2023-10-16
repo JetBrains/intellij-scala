@@ -77,6 +77,6 @@ object FileKind {
       if (settings != null && settings.isShowMembers)
         None
       else
-        Some(new ScalaCompanionsFileNode(project, delegate, companionObject, settings))
+        Some(new ScalaCompanionsFileNode(project, delegate, settings))
   }
 }
