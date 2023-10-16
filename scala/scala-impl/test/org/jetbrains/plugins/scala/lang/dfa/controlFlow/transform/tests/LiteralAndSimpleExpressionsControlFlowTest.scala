@@ -158,7 +158,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }) {
     """
-      |0: PUSH_VAL TOP
+      |0: PUSH_VAL ()
       |1: FINISH BlockExpression
       |2: RETURN
       |3: POP

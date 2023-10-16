@@ -5,6 +5,7 @@ import com.intellij.codeInspection.dataFlow.java.JavaClassDef
 import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
+import com.intellij.codeInspection.dataFlow.lang.DfaAnchor
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
@@ -13,9 +14,9 @@ import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.{DefinitionTransformation, ExpressionTransformation, InvocationTransformation, ScalaPsiElementTransformation, TransformerUtils, specialSupport}
+import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-
 
 class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
                                  private val factory: DfaValueFactory,
@@ -74,14 +75,20 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
     flow
   }
 
+  def flush(): Unit = addInstruction(new FlushFieldsInstruction)
+
   def addInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
 
-  def pushUnknownValue(): Unit = addInstruction(new PushValueInstruction(DfType.TOP))
+  def push(dfType: DfType, anchor: DfaAnchor = null): Unit = addInstruction(new PushValueInstruction(dfType, anchor))
+
+  def pushUnit(): Unit = push(DfUnitType)
+
+  def pushUnknownValue(): Unit = push(DfType.TOP)
 
   def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
     pop(argCount)
-    addInstruction(new PushValueInstruction(DfType.TOP, ScalaStatementAnchor(statement)))
-    addInstruction(new FlushFieldsInstruction)
+    push(DfType.TOP, ScalaStatementAnchor(statement))
+    flush()
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     Option(transfer).foreach(transfer =>

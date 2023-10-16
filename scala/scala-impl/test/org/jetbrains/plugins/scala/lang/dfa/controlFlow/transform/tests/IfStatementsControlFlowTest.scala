@@ -144,7 +144,7 @@ class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
       |17: NUMERIC_OP -
       |18: GOTO 21
       |19: FINISH
-      |20: PUSH_VAL TOP
+      |20: PUSH_VAL ()
       |21: FINISH IfStatement
       |22: FINISH BlockExpression
       |23: RETURN
@@ -174,10 +174,10 @@ class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
       |10: RESULT_OF ScalaStatementAnchor(InfixExpression)
       |11: IF_EQ false 15
       |12: FINISH
-      |13: PUSH_VAL TOP
+      |13: PUSH_VAL ()
       |14: GOTO 17
       |15: FINISH
-      |16: PUSH_VAL TOP
+      |16: PUSH_VAL ()
       |17: FINISH IfStatement
       |18: FINISH BlockExpression
       |19: RETURN
