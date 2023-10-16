@@ -23,7 +23,7 @@ private object MyScalaMainMethodUtil {
   }
 
   /** @return main method info if the method definition itself contains the element in it's tree */
-  def findContainingMainMethod(element: PsiElement): Option[MainMethodInfo] = {
+  private def findContainingMainMethod(element: PsiElement): Option[MainMethodInfo] = {
     val isScala3 = element.isInScala3File
     element.withParentsInFile.collectFirst {
       case funDef: ScFunctionDefinition if isScala2MainMethod(funDef) =>
@@ -36,7 +36,7 @@ private object MyScalaMainMethodUtil {
   /** @return scala2 main method info if the element is located in a top level object with Scala2-style main method
    *         (or inside toplevel class whose companion object has Scala2-style main method)
    */
-  def findScala2MainMethodInContainingTopLevelObject(element: PsiElement): Option[MainMethodInfo.Scala2Style] =
+  private def findScala2MainMethodInContainingTopLevelObject(element: PsiElement): Option[MainMethodInfo.Scala2Style] =
     for {
       containingObject <- findContainingTopLevelObject(element)
       main             <- ScalaMainMethodUtil.findScala2MainMethod(containingObject)
@@ -83,7 +83,7 @@ private object MyScalaMainMethodUtil {
     fromTopLevels.nextOption()
   }
 
-  def maybeTopLevelMainMethod(psiElement: PsiElement): Option[MainMethodInfo] =
+  private def maybeTopLevelMainMethod(psiElement: PsiElement): Option[MainMethodInfo] =
     psiElement match {
       case f: ScalaFile   => findMainMethodInMembers(f.members)
       case p: ScPackaging => findMainMethodInMembers(p.members)
@@ -105,9 +105,10 @@ private object MyScalaMainMethodUtil {
   /**
    * Mainly required for launching JavaFX without main method (see SCL-12132)
    *
-   * @see org.jetbrains.plugins.javaFX.JavaFxMainMethodRunConfigurationProvider
+   * @note implementation is similar to [[com.intellij.psi.util.PsiMethodUtil.hasMainMethod]], though not completely equal
    * @note From JavaFX docx:
    *       "The main() method is not required for JavaFX applications when the JAR file for the application is created with the JavaFX Packager tool..."
+   * @see `org.jetbrains.plugins.javaFX.JavaFxMainMethodRunConfigurationProvider`
    */
   def hasMainMethodFromProviders(c: PsiClass): Boolean = {
     val extensions = JavaMainMethodProvider.EP_NAME.getExtensions
