@@ -7,10 +7,10 @@ import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.{DeferredOffset, FixedOffset}
-import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
+import com.intellij.codeInspection.dataFlow.lang.ir.{ConditionalGotoInstruction, ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.CommonClassNames
+import com.intellij.psi.{CommonClassNames, PsiElement}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
@@ -108,7 +108,7 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     Option(transfer).foreach { transfer =>
-      ensureStackTop(RelationType.EQ, DfType.TOP, transfer)
+      ensureTos(RelationType.EQ, DfType.TOP, transfer)
     }
   }
 
@@ -127,6 +127,12 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
   def goto(label: ControlFlow.ControlFlowOffset): Unit =
     addInstruction(new GotoInstruction(label))
 
+  def gotoIfTosEquals(value: DfType, label: ControlFlow.ControlFlowOffset, @Nullable anchor: PsiElement): Unit =
+    addInstruction(new ConditionalGotoInstruction(label, value, anchor))
+
+  def gotoIfTosEquals(value: DfType, label: ControlFlow.ControlFlowOffset, anchor: Option[PsiElement] = None): Unit =
+    gotoIfTosEquals(value, label, anchor.orNull)
+
   def newDeferredLabel(): DeferredOffset = new DeferredOffset
 
   def newLabelHere(): FixedOffset = new FixedOffset(flow.getInstructionCount)
@@ -135,7 +141,7 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
 
-  def ensureStackTop(rel: RelationType, compareTo: DfType, @Nullable transfer: DfaControlTransferValue = null, @Nullable problem: UnsatisfiedConditionProblem = null): Unit =
+  def ensureTos(rel: RelationType, compareTo: DfType, @Nullable transfer: DfaControlTransferValue = null, @Nullable problem: UnsatisfiedConditionProblem = null): Unit =
     addInstruction(new EnsureInstruction(problem, rel, compareTo, transfer))
 
   def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)

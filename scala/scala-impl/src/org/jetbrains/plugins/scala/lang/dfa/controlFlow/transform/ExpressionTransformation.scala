@@ -89,7 +89,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     val endLabel = newDeferredLabel()
 
     transformExpression(ifExpression.condition, ResultReq.Required)
-    addInstruction(new ConditionalGotoInstruction(elseLabel, DfTypes.FALSE, ifExpression.condition.orNull))
+    gotoIfTosEquals(DfTypes.FALSE, elseLabel, ifExpression.condition)
 
     addInstruction(new FinishElementInstruction(null))
     transformExpression(ifExpression.thenExpression, rreq)
@@ -153,7 +153,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     val startLabel = newLabelHere()
     transformExpression(doWhileLoop.body, ResultReq.None)
     transformExpression(doWhileLoop.condition, ResultReq.Required)
-    addInstruction(new ConditionalGotoInstruction(startLabel, DfTypes.TRUE, doWhileLoop.condition.orNull))
+    gotoIfTosEquals(DfTypes.TRUE, startLabel, doWhileLoop.condition)
     pushUnit(rreq)
   }
 
@@ -161,7 +161,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     val endLabel = newDeferredLabel()
     val beforeCondition = newLabelHere()
     transformExpression(whileLoop.condition, ResultReq.Required)
-    addInstruction(new ConditionalGotoInstruction(endLabel, DfTypes.FALSE, whileLoop.condition.orNull))
+    gotoIfTosEquals(DfTypes.FALSE, endLabel, whileLoop.condition)
     transformExpression(whileLoop.expression, ResultReq.None)
     goto(beforeCondition)
     anchorLabel(endLabel)

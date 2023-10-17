@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 package specialSupport
 
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NotInstruction, NumericBinaryInstruction}
-import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfIntegralType, DfTypes}
@@ -140,7 +139,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
           transformExpression(leftArg.content, ResultReq.Required)
 
           val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-          addInstruction(new ConditionalGotoInstruction(nextConditionLabel, DfTypes.booleanValue(valueNeededToContinue)))
+          gotoIfTosEquals(DfTypes.booleanValue(valueNeededToContinue), nextConditionLabel)
           push(DfTypes.booleanValue(!valueNeededToContinue), anchor)
           goto(endLabel)
 
