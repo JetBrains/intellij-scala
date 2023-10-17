@@ -68,9 +68,9 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
       forceEqualityByContent
     )
 
-    transformExpression(leftArg.content)
+    transformExpression(leftArg.content, ResultReq.Required)
     buildImplicitConversion(leftExpression, balancedType)
-    transformExpression(rightArg.content)
+    transformExpression(rightArg.content, ResultReq.Required)
     buildImplicitConversion(rightExpression, balancedType)
 
     val leftType = leftExpression.map(resolveExpressionType)
@@ -96,7 +96,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
               ScalaStatementAnchor(invocation)
             )
           )
-        else pushUnknownCall(invocation, 2)
+        else buildUnknownCall(invocation, 2, ResultReq.Required)
         return true
       }
     }
@@ -104,7 +104,8 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
     false
   }
 
-  private def tryTransformBinaryRelationalOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
+  private def tryTransformBinaryRelationalOperator(function: ScSyntheticFunction,
+                                                   invocationInfo: InvocationInfo,
                                                    invocation: ScExpression): Boolean = {
     for (operationName <- RelationalBinary.keys) {
       if (matchesSignature(function, operationName, ScalaBoolean)) {
@@ -113,9 +114,11 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
 
-        if (successful) addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
-          ScalaStatementAnchor(invocation)))
-        else pushUnknownCall(invocation, 2)
+        if (successful) {
+          addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(invocation)))
+        } else {
+          buildUnknownCall(invocation, 2, ResultReq.Required)
+        }
         return true
       }
     }
@@ -131,20 +134,20 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         if (verifyBooleanArgumentType(leftArg.content) || verifyBooleanArgumentType(rightArg.content)) {
           val anchor = ScalaStatementAnchor(invocation)
-          val endOffset = new DeferredOffset
-          val nextConditionOffset = new DeferredOffset
+          val nextConditionLabel = newLabel()
+          val endLabel = newLabel()
 
-          transformExpression(leftArg.content)
+          transformExpression(leftArg.content, ResultReq.Required)
 
           val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-          addInstruction(new ConditionalGotoInstruction(nextConditionOffset, DfTypes.booleanValue(valueNeededToContinue)))
-          addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
-          addInstruction(new GotoInstruction(endOffset))
+          addInstruction(new ConditionalGotoInstruction(nextConditionLabel, DfTypes.booleanValue(valueNeededToContinue)))
+          push(DfTypes.booleanValue(!valueNeededToContinue), anchor)
+          goto(endLabel)
 
-          setOffset(nextConditionOffset)
+          anchorLabel(nextConditionLabel)
           addInstruction(new FinishElementInstruction(null))
-          transformExpression(rightArg.content)
-          setOffset(endOffset)
+          transformExpression(rightArg.content, ResultReq.Required)
+          anchorLabel(endLabel)
           addInstruction(new ResultOfInstruction(anchor))
           return true
         }
@@ -162,7 +165,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
 
         addInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
-        transformExpression(singleThisArg.content)
+        transformExpression(singleThisArg.content, ResultReq.Required)
 
         addInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(invocation)))
         return true
@@ -180,7 +183,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
         LogicalUnary(operationName) match {
           case LogicalOperation.Not if verifyBooleanArgumentType(singleThisArg.content) =>
-            transformExpression(singleThisArg.content)
+            transformExpression(singleThisArg.content, ResultReq.Required)
             addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
             return true
           case _ =>

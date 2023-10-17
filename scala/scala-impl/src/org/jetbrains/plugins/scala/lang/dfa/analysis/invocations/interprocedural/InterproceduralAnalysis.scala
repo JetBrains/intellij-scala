@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
@@ -33,13 +34,13 @@ object InterproceduralAnalysis {
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
                                 (implicit factory: DfaValueFactory): Option[MethodEffect] = {
     invocationInfo.invokedElement match {
-      case Some(InvokedElement(function: ScFunctionDefinition))
-        if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) => function.body match {
-        case Some(body) if invocationInfo.paramToProperArgMapping.size == invocationInfo.properArguments.flatten.size =>
-          val paramValues = mapArgumentValuesToParams(invocationInfo, function, argumentValues)
-          analyseExternalMethodBody(function, body, paramValues, currentAnalysedMethodInfo)
-        case _ => None
-      }
+      case Some(InvokedElement(function: ScFunctionDefinition)) if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) =>
+        function.body match {
+          case Some(body) if invocationInfo.paramToProperArgMapping.size == invocationInfo.properArguments.flatten.size =>
+            val paramValues = mapArgumentValuesToParams(invocationInfo, function, argumentValues)
+            analyseExternalMethodBody(function, body, paramValues, currentAnalysedMethodInfo)
+          case _ => None
+        }
       case _ => None
     }
   }
@@ -107,13 +108,13 @@ object InterproceduralAnalysis {
     val newAnalysedInfo = AnalysedMethodInfo(method, currentAnalysedMethodInfo.invocationDepth + 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(newAnalysedInfo, factory, body)
 
-    val endOffset = new DeferredOffset
+    val endLabel = new DeferredOffset
     implicit val context: ProjectContext = method.getProject
-    controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endOffset))
+    controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endLabel))
 
-    controlFlowBuilder.transformExpression(body)
+    controlFlowBuilder.transformExpression(body, ResultReq.Required)
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))
-    val flow = controlFlowBuilder.buildForExternalMethod(resultDestination, endOffset)
+    val flow = controlFlowBuilder.buildForExternalMethod(resultDestination, endLabel)
 
     val listener = new MethodResultDfaListener(resultDestination)
     val interpreter = new StandardDataFlowInterpreter(flow, listener)

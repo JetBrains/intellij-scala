@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
-  final def transformInvocation(invocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None): Unit = {
+  final def transformInvocation(invocation: ScExpression, rreq: ResultReq, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None): Unit = rreq.provideOne {
     val invocationsInfo = invocation match {
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
       case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
@@ -23,7 +23,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
 
     if (invocationsInfo.isEmpty || isUnsupportedInvocation(invocation, invocationsInfo) ||
       invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
-      pushUnknownCall(invocation, 0)
+      buildUnknownCall(invocation, 0, ResultReq.Required)
     } else if (!tryTransformIntoSpecialRepresentation(invocation, invocationsInfo)) {
       invocationsInfo.tail.foreach(invocationInfo => {
         transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
@@ -66,7 +66,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
     buildCollectionAccessAssertions(invocation, invocationInfo)
 
     val byValueArgs = invocationInfo.argListsInEvaluationOrder.flatMap(_.filter(_.passingMechanism == PassByValue))
-    byValueArgs.foreach(arg => transformExpression(arg.content))
+    byValueArgs.foreach(arg => transformExpression(arg.content, ResultReq.Required))
 
     val transfer = maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     addInstruction(new ScalaInvocationInstruction(

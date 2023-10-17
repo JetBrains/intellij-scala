@@ -17,12 +17,15 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
 
   protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
 
-  def test(code: String)(expectedResult: (String, String)*): Unit = {
+  def testWithUnsupportedPsiElements(code: String)(expectedResult: (String, String)*): Unit =
+    test(code, buildUnsupportedPsiElements = true)(expectedResult: _*)
+
+  def test(code: String, buildUnsupportedPsiElements: Boolean = false)(expectedResult: (String, String)*): Unit = {
     val actualFile = configureFromFileText(code)
 
     val inspectionManager = InspectionManager.getInstance(getProject)
     val mockProblemsHolder = new MockProblemsHolder(actualFile, inspectionManager)
-    val dfaVisitor = new ScalaDfaVisitor(mockProblemsHolder)
+    val dfaVisitor = new ScalaDfaVisitor(mockProblemsHolder, buildUnsupportedPsiElements)
 
     actualFile.accept(new ScalaRecursiveElementVisitor {
       override def visitScalaElement(element: ScalaPsiElement): Unit = {
