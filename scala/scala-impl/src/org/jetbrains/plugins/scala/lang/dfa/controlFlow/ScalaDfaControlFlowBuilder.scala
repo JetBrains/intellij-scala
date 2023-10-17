@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
-import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.{DeferredOffset, FixedOffset}
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
@@ -129,11 +129,7 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
   def newDeferredLabel(): DeferredOffset = new DeferredOffset
 
-  def newLabelHere(): DeferredOffset = {
-    val label = newDeferredLabel()
-    anchorLabel(label)
-    label
-  }
+  def newLabelHere(): FixedOffset = new FixedOffset(flow.getInstructionCount)
 
   def anchorLabel(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
