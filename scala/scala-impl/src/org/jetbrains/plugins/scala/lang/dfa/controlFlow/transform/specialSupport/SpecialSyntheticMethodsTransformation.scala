@@ -134,8 +134,8 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         if (verifyBooleanArgumentType(leftArg.content) || verifyBooleanArgumentType(rightArg.content)) {
           val anchor = ScalaStatementAnchor(invocation)
-          val nextConditionLabel = newLabel()
-          val endLabel = newLabel()
+          val nextConditionLabel = newDeferredLabel()
+          val endLabel = newDeferredLabel()
 
           transformExpression(leftArg.content, ResultReq.Required)
 

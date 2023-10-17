@@ -124,10 +124,16 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
       addInstruction(new SpliceInstruction(times))
     }
 
-  def goto(offset: ControlFlow.ControlFlowOffset): Unit =
-    addInstruction(new GotoInstruction(offset))
+  def goto(label: ControlFlow.ControlFlowOffset): Unit =
+    addInstruction(new GotoInstruction(label))
 
-  def newLabel(): DeferredOffset = new DeferredOffset
+  def newDeferredLabel(): DeferredOffset = new DeferredOffset
+
+  def newLabelHere(): DeferredOffset = {
+    val label = newDeferredLabel()
+    anchorLabel(label)
+    label
+  }
 
   def anchorLabel(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 

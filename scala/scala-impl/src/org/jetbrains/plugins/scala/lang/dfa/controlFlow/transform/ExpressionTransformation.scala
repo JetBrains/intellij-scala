@@ -85,8 +85,8 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
 
   private def transformIfExpression(ifExpression: ScIf, rreq: ResultReq): Unit = {
     val returnType = ifExpression.`type`().getOrAny
-    val elseLabel = newLabel()
-    val endLabel = newLabel()
+    val elseLabel = newDeferredLabel()
+    val endLabel = newDeferredLabel()
 
     transformExpression(ifExpression.condition, ResultReq.Required)
     addInstruction(new ConditionalGotoInstruction(elseLabel, DfTypes.FALSE, ifExpression.condition.orNull))
