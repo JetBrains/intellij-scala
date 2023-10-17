@@ -4,15 +4,17 @@ package project.settings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.messages.Topic
+import com.intellij.util.ui.{GridBag, JBUI}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
-import java.awt.FlowLayout
+import java.awt.{FlowLayout, GridBagConstraints}
 import javax.swing._
 
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
@@ -33,7 +35,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    content.add(extraControls.rootComponent, fillLineConstraints)
+    val scrollPane = new JBScrollPane(extraControls.rootComponent)
+    scrollPane.setBorder(null)
+    content.add(scrollPane, fillLineAndColumnConstraints(indentLevel))
 
     if (context == Context.Wizard) {
       val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
@@ -59,7 +63,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0 != settings.preferScala2 ||
-      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild
+      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
+      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -79,6 +84,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.scalaVersionPreferenceComboBox.setSelectedIndex(if (settings.preferScala2) 0 else 1)
     extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
+    extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
   }
 
   override def updateInitialExtraSettings(): Unit = {
@@ -94,6 +100,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0
     settings.groupProjectsFromSameBuild = extraControls.groupProjectsFromSameBuildCheckBox.isSelected
+    settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
 
     val useSbtShellForBuildSettingChanged =
       settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected
@@ -111,6 +118,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
+
+  private def fillLineAndColumnConstraints(indentLevel: Int): GridBag = {
+    val insets = JBUI.insets(INSETS, INSETS + INSETS * indentLevel, 0, INSETS)
+    new GridBag().weightx(1).coverLine().coverColumn().fillCell().anchor(GridBagConstraints.WEST).insets(insets)
+  }
 
   override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }

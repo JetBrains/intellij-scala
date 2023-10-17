@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
 
 import java.net.URI
@@ -14,8 +14,8 @@ final class SbtProjectStructureImportingWithTransitiveProjectDependenciesTest ex
 
   override def setUp(): Unit = {
     super.setUp()
-    val settings = SbtSettings.getInstance(myProject)
-    settings.setInsertProjectTransitiveDependencies(true)
+    val projectSettings = SbtProjectSettings.default
+    projectSettings.insertProjectTransitiveDependencies = true
   }
 
   def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
@@ -113,45 +113,99 @@ final class SbtProjectStructureImportingWithTransitiveProjectDependenciesTest ex
    * due to references to different builds, or multiple sbt projects being imported independently from IDEA
    */
   def testSCL13600(): Unit = runTest(
-    new project("scl13600") {
+    new project("root") {
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
-      lazy val root: module = new module("root") {
-        sbtBuildURI := buildURI
-        sbtProjectId := "root"
 
+      val rootC1: module = new module("Build C1 Name", Array("Build C1 Name")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("c1/")
+        moduleDependencies := Seq()
+      }
+      val rootC2: module = new module("Build C2 Name", Array("Build C2 Name")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("c2/")
+        moduleDependencies := Seq()
+      }
+      val rootC3: module = new module("suffix2.root", Array("root1")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
+        moduleDependencies := Seq()
+      }
+      val rootC4: module = new module("suffix1.suffix2.root", Array("root2")) {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
+        moduleDependencies := Seq()
+      }
+      val root: module = new module("root") {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI
         moduleDependencies := Seq(
-          new dependency(c1) {
+          new dependency(rootC1) {
             isExported := false
           },
-          new dependency(c2) {
+          new dependency(rootC2) {
+            isExported := false
+          },
+          new dependency(rootC3) {
+            isExported := false
+          },
+          new dependency(rootC4) {
             isExported := false
           },
         )
       }
 
-      lazy val c1: module = new module("c1") {
-        sbtBuildURI := buildURI.resolve("c1/")
-        sbtProjectId := "c1"
-        moduleDependencies := Seq()
-      }
-      lazy val c1Root: module = new module("c1.root", Array("root")) {
-        sbtBuildURI := buildURI.resolve("c1/")
-        sbtProjectId := "root"
-        moduleDependencies := Seq()
-      }
+      val modulesFromRoot: Seq[module] = Seq(
+        new module("project1InRootBuild"),
+        new module("project2InRootBuild"),
+        new module("project3InRootBuildWithSameName", Array("same name in root build")),
+        new module("project4InRootBuildWithSameName", Array("same name in root build")),
+        new module("project5InRootBuildWithSameGlobalName", Array("same global name")),
+        new module("project6InRootBuildWithSameGlobalName", Array("same global name")),
+      )
+      val modulesFromC1: Seq[module] = Seq(
+        rootC1,
+        new module("project1InC1", Array("Build C1 Name")),
+        new module("project2InC1", Array("Build C1 Name")),
+        new module("project3InC1WithSameName", Array("Build C1 Name", "same name in c1")),
+        new module("project4InC1WithSameName", Array("Build C1 Name", "same name in c1")),
+        new module("project5InC1WithSameGlobalName", Array("Build C1 Name", "same global name")),
+        new module("project6InC1WithSameGlobalName", Array("Build C1 Name", "same global name")),
+      )
+      val modulesFromC2: Seq[module] = Seq(
+        rootC2,
+        new module("project1InC2", Array("Build C2 Name")),
+        new module("project2InC2", Array("Build C2 Name")),
+        new module("project3InC2WithSameName", Array("Build C2 Name", "same name in c2")),
+        new module("project4InC2WithSameName", Array("Build C2 Name", "same name in c2")),
+        new module("project5InC2WithSameGlobalName", Array("Build C2 Name", "same global name")),
+        new module("project6InC2WithSameGlobalName", Array("Build C2 Name", "same global name")),
+      )
+      val modulesFromC3: Seq[module] = Seq(
+        rootC3,
+        new module("project1InC3", Array("root1")),
+        new module("project2InC3", Array("root1")),
+        new module("project3InC3WithSameName", Array("root1", "same name in c3")),
+        new module("project4InC3WithSameName", Array("root1", "same name in c3")),
+        new module("project5InC3WithSameGlobalName", Array("root1", "same global name")),
+        new module("project6InC3WithSameGlobalName", Array("root1", "same global name")),
+      )
+      val modulesFromC4: Seq[module] = Seq(
+        rootC4,
+        new module("project1InC4", Array("root2")),
+        new module("project2InC4", Array("root2")),
+        new module("project3InC4WithSameName", Array("root2", "same name in c4")),
+        new module("project4InC4WithSameName", Array("root2", "same name in c4")),
+        new module("project5InC4WithSameGlobalName", Array("root2", "same global name")),
+        new module("project6InC4WithSameGlobalName", Array("root2", "same global name")),
+      )
 
-      lazy val c2: module = new module("c2") {
-        sbtBuildURI := buildURI.resolve("c2/")
-        sbtProjectId := "c2"
-        moduleDependencies := Seq()
-      }
-      lazy val c2Root: module = new module("c2.root", Array("root")) {
-        sbtBuildURI := buildURI.resolve("c2/")
-        sbtProjectId := "root"
-        moduleDependencies := Seq()
-      }
-
-      modules := Seq(root, c1, c1Root, c2, c2Root)
+      modules := root +:
+        modulesFromRoot ++:
+        modulesFromC1 ++:
+        modulesFromC2 ++:
+        modulesFromC3 ++:
+        modulesFromC4
     }
   )
 
@@ -343,7 +397,7 @@ final class SbtProjectStructureImportingWithTransitiveProjectDependenciesTest ex
         )
       }
 
-      lazy val root = new module("root") {
+      lazy val root = new module("crossPlatformWithNestedProjectDependencies") {
         sbtProjectId := "root"
         moduleDependencies := Seq(
           new dependency(module2JVM) {
