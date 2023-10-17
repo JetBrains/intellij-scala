@@ -309,7 +309,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
         return false
     }
 
-    val javaParameter = javaMethod.getParameterList.getParameters.applyOrElse(argumentIndex, null)
+    val javaParameter = javaMethod.getParameterList.getParameters.applyOrElse(argumentIndex, (_: Int) => null)
     if (javaParameter == null)
       return false
 
