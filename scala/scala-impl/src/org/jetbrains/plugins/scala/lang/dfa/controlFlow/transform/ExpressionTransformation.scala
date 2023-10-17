@@ -150,17 +150,22 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def transformDoWhileLoop(doWhileLoop: ScDo, rreq: ResultReq): Unit = {
-    // TODO implement transformation
-    unsupported(doWhileLoop) {
-      buildUnknownCall(doWhileLoop, 0, rreq)
-    }
+    val startLabel = newLabelHere()
+    transformExpression(doWhileLoop.body, ResultReq.None)
+    transformExpression(doWhileLoop.condition, ResultReq.Required)
+    addInstruction(new ConditionalGotoInstruction(startLabel, DfTypes.TRUE, doWhileLoop.condition.orNull))
+    pushUnit(rreq)
   }
 
   private def transformWhileLoop(whileLoop: ScWhile, rreq: ResultReq): Unit = {
-    // TODO implement transformation
-    unsupported(whileLoop) {
-      buildUnknownCall(whileLoop, 0, rreq)
-    }
+    val endLabel = newDeferredLabel()
+    val beforeCondition = newLabelHere()
+    transformExpression(whileLoop.condition, ResultReq.Required)
+    addInstruction(new ConditionalGotoInstruction(endLabel, DfTypes.FALSE, whileLoop.condition.orNull))
+    transformExpression(whileLoop.expression, ResultReq.None)
+    goto(beforeCondition)
+    anchorLabel(endLabel)
+    pushUnit(rreq)
   }
 
   private def transformForExpression(forExpression: ScFor, rreq: ResultReq): Unit = {
