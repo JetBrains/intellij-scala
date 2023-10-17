@@ -6,7 +6,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 import java.util
 
@@ -56,8 +56,8 @@ class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) ex
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val project = module.getProject
-    val settingsState = SbtSettings.getInstance(project).getState
-    new SbtOrderEnumeratorHandler(settingsState.insertProjectTransitiveDependencies)
+    val insertProjectTransitiveDependencies = SbtProjectSettings.forProject(project).exists(_.insertProjectTransitiveDependencies)
+    new SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies)
   }
 
   override def isApplicable(module: Module): Boolean =

@@ -61,6 +61,10 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var groupProjectsFromSameBuild = true
 
+  //See SCL-21158 for details
+  @BeanProperty
+  var insertProjectTransitiveDependencies: Boolean = true
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = _
@@ -83,6 +87,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.enableDebugSbtShell = enableDebugSbtShell
     result.preferScala2 = preferScala2
     result.groupProjectsFromSameBuild = groupProjectsFromSameBuild
+    result.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
     result
   }
 }
