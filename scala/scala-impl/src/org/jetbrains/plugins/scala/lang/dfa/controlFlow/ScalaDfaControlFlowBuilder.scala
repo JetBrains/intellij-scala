@@ -5,31 +5,33 @@ import com.intellij.codeInspection.dataFlow.java.JavaClassDef
 import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
-import com.intellij.codeInspection.dataFlow.lang.DfaAnchor
+import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.{DefinitionTransformation, ExpressionTransformation, InvocationTransformation, ScalaPsiElementTransformation, TransformerUtils, specialSupport}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.{DefinitionTransformation, ExpressionTransformation, InvocationTransformation, ResultReq, StatementTransformation, TransformerUtils, specialSupport}
 import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
-                                 private val factory: DfaValueFactory,
-                                 context: ScalaPsiElement)
+final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
+                                       private val factory: DfaValueFactory,
+                                       context: ScalaPsiElement,
+                                       val buildUnsupportedPsiElements: Boolean = true)
   extends DefinitionTransformation
     with ExpressionTransformation
+    with StatementTransformation
     with InvocationTransformation
     with TransformerUtils
-    with ScalaPsiElementTransformation
     with specialSupport.CollectionAccessAssertionUtils
     with specialSupport.SpecialSyntheticMethodsTransformation
 {
-
+  private[controlFlow] implicit val rreqBuilderContext: ResultReq.BuilderContext = new ResultReq.BuilderContext(this)
   private val flow = new ControlFlow(factory, context)
   private val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
 
@@ -64,15 +66,23 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
   def buildForExternalMethod(returnDestination: DfaVariableValue, endOffset: DeferredOffset): ControlFlow = {
     val finishOffset = new DeferredOffset
     addInstruction(new SimpleAssignmentInstruction(null, returnDestination))
-    addInstruction(new GotoInstruction(finishOffset))
+    goto(finishOffset)
 
-    setOffset(endOffset)
+    anchorLabel(endOffset)
     pushUnknownValue()
     addInstruction(new SimpleAssignmentInstruction(null, returnDestination))
 
-    setOffset(finishOffset)
+    anchorLabel(finishOffset)
     flow.finish()
     flow
+  }
+
+  def unsupported[R](element: ScalaPsiElement)(fallback: => R): R = {
+    if (buildUnsupportedPsiElements) {
+      fallback
+    } else {
+      throw TransformationFailedException(element, "Currently unsupported element")
+    }
   }
 
   def flush(): Unit = addInstruction(new FlushFieldsInstruction)
@@ -81,18 +91,25 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
 
   def push(dfType: DfType, anchor: DfaAnchor = null): Unit = addInstruction(new PushValueInstruction(dfType, anchor))
 
-  def pushUnit(): Unit = push(DfUnitType)
+  def pushUnit(rreq: ResultReq = ResultReq.Required): Unit =
+    rreq.ifResultNeeded {
+      push(DfUnitType)
+    }
 
-  def pushUnknownValue(): Unit = push(DfType.TOP)
+  def pushUnknownValue(rreq: ResultReq = ResultReq.Required): Unit =
+    rreq.ifResultNeeded {
+      push(DfType.TOP)
+    }
 
-  def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
+  def buildUnknownCall(statement: ScBlockStatement, argCount: Int, rreq: ResultReq): Unit = rreq.provideOne {
     pop(argCount)
     push(DfType.TOP, ScalaStatementAnchor(statement))
     flush()
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
-    Option(transfer).foreach(transfer =>
-      addInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
+    Option(transfer).foreach { transfer =>
+      ensureStackTop(RelationType.EQ, DfType.TOP, transfer)
+    }
   }
 
   def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): Unit = {
@@ -107,9 +124,17 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
       addInstruction(new SpliceInstruction(times))
     }
 
-  def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
+  def goto(offset: ControlFlow.ControlFlowOffset): Unit =
+    addInstruction(new GotoInstruction(offset))
+
+  def newLabel(): DeferredOffset = new DeferredOffset
+
+  def anchorLabel(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
+
+  def ensureStackTop(rel: RelationType, compareTo: DfType, @Nullable transfer: DfaControlTransferValue = null, @Nullable problem: UnsatisfiedConditionProblem = null): Unit =
+    addInstruction(new EnsureInstruction(problem, rel, compareTo, transfer))
 
   def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
 
@@ -117,7 +142,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo,
 
   def transferValue(transfer: ExceptionTransfer): DfaControlTransferValue = trapTracker.transferValue(transfer)
 
-  def addReturnInstruction(expression: Option[ScExpression]): Unit = {
+  def ret(expression: Option[ScExpression]): Unit = {
     addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), expression.orNull))
   }
 

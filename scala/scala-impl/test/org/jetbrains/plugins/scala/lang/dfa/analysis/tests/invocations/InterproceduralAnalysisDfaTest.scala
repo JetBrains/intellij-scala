@@ -97,7 +97,7 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
     )
 
   def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit =
-    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
+    if (InterproceduralAnalysisEnabled) testWithUnsupportedPsiElements(codeFromMethodBody(returnType = "Boolean") {
       """
         |def otherMethod(x: Int): Int = {
         |  3 $$ 4

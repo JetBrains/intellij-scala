@@ -14,23 +14,21 @@ class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |0: PUSH_VAL 15
       |1: ASSIGN_TO x
       |2: PUSH_VAL TOP
-      |3: POP
-      |4: PUSH_VAL TOP
-      |5: PUSH_VAL 1000
-      |6: PUSH_VAL 3
-      |7: NUMERIC_OP *
-      |8: PUSH_VAL 9
-      |9: NUMERIC_OP -
-      |10: PUSH x
-      |11: PUSH_VAL 5
-      |12: PUSH_VAL 3
-      |13: BOOLEAN_OP >
-      |14: PUSH_VAL TOP
-      |15: CALL TestClass#anotherMethod
-      |16: FINISH BlockExpression
+      |3: PUSH_VAL 1000
+      |4: PUSH_VAL 3
+      |5: NUMERIC_OP *
+      |6: PUSH_VAL 9
+      |7: NUMERIC_OP -
+      |8: PUSH x
+      |9: PUSH_VAL 5
+      |10: PUSH_VAL 3
+      |11: BOOLEAN_OP >
+      |12: PUSH_VAL TOP
+      |13: CALL TestClass#anotherMethod
+      |14: FINISH BlockExpression
+      |15: RETURN
+      |16: POP
       |17: RETURN
-      |18: POP
-      |19: RETURN
       |""".stripMargin
   }
 }

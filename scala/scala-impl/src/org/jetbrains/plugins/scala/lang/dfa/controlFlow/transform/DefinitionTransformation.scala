@@ -13,22 +13,20 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
   def transformDefinition(element: ScDefinitionWithAssignment): Unit = element match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition)
     case variableDefinition: ScVariableDefinition => transformVariableDefinition(variableDefinition)
-    case _: ScFunctionDefinition => pushUnknownValue()
-    case otherStatementDefinition: ScBlockStatement => pushUnknownCall(otherStatementDefinition, 0)
+    case _: ScFunctionDefinition => // nothing to do
+    //case otherStatementDefinition: ScBlockStatement => pushUnknownCall(otherStatementDefinition, 0)
     case _ => throw TransformationFailedException(element, "Unsupported definition.")
   }
 
-  private def transformPatternDefinition(definition: ScPatternDefinition): Unit = {
+  private def transformPatternDefinition(definition: ScPatternDefinition): Unit =
     transformDefinitionIfSimple(definition, definition.isStable)
-  }
 
-  private def transformVariableDefinition(definition: ScVariableDefinition): Unit = {
+  private def transformVariableDefinition(definition: ScVariableDefinition): Unit =
     transformDefinitionIfSimple(definition, isStable = false)
-  }
 
   private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, isStable: Boolean): Unit = {
     if (!definition.isSimple) {
-      pushUnknownCall(definition, 0)
+      buildUnknownCall(definition, 0, ResultReq.None)
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
@@ -39,8 +37,6 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
       } else {
         assignVariableValue(descriptor, definition.expr, definedType)
       }
-
-      pushUnknownValue()
     }
   }
 
@@ -56,9 +52,11 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
     val qualifierVariable = ScalaDfaVariableDescriptor(instanceQualifier, None, instanceQualifier.isStable)
 
     instantiationExpression match {
-      case Some(expression) => transformInvocation(expression, Some(qualifierVariable))
+      case Some(expression) =>
+        transformInvocation(expression, ResultReq.Required, Some(qualifierVariable))
         buildImplicitConversion(Some(expression), Some(definedType))
-      case _ => pushUnknownValue()
+      case _ =>
+        pushUnknownValue()
     }
 
     addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))

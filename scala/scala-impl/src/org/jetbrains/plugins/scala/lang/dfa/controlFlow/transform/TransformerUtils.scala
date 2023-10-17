@@ -18,9 +18,10 @@ trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
 
     valueExpression match {
       case Some(expression) =>
-        transformExpression(expression)
+        transformExpression(expression, ResultReq.Required)
         buildImplicitConversion(Some(expression), Some(definedType))
-      case _ => pushUnknownValue()
+      case _ =>
+        pushUnknownValue()
     }
 
     addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))

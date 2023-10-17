@@ -4,6 +4,7 @@ import com.intellij.codeInspection.dataFlow.java.inst.EnsureIndexInBoundsInstruc
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.CollectionAccessAssertionUtils.CollectionAccessAssertion
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -17,8 +18,8 @@ trait CollectionAccessAssertionUtils { this: ScalaDfaControlFlowBuilder =>
                                       invocationInfo: InvocationInfo): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
       for (thisArgument <- invocationInfo.thisArgument) {
-        transformExpression(thisArgument.content)
-        transformExpression(accessedIndex)
+        transformExpression(thisArgument.content, ResultReq.Required)
+        transformExpression(accessedIndex, ResultReq.Required)
 
         val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationExpression, exceptionName)
         val transfer = maybeTransferValue(exceptionName)

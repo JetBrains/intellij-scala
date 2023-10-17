@@ -56,7 +56,7 @@ class ReturnAndThrowDfaTest extends ScalaDfaTestBase {
     )
 
   def testReturnStatementInsideUnsupportedConstructs(): Unit =
-    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Int") {
+    if (InterproceduralAnalysisEnabled) testWithUnsupportedPsiElements(codeFromMethodBody(returnType = "Int") {
       """
         |private def otherMethod(x: Int): Int = {
         |  x match {
@@ -67,12 +67,12 @@ class ReturnAndThrowDfaTest extends ScalaDfaTestBase {
         |  x
         |}
         |
-      |val x = otherMethod(5)
-      |x == 5
-      |
-      |2 == 2
-      |
-      |""".stripMargin
+        |val x = otherMethod(5)
+        |x == 5
+        |
+        |2 == 2
+        |
+        |""".stripMargin
   })(
     "2 == 2" -> ConditionAlwaysTrue
   )
