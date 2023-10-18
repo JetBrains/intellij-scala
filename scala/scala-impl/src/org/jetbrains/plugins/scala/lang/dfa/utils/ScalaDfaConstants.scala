@@ -21,6 +21,9 @@ object ScalaDfaConstants {
     case object Not extends LogicalOperation
   }
 
+  final object Exceptions {
+    val ScalaMatchError = "scala.MatchError"
+  }
 
   final object Packages {
     val ScalaUnit = "Scala.Unit"

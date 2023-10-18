@@ -95,7 +95,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
               ScalaStatementAnchor(invocation)
             )
           )
-        else buildUnknownCall(invocation, 2, ResultReq.Required)
+        else buildUnknownCall(2, ResultReq.Required)
         return true
       }
     }
@@ -116,7 +116,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         if (successful) {
           addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(invocation)))
         } else {
-          buildUnknownCall(invocation, 2, ResultReq.Required)
+          buildUnknownCall(2, ResultReq.Required)
         }
         return true
       }

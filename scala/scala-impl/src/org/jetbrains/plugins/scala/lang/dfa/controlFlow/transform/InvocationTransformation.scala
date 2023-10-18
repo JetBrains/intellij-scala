@@ -23,7 +23,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
 
     if (invocationsInfo.isEmpty || isUnsupportedInvocation(invocation, invocationsInfo) ||
       invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
-      buildUnknownCall(invocation, 0, ResultReq.Required)
+      buildUnknownCall(0, ResultReq.Required)
     } else if (!tryTransformIntoSpecialRepresentation(invocation, invocationsInfo)) {
       invocationsInfo.tail.foreach(invocationInfo => {
         transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
