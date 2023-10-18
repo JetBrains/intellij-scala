@@ -37,7 +37,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |21: PUSH_VAL 5
       |22: PUSH_VAL 3
       |23: BOOLEAN_OP >
-      |24: PUSH_VAL TOP
+      |24: PUSH_VAL "This is good"
       |25: CALL TestClass#anotherMethod
       |26: POP
       |27: PUSH_VAL TOP
@@ -50,7 +50,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |34: PUSH_VAL 5
       |35: PUSH_VAL 3
       |36: BOOLEAN_OP >
-      |37: PUSH_VAL TOP
+      |37: PUSH_VAL "But this is not"
       |38: PUSH_VAL 7777
       |39: CALL <unknown>
       |40: FINISH BlockExpression
@@ -79,7 +79,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |9: PUSH_VAL 5
       |10: PUSH_VAL 3
       |11: BOOLEAN_OP >
-      |12: PUSH_VAL TOP
+      |12: PUSH_VAL "???"
       |13: CALL <unknown>
       |14: FINISH BlockExpression
       |15: RETURN
