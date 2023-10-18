@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockStatement, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -26,7 +26,7 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
 
   private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, isStable: Boolean): Unit = {
     if (!definition.isSimple) {
-      buildUnknownCall(definition, 0, ResultReq.None)
+      buildUnknownCall(0, ResultReq.None)
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)

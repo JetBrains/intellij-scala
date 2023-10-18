@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   def transformExpression(element: ScExpression, rreq: ResultReq): Unit = element match {
     case someExpression if isUnsupportedPureExpressionType(someExpression) => pushUnknownValue(rreq)
-    case someExpression if isUnsupportedImpureExpressionType(someExpression) => buildUnknownCall(someExpression, 0, rreq)
-    case block: ScBlockExpr => transformBlock(block, rreq)
+    case someExpression if isUnsupportedImpureExpressionType(someExpression) => buildUnknownCall(0, rreq)
+    case block: ScBlock => transformBlock(block, rreq)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, rreq)
     case invocation: MethodInvocation => transformInvocation(invocation, rreq)
     case literal: ScLiteral => transformLiteral(literal, rreq)
@@ -57,7 +57,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     expression.bind().map(_.element).exists(_.is[PsiMethod])
   }
 
-  private def transformBlock(block: ScBlockExpr, rreq: ResultReq): Unit = {
+  private def transformBlock(block: ScBlock, rreq: ResultReq): Unit = {
     val statements = block.statements
     if (statements.isEmpty) {
       pushUnit(rreq)
@@ -75,9 +75,9 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     transformExpression(parenthesised.innerElement, rreq)
   }
 
-  private def transformLiteral(literal: ScLiteral, rreq: ResultReq): Unit = rreq.provideOne {
+  def transformLiteral(literal: ScLiteral, rreq: ResultReq): Unit = rreq.provideOne {
     if (literal.is[ScInterpolatedStringLiteral]) {
-      buildUnknownCall(literal, 0, ResultReq.Required)
+      buildUnknownCall(0, ResultReq.Required)
     } else {
       push(literalToDfType(literal), ScalaStatementAnchor(literal))
     }
@@ -121,7 +121,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
             buildImplicitConversion(Some(expression), Some(expectedType))
           }
         case _ =>
-          buildUnknownCall(expression, 0, rreq)
+          buildUnknownCall(0, rreq)
       }
     }
   }
@@ -142,10 +142,10 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
             assignVariableValue(descriptor, assignment.rightExpression, definedType)
             pushUnknownValue(rreq)
           case _ =>
-            buildUnknownCall(assignment, 0, rreq)
+            buildUnknownCall(0, rreq)
         }
       case _ =>
-        buildUnknownCall(assignment, 0, rreq)
+        buildUnknownCall(0, rreq)
     }
   }
 
@@ -173,15 +173,13 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       case Some(desugared) =>
         transformExpression(desugared, rreq)
       case _ =>
-        buildUnknownCall(forExpression, 0, rreq)
+        buildUnknownCall(0, rreq)
     }
   }
 
   private def transformMatchExpression(matchExpression: ScMatch, rreq: ResultReq): Unit = {
-    // TODO implement transformation
-    unsupported(matchExpression) {
-      buildUnknownCall(matchExpression, 0, rreq)
-    }
+    transformExpression(matchExpression.expression, ResultReq.Required)
+    transformCaseClauses(matchExpression.caseClauses, rreq)
   }
 
   //noinspection UnstableApiUsage
@@ -195,7 +193,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
         addInstruction(new ThrowInstruction(transferValue(transfer), exception))
         pushUnknownValue(rreq)
       case _ =>
-        buildUnknownCall(throwStatement, 0, rreq)
+        buildUnknownCall(0, rreq)
     }
   }
 

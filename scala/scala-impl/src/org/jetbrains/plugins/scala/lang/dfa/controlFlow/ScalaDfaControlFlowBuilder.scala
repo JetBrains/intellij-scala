@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaClassDef
-import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
+import com.intellij.codeInspection.dataFlow.java.inst.{JvmPushInstruction, ThrowInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.{DeferredOffset, FixedOffset}
-import com.intellij.codeInspection.dataFlow.lang.ir.{ConditionalGotoInstruction, ControlFlow, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
+import com.intellij.codeInspection.dataFlow.lang.ir.{ConditionalGotoInstruction, ControlFlow, DupInstruction, EnsureInstruction, FlushFieldsInstruction, GotoInstruction, Instruction, PopInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction, SpliceInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.{CommonClassNames, PsiElement}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaStatementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.{DefinitionTransformation, ExpressionTransformation, InvocationTransformation, ResultReq, StatementTransformation, TransformerUtils, specialSupport}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform._
 import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -27,6 +27,7 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
     with ExpressionTransformation
     with StatementTransformation
     with InvocationTransformation
+    with PatternMatchTransformation
     with TransformerUtils
     with specialSupport.CollectionAccessAssertionUtils
     with specialSupport.SpecialSyntheticMethodsTransformation
@@ -89,6 +90,8 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
   def addInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
 
+  def dup(): Unit = addInstruction(new DupInstruction)
+
   def push(dfType: DfType, anchor: DfaAnchor = null): Unit = addInstruction(new PushValueInstruction(dfType, anchor))
 
   def pushUnit(rreq: ResultReq = ResultReq.Required): Unit =
@@ -101,9 +104,9 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
       push(DfType.TOP)
     }
 
-  def buildUnknownCall(statement: ScBlockStatement, argCount: Int, rreq: ResultReq): Unit = rreq.provideOne {
+  def buildUnknownCall(argCount: Int, rreq: ResultReq, anchor: ScalaDfaAnchor = null): Unit = rreq.provideOne {
     pop(argCount)
-    push(DfType.TOP, ScalaStatementAnchor(statement))
+    push(DfType.TOP, anchor)
     flush()
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
@@ -150,9 +153,14 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
   def transferValue(transfer: ExceptionTransfer): DfaControlTransferValue = trapTracker.transferValue(transfer)
 
-  def ret(expression: Option[ScExpression]): Unit = {
+  def ret(expression: Option[ScExpression]): Unit =
     addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), expression.orNull))
-  }
+
+  def throws(exceptionType: String, anchor: PsiElement): Unit =
+    throws(trapTracker.transferValue(exceptionType), anchor)
+
+  def throws(transfer: DfaControlTransferValue, anchor: PsiElement): Unit =
+    addInstruction(new ThrowInstruction(transfer, anchor))
 
   def pushTrap(trap: DfaControlTransferValue.Trap): Unit = trapTracker.pushTrap(trap)
 }
