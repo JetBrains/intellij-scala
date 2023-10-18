@@ -23,7 +23,7 @@ class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |9: PUSH_VAL 5
       |10: PUSH_VAL 3
       |11: BOOLEAN_OP >
-      |12: PUSH_VAL TOP
+      |12: PUSH_VAL "Something"
       |13: CALL TestClass#anotherMethod
       |14: FINISH BlockExpression
       |15: RETURN

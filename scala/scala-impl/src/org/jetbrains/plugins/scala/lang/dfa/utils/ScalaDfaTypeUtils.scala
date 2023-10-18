@@ -48,6 +48,11 @@ object ScalaDfaTypeUtils {
     case double: ScDoubleLiteral => DfTypes.doubleValue(double.getValue)
     case boolean: ScBooleanLiteral => DfTypes.booleanValue(boolean.getValue)
     case char: ScCharLiteral => DfTypes.intValue(char.getValue.toInt)
+    case string: ScStringLiteral =>
+      string.`type`() match {
+        case Right(ty) => DfTypes.constant(string.getValue, scTypeToDfType(ty))
+        case Left(_) => DfType.TOP
+      }
     case _ => DfType.TOP
   }
 
