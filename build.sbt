@@ -611,11 +611,11 @@ lazy val bsp =
 
 // TODO: ideally intellij plugin dependency should be used
 //       but if the plugin cannot be resolved use the library dependency below as a workaround
-lazy val devKitPluginDependency = intellijPlugins += "DevKit".toPlugin
-//lazy val devKitPluginDependency = Seq(
-//  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive(),
-//  resolvers += org.jetbrains.sbtidea.download.idea.IntellijRepositories.Eap,
-//)
+//lazy val devKitPluginDependency = intellijPlugins += "DevKit".toPlugin
+lazy val devKitPluginDependency = Seq(
+  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive() changing(),
+  resolvers += org.jetbrains.sbtidea.download.idea.IntellijRepositories.Eap,
+)
 
 lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
