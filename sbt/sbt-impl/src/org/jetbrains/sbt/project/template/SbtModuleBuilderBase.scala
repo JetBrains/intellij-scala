@@ -31,11 +31,6 @@ abstract class SbtModuleBuilderBase
   protected val Log: Logger = Logger.getInstance(getClass)
   var openFileEditorAfterProjectOpened: Option[VirtualFile] = None
 
-  locally {
-    val settings = getExternalProjectSettings
-    settings.setResolveJavadocs(false)
-  }
-
   //TODO: why is it JavaModuleType and not SbtModuleType?
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 

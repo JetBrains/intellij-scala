@@ -278,13 +278,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     writeStructureFile: Boolean
   )
 
-  private def dumpOptions(settings: SbtExecutionSettings): Seq[String] = {
+  private def dumpOptions(settings: SbtExecutionSettings): Seq[String] =
     Seq("download") ++
       settings.resolveClassifiers.seq("resolveClassifiers") ++
-      settings.resolveJavadocs.seq("resolveJavadocs") ++
       settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
       settings.insertProjectTransitiveDependencies.seq("insertProjectTransitiveDependencies")
-  }
 
   /**
    * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.

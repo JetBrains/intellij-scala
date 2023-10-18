@@ -99,7 +99,6 @@ object SbtExternalSystemManager {
       customSbtStructureFile,
       projectJdkName,
       projectSettings.resolveClassifiers,
-      projectSettings.resolveJavadocs,
       projectSettings.resolveSbtClassifiers,
       projectSettings.useSbtShellForImport,
       projectSettings.enableDebugSbtShell,

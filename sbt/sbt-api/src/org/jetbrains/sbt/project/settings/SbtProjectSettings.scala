@@ -41,9 +41,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var resolveSbtClassifiers: Boolean = false
 
   @BeanProperty
-  var resolveJavadocs: Boolean = false
-
-  @BeanProperty
   var useSbtShellForImport: Boolean = false
 
   @BeanProperty
@@ -81,7 +78,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.converterVersion = converterVersion
     result.jdk = jdk
     result.resolveClassifiers = resolveClassifiers
-    result.resolveJavadocs = resolveJavadocs
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
     result.useSbtShellForImport = useSbtShellForImport

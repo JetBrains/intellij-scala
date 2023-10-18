@@ -33,7 +33,6 @@ class MaxJvmHeapParameterTest extends TestCase {
       customSbtStructureFile = null,
       jdk = null,
       resolveClassifiers = false,
-      resolveJavadocs = false,
       resolveSbtClassifiers = false,
       useShellForImport = false ,
       shellDebugMode = false,
