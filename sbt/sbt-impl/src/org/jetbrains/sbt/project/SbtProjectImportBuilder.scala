@@ -17,7 +17,11 @@ import javax.swing.Icon
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class SbtProjectImportBuilder
-  extends AbstractExternalProjectImportBuilder[SbtImportControl](ProjectDataManager.getInstance(), SbtImportControlFactory, SbtProjectSystem.Id) {
+  extends AbstractExternalProjectImportBuilder[SbtImportControl](
+    ProjectDataManager.getInstance(),
+    SbtImportControlFactory,
+    SbtProjectSystem.Id
+  ) {
 
   override def getName: String = Sbt.Name
 

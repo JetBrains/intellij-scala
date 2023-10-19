@@ -17,6 +17,11 @@ import org.jetbrains.plugins.scala.project.external.SdkUtils
 import java.awt.{FlowLayout, GridBagConstraints}
 import javax.swing._
 
+/**
+ * The settings UI is used it two places with slightly different UI:
+ *  1. In `Settings | Build, Execution, Deployment | Build Tools | sbt` in `sbt Projects` subsection
+ *  1. During new project creation via `Import project from existing sources` (`File | New | Project from Existing Sources...`)
+ */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
