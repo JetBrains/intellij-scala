@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService
 @Service(Array(Service.Level.PROJECT))
 private final class BackgroundExecutorService(project: Project) extends Disposable {
 
-  private val executor: ExecutorService =
+  val executor: ExecutorService =
     AppExecutorUtil.createBoundedApplicationPoolExecutor("Scala Compiler Based Highlighting background executor", 1)
 
   private def executeOnBackgroundThread(runnable: Runnable): Unit = {
@@ -31,6 +31,6 @@ private object BackgroundExecutorService {
     })
   }
 
-  private def instance(project: Project): BackgroundExecutorService =
+  def instance(project: Project): BackgroundExecutorService =
     project.getService[BackgroundExecutorService](classOf[BackgroundExecutorService])
 }
