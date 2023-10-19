@@ -197,9 +197,11 @@ lazy val worksheetReplInterfaceImpls: Project =
 
 def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
   scalaVersion := scalaVer,
+  // protobuf-java is excluded to avoid showing outdated vulnerable dependencies, and it is also not necessary for
+  // compiling the worksheet repl interfaces
   libraryDependencies += {
     if (scalaVer.startsWith("3."))
-      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided
+      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided exclude("com.google.protobuf", "protobuf-java")
     else
       "org.scala-lang" % "scala-compiler" % scalaVer % Provided
   },
