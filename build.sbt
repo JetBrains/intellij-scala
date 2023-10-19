@@ -205,7 +205,12 @@ def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] 
     else
       "org.scala-lang" % "scala-compiler" % scalaVer % Provided
   },
-  dependencyOverrides := Seq.empty,
+  // override the Scala 2.13 library dependency in the Scala 3 worksheet repl interfaces
+  // this avoids showing outdated vulnerable dependencies
+  dependencyOverrides := {
+    if (scalaVer.startsWith("3.")) Seq("org.scala-lang" % "scala-library" % Versions.scalaVersion)
+    else Seq.empty
+  },
   (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
   (Compile / scalacOptions) := Seq("-release", "8"),
   packageMethod := PackagingMethod.MergeIntoOther(worksheetReplInterfaceImpls),
