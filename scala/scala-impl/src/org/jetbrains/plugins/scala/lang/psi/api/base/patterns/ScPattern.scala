@@ -355,7 +355,7 @@ object ScPattern {
   }
 
   /**
-   * Helps aboid flattening TupleTypes in cases such as:
+   * Helps avoid flattening TupleTypes in cases such as:
    * {{{
    *  case class Foo(f: (String, String))
    *
