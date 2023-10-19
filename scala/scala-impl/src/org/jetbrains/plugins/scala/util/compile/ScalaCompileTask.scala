@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util.compile
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerMessageCategory}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -19,7 +20,7 @@ trait ScalaCompileTask extends CompileTask {
   @Nls
   protected def presentableName: String
 
-  protected def shouldMeasure: Boolean = true
+  protected def shouldMeasure: Boolean = ApplicationManager.getApplication.isInternal
 
   private def measure(context: CompileContext): Boolean = {
     val start = System.nanoTime()
