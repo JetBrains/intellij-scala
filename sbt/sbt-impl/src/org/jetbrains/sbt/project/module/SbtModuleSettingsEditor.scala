@@ -25,9 +25,9 @@ private class SbtModuleSettingsEditor(state: ModuleConfigurationState) extends M
 
   override def reset(): Unit = {
     val module = getModel.getModule
-    val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
+    val sbtProjectSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
 
-    val sbtVersion = moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected"))
+    val sbtVersion = sbtProjectSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected"))
     val imports = Imports(module).asJava
     val resolversModel = new ResolversModel(resolvers, state.getProject)
 
