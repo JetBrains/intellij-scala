@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.module;
 
+import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -7,22 +8,51 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 @SuppressWarnings("unchecked")
 public class SbtModuleSettingsForm {
-    public JPanel mainPanel;
-    public JBTable resolversTable;
-    public JBList<String> sbtImportsList;
-    public JTextField sbtVersionTextField;
+    private JPanel mainPanel;
+    private JBTable resolversTable;
+    private JBList<String> sbtImportsList;
+    private final CollectionListModel<String> sbtImportsListModel = new CollectionListModel<>(Collections.emptyList());
+
+    private JTextField sbtVersionTextField;
+
 
     public SbtModuleSettingsForm() {
         mainPanel.setBorder(new EmptyBorder(UIUtil.PANEL_SMALL_INSETS));
+        sbtImportsList.setModel(sbtImportsListModel);
+        sbtImportsList.setEmptyText(SbtBundle.message("sbt.settings.noImplicitImportsFound"));
+    }
+
+    JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    void reset(
+            final String sbtVersion,
+            final java.util.List<String> imports,
+            final ResolversModel resolversModel
+    ) {
+        sbtVersionTextField.setText(sbtVersion);
+        sbtImportsListModel.replaceAll(imports);
+
+        resolversTable.setModel(resolversModel);
+        if (resolversTable.getRowCount() > 0) {
+            resolversTable.setRowSelectionInterval(0, 0);
+        }
+        TableColumnModel columnModel = resolversTable.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(50);
+        columnModel.getColumn(1).setPreferredWidth(400);
     }
 
     {
