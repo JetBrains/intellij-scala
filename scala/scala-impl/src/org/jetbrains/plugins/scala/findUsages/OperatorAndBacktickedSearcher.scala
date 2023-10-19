@@ -58,9 +58,12 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
   private def getNamesToProcess(elementToSearch: ScNamedElement): Set[String] = {
     var names = Set.empty[String]
     val name = elementToSearch.name
-    names += name
-    names += withoutBackticks(name)
-    names += withoutBackticks(name).stripPrefix("unary_")
+    val noBackticks = withoutBackticks(name)
+    if (noBackticks.nonEmpty) {
+      names += name
+      names += noBackticks
+      names += noBackticks.stripPrefix("unary_")
+    }
     names
   }
 
