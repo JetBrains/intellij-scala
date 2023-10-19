@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{GlobalSearchScope, SearchScope, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.search.{GlobalSearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.ContainerUtil
@@ -29,17 +29,23 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
   ): Boolean = {
     val elementToSearch = queryParameters.getElementToSearch
     val scalaElementToSearch: ScNamedElement = elementToSearch match {
-      case named: ScNamedElement if named.isValid => named
+      case named: ScNamedElement => named
       case _ =>
         return true
     }
 
-    val (namesToProcess, scope) =
-      inReadAction {
+    val readActionResult = inReadAction {
+      if (scalaElementToSearch.isValid) {
         val names = getNamesToProcess(scalaElementToSearch)
         val scope = ScalaFilterScope(queryParameters)
-        (names, scope)
-      }
+        Some((names, scope))
+      } else None
+    }
+
+    if (readActionResult.isEmpty) {
+      return true
+    }
+    val Some((namesToProcess, scope)) = readActionResult
 
     namesToProcess.foreach { name =>
       try {
