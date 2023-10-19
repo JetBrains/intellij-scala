@@ -1,9 +1,9 @@
-import sbt.{Def, *}
-import LocalRepoPackager.localRepoDependencies
-import Keys.*
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
-import sbtide.Keys.ideSkipProject
+import sbt.Keys.*
+import sbt.{Def, *}
+
+import java.nio.file.Path
 
 object Common {
   private val globalJavacOptionsCommon = Seq(
@@ -43,15 +43,31 @@ object Common {
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
+  private val NewProjectBaseSettings: Seq[Def.SettingsDefinition] = Seq(
+    organization := "JetBrains",
+    scalaVersion := Versions.scalaVersion,
+    (Compile / javacOptions) := globalJavacOptions,
+    (Compile / scalacOptions) := globalScalacOptions,
+    //TODO: it shouldn't append but should completely replace the default source dirs, otherwise there will be overlapping dirs: src and src/scala
+    (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
+    (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
+    updateOptions := updateOptions.value.withCachedResolution(true),
+  )
+
+  def newPlainScalaProject(projectName: String, base: File): Project =
+    Project(projectName, base).settings(
+      NewProjectBaseSettings *
+    ).settings(
+      name := projectName,
+      intellijMainJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+    )
+
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
+      NewProjectBaseSettings *
+    ).settings(
       name := projectName,
-      organization := "JetBrains",
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := globalJavacOptions,
-      (Compile / scalacOptions) := globalScalacOptions,
-      (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-      (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       //Note: we explicitly don't mark "testdata" directories as "test resources", because they are not test resources
       // (those directories don't contain files which are supposed to be copied to `target/scala-2.13/test-classes
       //(Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
@@ -60,7 +76,6 @@ object Common {
         Dependencies.junit % Test,
         Dependencies.junitInterface % Test,
       ),
-      updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _,
@@ -142,9 +157,12 @@ object Common {
       )
   }
 
-  def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
-    // TODO we should generally filter META-INF when merging jars
+  private def excludePathsFromPackage(path: java.nio.file.Path): Boolean =
+    `is signature file in META-INF`(path)
 
+  //This filtering was originally added within SCL-14474
+  //TODO we should generally filter META-INF when merging jars
+  private def `is signature file in META-INF`(path: Path): Boolean = {
     val parent = path.getParent
     val filename = path.getFileName.toString
 

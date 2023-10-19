@@ -344,7 +344,13 @@ lazy val scalaImpl: sbt.Project =
 //The module is meant to keep utilities which only depend on Scala standard library
 //and do not depend on other libraries or IntelliJ SDK
 lazy val scalaLanguageUtils: sbt.Project =
-  newProject("scala-utils-language", file("scala/scala-utils-language"))
+  newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
+    .settings(
+      libraryDependencies ++= Seq(
+        //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull annotations
+        Dependencies.jetbrainsAnnotations % Provided,
+      )
+    )
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
