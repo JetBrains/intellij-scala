@@ -20,10 +20,8 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   def fromLangExtension: String = "scala"
 
-  //copy/paste action might involve collection of some information which requires type inference & resolve
-  //(for example see org.jetbrains.plugins.scala.lang.refactoring.Associations.collectAssociations)
-  //files from previous tests might affect this process, so we want to be clean
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _
