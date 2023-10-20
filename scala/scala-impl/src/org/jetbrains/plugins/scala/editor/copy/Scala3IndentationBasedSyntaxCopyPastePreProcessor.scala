@@ -48,12 +48,6 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     if (!file.is[ScalaFile] || !ScalaApplicationSettings.getInstance.INDENT_PASTED_LINES_AT_CARET)
       return text
 
-    //TODO: handle single-lien code as well, why should it handle only one-line code?
-    //only change indentation for multi-line texts
-    val lineBreaks = text.count(_ == '\n')
-    if (lineBreaks == 0 || lineBreaks == 1 && text.endsWith("\n"))
-      return text
-
     val codeStyleSettings = CodeStyle.getSettings(file)
     val tabSize = codeStyleSettings.getTabSize(ScalaFileType.INSTANCE)
     val useTabCharacter = codeStyleSettings.useTabCharacter(ScalaFileType.INSTANCE)

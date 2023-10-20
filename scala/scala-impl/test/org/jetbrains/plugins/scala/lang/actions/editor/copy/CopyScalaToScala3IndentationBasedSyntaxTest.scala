@@ -38,7 +38,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
-         |  ???
+         |???
          |
          |""".stripMargin
     doTestWithAllSelections(from, to, after)
@@ -849,6 +849,25 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |  def hello(): Unit =
          |    println("Hello, world!")$Caret
+         |
+         |  def m1 = ???""".stripMargin,
+    )
+  }
+
+  def testPasteInTheMiddleOfTheClassBody_CaretUnindented_PastingOneLineContent(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}def hello(): Unit = println("Hello, world!")$End""".stripMargin,
+      s"""object Target:
+         |  def m0 = ???
+         |
+         |$Caret
+         |
+         |  def m1 = ???""".stripMargin,
+      s"""object Target:
+         |  def m0 = ???
+         |
+         |  def hello(): Unit = println("Hello, world!")$Caret
          |
          |  def m1 = ???""".stripMargin,
     )
