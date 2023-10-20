@@ -131,7 +131,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
       |      ScTemplateBody
-      |        <empty list>
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
       |  PsiWhiteSpace('\n')
       |  MethodCall
       |    ReferenceExpression: println
@@ -232,7 +233,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
       |      ScTemplateBody
-      |        <empty list>
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
       |  PsiWhiteSpace('\n')
       |  MethodCall
       |    ReferenceExpression: println
