@@ -59,7 +59,7 @@ object FunDef extends ParsingRule {
               true
             }
             else {
-              builder.wrongExpressionError()
+              builder.error(ScalaBundle.message("expression.expected"))
               faultMarker.drop()
               true
             }
