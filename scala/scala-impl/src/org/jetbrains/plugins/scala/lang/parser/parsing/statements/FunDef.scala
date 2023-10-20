@@ -42,7 +42,7 @@ object FunDef extends ParsingRule {
                   true
                 }
                 else {
-                  builder error ScalaBundle.message("wrong.expression")
+                  builder.wrongExpressionError()
                   faultMarker.drop()
                   true
                 }
@@ -59,7 +59,7 @@ object FunDef extends ParsingRule {
               true
             }
             else {
-              builder error ScalaBundle.message("wrong.expression")
+              builder.wrongExpressionError()
               faultMarker.drop()
               true
             }

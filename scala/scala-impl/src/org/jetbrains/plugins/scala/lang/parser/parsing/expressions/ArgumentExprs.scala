@@ -36,7 +36,7 @@ object ArgumentExprs extends ParsingRule {
         Expr()
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer()
-          if (!Expr()) builder error ErrMsg("wrong.expression")
+          if (!Expr()) builder.wrongExpressionError()
         }
       
         builder.getTokenType match {
