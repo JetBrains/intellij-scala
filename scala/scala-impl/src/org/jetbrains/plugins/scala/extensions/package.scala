@@ -851,6 +851,14 @@ package object extensions {
     def prevLeaf: Option[PsiElement] =
       PsiTreeUtil.prevLeaf(element).toOption
 
+    def prevLeafNotWhitespaceComment: Option[PsiElement] = {
+      var prev: PsiElement = PsiTreeUtil.prevLeaf(element)
+      while (prev != null && (prev.is[PsiWhiteSpace] ||
+        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.is[PsiComment]))
+        prev = PsiTreeUtil.prevLeaf(prev)
+      Option(prev)
+    }
+
     def prevLeafs: Iterator[PsiElement] = new Iterator[PsiElement] {
       private var cur: PsiElement = element
       next()

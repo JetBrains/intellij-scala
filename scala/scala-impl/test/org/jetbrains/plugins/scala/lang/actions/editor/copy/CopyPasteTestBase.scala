@@ -87,10 +87,12 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
          |$End""".stripMargin,
       s"""$Caret$Start$tab$empty
          |  $End""".stripMargin,
-      s"""$Caret${Start}print("Existing code 1")$End""",
-      s"""$Caret$Start
-         |  print("Existing code 2")$tab$empty
-         | $End""".stripMargin,
+      //NOTE: after SCL-21664, assumptions mentioned in ScalaDoc of parent method is not the same
+      //Content after the caret can change the semantics of surrounding code
+//      s"""$Caret${Start}print("Existing code 1")$End""",
+//      s"""$Caret$Start
+//         |  print("Existing code 2")$tab$empty
+//         | $End""".stripMargin,
     )
 
     val uniqueToken = System.currentTimeMillis
@@ -98,7 +100,11 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
       val toModified = to.replaceAll(Caret, textWithSelection)
       val fromFileName = s"from-$uniqueToken-$index.$fromLangExtension"
       val toFileName = s"to-$uniqueToken-$index.scala"
-      doTest(from, toModified, after, fromFileName, toFileName)
+      try doTest(from, toModified, after, fromFileName, toFileName) catch {
+        case error: AssertionError =>
+          System.err.println(s"Selection $index: $textWithSelection")
+          throw error
+      }
     }
   }
 
