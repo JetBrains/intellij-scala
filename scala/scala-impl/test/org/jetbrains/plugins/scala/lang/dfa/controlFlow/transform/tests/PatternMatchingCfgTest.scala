@@ -12,11 +12,8 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
     """
       |0: PUSH_VAL 1
       |1: POP
-      |2: THROW scala.MatchError
-      |3: FINISH BlockExpression
-      |4: RETURN
-      |5: POP
-      |6: RETURN
+      |2: FINISH BlockExpression
+      |3: RETURN
       |""".stripMargin
   }
 
@@ -29,18 +26,20 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
   }) {
     """
       |0: PUSH_VAL 1
-      |1: PUSH_VAL 2
-      |2: BOOLEAN_OP ==
-      |3: IF_EQ false 8
-      |4: PUSH_VAL TOP
-      |5: CALL Predef#println
-      |6: FINISH BlockOfExpressions
-      |7: GOTO 9
-      |8: THROW scala.MatchError
-      |9: FINISH BlockExpression
-      |10: RETURN
+      |1: DUP
+      |2: PUSH_VAL 2
+      |3: BOOLEAN_OP ==
+      |4: IF_EQ false 11
+      |5: POP
+      |6: PUSH_VAL TOP
+      |7: CALL Predef#println
+      |8: POP
+      |9: FINISH BlockOfExpressions
+      |10: GOTO 13
       |11: POP
-      |12: RETURN
+      |12: THROW scala.MatchError
+      |13: FINISH BlockExpression
+      |14: RETURN
       |""".stripMargin
   }
 
@@ -56,21 +55,25 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
       |1: DUP
       |2: PUSH_VAL 2
       |3: BOOLEAN_OP ==
-      |4: IF_EQ false 8
-      |5: PUSH_VAL "a"
-      |6: FINISH BlockOfExpressions
-      |7: GOTO 15
-      |8: PUSH_VAL 3
-      |9: BOOLEAN_OP ==
-      |10: IF_EQ false 14
-      |11: PUSH_VAL "b"
-      |12: FINISH BlockOfExpressions
-      |13: GOTO 15
-      |14: THROW scala.MatchError
-      |15: FINISH BlockExpression
-      |16: RETURN
-      |17: POP
-      |18: RETURN
+      |4: IF_EQ false 10
+      |5: POP
+      |6: PUSH_VAL "a"
+      |7: POP
+      |8: FINISH BlockOfExpressions
+      |9: GOTO 21
+      |10: DUP
+      |11: PUSH_VAL 3
+      |12: BOOLEAN_OP ==
+      |13: IF_EQ false 19
+      |14: POP
+      |15: PUSH_VAL "b"
+      |16: POP
+      |17: FINISH BlockOfExpressions
+      |18: GOTO 21
+      |19: POP
+      |20: THROW scala.MatchError
+      |21: FINISH BlockExpression
+      |22: RETURN
       |""".stripMargin
   }
 
@@ -88,17 +91,18 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
       |1: DUP
       |2: PUSH_VAL 1
       |3: BOOLEAN_OP ==
-      |4: IF_EQ false 8
-      |5: PUSH_VAL "a"
-      |6: FINISH BlockOfExpressions
-      |7: GOTO 11
-      |8: POP
-      |9: PUSH_VAL "b"
-      |10: FINISH BlockOfExpressions
-      |11: FINISH BlockExpression
-      |12: RETURN
-      |13: POP
-      |14: RETURN
+      |4: IF_EQ false 10
+      |5: POP
+      |6: PUSH_VAL "a"
+      |7: POP
+      |8: FINISH BlockOfExpressions
+      |9: GOTO 14
+      |10: POP
+      |11: PUSH_VAL "b"
+      |12: POP
+      |13: FINISH BlockOfExpressions
+      |14: FINISH BlockExpression
+      |15: RETURN
       |""".stripMargin
   }
 
@@ -116,29 +120,34 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
       |1: DUP
       |2: PUSH_VAL 1
       |3: BOOLEAN_OP ==
-      |4: IF_EQ false 10
+      |4: IF_EQ false 12
       |5: PUSH_VAL false
-      |6: IF_EQ false 10
-      |7: PUSH_VAL "a"
-      |8: FINISH BlockOfExpressions
-      |9: GOTO 23
-      |10: POP
-      |11: PUSH_VAL true
-      |12: IF_EQ false 16
-      |13: PUSH_VAL "b"
-      |14: FINISH BlockOfExpressions
-      |15: GOTO 23
-      |16: PUSH_VAL 3
-      |17: BOOLEAN_OP ==
-      |18: IF_EQ false 22
-      |19: PUSH_VAL "c"
-      |20: FINISH BlockOfExpressions
-      |21: GOTO 23
-      |22: THROW scala.MatchError
-      |23: FINISH BlockExpression
-      |24: RETURN
+      |6: IF_EQ false 12
+      |7: POP
+      |8: PUSH_VAL "a"
+      |9: POP
+      |10: FINISH BlockOfExpressions
+      |11: GOTO 30
+      |12: PUSH_VAL true
+      |13: IF_EQ false 19
+      |14: POP
+      |15: PUSH_VAL "b"
+      |16: POP
+      |17: FINISH BlockOfExpressions
+      |18: GOTO 30
+      |19: DUP
+      |20: PUSH_VAL 3
+      |21: BOOLEAN_OP ==
+      |22: IF_EQ false 28
+      |23: POP
+      |24: PUSH_VAL "c"
       |25: POP
-      |26: RETURN
+      |26: FINISH BlockOfExpressions
+      |27: GOTO 30
+      |28: POP
+      |29: THROW scala.MatchError
+      |30: FINISH BlockExpression
+      |31: RETURN
       |""".stripMargin
   }
 }

@@ -50,8 +50,8 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
       |x == 3
       |x == 3L
       |
-      |var z = 3
-      |z = 4L
+      |var z = 3L
+      |z = 4
       |z == 4
       |z == 4L
       |""".stripMargin

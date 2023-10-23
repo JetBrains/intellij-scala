@@ -30,10 +30,9 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |16: NUMERIC_OP -
       |17: PUSH_VAL 2
       |18: NUMERIC_OP %
-      |19: FINISH BlockExpression
-      |20: RETURN
-      |21: POP
-      |22: RETURN
+      |19: POP
+      |20: FINISH BlockExpression
+      |21: RETURN
       |""".stripMargin
   }
 
@@ -86,10 +85,9 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |32: PUSH_VAL 44
       |33: PUSH_VAL 55
       |34: BOOLEAN_OP !=
-      |35: FINISH BlockExpression
-      |36: RETURN
-      |37: POP
-      |38: RETURN
+      |35: POP
+      |36: FINISH BlockExpression
+      |37: RETURN
       |""".stripMargin
   }
 
@@ -168,10 +166,9 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |64: PUSH_VAL 3
       |65: BOOLEAN_OP !=
       |66: RESULT_OF ScalaStatementAnchor(InfixExpression)
-      |67: FINISH BlockExpression
-      |68: RETURN
-      |69: POP
-      |70: RETURN
+      |67: POP
+      |68: FINISH BlockExpression
+      |69: RETURN
       |""".stripMargin
   }
 }

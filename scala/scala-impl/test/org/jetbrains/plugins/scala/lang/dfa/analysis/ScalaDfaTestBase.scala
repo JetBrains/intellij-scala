@@ -38,6 +38,6 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
       case MockProblemDescriptor(psiElement, message) => psiElement.getText -> message
     }
 
-    actualResult.sorted shouldBe expectedResult.toList.sorted
+    actualResult.sorted.mkString("\n") shouldBe expectedResult.toList.sorted.mkString("\n")
   }
 }

@@ -25,10 +25,9 @@ class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |11: BOOLEAN_OP >
       |12: PUSH_VAL "Something"
       |13: CALL TestClass#anotherMethod
-      |14: FINISH BlockExpression
-      |15: RETURN
-      |16: POP
-      |17: RETURN
+      |14: POP
+      |15: FINISH BlockExpression
+      |16: RETURN
       |""".stripMargin
   }
 }

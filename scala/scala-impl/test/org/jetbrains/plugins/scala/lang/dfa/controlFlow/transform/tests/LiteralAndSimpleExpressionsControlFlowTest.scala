@@ -11,10 +11,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
   }) {
     """
       |0: PUSH_VAL null
-      |1: FINISH BlockExpression
-      |2: RETURN
-      |3: POP
-      |4: RETURN
+      |1: POP
+      |2: FINISH BlockExpression
+      |3: RETURN
       |""".stripMargin
   }
 
@@ -28,10 +27,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |0: PUSH_VAL 3
       |1: POP
       |2: PUSH_VAL 0
-      |3: FINISH BlockExpression
-      |4: RETURN
-      |5: POP
-      |6: RETURN
+      |3: POP
+      |4: FINISH BlockExpression
+      |5: RETURN
       |""".stripMargin
   }
 
@@ -48,10 +46,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |2: PUSH_VAL 48294904928493L
       |3: POP
       |4: PUSH_VAL 55L
-      |5: FINISH BlockExpression
-      |6: RETURN
-      |7: POP
-      |8: RETURN
+      |5: POP
+      |6: FINISH BlockExpression
+      |7: RETURN
       |""".stripMargin
   }
 
@@ -64,17 +61,16 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }) {
     """
-      0: PUSH_VAL 3.14159
+      |0: PUSH_VAL 3.14159
       |1: POP
       |2: PUSH_VAL 1.0E30
       |3: POP
       |4: PUSH_VAL 1.0E30
       |5: POP
       |6: PUSH_VAL 0.1
-      |7: FINISH BlockExpression
-      |8: RETURN
-      |9: POP
-      |10: RETURN
+      |7: POP
+      |8: FINISH BlockExpression
+      |9: RETURN
       |""".stripMargin
   }
 
@@ -94,10 +90,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |4: PUSH_VAL 1.0E100
       |5: POP
       |6: PUSH_VAL 0.1
-      |7: FINISH BlockExpression
-      |8: RETURN
-      |9: POP
-      |10: RETURN
+      |7: POP
+      |8: FINISH BlockExpression
+      |9: RETURN
       |""".stripMargin
   }
 
@@ -111,10 +106,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |0: PUSH_VAL true
       |1: POP
       |2: PUSH_VAL false
-      |3: FINISH BlockExpression
-      |4: RETURN
-      |5: POP
-      |6: RETURN
+      |3: POP
+      |4: FINISH BlockExpression
+      |5: RETURN
       |""".stripMargin
   }
 
@@ -131,10 +125,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |2: PUSH_VAL 8658
       |3: POP
       |4: PUSH_VAL 9
-      |5: FINISH BlockExpression
-      |6: RETURN
-      |7: POP
-      |8: RETURN
+      |5: POP
+      |6: FINISH BlockExpression
+      |7: RETURN
       |""".stripMargin
   }
 
@@ -145,10 +138,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
   }) {
     """
       |0: PUSH_VAL "Привет, \nScala ԹԿՃ"
-      |1: FINISH BlockExpression
-      |2: RETURN
-      |3: POP
-      |4: RETURN
+      |1: POP
+      |2: FINISH BlockExpression
+      |3: RETURN
       |""".stripMargin
   }
 
@@ -159,10 +151,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
   }) {
     """
       |0: PUSH_VAL ()
-      |1: FINISH BlockExpression
-      |2: RETURN
-      |3: POP
-      |4: RETURN
+      |1: POP
+      |2: FINISH BlockExpression
+      |3: RETURN
       |""".stripMargin
   }
 
@@ -176,10 +167,9 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |0: PUSH_VAL 3
       |1: POP
       |2: PUSH_VAL 99
-      |3: FINISH BlockExpression
-      |4: RETURN
-      |5: POP
-      |6: RETURN
+      |3: POP
+      |4: FINISH BlockExpression
+      |5: RETURN
       |""".stripMargin
   }
 }

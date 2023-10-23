@@ -35,10 +35,9 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |20: PUSH_VAL 0
       |21: NUMERIC_OP -
       |22: BOOLEAN_OP ==
-      |23: FINISH BlockExpression
-      |24: RETURN
-      |25: POP
-      |26: RETURN
+      |23: POP
+      |24: FINISH BlockExpression
+      |25: RETURN
       |""".stripMargin
   }
 
@@ -83,10 +82,9 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |29: ASSIGN_TO p1
       |30: PUSH p1
       |31: NOT
-      |32: FINISH BlockExpression
-      |33: RETURN
-      |34: POP
-      |35: RETURN
+      |32: POP
+      |33: FINISH BlockExpression
+      |34: RETURN
       |""".stripMargin
   }
 }

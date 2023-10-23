@@ -6,33 +6,43 @@ import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaPsiElementDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.{DeferredLabel, StackValue}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScLiteralPattern, ScPattern, ScWildcardPattern}
 
 import scala.annotation.tailrec
 
 trait PatternMatchTransformation { this: ScalaDfaControlFlowBuilder =>
-  def transformCaseClauses(caseClauses: ScCaseClauses, rreq: ResultReq): Unit =
-    transformCaseClauses(caseClauses.caseClauses, rreq, Some(caseClauses))
+  def transformCaseClauses(testValue: StackValue, caseClauses: ScCaseClauses, rreq: ResultReq): rreq.Result =
+    transformCaseClauses(testValue, caseClauses.caseClauses, rreq, Some(caseClauses))
 
-  def transformCaseClauses(caseClauses: Option[ScCaseClauses], rreq: ResultReq): Unit =
+  def transformCaseClauses(testValue: StackValue, caseClauses: Option[ScCaseClauses], rreq: ResultReq): rreq.Result =
     caseClauses match {
-      case Some(caseClauses) => transformCaseClauses(caseClauses, rreq)
-      case None => transformCaseClauses(Seq.empty, rreq, None)
+      case Some(caseClauses) => transformCaseClauses(testValue, caseClauses, rreq)
+      case None => transformCaseClauses(testValue, Seq.empty, rreq, None)
     }
 
-  private def transformCaseClauses(clauses: Seq[ScCaseClause], rreq: ResultReq, anchor: Option[ScCaseClauses]): Unit = {
+  private def transformCaseClauses(testValue: StackValue,
+                                   clauses: Seq[ScCaseClause],
+                                   rreq: ResultReq,
+                                   anchor: Option[ScCaseClauses]): rreq.Result = {
+    val stack = stackSnapshot
     val endLabel = newDeferredLabel()
+    val results = Seq.newBuilder[rreq.Result]
 
     @tailrec
     def transformClauses(clauses: Seq[ScCaseClause]): Unit =
       clauses match {
         case Seq() =>
+          pop(testValue)
           throws(ScalaDfaConstants.Exceptions.ScalaMatchError, anchor.orNull)
         case cc +: rest =>
-          transformCaseClause(cc, matcheeNeededOnFail = rest.nonEmpty, rreq) match {
+          val (result, failLabel) = transformCaseClause(testValue, cc, rreq)
+          results += result
+          failLabel match {
             case Some(failLabel) =>
               goto(endLabel)
+              restore(stack)
               anchorLabel(failLabel)
               transformClauses(rest)
             case None =>
@@ -41,22 +51,27 @@ trait PatternMatchTransformation { this: ScalaDfaControlFlowBuilder =>
       }
 
     if (clauses.isEmpty) {
-      pop()
+      pop(testValue)
+      pushUnknownValue(rreq)
+    } else {
+      transformClauses(clauses)
+      val result = rreq.mapM(results.result()) { results =>
+        joinHere(results)
+      }
+      anchorLabel(endLabel)
+      result
     }
-
-    transformClauses(clauses)
-    anchorLabel(endLabel)
   }
 
-  private def transformCaseClause(caseClause: ScCaseClause, matcheeNeededOnFail: Boolean, rreq: ResultReq): Option[DeferredOffset] = {
+  private def transformCaseClause(testValue: StackValue, caseClause: ScCaseClause, rreq: ResultReq): (rreq.Result, Option[DeferredLabel]) = {
     val failLabel =
       caseClause.pattern match {
         case Some(pattern) =>
-          transformPattern(pattern, matcheeNeededOnFail)
+          transformPattern(testValue, pattern)
         case None =>
-          buildUnknownCall(0, ResultReq.Required)
+          val unknown = buildUnknownCall(ResultReq.Required)
           val failLabel = newDeferredLabel()
-          gotoIfTosEquals(DfTypes.FALSE, failLabel)
+          gotoIf(unknown, DfTypes.FALSE, failLabel)
           Some(failLabel)
       }
 
@@ -64,42 +79,40 @@ trait PatternMatchTransformation { this: ScalaDfaControlFlowBuilder =>
       caseClause.guard match {
         case Some(guard) =>
           val guardFailLabel = failLabel.getOrElse(newDeferredLabel())
-          transformExpression(guard.expr, ResultReq.Required)
-          gotoIfTosEquals(DfTypes.FALSE, guardFailLabel)
+          val guardResult = transformExpression(guard.expr, ResultReq.Required)
+          gotoIf(guardResult, DfTypes.FALSE, guardFailLabel)
           Some(guardFailLabel)
         case None =>
           failLabel
       }
 
-    transformExpression(caseClause.expr, rreq)
+    pop(testValue)
+    val result = transformExpression(caseClause.expr, rreq)
 
-    failLabelAfterGuard
+    (result, failLabelAfterGuard)
   }
 
-  def transformPattern(pattern: ScPattern, matcheeNeededOnFail: Boolean): Option[DeferredOffset] = {
+  def transformPattern(testValue: StackValue, pattern: ScPattern): Option[DeferredLabel] = {
     pattern match {
-      case lit: ScLiteralPattern => transformLiteralPattern(lit, matcheeNeededOnFail)
-      case _: ScWildcardPattern =>
-        pop()
-        None
+      case lit: ScLiteralPattern => transformLiteralPattern(testValue, lit)
+      case _: ScWildcardPattern => None
       case _ =>
         unsupported(pattern) {
-          buildUnknownCall(0, ResultReq.Required)
+          val result = buildUnknownCall(ResultReq.Required)
           val failLabel = newDeferredLabel()
-          gotoIfTosEquals(DfTypes.FALSE, failLabel)
+          gotoIf(result, DfTypes.FALSE, failLabel)
           Some(failLabel)
         }
     }
   }
 
-  private def transformLiteralPattern(pattern: ScLiteralPattern, matcheeNeededOnFail: Boolean): Some[DeferredOffset] = {
-    if (matcheeNeededOnFail) {
-      dup()
-    }
+  private def transformLiteralPattern(testValue: StackValue,
+                                      pattern: ScLiteralPattern): Some[DeferredLabel] = {
+    val value = dup(testValue)
     val failLabel = newDeferredLabel()
-    transformLiteral(pattern.getLiteral, ResultReq.Required)
-    addInstruction(new BooleanBinaryInstruction(RelationType.EQ, true, ScalaPsiElementDfaAnchor(pattern)))
-    gotoIfTosEquals(DfTypes.FALSE, failLabel, pattern)
+    val lit = transformLiteral(pattern.getLiteral, ResultReq.Required)
+    val result = binaryBoolOp(value, lit, RelationType.EQ, forceEqualityByContent = true, ScalaPsiElementDfaAnchor(pattern))
+    gotoIf(result, DfTypes.FALSE, failLabel, anchor = pattern)
     Some(failLabel)
   }
 }

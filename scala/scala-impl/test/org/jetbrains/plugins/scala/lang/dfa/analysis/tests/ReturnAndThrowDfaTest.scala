@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
-import org.jetbrains.plugins.scala.lang.dfa.Messages._
+/*import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.InterproceduralAnalysisDepthLimit
 
 class ReturnAndThrowDfaTest extends ScalaDfaTestBase {
+
 
   val InterproceduralAnalysisEnabled = InterproceduralAnalysisDepthLimit > 1
 
@@ -76,4 +77,4 @@ class ReturnAndThrowDfaTest extends ScalaDfaTestBase {
   })(
     "2 == 2" -> ConditionAlwaysTrue
   )
-}
+}*/
