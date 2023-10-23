@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.structure.{Dependencies, ProjectData, ProjectDependencyData}
+import org.jetbrains.sbt.structure.{ProjectData, ProjectDependencyData}
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
@@ -30,24 +30,22 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   }
 
   protected def createModuleDependencies(
-    projectDependencies: Dependencies[ProjectDependencyData],
+    projectDependencies: Seq[ProjectDependencyData],
     allModules: Seq[ModuleNode],
     moduleNode: ModuleNode,
     insertProjectTransitiveDependencies: Boolean
   ): Unit = {
-    // TODO: Use production and test dependencies when production and test sources are separated
-    projectDependencies.production
-      .foreach { dependencyId =>
-        val dependency = allModules
-          .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
-          .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+    projectDependencies.foreach { dependencyId =>
+      val dependency = allModules
+        .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
+        .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
 
-        val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
-        dependencyNode.setScope(scopeFor(dependencyId.configurations.distinct))
-        val exported = if (insertProjectTransitiveDependencies) false else true
-        dependencyNode.setExported(exported)
-        moduleNode.add(dependencyNode)
-      }
+      val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
+      dependencyNode.setScope(scopeFor(dependencyId.configurations.distinct))
+      val exported = if (insertProjectTransitiveDependencies) false else true
+      dependencyNode.setExported(exported)
+      moduleNode.add(dependencyNode)
+    }
   }
 
   private def createSourceModuleNodesAndDependencies(
@@ -107,12 +105,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
 
     //add shared sources module as a dependency to platform modules
-    (projects.map(projectToModuleNode).map((_, DependencyScope.COMPILE)) ++ dependentModulesThatRequireSharedSourcesModule)
-      .foreach { case(ownerModule, dependencyScope) =>
-        val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
-        node.setScope(dependencyScope)
-        node.setExported(true)
-        ownerModule.add(node)
+    val sharedSourceRootProjects = projects.map(projectToModuleNode).map((_, DependencyScope.COMPILE))
+    val allModulesThatRequireSharedSourcesModule = sharedSourceRootProjects ++ dependentModulesThatRequireSharedSourcesModule
+    allModulesThatRequireSharedSourcesModule.foreach { case (ownerModule, dependencyScope) =>
+      val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
+      node.setScope(dependencyScope)
+      node.setExported(true)
+      ownerModule.add(node)
     }
 
     sourceModuleNode
@@ -130,10 +129,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       .filterNot { case (project, _) => sharedSourcesProjects.contains(project) }
       .flatMap { case (project, moduleNode) =>
         val projectsDependentOnSharedSourceProjects = for {
-          // TODO: Use production and test dependencies when production and test sources are separated
-          projectDependencyData <- project.dependencies.projects.production
-          projectData <- sharedSourcesProjects
-          if Option(projectData.buildURI) == projectDependencyData.buildURI && projectData.id == projectDependencyData.project
+          projectDependencyData <- project.dependencies.projects
+          sharedSourcesProjectData <- sharedSourcesProjects
+          isTheSameSbtProject = Option(sharedSourcesProjectData.buildURI) == projectDependencyData.buildURI
+          if  isTheSameSbtProject && sharedSourcesProjectData.id == projectDependencyData.project
         } yield projectDependencyData
         Option(projectsDependentOnSharedSourceProjects).filter(_.nonEmpty)
           .map { dependency => (moduleNode, scopeFor(dependency.flatMap(_.configurations))) }

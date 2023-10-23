@@ -6,7 +6,6 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 import java.util
 
@@ -14,7 +13,7 @@ import java.util
  * ATTENTION: implementation should be in sync with<br>
  * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
  */
-class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) extends OrderEnumerationHandler {
+class SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed: Boolean) extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
       case (library: LibraryOrderEntry, enumerator: ModuleOrderEnumerator) =>
@@ -48,7 +47,7 @@ class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) ex
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    if (insertProjectTransitiveDependencies) false
+    if (projectTransitiveDependenciesUsed) false
     else true
 
 }
@@ -56,10 +55,8 @@ class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) ex
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val project = module.getProject
-    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
-    val insertProjectTransitiveDependencies = sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
-      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
-    new SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies)
+    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
+    new SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed)
   }
 
   override def isApplicable(module: Module): Boolean =

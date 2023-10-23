@@ -31,10 +31,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
     } else Collections.emptyList()
 
   private def transitiveProjectDependenciesParams(): Seq[String] = {
-    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
-    val insertProjectTransitiveDependencies = sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
-      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
-    Seq(s"-Dsbt.process.dependencies.recursively=${!insertProjectTransitiveDependencies}")
+    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
+    Seq(s"-Dsbt.process.dependencies.recursively=${!projectTransitiveDependenciesUsed}")
   }
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
