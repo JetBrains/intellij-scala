@@ -24,6 +24,8 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
 
+        <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
+
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
 

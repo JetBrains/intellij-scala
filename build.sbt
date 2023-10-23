@@ -197,13 +197,20 @@ lazy val worksheetReplInterfaceImpls: Project =
 
 def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
   scalaVersion := scalaVer,
+  // protobuf-java is excluded to avoid showing outdated vulnerable dependencies, and it is also not necessary for
+  // compiling the worksheet repl interfaces
   libraryDependencies += {
     if (scalaVer.startsWith("3."))
-      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided
+      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided exclude("com.google.protobuf", "protobuf-java")
     else
       "org.scala-lang" % "scala-compiler" % scalaVer % Provided
   },
-  dependencyOverrides := Seq.empty,
+  // override the Scala 2.13 library dependency in the Scala 3 worksheet repl interfaces
+  // this avoids showing outdated vulnerable dependencies
+  dependencyOverrides := {
+    if (scalaVer.startsWith("3.")) Seq("org.scala-lang" % "scala-library" % Versions.scalaVersion)
+    else Seq.empty
+  },
   (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
   (Compile / scalacOptions) := Seq("-release", "8"),
   packageMethod := PackagingMethod.MergeIntoOther(worksheetReplInterfaceImpls),
@@ -613,7 +620,7 @@ lazy val bsp =
 //       but if the plugin cannot be resolved use the library dependency below as a workaround
 lazy val devKitPluginDependency = intellijPlugins += "DevKit".toPlugin
 //lazy val devKitPluginDependency = Seq(
-//  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive(),
+//  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive() changing(),
 //  resolvers += org.jetbrains.sbtidea.download.idea.IntellijRepositories.Eap,
 //)
 

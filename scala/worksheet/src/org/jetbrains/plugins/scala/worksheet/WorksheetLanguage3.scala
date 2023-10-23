@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet
 
-import com.intellij.lang.DependentLanguage
-import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.{FileTypeRegistry, LanguageFileType}
+import com.intellij.lang.{DependentLanguage, Language}
+import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.Scala3Language
 
 final class WorksheetLanguage3 private()

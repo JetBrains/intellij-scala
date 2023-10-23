@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
-  override def run(context: CompileContext): Boolean = {
-    val scalaSettings: ScalaCodeStyleSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+
+  override protected def run(context: CompileContext): Boolean = {
+    val scalaSettings = codeStyleSettings
     if (scalaSettings.REFORMAT_ON_COMPILE) {
       ScalaFmtPreFormatProcessor.inFailSilentMode {
         reformatScopeFiles(context.getCompileScope, scalaSettings)
@@ -27,7 +28,12 @@ final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
   }
 
   @Nls
-  override def presentableName: String = "Reformatting Scala sources on compile"
+  override protected def presentableName: String = ScalaBundle.message("reformat.on.compile.task.presentable.name")
+
+  override protected def shouldMeasure: Boolean = codeStyleSettings.REFORMAT_ON_COMPILE
+
+  private def codeStyleSettings: ScalaCodeStyleSettings =
+    CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
 
   private def reformatScopeFiles(compileScope: CompileScope, scalaSettings: ScalaCodeStyleSettings): Unit = for {
     virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)

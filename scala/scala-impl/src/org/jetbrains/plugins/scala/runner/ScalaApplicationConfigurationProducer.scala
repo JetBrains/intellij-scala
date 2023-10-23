@@ -50,7 +50,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     val containingFile = element.getContainingFile
     if (!containingFile.isInstanceOf[ScalaFile]) return false
 
-    val mainMethod = MyScalaMainMethodUtil.findMainMethodFromContext(element)
+    val mainMethod = ScalaApplicationConfigurationProducerMainMethodUtils.findMainMethodFromContext(element)
     mainMethod match {
       case Some(value) =>
         val mainClassName = mainClassNameFor(value)
@@ -86,7 +86,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     if (!containingFile.isInstanceOf[ScalaFile]) return false
     if (!element.isPhysical) return false
 
-    val mainMethodInfo = MyScalaMainMethodUtil.findMainMethodFromContext(element)
+    val mainMethodInfo = ScalaApplicationConfigurationProducerMainMethodUtils.findMainMethodFromContext(element)
     mainMethodInfo match {
       case Some(value) =>
         val mainClassName = mainClassNameFor(value)
