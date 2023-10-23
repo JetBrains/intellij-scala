@@ -150,4 +150,48 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
       |31: RETURN
       |""".stripMargin
   }
+
+  def test_result(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
+    """
+      |val s = 1 match {
+      |  case 1 if false => "a"
+      |  case _ if true => "b"
+      |  case 3 => "c"
+      |}
+      |""".stripMargin
+  }) {
+    """
+      |0: PUSH_VAL 1
+      |1: DUP
+      |2: PUSH_VAL 1
+      |3: BOOLEAN_OP ==
+      |4: IF_EQ false 11
+      |5: PUSH_VAL false
+      |6: IF_EQ false 11
+      |7: POP
+      |8: PUSH_VAL "a"
+      |9: FINISH BlockOfExpressions
+      |10: GOTO 28
+      |11: PUSH_VAL true
+      |12: IF_EQ false 17
+      |13: POP
+      |14: PUSH_VAL "b"
+      |15: FINISH BlockOfExpressions
+      |16: GOTO 28
+      |17: DUP
+      |18: PUSH_VAL 3
+      |19: BOOLEAN_OP ==
+      |20: IF_EQ false 25
+      |21: POP
+      |22: PUSH_VAL "c"
+      |23: FINISH BlockOfExpressions
+      |24: GOTO 28
+      |25: POP
+      |26: THROW scala.MatchError
+      |27: PUSH_VAL TOP
+      |28: ASSIGN_TO s
+      |29: FINISH BlockExpression
+      |30: RETURN
+      |""".stripMargin
+  }
 }

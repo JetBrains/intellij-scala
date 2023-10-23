@@ -36,6 +36,7 @@ trait PatternMatchTransformation { this: ScalaDfaControlFlowBuilder =>
         case Seq() =>
           pop(testValue)
           throws(ScalaDfaConstants.Exceptions.ScalaMatchError, anchor.orNull)
+          results += pushUnknownValue(rreq)
         case cc +: rest =>
           val (result, failLabel) = transformCaseClause(testValue, cc, rreq)
           results += result
