@@ -87,4 +87,23 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |34: RETURN
       |""".stripMargin
   }
+
+  def testUnaryFloatingPoint(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
+    """
+      |-1.0
+      |-1.0F
+      |""".stripMargin
+  }) {
+    """0: PUSH_VAL 0.0
+      |1: PUSH_VAL 1.0
+      |2: NUMERIC_OP -
+      |3: POP
+      |4: PUSH_VAL 0.0
+      |5: PUSH_VAL 1.0
+      |6: NUMERIC_OP -
+      |7: POP
+      |8: FINISH BlockExpression
+      |9: RETURN
+      |""".stripMargin
+  }
 }
