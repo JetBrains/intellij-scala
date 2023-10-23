@@ -35,11 +35,10 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    val scrollPane = new JBScrollPane(extraControls.rootComponent)
-    scrollPane.setBorder(null)
-    content.add(scrollPane, fillLineAndColumnConstraints(indentLevel))
+    val rootComponent = extraControls.rootComponent
 
     if (context == Context.Wizard) {
+      content.add(rootComponent, fillLineConstraints)
       val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
       label.setLabelFor(jdkComboBox)
 
@@ -50,6 +49,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       content.add(jdkPanel, fillLineConstraints)
 
       extraControls.remoteDebugSbtShellCheckBox.panelWithTooltip.setVisible(false)
+    } else {
+      // This scroll pane was introduced, because when we consider the scenario that these settings will be used
+      // in "Settings | Build, Execution, Deployment | Build Tools | sbt" and the user minimizes the window as much as possible,
+      // the checkbox at the bottom ("Enable debugging") is not fully visible.
+      val scrollPane = new JBScrollPane(rootComponent)
+      scrollPane.setBorder(null)
+      content.add(scrollPane, fillLineAndColumnConstraints(indentLevel))
     }
   }
 
