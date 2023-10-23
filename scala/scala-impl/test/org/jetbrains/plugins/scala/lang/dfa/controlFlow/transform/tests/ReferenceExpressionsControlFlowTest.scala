@@ -31,10 +31,9 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |14: NUMERIC_OP +
       |15: POP
       |16: PUSH x
-      |17: FINISH BlockExpression
-      |18: RETURN
-      |19: POP
-      |20: RETURN
+      |17: POP
+      |18: FINISH BlockExpression
+      |19: RETURN
       |""".stripMargin
   }
 
@@ -61,10 +60,9 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |12: PUSH y
       |13: PUSH_VAL 2
       |14: NUMERIC_OP +
-      |15: FINISH BlockExpression
-      |16: RETURN
-      |17: POP
-      |18: RETURN
+      |15: POP
+      |16: FINISH BlockExpression
+      |17: RETURN
       |""".stripMargin
   }
 
@@ -93,16 +91,16 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |13: BOOLEAN_OP ==
       |14: ASSIGN_TO `another strange name!`
       |15: PUSH `another strange name!`
-      |16: IF_EQ false 20
+      |16: IF_EQ false 21
       |17: FINISH
       |18: PUSH `some strange name`
-      |19: GOTO 22
-      |20: FINISH
-      |21: PUSH_VAL 3
-      |22: FINISH IfStatement; flushing [`some strange name`]
-      |23: FINISH BlockExpression
-      |24: RETURN
-      |25: POP
+      |19: POP
+      |20: GOTO 24
+      |21: FINISH
+      |22: PUSH_VAL 3
+      |23: POP
+      |24: FINISH IfStatement; flushing [`some strange name`]
+      |25: FINISH BlockExpression
       |26: RETURN
       |""".stripMargin
   }
@@ -140,10 +138,9 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |21: PUSH s1.grades
       |22: PUSH_VAL 5
       |23: CALL LinearSeqOptimized#apply
-      |24: FINISH BlockExpression
-      |25: RETURN
-      |26: POP
-      |27: RETURN
+      |24: POP
+      |25: FINISH BlockExpression
+      |26: RETURN
       |""".stripMargin
   }
 
@@ -163,10 +160,9 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |6: PUSH p1.id
       |7: PUSH_VAL 20
       |8: BOOLEAN_OP <
-      |9: FINISH BlockExpression
-      |10: RETURN
-      |11: POP
-      |12: RETURN
+      |9: POP
+      |10: FINISH BlockExpression
+      |11: RETURN
       |""".stripMargin
   }
 }

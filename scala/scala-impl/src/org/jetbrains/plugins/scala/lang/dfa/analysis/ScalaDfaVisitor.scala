@@ -34,7 +34,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder, buildUnsupport
 
     val analysedMethodInfo = AnalysedMethodInfo(function, 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body, buildUnsupportedPsiElements)
-    controlFlowBuilder.transformStatement(body, ResultReq.Required)
+    controlFlowBuilder.transformStatement(body, ResultReq.None)
     val flow = controlFlowBuilder.build()
     val listener = new ScalaDfaListener
     val interpreter = new StandardDataFlowInterpreter(flow, listener)

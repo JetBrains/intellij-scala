@@ -18,12 +18,11 @@ trait CollectionAccessAssertionUtils { this: ScalaDfaControlFlowBuilder =>
                                       invocationInfo: InvocationInfo): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
       for (thisArgument <- invocationInfo.thisArgument) {
-        transformExpression(thisArgument.content, ResultReq.Required)
-        transformExpression(accessedIndex, ResultReq.Required)
+        val container = transformExpression(thisArgument.content, ResultReq.Required)
+        val index = transformExpression(accessedIndex, ResultReq.Required)
 
         val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationExpression, exceptionName)
-        val transfer = maybeTransferValue(exceptionName)
-        addInstruction(new EnsureIndexInBoundsInstruction(problem, transfer.orNull))
+        ensureInBounds(container, index, exceptionName, problem)
       }
     }
   }

@@ -53,10 +53,9 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |37: PUSH_VAL "But this is not"
       |38: PUSH_VAL 7777
       |39: CALL <unknown>
-      |40: FINISH BlockExpression
-      |41: RETURN
-      |42: POP
-      |43: RETURN
+      |40: POP
+      |41: FINISH BlockExpression
+      |42: RETURN
       |""".stripMargin
   }
 
@@ -81,10 +80,9 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |11: BOOLEAN_OP >
       |12: PUSH_VAL "???"
       |13: CALL <unknown>
-      |14: FINISH BlockExpression
-      |15: RETURN
-      |16: POP
-      |17: RETURN
+      |14: POP
+      |15: FINISH BlockExpression
+      |16: RETURN
       |""".stripMargin
   }
 
@@ -103,10 +101,9 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |6: CALL <unknown>
       |7: PUSH_VAL 9
       |8: CALL <unknown>
-      |9: FINISH BlockExpression
-      |10: RETURN
-      |11: POP
-      |12: RETURN
+      |9: POP
+      |10: FINISH BlockExpression
+      |11: RETURN
       |""".stripMargin
   }
 }

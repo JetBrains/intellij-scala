@@ -26,7 +26,7 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
 
   private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, isStable: Boolean): Unit = {
     if (!definition.isSimple) {
-      buildUnknownCall(0, ResultReq.None)
+      buildUnknownCall(ResultReq.None)
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
@@ -51,14 +51,14 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
     val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
     val qualifierVariable = ScalaDfaVariableDescriptor(instanceQualifier, None, instanceQualifier.isStable)
 
-    instantiationExpression match {
+    val result = instantiationExpression match {
       case Some(expression) =>
         transformInvocation(expression, ResultReq.Required, Some(qualifierVariable))
-        buildImplicitConversion(Some(expression), Some(definedType))
+        //buildImplicitConversion(Some(expression), Some(definedType))
       case _ =>
-        pushUnknownValue()
+        pushUnknownValue(ResultReq.Required)
     }
 
-    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
+    assign(dfaVariable, result, anchor)
   }
 }

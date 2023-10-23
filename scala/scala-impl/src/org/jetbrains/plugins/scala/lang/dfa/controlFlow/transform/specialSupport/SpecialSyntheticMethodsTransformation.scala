@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 package specialSupport
 
-import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NotInstruction, NumericBinaryInstruction}
-import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfIntegralType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.SpecialSyntheticMethodsTransformation.syntheticTransformations
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.LogicalOperation
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.ScalaBoolean
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.{LogicalOperation, NumericPrimitives}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -21,180 +21,175 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =>
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,
                                                    invocationInfo: InvocationInfo,
-                                                   invocation: ScExpression): Boolean = {
-    if (verifyArgumentsForBinaryOperator(invocationInfo.argListsInEvaluationOrder)) {
-      if (tryTransformBinaryNumericOperator(function, invocationInfo, invocation)) true
-      else if (tryTransformBinaryRelationalOperator(function, invocationInfo, invocation)) true
-      else if (tryTransformBinaryLogicalOperator(function, invocationInfo, invocation)) true
-      else false
-    } else if (verifyArgumentsForUnaryOperator(invocationInfo.argListsInEvaluationOrder)) {
-      if (tryTransformUnaryNumericOperator(function, invocationInfo, invocation)) true
-      else if (tryTransformUnaryLogicalOperator(function, invocationInfo, invocation)) true
-      else false
-    } else false
-  }
-
-  private def matchesSignature(function: ScSyntheticFunction, functionName: String, returnedClass: String): Boolean = {
-    val properReturnedClass = function.retType.extractClass match {
-      case Some(returnClass) if returnClass.qualifiedName == returnedClass => true
-      case _ => false
+                                                   invocation: ScExpression): Option[StackValue] = {
+    val argCount = invocationInfo.argListsInEvaluationOrder match {
+      case head :: Nil => head.size
+      case _ => return None
     }
-    function.name == functionName && properReturnedClass
+
+    val properReturnedClass = function.retType.extractClass match {
+      case Some(returnClass) => returnClass.qualifiedName
+      case _ => return None
+    }
+
+    syntheticTransformations
+      .get((argCount, properReturnedClass, function.name))
+      .map(f => f(this)(function, invocationInfo, invocation))
   }
 
-  private def verifyArgumentsForUnaryOperator(arguments: List[List[Argument]]): Boolean = {
-    arguments.size == 1 && arguments.head.size == 1
-  }
-
-  private def verifyArgumentsForBinaryOperator(arguments: List[List[Argument]]): Boolean = {
-    arguments.size == 1 && arguments.head.size == 2
-  }
-
-  private def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
+  def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
     val args = invocationInfo.argListsInEvaluationOrder
-    assert(verifyArgumentsForBinaryOperator(args))
     val List(leftArg, rightArg) = args.head
     (leftArg, rightArg)
   }
 
-  private def tryTransformBinaryOperands(leftArg: Argument, rightArg: Argument,
-                                         forceEqualityByContent: Boolean): Boolean = {
+  private def tryTransformBinaryOperands(leftArg: Argument,
+                                         rightArg: Argument,
+                                         forceEqualityByContent: Boolean): (StackValue, StackValue, Boolean) = {
     val leftExpression = leftArg.content
     val rightExpression = rightArg.content
+    val leftType = leftExpression.map(resolveExpressionType)
+    val rightType = rightExpression.map(resolveExpressionType)
     val balancedType = balanceType(
-      leftExpression.map(resolveExpressionType),
-      rightExpression.map(resolveExpressionType),
+      leftType,
+      rightType,
       forceEqualityByContent
     )
 
-    transformExpression(leftArg.content, ResultReq.Required)
-    buildImplicitConversion(leftExpression, balancedType)
-    transformExpression(rightArg.content, ResultReq.Required)
-    buildImplicitConversion(rightExpression, balancedType)
+    val left = transformExpression(leftArg.content, ResultReq.Required)
+    val leftConverted = convertPrimitiveIfNeeded(left, leftType, balancedType)
+    val right = transformExpression(rightArg.content, ResultReq.Required)
+    val rightConverted = convertPrimitiveIfNeeded(right, rightType, balancedType)
 
-    val leftType = leftExpression.map(resolveExpressionType)
-    val rightType = rightExpression.map(resolveExpressionType)
+    val success = (leftType, rightType) match {
+      case (Some(left), Some(right)) =>
+        left == right || (isPrimitiveType(left) && isPrimitiveType(right))
+      case _ =>
+        false
+    }
+    (leftConverted, rightConverted, success)
+  }
 
-    (leftType, rightType) match {
-      case (Some(left), Some(right)) => left == right || (isPrimitiveType(left) && isPrimitiveType(right))
-      case _ => false
+
+  private[SpecialSyntheticMethodsTransformation]
+  def transformBinaryNumericOperator(function: ScSyntheticFunction,
+                                     invocationInfo: InvocationInfo,
+                                     invocation: ScExpression): StackValue = {
+    val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
+    val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = false)
+
+    if (successful) {
+      binaryNumOp(
+        left,
+        right,
+        NumericBinary(function.name),
+        ScalaStatementAnchor(invocation)
+      )
+    } else {
+      buildUnknownCall(ResultReq.Required, Seq(left, right))
     }
   }
 
-  private def tryTransformBinaryNumericOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
-                                                invocation: ScExpression): Boolean = {
-    for (typeClass <- List(ScalaInt, ScalaLong); operationName <- NumericBinary.keys) {
-      if (matchesSignature(function, operationName, typeClass)) {
-        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-        val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = false)
+  private[SpecialSyntheticMethodsTransformation]
+  def transformBinaryBooleanOperator(function: ScSyntheticFunction,
+                                     invocationInfo: InvocationInfo,
+                                     invocation: ScExpression): StackValue = {
 
-        if (successful)
-          addInstruction(
-            new NumericBinaryInstruction(
-              NumericBinary(operationName),
-              ScalaStatementAnchor(invocation)
-            )
-          )
-        else buildUnknownCall(2, ResultReq.Required)
-        return true
-      }
+    val operation = RelationalBinary(function.name)
+    val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
+    val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
+    val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
+
+    if (successful) {
+      binaryBoolOp(left, right, operation, forceEqualityByContent, ScalaStatementAnchor(invocation))
+    } else {
+      buildUnknownCall(ResultReq.Required, Seq(left, right))
     }
-
-    false
   }
 
-  private def tryTransformBinaryRelationalOperator(function: ScSyntheticFunction,
-                                                   invocationInfo: InvocationInfo,
-                                                   invocation: ScExpression): Boolean = {
-    for (operationName <- RelationalBinary.keys) {
-      if (matchesSignature(function, operationName, ScalaBoolean)) {
-        val operation = RelationalBinary(operationName)
-        val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
-        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-        val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
+  private[SpecialSyntheticMethodsTransformation]
+  def transformBinaryLogicalOperator(function: ScSyntheticFunction,
+                                     invocationInfo: InvocationInfo,
+                                     invocation: ScExpression): StackValue = {
+    val operation = LogicalBinary(function.name)
+    val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
+    if (verifyBooleanArgumentType(leftArg.content) || verifyBooleanArgumentType(rightArg.content)) {
+      val stack = stackSnapshot
+      val anchor = ScalaStatementAnchor(invocation)
+      val nextConditionLabel = newDeferredLabel()
+      val endLabel = newDeferredLabel()
 
-        if (successful) {
-          addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(invocation)))
-        } else {
-          buildUnknownCall(2, ResultReq.Required)
-        }
-        return true
-      }
+      val leftCond = transformExpression(leftArg.content, ResultReq.Required)
+
+      val valueNeededToContinue = operation == LogicalOperation.And
+      gotoIf(leftCond, DfTypes.booleanValue(valueNeededToContinue), nextConditionLabel)
+      val resultLeft = push(DfTypes.booleanValue(!valueNeededToContinue), anchor)
+      goto(endLabel)
+
+      restore(stack)
+      anchorLabel(nextConditionLabel)
+      finish(null)
+      val rightCond = transformExpression(rightArg.content, ResultReq.Required)
+
+      val result = joinHere(resultLeft, rightCond)
+      anchorLabel(endLabel)
+      attachAnchor(result, anchor)
+      result
+    } else {
+      val left = transformExpression(leftArg.content, ResultReq.Required)
+      val right = transformExpression(rightArg.content, ResultReq.Required)
+      buildUnknownCall(ResultReq.Required, Seq(left, right))
     }
-
-    false
   }
 
-  private def tryTransformBinaryLogicalOperator(function: ScSyntheticFunction,
-                                                invocationInfo: InvocationInfo,
-                                                invocation: ScExpression): Boolean = {
-    for (operationName <- LogicalBinary.keys) {
-      if (matchesSignature(function, operationName, ScalaBoolean)) {
-        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-        if (verifyBooleanArgumentType(leftArg.content) || verifyBooleanArgumentType(rightArg.content)) {
-          val anchor = ScalaStatementAnchor(invocation)
-          val nextConditionLabel = newDeferredLabel()
-          val endLabel = newDeferredLabel()
+  private[SpecialSyntheticMethodsTransformation]
+  def transformUnaryNumericOperator(function: ScSyntheticFunction,
+                                    invocationInfo: InvocationInfo,
+                                    invocation: ScExpression): StackValue = {
+    val operation = NumericUnary(function.name)
+    val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
 
-          transformExpression(leftArg.content, ResultReq.Required)
+    val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
 
-          val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-          gotoIfTosEquals(DfTypes.booleanValue(valueNeededToContinue), nextConditionLabel)
-          push(DfTypes.booleanValue(!valueNeededToContinue), anchor)
-          goto(endLabel)
+    val zero = push(returnDfType.meetRange(LongRangeSet.point(0L)))
+    val value = transformExpression(singleThisArg.content, ResultReq.Required)
 
-          anchorLabel(nextConditionLabel)
-          addInstruction(new FinishElementInstruction(null))
-          transformExpression(rightArg.content, ResultReq.Required)
-          anchorLabel(endLabel)
-          addInstruction(new ResultOfInstruction(anchor))
-          return true
-        }
-      }
-    }
-
-    false
+    binaryNumOp(zero, value, operation, ScalaStatementAnchor(invocation))
   }
 
-  private def tryTransformUnaryNumericOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
-                                               invocation: ScExpression): Boolean = {
-    for (typeClass <- List(ScalaInt, ScalaLong); operationName <- NumericUnary.keys) {
-      if (matchesSignature(function, operationName, typeClass)) {
-        val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
-        val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
-
-        addInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
-        transformExpression(singleThisArg.content, ResultReq.Required)
-
-        addInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(invocation)))
-        return true
-      }
+  private[SpecialSyntheticMethodsTransformation]
+  def transformUnaryLogicalOperator(function: ScSyntheticFunction,
+                                    invocationInfo: InvocationInfo,
+                                    invocation: ScExpression): StackValue = {
+    val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
+    val operation = LogicalUnary(function.name)
+    operation match {
+      case LogicalOperation.Not if verifyBooleanArgumentType(singleThisArg.content) =>
+        val value = transformExpression(singleThisArg.content, ResultReq.Required)
+        not(value, ScalaStatementAnchor(invocation))
+      case _ =>
+        throw new AssertionError(s"Didn't expect $operation")
     }
-
-    false
-  }
-
-  private def tryTransformUnaryLogicalOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
-                                               invocation: ScExpression): Boolean = {
-    for (operationName <- LogicalUnary.keys) {
-      if (matchesSignature(function, operationName, ScalaBoolean)) {
-        val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
-
-        LogicalUnary(operationName) match {
-          case LogicalOperation.Not if verifyBooleanArgumentType(singleThisArg.content) =>
-            transformExpression(singleThisArg.content, ResultReq.Required)
-            addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
-            return true
-          case _ =>
-        }
-      }
-    }
-
-    false
   }
 
   private def verifyBooleanArgumentType(expression: Option[ScExpression]): Boolean = expression
     .map(resolveExpressionType)
     .map(scTypeToDfType)
     .exists(_.is[DfBooleanType])
+}
+
+private object SpecialSyntheticMethodsTransformation {
+  private type TransformF = ScalaDfaControlFlowBuilder => (ScSyntheticFunction, InvocationInfo, ScExpression) => StackValue
+  private def sig(args: Int)(classes: IterableOnce[String], functionNames: IterableOnce[String], target: TransformF): Iterator[((Int, String, String), TransformF)] =
+    classes.iterator.flatMap(clazz => functionNames.iterator.map(f => ((args, clazz, f), target)))
+  private val binary = sig(2) _
+  private val unary = sig(1) _
+
+  private val syntheticTransformations: Map[(Int, String, String), TransformF] = Map.from(
+    binary(NumericPrimitives, NumericBinary.keys, _.transformBinaryNumericOperator) ++
+    binary(Seq(ScalaBoolean), RelationalBinary.keys, _.transformBinaryBooleanOperator) ++
+    binary(Seq(ScalaBoolean), LogicalBinary.keys, _.transformBinaryLogicalOperator) ++
+    unary(NumericPrimitives, NumericUnary.keys, _.transformUnaryNumericOperator) ++
+    unary(Seq(ScalaBoolean), LogicalUnary.keys, _.transformUnaryLogicalOperator)
+  )
 }

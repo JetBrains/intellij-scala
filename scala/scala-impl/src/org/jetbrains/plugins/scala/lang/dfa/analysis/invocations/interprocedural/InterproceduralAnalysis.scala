@@ -34,13 +34,13 @@ object InterproceduralAnalysis {
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
                                 (implicit factory: DfaValueFactory): Option[MethodEffect] = {
     invocationInfo.invokedElement match {
-      case Some(InvokedElement(function: ScFunctionDefinition)) if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) =>
+      /*case Some(InvokedElement(function: ScFunctionDefinition)) if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) =>
         function.body match {
           case Some(body) if invocationInfo.paramToProperArgMapping.size == invocationInfo.properArguments.flatten.size =>
             val paramValues = mapArgumentValuesToParams(invocationInfo, function, argumentValues)
             analyseExternalMethodBody(function, body, paramValues, currentAnalysedMethodInfo)
           case _ => None
-        }
+        }*/
       case _ => None
     }
   }
@@ -110,7 +110,8 @@ object InterproceduralAnalysis {
 
     val endLabel = new DeferredOffset
     implicit val context: ProjectContext = method.getProject
-    controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endLabel))
+
+    //controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endLabel))
 
     controlFlowBuilder.transformExpression(body, ResultReq.Required)
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))

@@ -24,7 +24,7 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |8: NUMERIC_OP +
       |9: ASSIGN_TO x
       |10: PUSH booleanVal
-      |11: IF_EQ false 21
+      |11: IF_EQ false 22
       |12: FINISH
       |13: PUSH_VAL 2
       |14: PUSH x
@@ -33,15 +33,15 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |17: NUMERIC_OP -
       |18: PUSH_VAL 3
       |19: NUMERIC_OP +
-      |20: GOTO 25
-      |21: FINISH
-      |22: PUSH_VAL 5
-      |23: PUSH x
-      |24: NUMERIC_OP -
-      |25: FINISH IfStatement; flushing [x]
-      |26: FINISH BlockExpression
-      |27: RETURN
-      |28: POP
+      |20: POP
+      |21: GOTO 27
+      |22: FINISH
+      |23: PUSH_VAL 5
+      |24: PUSH x
+      |25: NUMERIC_OP -
+      |26: POP
+      |27: FINISH IfStatement; flushing [x]
+      |28: FINISH BlockExpression
       |29: RETURN
       |""".stripMargin
   }
@@ -87,10 +87,9 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |24: PUSH x
       |25: PUSH_VAL 10
       |26: BOOLEAN_OP ==
-      |27: FINISH BlockExpression
-      |28: RETURN
-      |29: POP
-      |30: RETURN
+      |27: POP
+      |28: FINISH BlockExpression
+      |29: RETURN
       |""".stripMargin
   }
 }

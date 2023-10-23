@@ -27,11 +27,14 @@ object ScalaDfaConstants {
 
   final object Packages {
     val ScalaUnit = "Scala.Unit"
+    val ScalaBoolean = "scala.Boolean"
+    val ScalaByte = "scala.Byte"
+    val ScalaChar = "scala.Char"
+    val ScalaShort = "scala.Short"
     val ScalaInt = "scala.Int"
     val ScalaLong = "scala.Long"
-    val ScalaDouble = "scala.Double"
     val ScalaFloat = "scala.Float"
-    val ScalaBoolean = "scala.Boolean"
+    val ScalaDouble = "scala.Double"
     val ScalaNone = "scala.None"
     val ScalaNothing = "scala.Nothing"
     val ScalaCollection = "scala.collection"
@@ -45,8 +48,17 @@ object ScalaDfaConstants {
     val Apply = "apply"
   }
 
-  final object SyntheticOperators {
+  val NumericPrimitives: Seq[String] = Seq(
+    Packages.ScalaByte,
+    Packages.ScalaChar,
+    Packages.ScalaShort,
+    Packages.ScalaInt,
+    Packages.ScalaLong,
+    Packages.ScalaFloat,
+    Packages.ScalaDouble,
+  )
 
+  final object SyntheticOperators {
     val NumericBinary: Map[String, LongRangeBinOp] = Map(
       "+" -> LongRangeBinOp.PLUS,
       "-" -> LongRangeBinOp.MINUS,
