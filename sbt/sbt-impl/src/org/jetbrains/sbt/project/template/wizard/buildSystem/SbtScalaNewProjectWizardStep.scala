@@ -53,9 +53,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
   override protected val selections: SbtModuleBuilderSelections = SbtModuleBuilderSelections.default
 
-  override protected lazy val availableScalaVersions: Versions = Versions.Scala.loadVersionsWithProgress()
-  override protected lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
-  override protected lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
+  override protected lazy val defaultAvailableScalaVersions: Versions = Versions.Scala.allHardcodedVersions
+
+  override protected lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
+  override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
+
 
   locally {
     moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
@@ -139,7 +141,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
-    initSelectionsAndUi()
+    initSelectionsAndUi(getContext.getDisposable)
   }
 
   private def validateModuleName(builder: ValidationInfoBuilder, field: JBTextField): ValidationInfo = {

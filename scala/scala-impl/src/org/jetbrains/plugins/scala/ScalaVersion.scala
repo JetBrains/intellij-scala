@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.HashBuilder._
-
-import scala.collection.immutable.SortedSet
+import org.jetbrains.sbt.MinorVersionGenerator
 
 final class ScalaVersion(
   val languageLevel: ScalaLanguageLevel,
   val minorSuffix: String
-) extends Ordered[ScalaVersion] {
+) extends Ordered[ScalaVersion] with MinorVersionGenerator[ScalaVersion] {
 
   def major: String = languageLevel.getVersion
 
@@ -24,8 +23,7 @@ final class ScalaVersion(
   override def compare(that: ScalaVersion): Int =
     (languageLevel, minorVersion) compare (that.languageLevel, that.minorVersion)
 
-  def withMinor(newMinorSuffix: String): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix)
-  def withMinor(newMinorSuffix: Int): ScalaVersion = withMinor(newMinorSuffix.toString)
+  def withMinor(newMinorSuffix: Int): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix.toString)
 
   override def equals(other: Any): Boolean = other match {
     case that: ScalaVersion =>
@@ -37,6 +35,8 @@ final class ScalaVersion(
   override def hashCode(): Int = languageLevel #+ minorSuffix
 
   override def toString: String = s"ScalaVersion($minor)"
+
+  override def generateNewVersion(version: String): Option[ScalaVersion] = ScalaVersion.fromString(version)
 }
 
 //noinspection TypeAnnotation
@@ -59,15 +59,6 @@ object ScalaVersion {
         level.map(new ScalaVersion(_, z))
       case _                     => None
     }
-
-  def generateAllMinorScalaVersions(scalaVersions: Seq[ScalaVersion]): SortedSet[ScalaVersion] = {
-    val allScalaMinorVersions = for {
-      latestVersion <- scalaVersions
-      minor <- 0 to latestVersion.minorSuffix.toInt
-    } yield latestVersion.withMinor(minor)
-
-    SortedSet.from(allScalaMinorVersions)
-  }
 }
 
 //NOTE: when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
