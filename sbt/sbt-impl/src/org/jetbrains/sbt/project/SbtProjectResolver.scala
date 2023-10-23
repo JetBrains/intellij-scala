@@ -318,7 +318,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, projects, None))
     val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies = true)
 
-    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath)
+    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath, projectTransitiveDependenciesUsed = false)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 
@@ -355,7 +355,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectJdk = chooseJdk(rootProject, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, data.sbtVersion, root)))
+    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, data.sbtVersion, root, settings.insertProjectTransitiveDependencies)))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))

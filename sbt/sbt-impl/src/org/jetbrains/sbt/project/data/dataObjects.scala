@@ -76,24 +76,30 @@ object SbtModuleData {
     new SbtModuleData(id, new MyURI(buildURI))
 }
 
-@SerialVersionUID(1)
-case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath"))(
+@SerialVersionUID(2)
+case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath", "projectTransitiveDependenciesUsed"))(
   @Nullable jdk: SdkReference,
   //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
   sbtVersion: String,
-  projectPath: String
+  projectPath: String,
+  //TODO Ideally this property should be stored in the workspace model
+  projectTransitiveDependenciesUsed: Boolean
 ) extends SbtEntityData
 
 object SbtProjectData {
   val Key: Key[SbtProjectData] = datakey(classOf[SbtProjectData])
 
-  def apply(jdk: Option[SdkReference],
-            sbtVersion: String,
-            projectPath: String): SbtProjectData =
+  def apply(
+    jdk: Option[SdkReference],
+    sbtVersion: String,
+    projectPath: String,
+    projectTransitiveDependenciesUsed: Boolean
+  ): SbtProjectData =
     SbtProjectData(
       jdk.orNull,
       sbtVersion,
-      projectPath
+      projectPath,
+      projectTransitiveDependenciesUsed
     )
 }
 

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
+import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -159,6 +159,11 @@ object SbtUtil {
       properties.load(input)
       Option(properties.getProperty(name))
     }
+
+  def getSbtProjectData(project: Project): Option[SbtProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key)
+    dataEither.toSeq.flatten.headOption
+  }
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject

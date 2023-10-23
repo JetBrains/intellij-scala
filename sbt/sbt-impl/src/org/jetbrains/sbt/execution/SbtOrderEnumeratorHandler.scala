@@ -35,7 +35,7 @@ class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) ex
     modules.asScala.headOption
   }
 
-  //TODO: after splitting sources to production and test it should be changes to false SCL-21157
+  //TODO: after splitting sources to production and test it should be changed to false SCL-21157
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
@@ -56,7 +56,9 @@ class SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies: Boolean) ex
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val project = module.getProject
-    val insertProjectTransitiveDependencies = SbtProjectSettings.forProject(project).exists(_.insertProjectTransitiveDependencies)
+    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
+    val insertProjectTransitiveDependencies = sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
+      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
     new SbtOrderEnumeratorHandler(insertProjectTransitiveDependencies)
   }
 

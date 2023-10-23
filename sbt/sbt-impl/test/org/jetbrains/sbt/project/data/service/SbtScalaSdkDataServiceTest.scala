@@ -41,7 +41,7 @@ class SbtScalaSdkDataServiceTest extends SbtModuleDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = true))
 
       val evictedScalaLibrary: library = new library {
         name := s"org.scala-lang:scala-library:$evictedVersion"
