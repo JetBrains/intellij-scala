@@ -149,9 +149,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
     val operation = NumericUnary(function.name)
     val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
 
-    val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
-
-    val zero = push(returnDfType.meetRange(LongRangeSet.point(0L)))
+    val zero = push(DfTypes.defaultValue(function.retType.toPsiType))
     val value = transformExpression(singleThisArg.content, ResultReq.Required)
 
     binaryNumOp(zero, value, operation, ScalaStatementAnchor(invocation))
