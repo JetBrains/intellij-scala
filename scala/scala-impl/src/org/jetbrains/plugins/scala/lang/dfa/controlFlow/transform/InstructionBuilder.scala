@@ -4,15 +4,14 @@ import com.intellij.codeInspection.dataFlow.java.JavaClassDef
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, EnsureIndexInBoundsInstruction, JvmPushInstruction, NotInstruction, NumericBinaryInstruction, PrimitiveConversionInstruction, ThrowInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.problems.IndexOutOfBoundsProblem
-import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.{ControlFlowOffset, DeferredOffset, FixedOffset}
 import com.intellij.codeInspection.dataFlow.lang.ir._
+import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaStatementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
@@ -112,8 +111,10 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
     }
   }
 
-  def assign(destination: DfaVariableValue, value: StackValue, anchor: Option[DfaAnchor] = None): Unit =
+  def assign(destination: DfaVariableValue, value: StackValue, anchor: Option[DfaAnchor] = None): Unit = {
     addPoppingInstruction(value, new SimpleAssignmentInstruction(anchor.orNull, destination))
+    addInstruction(new PopInstruction)
+  }
 
 
   def assign(destination: DfaVariableValue, value: StackValue, anchor: DfaAnchor): Unit =
@@ -327,7 +328,7 @@ object InstructionBuilder {
     private[InstructionBuilder] def hasBeenJoined: Boolean = joinedInto != null
 
     private[InstructionBuilder] def setJoinedInto(target: StackValue): Unit = {
-      assert(joinedInto == null, s"$this was already joined into ${target}")
+      assert(joinedInto == null, s"$this was already joined into $target")
       assert(target.posOnStack == posOnStack, s"Cannot join $this into $target, because stack position is different")
       joinedInto = target.afterJoin
     }

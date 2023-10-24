@@ -16,24 +16,26 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
     """
       |0: PUSH_VAL 15
       |1: ASSIGN_TO x
-      |2: PUSH_VAL 2193
-      |3: PUSH_VAL 2
-      |4: NUMERIC_OP +
-      |5: ASSIGN_TO y
-      |6: PUSH arg1
-      |7: PUSH x
-      |8: PUSH arg2
-      |9: NUMERIC_OP *
-      |10: NUMERIC_OP +
-      |11: POP
-      |12: PUSH x
-      |13: PUSH y
-      |14: NUMERIC_OP +
-      |15: POP
-      |16: PUSH x
+      |2: POP
+      |3: PUSH_VAL 2193
+      |4: PUSH_VAL 2
+      |5: NUMERIC_OP +
+      |6: ASSIGN_TO y
+      |7: POP
+      |8: PUSH arg1
+      |9: PUSH x
+      |10: PUSH arg2
+      |11: NUMERIC_OP *
+      |12: NUMERIC_OP +
+      |13: POP
+      |14: PUSH x
+      |15: PUSH y
+      |16: NUMERIC_OP +
       |17: POP
-      |18: FINISH BlockExpression
-      |19: RETURN
+      |18: PUSH x
+      |19: POP
+      |20: FINISH BlockExpression
+      |21: RETURN
       |""".stripMargin
   }
 
@@ -47,22 +49,24 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
     """
       |0: PUSH_VAL 15
       |1: ASSIGN_TO x
-      |2: PUSH x
-      |3: PUSH_VAL TOP
-      |4: FLUSH_ALL_FIELDS
-      |5: PUSH_VAL TOP
-      |6: FLUSH_ALL_FIELDS
-      |7: CALL <unknown>
-      |8: SPLICE [2] -> []
-      |9: PUSH_VAL TOP
-      |10: FLUSH_ALL_FIELDS
-      |11: ASSIGN_TO y
-      |12: PUSH y
-      |13: PUSH_VAL 2
-      |14: NUMERIC_OP +
-      |15: POP
-      |16: FINISH BlockExpression
-      |17: RETURN
+      |2: POP
+      |3: PUSH x
+      |4: PUSH_VAL TOP
+      |5: FLUSH_ALL_FIELDS
+      |6: PUSH_VAL TOP
+      |7: FLUSH_ALL_FIELDS
+      |8: CALL <unknown>
+      |9: SPLICE [2] -> []
+      |10: PUSH_VAL TOP
+      |11: FLUSH_ALL_FIELDS
+      |12: ASSIGN_TO y
+      |13: POP
+      |14: PUSH y
+      |15: PUSH_VAL 2
+      |16: NUMERIC_OP +
+      |17: POP
+      |18: FINISH BlockExpression
+      |19: RETURN
       |""".stripMargin
   }
 
@@ -86,22 +90,24 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |8: PUSH_VAL 9
       |9: FINISH IfStatement
       |10: ASSIGN_TO `some strange name`
-      |11: PUSH_VAL 3
+      |11: POP
       |12: PUSH_VAL 3
-      |13: BOOLEAN_OP ==
-      |14: ASSIGN_TO `another strange name!`
-      |15: PUSH `another strange name!`
-      |16: IF_EQ false 21
-      |17: FINISH
-      |18: PUSH `some strange name`
-      |19: POP
-      |20: GOTO 24
-      |21: FINISH
-      |22: PUSH_VAL 3
-      |23: POP
-      |24: FINISH IfStatement; flushing [`some strange name`]
-      |25: FINISH BlockExpression
-      |26: RETURN
+      |13: PUSH_VAL 3
+      |14: BOOLEAN_OP ==
+      |15: ASSIGN_TO `another strange name!`
+      |16: POP
+      |17: PUSH `another strange name!`
+      |18: IF_EQ false 23
+      |19: FINISH
+      |20: PUSH `some strange name`
+      |21: POP
+      |22: GOTO 26
+      |23: FINISH
+      |24: PUSH_VAL 3
+      |25: POP
+      |26: FINISH IfStatement; flushing [`some strange name`]
+      |27: FINISH BlockExpression
+      |28: RETURN
       |""".stripMargin
   }
 
@@ -116,31 +122,33 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
     """
       |0: PUSH Nil
       |1: ASSIGN_TO grades
-      |2: PUSH_VAL TOP
-      |3: CALL Student#apply
-      |4: PUSH_VAL 22
-      |5: PUSH grades
-      |6: CALL Student#apply
-      |7: ASSIGN_TO s1
-      |8: PUSH s1
+      |2: POP
+      |3: PUSH_VAL TOP
+      |4: CALL Student#apply
+      |5: PUSH_VAL 22
+      |6: PUSH grades
+      |7: CALL Student#apply
+      |8: ASSIGN_TO s1
       |9: POP
-      |10: PUSH s1.age
-      |11: PUSH_VAL 20
-      |12: BOOLEAN_OP >=
-      |13: POP
-      |14: PUSH s1
+      |10: PUSH s1
+      |11: POP
+      |12: PUSH s1.age
+      |13: PUSH_VAL 20
+      |14: BOOLEAN_OP >=
       |15: POP
-      |16: PUSH s1.grades
-      |17: PUSH_VAL 5
-      |18: ENSURE_INDEX size
-      |19: PUSH s1
-      |20: POP
-      |21: PUSH s1.grades
-      |22: PUSH_VAL 5
-      |23: CALL LinearSeqOptimized#apply
-      |24: POP
-      |25: FINISH BlockExpression
-      |26: RETURN
+      |16: PUSH s1
+      |17: POP
+      |18: PUSH s1.grades
+      |19: PUSH_VAL 5
+      |20: ENSURE_INDEX size
+      |21: PUSH s1
+      |22: POP
+      |23: PUSH s1.grades
+      |24: PUSH_VAL 5
+      |25: CALL LinearSeqOptimized#apply
+      |26: POP
+      |27: FINISH BlockExpression
+      |28: RETURN
       |""".stripMargin
   }
 
@@ -155,14 +163,15 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |1: PUSH_VAL 33
       |2: CALL Person#Person
       |3: ASSIGN_TO p1
-      |4: PUSH p1
-      |5: POP
-      |6: PUSH p1.id
-      |7: PUSH_VAL 20
-      |8: BOOLEAN_OP <
-      |9: POP
-      |10: FINISH BlockExpression
-      |11: RETURN
+      |4: POP
+      |5: PUSH p1
+      |6: POP
+      |7: PUSH p1.id
+      |8: PUSH_VAL 20
+      |9: BOOLEAN_OP <
+      |10: POP
+      |11: FINISH BlockExpression
+      |12: RETURN
       |""".stripMargin
   }
 }

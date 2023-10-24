@@ -13,11 +13,12 @@ class WhileExprCfgTest extends ScalaDfaControlFlowBuilderTestBase {
     """
       |0: PUSH_VAL 0
       |1: ASSIGN_TO x
-      |2: FINISH BlockExpression
-      |3: PUSH_VAL true
-      |4: IF_EQ true 0
-      |5: FINISH BlockExpression
-      |6: RETURN
+      |2: POP
+      |3: FINISH BlockExpression
+      |4: PUSH_VAL true
+      |5: IF_EQ true 0
+      |6: FINISH BlockExpression
+      |7: RETURN
       |""".stripMargin
   }
 
@@ -30,13 +31,14 @@ class WhileExprCfgTest extends ScalaDfaControlFlowBuilderTestBase {
   }) {
     """
       |0: PUSH_VAL true
-      |1: IF_EQ false 6
+      |1: IF_EQ false 7
       |2: PUSH_VAL 0
       |3: ASSIGN_TO x
-      |4: FINISH BlockExpression
-      |5: GOTO 0
-      |6: FINISH BlockExpression
-      |7: RETURN
+      |4: POP
+      |5: FINISH BlockExpression
+      |6: GOTO 0
+      |7: FINISH BlockExpression
+      |8: RETURN
       |""".stripMargin
   }
 

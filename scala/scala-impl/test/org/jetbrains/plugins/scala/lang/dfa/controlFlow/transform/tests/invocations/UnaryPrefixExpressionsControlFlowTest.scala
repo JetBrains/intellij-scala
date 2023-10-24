@@ -52,39 +52,42 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
     """
       |0: PUSH_VAL 200
       |1: ASSIGN_TO y
-      |2: PUSH y
-      |3: PUSH_VAL 100
-      |4: BOOLEAN_OP <
-      |5: IF_EQ false 8
-      |6: PUSH_VAL true
-      |7: GOTO 12
-      |8: FINISH
-      |9: PUSH y
-      |10: PUSH_VAL 150
-      |11: BOOLEAN_OP <=
-      |12: RESULT_OF ScalaStatementAnchor(InfixExpression)
-      |13: NOT
-      |14: IF_EQ false 20
-      |15: FINISH ; flushing [y]
-      |16: PUSH_VAL 0
-      |17: PUSH_VAL 9
-      |18: NUMERIC_OP -
-      |19: GOTO 24
-      |20: FINISH ; flushing [y]
-      |21: PUSH_VAL 0
-      |22: PUSH_VAL 3
-      |23: NUMERIC_OP -
-      |24: FINISH IfStatement
-      |25: ASSIGN_TO x
-      |26: PUSH_VAL 2
-      |27: PUSH_VAL 3
-      |28: BOOLEAN_OP >
-      |29: ASSIGN_TO p1
-      |30: PUSH p1
-      |31: NOT
+      |2: POP
+      |3: PUSH y
+      |4: PUSH_VAL 100
+      |5: BOOLEAN_OP <
+      |6: IF_EQ false 9
+      |7: PUSH_VAL true
+      |8: GOTO 13
+      |9: FINISH
+      |10: PUSH y
+      |11: PUSH_VAL 150
+      |12: BOOLEAN_OP <=
+      |13: RESULT_OF ScalaStatementAnchor(InfixExpression)
+      |14: NOT
+      |15: IF_EQ false 21
+      |16: FINISH ; flushing [y]
+      |17: PUSH_VAL 0
+      |18: PUSH_VAL 9
+      |19: NUMERIC_OP -
+      |20: GOTO 25
+      |21: FINISH ; flushing [y]
+      |22: PUSH_VAL 0
+      |23: PUSH_VAL 3
+      |24: NUMERIC_OP -
+      |25: FINISH IfStatement
+      |26: ASSIGN_TO x
+      |27: POP
+      |28: PUSH_VAL 2
+      |29: PUSH_VAL 3
+      |30: BOOLEAN_OP >
+      |31: ASSIGN_TO p1
       |32: POP
-      |33: FINISH BlockExpression
-      |34: RETURN
+      |33: PUSH p1
+      |34: NOT
+      |35: POP
+      |36: FINISH BlockExpression
+      |37: RETURN
       |""".stripMargin
   }
 
