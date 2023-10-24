@@ -230,14 +230,9 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def transformReturnStatement(returnStatement: ScReturn, rreq: ResultReq): rreq.Result = {
-    ???
-    /*returnStatement.expr match {
-      case Some(expression) =>
-        transformExpression(expression, ResultReq.Required)
-      case _ =>
-        pushUnknownValue()
-    }
+    transformExpression(returnStatement.expr, ResultReq.None)
 
-    ret(returnStatement.expr)*/
+    ret(returnStatement.expr)
+    pushUnknownValue(rreq)
   }
 }
