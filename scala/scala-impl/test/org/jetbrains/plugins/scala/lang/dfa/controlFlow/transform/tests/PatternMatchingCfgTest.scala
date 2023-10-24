@@ -190,8 +190,9 @@ class PatternMatchingCfgTest extends ScalaDfaControlFlowBuilderTestBase {
       |26: THROW scala.MatchError
       |27: PUSH_VAL TOP
       |28: ASSIGN_TO s
-      |29: FINISH BlockExpression
-      |30: RETURN
+      |29: POP
+      |30: FINISH BlockExpression
+      |31: RETURN
       |""".stripMargin
   }
 }

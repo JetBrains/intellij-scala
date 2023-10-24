@@ -15,47 +15,48 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
     """
       |0: PUSH_VAL 15
       |1: ASSIGN_TO x
-      |2: PUSH_VAL TOP
-      |3: PUSH_VAL 1000
-      |4: PUSH_VAL 3
-      |5: NUMERIC_OP *
-      |6: PUSH_VAL 9
-      |7: NUMERIC_OP -
-      |8: PUSH x
-      |9: PUSH_VAL 5
-      |10: PUSH_VAL 3
-      |11: BOOLEAN_OP >
-      |12: CALL <unknown>
-      |13: POP
-      |14: PUSH_VAL TOP
-      |15: PUSH_VAL 1000
-      |16: PUSH_VAL 3
-      |17: NUMERIC_OP *
-      |18: PUSH_VAL 9
-      |19: NUMERIC_OP -
-      |20: PUSH x
-      |21: PUSH_VAL 5
-      |22: PUSH_VAL 3
-      |23: BOOLEAN_OP >
-      |24: PUSH_VAL "This is good"
-      |25: CALL TestClass#anotherMethod
-      |26: POP
-      |27: PUSH_VAL TOP
-      |28: PUSH_VAL 1000
-      |29: PUSH_VAL 3
-      |30: NUMERIC_OP *
-      |31: PUSH_VAL 9
-      |32: NUMERIC_OP -
-      |33: PUSH x
-      |34: PUSH_VAL 5
-      |35: PUSH_VAL 3
-      |36: BOOLEAN_OP >
-      |37: PUSH_VAL "But this is not"
-      |38: PUSH_VAL 7777
-      |39: CALL <unknown>
-      |40: POP
-      |41: FINISH BlockExpression
-      |42: RETURN
+      |2: POP
+      |3: PUSH_VAL TOP
+      |4: PUSH_VAL 1000
+      |5: PUSH_VAL 3
+      |6: NUMERIC_OP *
+      |7: PUSH_VAL 9
+      |8: NUMERIC_OP -
+      |9: PUSH x
+      |10: PUSH_VAL 5
+      |11: PUSH_VAL 3
+      |12: BOOLEAN_OP >
+      |13: CALL <unknown>
+      |14: POP
+      |15: PUSH_VAL TOP
+      |16: PUSH_VAL 1000
+      |17: PUSH_VAL 3
+      |18: NUMERIC_OP *
+      |19: PUSH_VAL 9
+      |20: NUMERIC_OP -
+      |21: PUSH x
+      |22: PUSH_VAL 5
+      |23: PUSH_VAL 3
+      |24: BOOLEAN_OP >
+      |25: PUSH_VAL "This is good"
+      |26: CALL TestClass#anotherMethod
+      |27: POP
+      |28: PUSH_VAL TOP
+      |29: PUSH_VAL 1000
+      |30: PUSH_VAL 3
+      |31: NUMERIC_OP *
+      |32: PUSH_VAL 9
+      |33: NUMERIC_OP -
+      |34: PUSH x
+      |35: PUSH_VAL 5
+      |36: PUSH_VAL 3
+      |37: BOOLEAN_OP >
+      |38: PUSH_VAL "But this is not"
+      |39: PUSH_VAL 7777
+      |40: CALL <unknown>
+      |41: POP
+      |42: FINISH BlockExpression
+      |43: RETURN
       |""".stripMargin
   }
 
@@ -68,21 +69,22 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
     """
       |0: PUSH_VAL 333
       |1: ASSIGN_TO x
-      |2: PUSH_VAL TOP
-      |3: PUSH_VAL 1000
-      |4: PUSH_VAL 3
-      |5: NUMERIC_OP *
-      |6: PUSH_VAL 9
-      |7: NUMERIC_OP -
-      |8: PUSH x
-      |9: PUSH_VAL 5
-      |10: PUSH_VAL 3
-      |11: BOOLEAN_OP >
-      |12: PUSH_VAL "???"
-      |13: CALL <unknown>
-      |14: POP
-      |15: FINISH BlockExpression
-      |16: RETURN
+      |2: POP
+      |3: PUSH_VAL TOP
+      |4: PUSH_VAL 1000
+      |5: PUSH_VAL 3
+      |6: NUMERIC_OP *
+      |7: PUSH_VAL 9
+      |8: NUMERIC_OP -
+      |9: PUSH x
+      |10: PUSH_VAL 5
+      |11: PUSH_VAL 3
+      |12: BOOLEAN_OP >
+      |13: PUSH_VAL "???"
+      |14: CALL <unknown>
+      |15: POP
+      |16: FINISH BlockExpression
+      |17: RETURN
       |""".stripMargin
   }
 
