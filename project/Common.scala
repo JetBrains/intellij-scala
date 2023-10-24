@@ -43,16 +43,6 @@ object Common {
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
-  val headCommitSum: String =
-    scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
-
-  val compilationCacheSettings: Seq[Def.Setting[?]] = Seq(
-    Compile / remoteCacheId := headCommitSum,
-    Compile / pushRemoteCacheConfiguration ~= (_.withOverwrite(true)),
-    Test / remoteCacheId := headCommitSum,
-    Test / pushRemoteCacheConfiguration ~= (_.withOverwrite(true))
-  )
-
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -75,8 +65,7 @@ object Common {
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _,
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
-      (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
-      compilationCacheSettings
+      (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
     )
 
   /**
