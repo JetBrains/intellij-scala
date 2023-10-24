@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
@@ -86,8 +87,17 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
   private def xRayMode: Boolean = ScalaHintsSettings.xRayMode
 
   private def xRayMode_=(b: Boolean): Unit = {
+    if (b) {
+      indentGuidesShownSetting = EditorSettingsExternalizable.getInstance.isIndentGuidesShown
+      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(true)
+    } else {
+      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(indentGuidesShownSetting)
+    }
+
     ScalaHintsSettings.xRayMode = b
     ImplicitHints.enabled = b
     ImplicitHints.updateInAllEditors()
   }
+
+  private var indentGuidesShownSetting: Boolean = _
 }
