@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 package specialSupport
 
-import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
-import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfIntegralType, DfTypes}
+import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
@@ -37,7 +36,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
       .map(f => f(this)(function, invocationInfo, invocation))
   }
 
-  def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
+  private def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
     val args = invocationInfo.argListsInEvaluationOrder
     val List(leftArg, rightArg) = args.head
     (leftArg, rightArg)
@@ -162,9 +161,13 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
     val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
     val operation = LogicalUnary(function.name)
     operation match {
-      case LogicalOperation.Not if verifyBooleanArgumentType(singleThisArg.content) =>
+      case LogicalOperation.Not =>
         val value = transformExpression(singleThisArg.content, ResultReq.Required)
-        not(value, ScalaStatementAnchor(invocation))
+        if (verifyBooleanArgumentType(singleThisArg.content)) {
+          not(value, ScalaStatementAnchor(invocation))
+        } else {
+          buildUnknownCall(ResultReq.Required, Seq(value))
+        }
       case _ =>
         throw new AssertionError(s"Didn't expect $operation")
     }
