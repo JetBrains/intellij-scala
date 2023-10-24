@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
@@ -79,12 +80,9 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
                                             (implicit factory: DfaValueFactory): Map[Argument, DfaValue] = {
     invocationInfo.argListsInEvaluationOrder.flatten
       .reverseIterator
-      .map(arg => (arg, popValueFromStack(stateBefore)))
+      .filter(_.passingMechanism == PassByValue)
+      .map(arg => (arg, stateBefore.pop()))
       .toMap
-  }
-
-  private def popValueFromStack(stateBefore: DfaMemoryState)(implicit factory: DfaValueFactory): DfaValue = {
-    if (stateBefore.isEmptyStack) factory.fromDfType(DfType.TOP) else stateBefore.pop()
   }
 
   private def evaluateArgumentsInCurrentState(argumentValues: Map[Argument, DfaValue],
