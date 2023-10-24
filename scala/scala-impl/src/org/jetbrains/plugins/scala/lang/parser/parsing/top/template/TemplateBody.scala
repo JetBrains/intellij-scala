@@ -16,6 +16,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
   import ScalaTokenTypes._
 
   protected def statementRule: Stat
+  protected def generateIndentedDefinitionsExpectedError: Boolean = true
 
   override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -62,7 +63,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
               End(builder.currentIndentationWidth)
             else
               false
-            if (!endsWithEndMarker) {
+            if (!endsWithEndMarker && generateIndentedDefinitionsExpectedError) {
               builder.error(ScalaBundle.message("indented.definitions.expected"))
             }
             marker.done(ScalaElementType.TEMPLATE_BODY)
@@ -104,6 +105,8 @@ object TemplateBody extends Body {
 
 object GivenTemplateBody extends Body(indentationCanStartWithoutColon = true) {
   override protected def statementRule: TemplateStat.type = TemplateStat
+  //scala compiler does not generate the error for given definitions block
+  override protected def generateIndentedDefinitionsExpectedError: Boolean = false
 }
 
 /**

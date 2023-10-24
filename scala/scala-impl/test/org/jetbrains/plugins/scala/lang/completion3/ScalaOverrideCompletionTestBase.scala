@@ -12,6 +12,8 @@ abstract class ScalaOverrideCompletionTestBase extends ScalaCompletionTestBase {
     super.setUp()
 
     set(getProject, alwaysAddType(getScalaCodeStyleSettings))
+
+    scalaFixture.setFileTextPatcher(prepareFileText)
   }
 
   protected def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
@@ -50,11 +52,5 @@ abstract class ScalaOverrideCompletionTestBase extends ScalaCompletionTestBase {
        |
        |${fileText.withNormalizedSeparator.trim}
     """.stripMargin
-
-  override protected def configureFromFileText(fileText: String): PsiFile =
-    super.configureFromFileText(prepareFileText(fileText))
-
-  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit =
-    super.checkResultByText(prepareFileText(expectedFileText), ignoreTrailingSpaces)
 }
 

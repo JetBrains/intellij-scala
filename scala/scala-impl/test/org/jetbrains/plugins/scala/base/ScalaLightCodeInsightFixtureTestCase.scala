@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert
-import org.junit.Assert.{assertNotNull, fail}
+import org.junit.Assert.fail
 
 import scala.jdk.CollectionConverters._
 
@@ -37,6 +37,8 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected val CARET = EditorTestUtil.CARET_TAG
   protected val START = EditorTestUtil.SELECTION_START_TAG
   protected val END = EditorTestUtil.SELECTION_END_TAG
+
+  protected lazy val scalaFixture: ScalaCodeInsightTestFixture = new ScalaCodeInsightTestFixture(getFixture)
 
   override def getTestDataPath: String = TestUtils.getTestDataPath + "/"
 
@@ -124,6 +126,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   override protected def setUp(): Unit = {
     TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
+    scalaFixture //init fixture lazy val
     TestUtils.disableTimerThread()
   }
 
@@ -133,37 +136,15 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   }
 
   //start section: helper methods
-  protected def configureFromFileText(fileText: String): PsiFile =
-    configureFromFileText(ScalaFileType.INSTANCE, fileText)
-
-  protected def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
-    val file = myFixture.configureByText(fileType, fileText.stripMargin.withNormalizedSeparator.trim)
-    assertNotNull(file)
-    file
-  }
-
-  protected def configureFromFileTextWithSomeName(fileType: String, fileText: String): PsiFile = {
-    val file = myFixture.configureByText("Test." + fileType, fileText.withNormalizedSeparator)
-    assertNotNull(file)
-    file
-  }
-
-  protected def configureFromFileText(fileName: String, fileText: String): PsiFile = {
-    val file = myFixture.configureByText(fileName: String, fileText.withNormalizedSeparator)
-    assertNotNull(file)
-    file
-  }
-
-  protected def openEditorAtOffset(startOffset: Int): Editor = {
-    import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-    val project = getProject
-    val editorManager = FileEditorManager.getInstance(project)
-    val vFile = getFile.getVirtualFile
-    val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, vFile, startOffset), false)
-    editor
-  }
+  protected final def configureFromFileText(fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
+  protected final def configureFromFileText(fileType: FileType, fileText: String): PsiFile = scalaFixture.configureFromFileText(fileType, fileText)
+  protected final def configureFromFileTextWithSomeName(fileType: String, fileText: String): PsiFile = scalaFixture.configureFromFileTextWithSomeName(fileType, fileText)
+  protected final def configureFromFileText(fileName: String, fileText: String): PsiFile = scalaFixture.configureFromFileText(fileName, fileText)
+  protected final def openEditorAtOffset(startOffset: Int): Editor = scalaFixture.openEditorAtOffset(startOffset)
   //end section: helper methods
 
+  //TODO: consider extracting implementation body to ScalaCodeInsightTestFixture
+  // or crete a similar fixture which would be more specific for highlighting
   //start section: check errors
   protected def checkTextHasNoErrors(text: String): Unit = {
     myFixture.configureByText(ScalaFileType.INSTANCE, text)
