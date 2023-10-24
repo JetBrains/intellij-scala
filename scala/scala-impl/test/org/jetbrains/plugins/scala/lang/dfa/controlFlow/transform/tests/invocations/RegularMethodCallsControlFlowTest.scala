@@ -31,4 +31,22 @@ class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |17: RETURN
       |""".stripMargin
   }
+
+  def testByNameParam(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
+    """
+      |def blub(a: Int, b: => Int, c: Int): Unit = ()
+      |
+      |blub(1, 2, 3)
+      |""".stripMargin
+  }) {
+    """
+      |0: PUSH_VAL TOP
+      |1: PUSH_VAL 1
+      |2: PUSH_VAL 3
+      |3: CALL blub
+      |4: POP
+      |5: FINISH BlockExpression
+      |6: RETURN
+      |""".stripMargin
+  }
 }
