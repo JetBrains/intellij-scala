@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.ModificationTracker
@@ -32,27 +33,18 @@ private class ScalaDirtyScopeHolder(
     ) {
   import ScalaDirtyScopeHolder._
 
-  override protected def scopeForSourceContentFile(vfile: VirtualFile): Set[ScopedModule] = {
-    val ftype = fileTypeRegistry.getFileTypeByFileName(vfile.getNameSequence)
+  override protected def scopeForSourceContentFile(vFile: VirtualFile): Option[ScopedModule] = {
+    val fType = fileTypeRegistry.getFileTypeByFileName(vFile.getNameSequence)
 
     inReadAction {
-      if (fileTypes.contains(ftype) && fileIndex.isInSourceContent(vfile)) {
-        val module = fileIndex.getModuleForFile(vfile).toOption
-
-        val scopeBuilder = Set.newBuilder[ScopedModule]
-
-        module.foreach { m =>
-          val scoped =
-            if (fileIndex.isInTestSourceContent(vfile)) ScopedModule.test(m)
-            else                                        ScopedModule.compile(m)
-          scopeBuilder += scoped
-
-          val dependents = ModuleUtilCore.getAllDependentModules(m)
-          dependents.forEach(d => scopeBuilder ++= moduleScopes(d))
+      if (fileTypes.contains(fType) && fileIndex.isInSourceContent(vFile)) {
+        fileIndex.getModuleForFile(vFile).toOption.map { module =>
+            if (fileIndex.isInTestSourceContent(vFile))
+              ScopedModule.test(module)
+            else
+              ScopedModule.compile(module)
         }
-
-        scopeBuilder.result()
-      } else Set.empty
+      } else None
     }
   }
 
@@ -63,6 +55,28 @@ private class ScalaDirtyScopeHolder(
 
   override protected def scopeToSearchScope(scope: ScopedModule): GlobalSearchScope =
     scope.module.getModuleTestsWithDependentsScope
+
+  override protected def calculateDependentScopes(scopes: Set[ScopedModule]): Set[ScopedModule] = {
+    import scala.collection.mutable
+    import scala.jdk.CollectionConverters._
+
+    val visited = mutable.Stack.empty[ScopedModule]
+    val stack = scopes.to(mutable.Stack)
+
+    while (stack.nonEmpty) {
+      ProgressManager.checkCanceled()
+      val scopedModule = stack.pop()
+      visited += scopedModule
+      ModuleUtilCore
+        .getAllDependentModules(scopedModule.module)
+        .asScala
+        .flatMap(moduleScopes)
+        .filter(!visited.contains(_))
+        .foreach(stack.push)
+    }
+
+    visited.toSet
+  }
 
   private[references] def compilationInfoIndexed(info: CompilationInfo): Unit = {
     val modules = info.affectedModules(project)

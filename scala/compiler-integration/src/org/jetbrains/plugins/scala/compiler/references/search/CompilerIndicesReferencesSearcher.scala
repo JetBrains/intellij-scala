@@ -249,7 +249,13 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     val index            = ProjectFileIndex.getInstance(project)
     val modules          = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
     val dirtyScopeHolder = ScalaCompilerReferenceService(project).getDirtyScopeHolder
-    val dirtyScopes      = dirtyScopeHolder.dirtyScope
+    val dirtyScopes =
+      ProgressManager.getInstance().runProcessWithProgressSynchronously(
+        () => dirtyScopeHolder.dirtyScope,
+        CompilerIntegrationBundle.message("calculating.dirty.scopes"),
+        false,
+        project
+      )
     modules.partition(dirtyScopes.isSearchInModuleContent)
   }
 

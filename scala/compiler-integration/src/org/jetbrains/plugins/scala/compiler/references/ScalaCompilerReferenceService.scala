@@ -275,7 +275,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
     dirtyScopeHolder.markProjectAsOutdated()
-    dirtyScopeHolder.installVFSListener()
+    dirtyScopeHolder.installVFSListener(this)
 
     invokeOnDispose(project.unloadAwareDisposable) {
       openCloseLock.withLock {
