@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{KEYWORDS, SOFT_KE
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScalaNamesValidator extends NamesValidator {
-
-  private val lexerCache: UnloadableThreadLocal[ScalaLexer] = new UnloadableThreadLocal(new ScalaLexer(false, null))
+  import ScalaNamesValidator.lexerCache
 
   private val keywordNames: Set[String] = KEYWORDS.getTypes
     .iterator
@@ -52,4 +51,7 @@ object ScalaNamesValidator {
 
   private def validator: NamesValidator =
     LanguageNamesValidation.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
+
+  private val lexerCache: UnloadableThreadLocal[ScalaLexer] =
+    new UnloadableThreadLocal(new ScalaLexer(false, null))
 }
