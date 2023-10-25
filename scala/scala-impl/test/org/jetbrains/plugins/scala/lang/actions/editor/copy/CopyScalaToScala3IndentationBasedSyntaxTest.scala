@@ -107,6 +107,57 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
+
+  //TODO: to make it work we MIGHT to patch the platform
+  // during paste it tries to reformat only the inserted code
+  // However it breaks the indentation of the entire block
+  def _testPasteToWronglyIndentedContextCode(): Unit = {
+    doTestWithAllSelections(
+      s"""${START}1
+         |2
+         |3${END}""".stripMargin,
+      s"""def bar =
+         |     42
+         |     $Caret
+         |     42
+         |""".stripMargin,
+      s"""def bar =
+         |     42
+         |     1
+         |     2
+         |     3
+         |     42
+         |""".stripMargin,
+    )
+  }
+
+  //TODO: to make it work we MIGHT to patch the platform
+  // during paste it tries to reformat only the inserted code
+  // However it breaks the indentation of the entire block
+  def _testPasteToWronglyIndentedContextCode_WithExtension(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |""".stripMargin
+    val to =
+      s"""object Example {
+         |     def foo = ???
+         |  $Caret
+         |}""".stripMargin
+    val after =
+      """object Example {
+        |     def foo = ???
+        |
+        |     case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |     extension (c: Circle)
+        |       def circumference: Double = c.radius * math.Pi * 2
+        |}""".stripMargin
+    doTestWithAllSelections(from, to, after)
+  }
+
   def testExtension_1(): Unit = {
     val from =
       s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
@@ -729,7 +780,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
-         |  /* foo */ def foo() =
+         |  /* foo */def foo() =
          |    def baz() =
          |      print(1)
          |    baz()
@@ -831,6 +882,29 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  print(2)
          |  1
          |2
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
+  }
+
+  def testLesserIndentation_PasteToTheMiddleOfBlock(): Unit = {
+    val from =
+      s"""object A:
+         |  def foo() =
+         |    ${Start}1
+         |  2$End
+         |""".stripMargin
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |  print(3)
+         |""".stripMargin
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  1
+         |  2
+         |  print(3)
          |""".stripMargin
     doTestWithAllSelections(from, to, after)
   }
@@ -1099,6 +1173,132 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    3$Caret
          |class other
          |""".stripMargin,
+    )
+  }
+
+  def testCutAndPasteInMethodCalChainHint_1(): Unit = {
+    doTestCutAndPasteDoesNotBreakTheCode(
+      s"""
+         |object Example:
+         |  def foo =
+         |    "value"
+         |      .toString
+         |      $Start.toString
+         |      .toString$END
+         |""".stripMargin
+    )
+  }
+
+  //TODO: uncomment and fix
+  //  def testCutAndPasteInMethodCalChainHint_2(): Unit = {
+  //    doTestCutAndPasteDoesNotBreakTheCode(
+  //      s"""
+  //         |object Example:
+  //         |  def foo =
+  //         |    "value"
+  //         |      .toString
+  //         |$Start      .toString
+  //         |      .toString   $END
+  //         |""".stripMargin
+  //    )
+  //  }
+
+  def testCutAndPasteInMethodCalChainHint_3(): Unit = {
+    doTestCutAndPasteDoesNotBreakTheCode(
+      s"""
+         |object Example:
+         |  def foo =
+         |    "value"
+         |      .toString
+         |      $Start.toString
+         |      .toString$END
+         |      .toString
+         |""".stripMargin
+    )
+  }
+
+  //TODO: uncomment and fix
+  //  def testCutAndPasteInMethodCalChainHint_4(): Unit = {
+  //    doTestCutAndPasteDoesNotBreakTheCode(
+  //      s"""
+  //         |object Example:
+  //         |  def foo =
+  //         |    "value"
+  //         |      .toString
+  //         |$Start      .toString
+  //         |      .toString   $END
+  //         |      .toString
+  //         |""".stripMargin
+  //    )
+  //  }
+
+  def testDoNotTriggerPasteProcessingInsideMultilineStringLiteral(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""\"\"\"def foo =
+         |  |      $CARET
+         |  |\"\"\".stripMargin
+         |""".stripMargin,
+      s"""\"\"\"def foo =
+         |  |          42$CARET
+         |  |\"\"\".stripMargin
+         |""".stripMargin,
+    )
+  }
+
+  def testDoNotTriggerPasteProcessingInsideBlockComment(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""/*
+         | * def foo =
+         | *        $CARET
+         | */""".stripMargin,
+      s"""/*
+         | * def foo =
+         | *            42$CARET
+         | */""".stripMargin,
+    )
+  }
+
+  def testDoNotTriggerPasteProcessingInsideScalaDocComment(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""/**
+         | * def foo =
+         | *        $CARET
+         | */""".stripMargin,
+      s"""/**
+         | * def foo =
+         | *            42$CARET
+         | */""".stripMargin,
+    )
+  }
+
+  def testDoNotTriggerPasteProcessingInsideLineComment(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""//line    ${CARET}comment""".stripMargin,
+      s"""//line        42${CARET}comment""".stripMargin,
+    )
+  }
+
+  def testDoNotTriggerPasteProcessingInsideLineCommentInTheEnd(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""//comment      $CARET""".stripMargin,
+      s"""//comment          42$CARET""".stripMargin,
+    )
+  }
+
+  def testDoNotTriggerPasteProcessingInsideLineCommentInTheEnd_1(): Unit = {
+    doPasteTest(
+      "    42",
+      s"""//comment      $CARET
+         |
+         |class A""".stripMargin,
+      s"""//comment          42$CARET
+         |
+         |class A""".stripMargin,
     )
   }
 }

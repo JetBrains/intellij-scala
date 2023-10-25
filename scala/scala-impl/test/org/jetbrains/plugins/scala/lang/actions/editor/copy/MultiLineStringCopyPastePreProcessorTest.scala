@@ -1,10 +1,18 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 // TODO: maybe, taking into account that there is too much escaping, we should move these tests to files?
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest
+))
 class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
 
   override protected def setUp(): Unit = {
@@ -39,10 +47,22 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     }
   }
 
-  def testSimple(): Unit = doTest(
+  def testPasteToIntLiteral_Start(): Unit = doTest(
+    s"""val x = ${Start}42$End""",
+    s"""val y = ${Caret}23""",
+    s"""val y = 4223"""
+  )
+
+  def testPasteToIntLiteral_Middle(): Unit = doTest(
     s"""val x = ${Start}42$End""",
     s"""val y = 2${Caret}3""",
     s"""val y = 2423"""
+  )
+
+  def testPasteToIntLiteral_End(): Unit = doTest(
+    s"""val x = ${Start}42$End""",
+    s"""val y = 23$Caret""",
+    s"""val y = 2342"""
   )
 
   def testFromMultilineStringToEmptyFile(): Unit = {
@@ -848,7 +868,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   //SCL-20646
-  def testCopyMultilineStringAndPasteAfterAssign(): Unit = {
+  def testCopyMultilineStringAndPasteAfterAssign_WithSomeContent(): Unit = {
     val from =
       s"""val a = 1
          |
@@ -862,6 +882,33 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
 
     val to =
       s"""val testTarget = $Start$Caret"This string will be replaced with 'testSource'"$End
+         |""".stripMargin
+
+    val after =
+      """val testTarget =
+        |  s'''Test
+        |     |  a = ${a}
+        |     |  b = ${b}
+        |     |  c = ${c}
+        |     |'''.stripMargin
+        |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  def testCopyMultilineStringAndPasteAfterAssign_WithSomeContent_NonString(): Unit = {
+    val from =
+      s"""val a = 1
+         |
+         |val testSource =
+         |  $Start${Caret}s'''Test
+         |    |  a = $${a}
+         |    |  b = $${b}
+         |    |  c = $${c}
+         |    |'''.stripMargin$End
+         |""".stripMargin
+
+    val to =
+      s"""val testTarget = $Start${Caret}42$End
          |""".stripMargin
 
     val after =

@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala.editor
 
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScIf, ScWhile}
-
-import scala.annotation.tailrec
 
 // TODO rework this
 // TODO test this
@@ -58,37 +55,39 @@ object Scala3IndentationBasedSyntaxUtils {
     case _ => !outdentedRegionCanStart(leaf)
   }
 
-  def indentWhitespace(element: PsiElement, endOffset: Int, ignoreComments: Boolean, ignoreElementsOnLine: Boolean): String = {
-    var indent = ""
+  def isNotIndentedAtFirstColumn(element: PsiElement): Boolean =
+    indentWhitespace(element).exists(_.isEmpty)
 
-    @tailrec
-    def inner(el: PsiElement, first: Boolean = true): String = el match {
-      case null => indent
-      case ws: PsiWhiteSpace =>
-        val wsTextToEndOffset = ws.getText.substring(0, Math.min(ws.getTextLength, endOffset - ws.startOffset))
-        val wsLineBreak = wsTextToEndOffset.lastIndexOf('\n')
-        if (wsLineBreak >= 0)
-          wsTextToEndOffset.substring(wsLineBreak + 1) + indent
-        else {
-          indent = wsTextToEndOffset + indent
-          inner(PsiTreeUtil.prevLeaf(el), first = false)
-        }
-      case _: PsiComment if ignoreComments || first =>
-        inner(PsiTreeUtil.prevLeaf(el), first = false)
-      case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
-        inner(PsiTreeUtil.prevLeaf(el), first = false)
-      case _ if ignoreElementsOnLine || first =>
-        indent = ""
-        inner(PsiTreeUtil.prevLeaf(el), first = false)
-      case _ => ""
+  private def indentWhitespace(element: PsiElement): Option[String] =
+    calcIndentationString(element, element.startOffset)
+
+  /**
+   * @return Some indentation string if element starts from a new line<br>
+   *         None if element doesn't start form a new line
+   */
+  def calcIndentationString(
+    element: PsiElement,
+    endOffset: Int,
+  ): Option[String] = {
+    val whiteSpaceOrPrevious = element match {
+      case ws: PsiWhiteSpace => ws
+      case el => el.getPrevNonEmptyLeaf
     }
-
-    inner(element)
+    whiteSpaceOrPrevious match {
+      case ws: PsiWhiteSpace =>
+        calcWhitespaceIndent(ws, endOffset)
+      case _ =>
+        None
+    }
   }
 
-  @inline
-  def isNotIndentedAtFirstColumn(element: PsiElement): Boolean = {
-    val indent = indentWhitespace(element, element.endOffset, ignoreComments = true, ignoreElementsOnLine = false)
-    indent != null && indent.isEmpty
+  private def calcWhitespaceIndent(ws: PsiWhiteSpace, endOffset: Int) = {
+    val wsText = ws.getText
+    val wsTextToEndOffset = wsText.substring(0, (endOffset - ws.startOffset).min(ws.getTextLength))
+    val wsLineBreak = wsTextToEndOffset.lastIndexOf('\n')
+    if (wsLineBreak >= 0)
+      Some(wsTextToEndOffset.substring(wsLineBreak + 1))
+    else
+      None
   }
 }
