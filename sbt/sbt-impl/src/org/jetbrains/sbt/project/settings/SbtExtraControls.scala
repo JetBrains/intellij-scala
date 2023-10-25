@@ -23,7 +23,7 @@ final class SbtExtraControls {
   val useSbtShellForImportCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForImport"), SbtBundle.message("sbt.settings.useShellForImport.tooltip"))
   val useSbtShellForBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForBuild"), SbtBundle.message("sbt.settings.useShellForBuild.tooltip"))
   val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
-  val scalaVersionPreferenceComboBox = new com.intellij.openapi.ui.ComboBox(Array("Scala 2", "Scala 3"))
+  val scalaVersionPreferenceCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.scalaVersionPreference"), SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip"))
   val groupProjectsFromSameBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("group.projects.from.the.same.build"), SbtBundle.message("group.projects.from.the.same.build.tooltip"))
 
   locally {
@@ -32,19 +32,10 @@ final class SbtExtraControls {
     def gc(row: Int, column: Int, rowSpan: Int, colSpan: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false)
 
-    val scalaVersionPreferencePanel = {
-      val panel = new JPanel()
-      panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
-      panel.add(new JBLabel(SbtBundle.message("sbt.settings.scalaVersionPreference")))
-      panel.add(Box.createRigidArea(new Dimension(10, 0)))
-      panel.add(withTooltip(scalaVersionPreferenceComboBox, SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip")))
-      panel
-    }
-
     content.add(new JBLabel(SbtBundle.message("sbt.settings.download")), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, 16), null, 0, false))
     content.add(resolveClassifiersCheckBox.panelWithTooltip, gc(0, 1, 1, 1))
     content.add(resolveSbtClassifiersCheckBox.panelWithTooltip, gc(1, 1, 1, 1))
-    content.add(scalaVersionPreferencePanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
+    content.add(scalaVersionPreferenceCheckBox.panelWithTooltip, gc(2, 0, 1, 2))
     content.add(groupProjectsFromSameBuildCheckBox.panelWithTooltip, gc(3, 0, 1, 2))
     content.add(new TitledSeparator(SbtBundle.message("sbt.settings.shell.title")), new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false))
     content.add(new JBLabel(SbtBundle.message("sbt.settings.useShell")), new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false))
