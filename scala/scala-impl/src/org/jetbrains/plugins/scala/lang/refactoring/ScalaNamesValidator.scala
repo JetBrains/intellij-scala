@@ -7,11 +7,11 @@ import com.intellij.openapi.util.text.StringUtil.isEmpty
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{KEYWORDS, SOFT_KEYWORDS, tIDENTIFIER}
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScalaNamesValidator extends NamesValidator {
 
-  private val lexerCache: RichThreadLocal[ScalaLexer] = new RichThreadLocal(new ScalaLexer(false, null))
+  private val lexerCache: UnloadableThreadLocal[ScalaLexer] = new UnloadableThreadLocal(new ScalaLexer(false, null))
 
   private val keywordNames: Set[String] = KEYWORDS.getTypes
     .iterator

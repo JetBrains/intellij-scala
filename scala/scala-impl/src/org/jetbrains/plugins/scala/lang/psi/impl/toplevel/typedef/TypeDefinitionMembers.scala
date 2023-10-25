@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.{util => ju}
 
@@ -140,7 +140,7 @@ object TypeDefinitionMembers {
   }
 
   /** Take extra care to avoid reentrancy issues when processing package objects */
-  private[this] val processing: RichThreadLocal[ju.Map[String, java.lang.Long]] = new RichThreadLocal(new ju.HashMap)
+  private[this] val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = new UnloadableThreadLocal(new ju.HashMap)
 
   private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
     processing.value.getOrDefault(fqn, 0L) != 0L
