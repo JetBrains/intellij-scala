@@ -318,6 +318,8 @@
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
         </intentionAction>
+
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$ConfigureShortcuts"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">
