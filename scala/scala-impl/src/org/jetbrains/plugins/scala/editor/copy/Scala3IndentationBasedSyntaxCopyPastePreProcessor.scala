@@ -17,30 +17,8 @@ import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
-  override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
-    if (!file.is[ScalaFile] || !ScalaApplicationSettings.getInstance.INDENT_PASTED_LINES_AT_CARET)
-      return null
-
-    if (startOffsets.length != 1 || endOffsets.length != 1)
-      return null
-
-    // only change indentation for multi-line texts
-    if (!text.contains('\n'))
-      return null
-
-    // get first non-whitespace element in selection
-    var firstElement = file.findElementAt(startOffsets(0)).toOption
-    if (firstElement.exists(el => el.isWhitespace || el.is[PsiComment]))
-      firstElement = firstElement.get.nextVisibleLeaf(true)
-
-    if (firstElement.isEmpty || endOffsets(0) <= firstElement.get.startOffset)
-    // selection contains only whitespace or comments
-      return null
-
-    // add complete first-line indent to text
-    val leadingSpaceOnLine = indentWhitespace(firstElement.get)
-    leadingSpaceOnLine + text.dropWhile(c => c == ' ' || c == '\t')
-  }
+  override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String =
+    null
 
   // the formatter is always run on pasted snippets, so we just need to adjust indentation so that the formatter recognizes it
   // this only called on single caret, paste for multiple carets is handled as raw text

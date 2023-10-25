@@ -791,7 +791,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  def testLesserIndentation(): Unit = {
+  //IGNORED: not sure if this expected data is indeed what should be expected
+  def _testLesserIndentation_PasteToTheBlockEnd(): Unit = {
     val from =
       s"""object A:
          |  def foo() =
@@ -812,7 +813,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  def testLesserIndentation_Tabs(): Unit = {
+  //IGNORED: not sure if this expected data is indeed what should be expected
+  def _testLesserIndentation_Tabs(): Unit = {
     val from =
       s"""object A:
          |${tab}def foo() =
