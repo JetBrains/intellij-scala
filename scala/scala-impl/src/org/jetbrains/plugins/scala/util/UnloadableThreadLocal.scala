@@ -37,4 +37,10 @@ private[scala] final class UnloadableThreadLocal[T](init: => T) {
     try body
     finally value = save
   }
+
+  def update(f: T => T): Unit = {
+    val oldValue = value
+    val newValue = f(oldValue)
+    value = newValue
+  }
 }

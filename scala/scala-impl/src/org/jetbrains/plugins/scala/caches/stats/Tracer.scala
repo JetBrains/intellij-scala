@@ -13,9 +13,9 @@ class Tracer private (val id: String, val name: String) {
   private val maxCalculationTime      = new AtomicLong(0)
   private val totalCalculationTime    = new AtomicLong(0)
   private val ownCalculationTime      = new AtomicLong(0)
-  private val currentCalculationStart = ThreadLocal.withInitial[java.lang.Long](() => null)
-  private val lastUpdate              = ThreadLocal.withInitial[java.lang.Long](() => null)
-  private val recursionDepth          = ThreadLocal.withInitial[Int](() => 0)
+  private val currentCalculationStart = new UnloadableThreadLocal[java.lang.Long](null)
+  private val lastUpdate              = new UnloadableThreadLocal[java.lang.Long](null)
+  private val recursionDepth          = new UnloadableThreadLocal[Int](0)
 
   private val parentCallCounters      = new MyConcurrentMap[Tracer, AtomicInteger]
 
@@ -28,9 +28,9 @@ class Tracer private (val id: String, val name: String) {
     pushNested(currentTime)
 
     actualCounter.incrementAndGet()
-    if (recursionDepth.get == 1) {
-      currentCalculationStart.set(currentTime)
-      lastUpdate.set(currentTime)
+    if (recursionDepth.value == 1) {
+      currentCalculationStart.value = currentTime
+      lastUpdate.value = currentTime
     }
   }
 
@@ -39,19 +39,19 @@ class Tracer private (val id: String, val name: String) {
 
     updateTotalTime(currentTime, isNested = false)
 
-    if (recursionDepth.get == 1) {
-      val duration = currentTime - currentCalculationStart.get()
+    if (recursionDepth.value == 1) {
+      val duration = currentTime - currentCalculationStart.value
       maxCalculationTime.updateAndGet(_ max duration)
 
-      currentCalculationStart.set(null)
-      lastUpdate.set(null)
+      currentCalculationStart.value = null
+      lastUpdate.value = null
     }
 
     popNested(currentTime)
   }
 
   private def pushNested(currentTime: Long): Unit = {
-    recursionDepth.set(recursionDepth.get + 1)
+    recursionDepth.update(_ + 1)
 
     val tracers = currentTracers.value
     tracers match {
@@ -73,18 +73,18 @@ class Tracer private (val id: String, val name: String) {
       case _ =>
     }
 
-    recursionDepth.set(recursionDepth.get - 1)
+    recursionDepth.update(_ - 1)
   }
 
   private def updateTotalTime(currentTime: Long, isNested: Boolean): Unit = {
-    if (recursionDepth.get == 1) {
-      val delta = currentTime - lastUpdate.get
+    if (recursionDepth.value == 1) {
+      val delta = currentTime - lastUpdate.value
 
       if (!isNested)
         ownCalculationTime.addAndGet(delta)
 
       totalCalculationTime.addAndGet(delta)
-      lastUpdate.set(currentTime)
+      lastUpdate.value = currentTime
     }
   }
 
@@ -151,5 +151,4 @@ object Tracer {
   private def roundToMillis(nanos: Long): Int = Math.round(nanos.toDouble / (1000 * 1000)).toInt
 
   private val currentTracers: UnloadableThreadLocal[List[Tracer]] = new UnloadableThreadLocal(Nil)
-
 }
