@@ -100,21 +100,22 @@ object ScalaDfaTypeUtils {
     }
 
     extractedClass match {
-      case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
+      case Some(psiClass) if psiClass.qualifiedNameOpt.exists(_.startsWith(s"$ScalaCollectionImmutable.Nil")) =>
         dfTypeImmutableCollectionFromSize(0)
       case Some(psiClass) if psiClass.qualifiedName == ScalaNone || psiClass.qualifiedName == ScalaNothing => DfType.TOP
       case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
-      case Some(psiClass) => psiClass.qualifiedName match {
-        case "scala.Int" => DfTypes.INT
-        case "scala.Long" => DfTypes.LONG
-        case "scala.Float" => DfTypes.FLOAT
-        case "scala.Double" => DfTypes.DOUBLE
-        case "scala.Boolean" => DfTypes.BOOLEAN
-        case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
-        case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
-        case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
-        case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
-      }
+      case Some(psiClass) =>
+        psiClass.qualifiedName match {
+          case "scala.Int" => DfTypes.INT
+          case "scala.Long" => DfTypes.LONG
+          case "scala.Float" => DfTypes.FLOAT
+          case "scala.Double" => DfTypes.DOUBLE
+          case "scala.Boolean" => DfTypes.BOOLEAN
+          case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
+          case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
+          case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
+          case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
+        }
       case _ => DfType.TOP
     }
   }
