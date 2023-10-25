@@ -86,8 +86,9 @@ object Scala3IndentationBasedSyntaxUtils {
     inner(element)
   }
 
-  @inline def indentWhitespace(element: PsiElement, ignoreComments: Boolean = true, ignoreElementsOnLine: Boolean = false): String =
-    indentWhitespace(element, element.endOffset, ignoreComments, ignoreElementsOnLine)
-
-  @inline def isIndented(element: PsiElement): Boolean = indentWhitespace(element).isEmpty
+  @inline
+  def isNotIndentedAtFirstColumn(element: PsiElement): Boolean = {
+    val indent = indentWhitespace(element, element.endOffset, ignoreComments = true, ignoreElementsOnLine = false)
+    indent != null && indent.isEmpty
+  }
 }

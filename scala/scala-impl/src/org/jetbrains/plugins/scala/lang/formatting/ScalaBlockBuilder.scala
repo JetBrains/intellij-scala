@@ -81,8 +81,7 @@ final class ScalaBlockBuilder(
         subBlocks.addAll(getCaseClauseGroupSubBlocks(node))
         return subBlocks
       case _: ScIf =>
-        val alignment = if (ss.ALIGN_IF_ELSE) Alignment.createAlignment
-        else null
+        val alignment = if (ss.ALIGN_IF_ELSE) Alignment.createAlignment else null
         subBlocks.addAll(getIfSubBlocks(node, alignment))
         return subBlocks
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement =>
@@ -130,9 +129,11 @@ final class ScalaBlockBuilder(
       case paramClause: ScParameterClause =>
         paramClause.putUserData(typeParameterTypeAnnotationAlignmentsKey, Alignment.createAlignment(true))
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.is[PsiComment] =>
+        //Comments before definitions are attached to the definition element in parser (see org.jetbrains.plugins.scala.lang.parser.ScalaTokenBinders)
+        //Here we unbind them and create separate block for such comments
         val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isNotEmptyNode)
-        val childHead :: childTail = childrenFiltered.toList
-        subBlocks.add(subBlock(childHead))
+        val (leadingComments, otherChildren) = childrenFiltered.span(_.getPsi.is[PsiComment])
+        leadingComments.map(subBlock(_)).foreach(subBlocks.add)
         val indent: Indent = {
           val prevNonWsNode: Option[PsiElement] = psi.prevSibling match {
             case Some(prev@Whitespace(s)) =>
@@ -148,7 +149,7 @@ final class ScalaBlockBuilder(
               Indent.getNoneIndent
           }
         }
-        subBlocks.add(subBlock(childTail.head, childTail.last, null, Some(indent)))
+        subBlocks.add(subBlock(otherChildren.head, otherChildren.last, null, Some(indent)))
         return subBlocks
       case _ =>
     }
