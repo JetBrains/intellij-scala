@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap
  * are pooled. This means that the threads will outlive our unloaded plugin and still keep strong references to
  * instances of classes from the Scala plugin.
  */
-private[scala] final class UnloadableThreadLocal[T](init: => T) {
+final class UnloadableThreadLocal[T](init: => T) {
   // Every native thread has a single JVM Thread instance associated with it, so we can safely use the instances
   // as keys in a map (and don't have to resort to their id, for example).
   private val references: ConcurrentMap[Thread, T] = ContainerUtil.createConcurrentWeakMap[Thread, T]()
