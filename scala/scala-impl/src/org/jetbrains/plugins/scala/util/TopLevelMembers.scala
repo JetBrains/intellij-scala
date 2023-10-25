@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.sun.jdi.ReferenceType
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt}
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -42,14 +41,18 @@ private[scala] object TopLevelMembers {
     members.exists(!_.is[ScTypeDefinition])
   }
 
-  def findFileWithTopLevelMembers(scope: ElementScope, originalQName: String): Option[PsiFile] = {
-    val path = originalQName.stripSuffix(classSuffix)
+  def findFileWithTopLevelMembers(
+    scope:         GlobalSearchScope,
+    originalQName: String,
+    suffix:        String = classSuffix
+  ): Option[ScalaFile] = {
+    val path = originalQName.stripSuffix(suffix)
     val (packageName, fileName) = path.lastIndexOf('.') match {
       case lastDot if lastDot > 0 => (path.substring(0, lastDot), path.substring(lastDot + 1) + ".scala")
       case _ => ("", path + ".scala")
     }
     @nowarn("cat=deprecation")
-    val files = FilenameIndex.getFilesByName(scope.project, fileName, scope.scope)
+    val files = FilenameIndex.getFilesByName(scope.getProject, fileName, scope)
 
     val condition: ScalaFile => Boolean = (file: ScalaFile) =>
       if (packageName.isEmpty) file.firstPackaging.isEmpty

@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.util.TopLevelMembers
 
 import java.util
 import java.util.Collections
@@ -33,15 +34,25 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
         o.fakeCompanionClass
       case e: ScEnum => Some(e)
     }
+
     val x$: Seq[Option[PsiClass]] = classesWoSuffix("$").collect {
       case c: ScTypeDefinition =>
         c.fakeCompanionModule
     }
+
     val x$class: Seq[Option[PsiClass]] = classesWoSuffix("$class").collect {
       case c: ScTrait =>
         Option(c.fakeCompanionClass)
     }
-    (x ++ x$ ++ x$class).flatten.toArray
+
+    val topLevelSourceSuffix = "$package"
+    val src$packageObject: Option[PsiClass] =
+      if (qualifiedName.contains(topLevelSourceSuffix)) {
+        val targetFile = TopLevelMembers.findFileWithTopLevelMembers(scope, qualifiedName, topLevelSourceSuffix)
+        targetFile.flatMap(_.topLevelWrapperObject)
+      } else None
+
+    (x ++ x$ ++ x$class :+ src$packageObject).flatten.toArray
   }
 
   override def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = {
