@@ -13,9 +13,10 @@ class Tracer private (val id: String, val name: String) {
   private val maxCalculationTime      = new AtomicLong(0)
   private val totalCalculationTime    = new AtomicLong(0)
   private val ownCalculationTime      = new AtomicLong(0)
-  private val currentCalculationStart = new UnloadableThreadLocal[java.lang.Long](null)
-  private val lastUpdate              = new UnloadableThreadLocal[java.lang.Long](null)
   private val recursionDepth          = new UnloadableThreadLocal[Int](0)
+  // The following two thread local values are only valid after setting them to some value.
+  private val currentCalculationStart = new UnloadableThreadLocal[Long](0L)
+  private val lastUpdate =              new UnloadableThreadLocal[Long](0L)
 
   private val parentCallCounters      = new MyConcurrentMap[Tracer, AtomicInteger]
 
@@ -42,9 +43,6 @@ class Tracer private (val id: String, val name: String) {
     if (recursionDepth.value == 1) {
       val duration = currentTime - currentCalculationStart.value
       maxCalculationTime.updateAndGet(_ max duration)
-
-      currentCalculationStart.value = null
-      lastUpdate.value = null
     }
 
     popNested(currentTime)

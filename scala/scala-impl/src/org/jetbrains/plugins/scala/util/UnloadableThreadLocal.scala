@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentMap
  * that hold references to values use strong references to the values. Additionally, threads in IntelliJ IDEA
  * are pooled. This means that the threads will outlive our unloaded plugin and still keep strong references to
  * instances of classes from the Scala plugin.
+ *
+ * @note `null` values cannot be stored in this thread local, because the underlying map does not support them.
  */
 final class UnloadableThreadLocal[T](init: => T) {
   // Every native thread has a single JVM Thread instance associated with it, so we can safely use the instances
