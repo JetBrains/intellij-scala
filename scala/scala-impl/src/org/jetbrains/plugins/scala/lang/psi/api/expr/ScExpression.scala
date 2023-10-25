@@ -439,7 +439,7 @@ object ScExpression {
 
     /**
      * if the expected type of an expression E is a context function type (T_1, ..., T_n) ?=> U and
-     * E is not already an context function literal, E is converted to a context function literal by rewriting it to
+     * E is not already a context function literal, E is converted to a context function literal by rewriting it to
      * (x_1: T1, ..., x_n: Tn) ?=> E
      */
     final def synthesizeContextFunctionType(pt: Option[ScType], expr: ScExpression)(implicit scope: ElementScope): ScType =

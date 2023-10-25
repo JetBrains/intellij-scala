@@ -310,6 +310,12 @@ object InferUtil {
       case _                               => true
     }
 
+    val ptUnwrapped = expectedType match {
+      case Some(ContextFunctionType(retTpe, _)) => retTpe.toOption
+      case other                                => other
+    }
+
+
     @tailrec
     def shouldSearchImplicit(t: ScType, ptConstraints: ConstraintSystem, first: Boolean = true): Boolean = t match {
       case ScMethodType(_, params, isImplicit) if isImplicit =>
@@ -385,7 +391,7 @@ object InferUtil {
       else                                                             result
     }
 
-    val nonValueType = (_nonValueType, expectedType) match {
+    val nonValueType = (_nonValueType, ptUnwrapped) match {
       case (tpt: ScTypePolymorphicType, Some(expected)) if !expected.equiv(Unit) =>
         doLocalTypeInference(tpt, expected)
       case _                                                                     =>
@@ -455,10 +461,10 @@ object InferUtil {
           truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters)
         } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters)
 
-        if (expectedType.forall(canConform.conforms)) tpt
-        else tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+        if (ptUnwrapped.forall(canConform.conforms)) tpt
+        else tpt.copy(internalType = applyImplicitViewToResult(mt, ptUnwrapped))
       case mt: ScMethodType =>
-        applyImplicitViewToResult(mt, expectedType)
+        applyImplicitViewToResult(mt, ptUnwrapped)
       case t => t
     }
   }
