@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments
 
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.TransformationFailedException
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScInfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -81,7 +81,7 @@ object ArgumentFactory {
     implicit val context: ProjectContext = invocation.getProject
     val tupleArgument = wrapInTupleExpression(invocation.argumentExpressions)
     val tupleParameter = Parameter(invocation.target.get.element match {
-      case function: ScFunction => function.parameters.head
+      case function: PsiMethod => function.getParameterList.getParameter(0)
       case _ => throw TransformationFailedException(invocation, "Auto-tupling used not on something other than ScFunction")
     })
 
