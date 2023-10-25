@@ -31,6 +31,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       case matchExpression: ScMatch => transformMatchExpression(matchExpression, rreq)
       case throwStatement: ScThrow => transformThrowStatement(throwStatement, rreq)
       case returnStatement: ScReturn => transformReturnStatement(returnStatement, rreq)
+      case invok: ScSelfInvocation => transformSelfInvocation(invok, rreq)
       case _: ScUnitExpr => rreq.result(pushUnit())
       case _: ScTemplateDefinition => pushUnknownValue(rreq)
       case _ => throw TransformationFailedException(expr, "Unsupported expression.")
@@ -234,5 +235,11 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
 
     ret(returnStatement.expr)
     pushUnknownValue(rreq)
+  }
+
+  private def transformSelfInvocation(invocation: ScSelfInvocation, rreq: ResultReq): rreq.Result = {
+    unsupported(invocation) {
+      buildUnknownCall(rreq)
+    }
   }
 }
