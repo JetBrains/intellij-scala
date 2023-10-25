@@ -10,12 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 final class ScalaBlankLineContextType
   extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.blank.line")) {
 
+  private val TreatEofAsBlankLine = true
+
   override protected def isInContext(offset: Int)
                                     (implicit file: ScalaFile): Boolean = {
     val element = file.findElementAt(offset)
     element match {
-      case (_: LeafPsiElement) & Parent(ref: ScReference) => // some prefix of `apply`
-        ref.startsFromNewLine(false) && ref.followedByNewLine(false)
+      case null =>
+        TreatEofAsBlankLine //EOF (this can happen in live template tests which do not use completion, in this case no special identifier is added)
+      case (_: LeafPsiElement) & Parent(ref: ScReference) =>
+        // some prefix of live template, ends with "IntellijIdeaRulezzz" (special identifier added during completion)
+        ref.startsFromNewLine(false) && ref.followedByNewLine(ignoreComments = false, treatEofAsNewLine = TreatEofAsBlankLine)
       case ws: PsiWhiteSpace =>
         // this check can be not enough when a user tries to search for some template
         // without typing at least 1 it's prefix char, for example:

@@ -786,10 +786,16 @@ package object extensions {
       inner(PsiTreeUtil.prevLeaf(element))
     }
 
-    def followedByNewLine(ignoreComments: Boolean = true): Boolean = {
+    def followedByNewLine(ignoreComments: Boolean = true): Boolean =
+      followedByNewLine(ignoreComments, treatEofAsNewLine = false)
+
+    def followedByNewLineOrEof(ignoreComments: Boolean = true): Boolean =
+      followedByNewLine(ignoreComments, treatEofAsNewLine = true)
+
+    def followedByNewLine(ignoreComments: Boolean, treatEofAsNewLine: Boolean): Boolean = {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
-        case null => false
+        case null => treatEofAsNewLine
         case ws: PsiWhiteSpace =>
           if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.nextLeaf(el))
