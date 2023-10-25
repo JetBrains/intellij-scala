@@ -1,15 +1,12 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package impl
+package org.jetbrains.plugins.scala.codeInsight.template.impl
 
+import com.intellij.codeInsight.template.TemplateActionContext
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api._
 
 final class ScalaXmlContextType
   extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.xml")) {
 
-  override protected def isInContext(offset: Int)
-                                    (implicit file: ScalaFile): Boolean =
-    ScalaFileTemplateContextType.isInContext(offset, classOf[expr.xml.ScXmlExpr])()
+  protected def isInContextInScalaFile(context: TemplateActionContext)(implicit file: ScalaFile): Boolean =
+    ScalaFileTemplateContextType.isInContext(context, classOf[expr.xml.ScXmlExpr])()
 }

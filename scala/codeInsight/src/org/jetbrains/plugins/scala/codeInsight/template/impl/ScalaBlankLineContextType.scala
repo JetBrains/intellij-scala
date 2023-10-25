@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.template.impl
 
+import com.intellij.codeInsight.template.TemplateActionContext
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -12,12 +13,15 @@ final class ScalaBlankLineContextType
 
   private val TreatEofAsBlankLine = true
 
-  override protected def isInContext(offset: Int)
-                                    (implicit file: ScalaFile): Boolean = {
+  protected def isInContextInScalaFile(context: TemplateActionContext)(implicit file: ScalaFile): Boolean = {
+    val offset = context.getStartOffset
     val element = file.findElementAt(offset)
     element match {
       case null =>
-        TreatEofAsBlankLine //EOF (this can happen in live template tests which do not use completion, in this case no special identifier is added)
+        //EOF this can happen following cases:
+        // - via action "Insert Live Template"
+        // - in tests for live template tests (they normally do not use completion, in this case no special identifier is added)
+        TreatEofAsBlankLine
       case (_: LeafPsiElement) & Parent(ref: ScReference) =>
         // some prefix of live template, ends with "IntellijIdeaRulezzz" (special identifier added during completion)
         ref.startsFromNewLine(false) && ref.followedByNewLine(ignoreComments = false, treatEofAsNewLine = TreatEofAsBlankLine)

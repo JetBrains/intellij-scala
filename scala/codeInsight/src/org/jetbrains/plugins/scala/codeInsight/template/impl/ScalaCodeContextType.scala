@@ -1,15 +1,14 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package impl
+package org.jetbrains.plugins.scala.codeInsight.template.impl
 
+import com.intellij.codeInsight.template.TemplateActionContext
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 final class ScalaCodeContextType
   extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.code")) {
 
-  override protected def isInContext(offset: Int)
-                                    (implicit file: ScalaFile): Boolean =
-    !(ScalaCommentContextType.isInContext(offset) ||
-      ScalaStringContextType.isInContext(offset))
+  protected def isInContextInScalaFile(context: TemplateActionContext)(implicit file: ScalaFile): Boolean = {
+    !(ScalaCommentContextType.isInContext(context) ||
+      ScalaStringContextType.isInContext(context))
+  }
 }

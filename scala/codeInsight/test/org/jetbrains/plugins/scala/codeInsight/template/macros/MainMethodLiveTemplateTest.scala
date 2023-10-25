@@ -58,6 +58,15 @@ class MainMethodLiveTemplateTest extends ScalaLiveTemplateTestBase {
     )
   }
 
+  def testNotAvailableAtNonBlankLine_EndOfLineComment(): Unit = {
+    assertIsNotApplicable(
+      s"""object Example {
+         |  //${CARET}
+         |}
+         |""".stripMargin
+    )
+  }
+
   def testInIndentationBasedSyntaxBeforeEof(): Unit = {
     doTest(
       s"""object Example:
