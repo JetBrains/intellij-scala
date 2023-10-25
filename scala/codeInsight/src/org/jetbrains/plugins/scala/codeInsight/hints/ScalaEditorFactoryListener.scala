@@ -41,9 +41,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
   private val editorFocusListener = new FocusAdapter {
     override def focusLost(e: FocusEvent): Unit = {
-      if (xRayMode) {
-        xRayMode = false
-      }
+      xRayMode = false
       keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
@@ -74,9 +72,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
 
     override def keyReleased(e: KeyEvent): Unit = {
-      if (xRayMode) {
-        xRayMode = false
-      }
+      xRayMode = false
       keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
@@ -94,19 +90,19 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
   private def xRayMode: Boolean = ScalaHintsSettings.xRayMode
 
-  private def xRayMode_=(b: Boolean): Unit = {
-    if (b) {
+  private def xRayMode_=(enabled: Boolean): Unit = {
+    if (ScalaHintsSettings.xRayMode == enabled) return
+
+    ScalaHintsSettings.xRayMode = enabled
+
+    if (enabled) {
       indentGuidesShownSetting = EditorSettingsExternalizable.getInstance.isIndentGuidesShown
       EditorSettingsExternalizable.getInstance.setIndentGuidesShown(true)
-    } else {
-      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(indentGuidesShownSetting)
-    }
 
-    ScalaHintsSettings.xRayMode = b
-    ImplicitHints.enabled = b
-    ImplicitHints.updateInAllEditors()
+      showImplicitHintsSetting = ImplicitHints.enabled
+      ImplicitHints.enabled = true
+      ImplicitHints.updateInAllEditors()
 
-    if (b) {
       keyPressEvent.getSource match {
         case component: EditorComponentImpl =>
           val action = ActionManager.getInstance.getAction(XRayModeAction.Id)
@@ -114,8 +110,15 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
           ActionUtil.performActionDumbAwareWithCallbacks(action, event)
         case _ =>
       }
+    } else {
+      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(indentGuidesShownSetting)
+
+      ImplicitHints.enabled = showImplicitHintsSetting
+      ImplicitHints.updateInAllEditors()
     }
   }
 
   private var indentGuidesShownSetting: Boolean = _
+
+  private var showImplicitHintsSetting: Boolean = _
 }
