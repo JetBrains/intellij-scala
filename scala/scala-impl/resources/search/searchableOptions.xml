@@ -1,0 +1,2153 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="collect" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="information" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="scala" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="short" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="troubleshooting" path="ActionManager" hit="(Scala) Collect Troubleshooting Information Short" />
+    <option name="attach" path="ActionManager" hit="Attach IntelliJ Sources" />
+    <option name="intellij" path="ActionManager" hit="Attach IntelliJ Sources" />
+    <option name="sources" path="ActionManager" hit="Attach IntelliJ Sources" />
+    <option name="caches" path="ActionManager" hit="Clean Scala Plugin Caches" />
+    <option name="clean" path="ActionManager" hit="Clean Scala Plugin Caches" />
+    <option name="plugin" path="ActionManager" hit="Clean Scala Plugin Caches" />
+    <option name="scala" path="ActionManager" hit="Clean Scala Plugin Caches" />
+    <option name="clean" path="ActionManager" hit="Clean Scala REPL Content" />
+    <option name="content" path="ActionManager" hit="Clean Scala REPL Content" />
+    <option name="repl" path="ActionManager" hit="Clean Scala REPL Content" />
+    <option name="scala" path="ActionManager" hit="Clean Scala REPL Content" />
+    <option name="clean" path="ActionManager" hit="Clean Scala Worksheet" />
+    <option name="scala" path="ActionManager" hit="Clean Scala Worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Clean Scala Worksheet" />
+    <option name="clean" path="ActionManager" hit="Clean Scala worksheet" />
+    <option name="scala" path="ActionManager" hit="Clean Scala worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Clean Scala worksheet" />
+    <option name="and" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="collect" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="idea" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="intellij" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="paste" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="plugin" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="quickly" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="scala" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="them" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="to" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="versions" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="youtrack" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
+    <option name="companion" path="ActionManager" hit="Companion object" />
+    <option name="object" path="ActionManager" hit="Companion object" />
+    <option name="configure" path="ActionManager" hit="Configure type hints" />
+    <option name="hints" path="ActionManager" hit="Configure type hints" />
+    <option name="type" path="ActionManager" hit="Configure type hints" />
+    <option name="configure" path="ActionManager" hit="Configure..." />
+    <option name="convert" path="ActionManager" hit="Convert Java to Scala" />
+    <option name="java" path="ActionManager" hit="Convert Java to Scala" />
+    <option name="scala" path="ActionManager" hit="Convert Java to Scala" />
+    <option name="to" path="ActionManager" hit="Convert Java to Scala" />
+    <option name="convert" path="ActionManager" hit="Convert to Scala" />
+    <option name="scala" path="ActionManager" hit="Convert to Scala" />
+    <option name="to" path="ActionManager" hit="Convert to Scala" />
+    <option name="copy" path="ActionManager" hit="Copy Scala Worksheet" />
+    <option name="scala" path="ActionManager" hit="Copy Scala Worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Copy Scala Worksheet" />
+    <option name="copy" path="ActionManager" hit="Copy Scala worksheet" />
+    <option name="scala" path="ActionManager" hit="Copy Scala worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Copy Scala worksheet" />
+    <option name="create" path="ActionManager" hit="Create Light Scala worksheet" />
+    <option name="light" path="ActionManager" hit="Create Light Scala worksheet" />
+    <option name="scala" path="ActionManager" hit="Create Light Scala worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Create Light Scala worksheet" />
+    <option name="create" path="ActionManager" hit="Create ScalaDoc stub" />
+    <option name="scaladoc" path="ActionManager" hit="Create ScalaDoc stub" />
+    <option name="stub" path="ActionManager" hit="Create ScalaDoc stub" />
+    <option name="create" path="ActionManager" hit="Create new Scala package object" />
+    <option name="new" path="ActionManager" hit="Create new Scala package object" />
+    <option name="object" path="ActionManager" hit="Create new Scala package object" />
+    <option name="package" path="ActionManager" hit="Create new Scala package object" />
+    <option name="scala" path="ActionManager" hit="Create new Scala package object" />
+    <option name="create" path="ActionManager" hit="Create new Scala worksheet" />
+    <option name="new" path="ActionManager" hit="Create new Scala worksheet" />
+    <option name="scala" path="ActionManager" hit="Create new Scala worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Create new Scala worksheet" />
+    <option name="class" path="ActionManager" hit="Creates new Scala Class" />
+    <option name="creates" path="ActionManager" hit="Creates new Scala Class" />
+    <option name="new" path="ActionManager" hit="Creates new Scala Class" />
+    <option name="scala" path="ActionManager" hit="Creates new Scala Class" />
+    <option name="code" path="ActionManager" hit="Desugar Scala Code..." />
+    <option name="desugar" path="ActionManager" hit="Desugar Scala Code..." />
+    <option name="scala" path="ActionManager" hit="Desugar Scala Code..." />
+    <option name="code" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="desugar" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="file" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="scala" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="selection" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="whole" path="ActionManager" hit="Desugar Scala code (selection / whole file)" />
+    <option name="edit" path="ActionManager" hit="Edit Package Prefix..." />
+    <option name="package" path="ActionManager" hit="Edit Package Prefix..." />
+    <option name="prefix" path="ActionManager" hit="Edit Package Prefix..." />
+    <option name="execute" path="ActionManager" hit="Execute Scala REPL Statement" />
+    <option name="repl" path="ActionManager" hit="Execute Scala REPL Statement" />
+    <option name="scala" path="ActionManager" hit="Execute Scala REPL Statement" />
+    <option name="statement" path="ActionManager" hit="Execute Scala REPL Statement" />
+    <option name="expand" path="ActionManager" hit="Expand Implicit Hints" />
+    <option name="hints" path="ActionManager" hit="Expand Implicit Hints" />
+    <option name="implicit" path="ActionManager" hit="Expand Implicit Hints" />
+    <option name="arguments" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="conversions" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="editor" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="expand" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="hints" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="implicit" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="in" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="inlay" path="ActionManager" hit="Expand implicit conversions / arguments inlay hints in editor" />
+    <option name="extract" path="ActionManager" hit="Extract Trait..." />
+    <option name="trait" path="ActionManager" hit="Extract Trait..." />
+    <option name="class" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="extract" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="from" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="selected" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="the" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="trait" path="ActionManager" hit="Extract trait from the selected class" />
+    <option name="bsp" path="ActionManager" hit="Generate BSP Configuration File" />
+    <option name="configuration" path="ActionManager" hit="Generate BSP Configuration File" />
+    <option name="file" path="ActionManager" hit="Generate BSP Configuration File" />
+    <option name="generate" path="ActionManager" hit="Generate BSP Configuration File" />
+    <option name="generate" path="ActionManager" hit="Generate Scaladoc" />
+    <option name="scaladoc" path="ActionManager" hit="Generate Scaladoc" />
+    <option name="companion" path="ActionManager" hit="Generate companion object" />
+    <option name="generate" path="ActionManager" hit="Generate companion object" />
+    <option name="object" path="ActionManager" hit="Generate companion object" />
+    <option name="and" path="ActionManager" hit="Generate equals() and hashCode() methods" />
+    <option name="equals" path="ActionManager" hit="Generate equals() and hashCode() methods" />
+    <option name="generate" path="ActionManager" hit="Generate equals() and hashCode() methods" />
+    <option name="hashcode" path="ActionManager" hit="Generate equals() and hashCode() methods" />
+    <option name="methods" path="ActionManager" hit="Generate equals() and hashCode() methods" />
+    <option name="generate" path="ActionManager" hit="Generate property" />
+    <option name="property" path="ActionManager" hit="Generate property" />
+    <option name="generate" path="ActionManager" hit="Generate scaladoc" />
+    <option name="scaladoc" path="ActionManager" hit="Generate scaladoc" />
+    <option name="generate" path="ActionManager" hit="Generate toString() method" />
+    <option name="method" path="ActionManager" hit="Generate toString() method" />
+    <option name="tostring" path="ActionManager" hit="Generate toString() method" />
+    <option name="get" path="ActionManager" hit="Get help in sbt shell" />
+    <option name="help" path="ActionManager" hit="Get help in sbt shell" />
+    <option name="in" path="ActionManager" hit="Get help in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Get help in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Get help in sbt shell" />
+    <option name="help" path="ActionManager" hit="Help" />
+    <option name="arguments" path="ActionManager" hit="Implicit Arguments Popup" />
+    <option name="implicit" path="ActionManager" hit="Implicit Arguments Popup" />
+    <option name="popup" path="ActionManager" hit="Implicit Arguments Popup" />
+    <option name="inspect" path="ActionManager" hit="Inspect" />
+    <option name="in" path="ActionManager" hit="Inspect setting in sbt shell" />
+    <option name="inspect" path="ActionManager" hit="Inspect setting in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Inspect setting in sbt shell" />
+    <option name="setting" path="ActionManager" hit="Inspect setting in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Inspect setting in sbt shell" />
+    <option name="in" path="ActionManager" hit="Inspect task in sbt shell" />
+    <option name="inspect" path="ActionManager" hit="Inspect task in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Inspect task in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Inspect task in sbt shell" />
+    <option name="task" path="ActionManager" hit="Inspect task in sbt shell" />
+    <option name="conversion" path="ActionManager" hit="Make conversion explicit" />
+    <option name="explicit" path="ActionManager" hit="Make conversion explicit" />
+    <option name="make" path="ActionManager" hit="Make conversion explicit" />
+    <option name="conversion" path="ActionManager" hit="Make implicit conversion explicit" />
+    <option name="explicit" path="ActionManager" hit="Make implicit conversion explicit" />
+    <option name="implicit" path="ActionManager" hit="Make implicit conversion explicit" />
+    <option name="make" path="ActionManager" hit="Make implicit conversion explicit" />
+    <option name="chain" path="ActionManager" hit="Method chain hints" />
+    <option name="hints" path="ActionManager" hit="Method chain hints" />
+    <option name="method" path="ActionManager" hit="Method chain hints" />
+    <option name="in" path="ActionManager" hit="New line in REPL" />
+    <option name="line" path="ActionManager" hit="New line in REPL" />
+    <option name="new" path="ActionManager" hit="New line in REPL" />
+    <option name="repl" path="ActionManager" hit="New line in REPL" />
+    <option name="object" path="ActionManager" hit="Package Object" />
+    <option name="package" path="ActionManager" hit="Package Object" />
+    <option name="and" path="ActionManager" hit="Property (getter and setter)" />
+    <option name="getter" path="ActionManager" hit="Property (getter and setter)" />
+    <option name="property" path="ActionManager" hit="Property (getter and setter)" />
+    <option name="setter" path="ActionManager" hit="Property (getter and setter)" />
+    <option name="and" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="for" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="hints" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="range" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="to" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="until" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
+    <option name="exclusive" path="ActionManager" hit="Range.exclusive hint" />
+    <option name="hint" path="ActionManager" hit="Range.exclusive hint" />
+    <option name="range" path="ActionManager" hit="Range.exclusive hint" />
+    <option name="arguments" path="ActionManager" hit="Remove explicit arguments" />
+    <option name="explicit" path="ActionManager" hit="Remove explicit arguments" />
+    <option name="remove" path="ActionManager" hit="Remove explicit arguments" />
+    <option name="run" path="ActionManager" hit="Run" />
+    <option name="classfile" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="decompiler" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="fernflower" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="given" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="on" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="run" path="ActionManager" hit="Run FernFlower decompiler on given classfile" />
+    <option name="repl" path="ActionManager" hit="Run Scala REPL" />
+    <option name="run" path="ActionManager" hit="Run Scala REPL" />
+    <option name="scala" path="ActionManager" hit="Run Scala REPL" />
+    <option name="run" path="ActionManager" hit="Run Scala Worksheet" />
+    <option name="scala" path="ActionManager" hit="Run Scala Worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Run Scala Worksheet" />
+    <option name="run" path="ActionManager" hit="Run Scala worksheet" />
+    <option name="scala" path="ActionManager" hit="Run Scala worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Run Scala worksheet" />
+    <option name="command" path="ActionManager" hit="Run command in sbt shell" />
+    <option name="in" path="ActionManager" hit="Run command in sbt shell" />
+    <option name="run" path="ActionManager" hit="Run command in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Run command in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Run command in sbt shell" />
+    <option name="in" path="ActionManager" hit="Run task in sbt shell" />
+    <option name="run" path="ActionManager" hit="Run task in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Run task in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Run task in sbt shell" />
+    <option name="task" path="ActionManager" hit="Run task in sbt shell" />
+    <option name="class" path="ActionManager" hit="Scala Class" />
+    <option name="scala" path="ActionManager" hit="Scala Class" />
+    <option name="repl" path="ActionManager" hit="Scala REPL..." />
+    <option name="scala" path="ActionManager" hit="Scala REPL..." />
+    <option name="scala" path="ActionManager" hit="Scala Worksheet" />
+    <option name="worksheet" path="ActionManager" hit="Scala Worksheet" />
+    <option name="repl" path="ActionManager" hit="Send Selection To Scala REPL" />
+    <option name="scala" path="ActionManager" hit="Send Selection To Scala REPL" />
+    <option name="selection" path="ActionManager" hit="Send Selection To Scala REPL" />
+    <option name="send" path="ActionManager" hit="Send Selection To Scala REPL" />
+    <option name="to" path="ActionManager" hit="Send Selection To Scala REPL" />
+    <option name="as" path="ActionManager" hit="Show Decompiled Class As Java" />
+    <option name="class" path="ActionManager" hit="Show Decompiled Class As Java" />
+    <option name="decompiled" path="ActionManager" hit="Show Decompiled Class As Java" />
+    <option name="java" path="ActionManager" hit="Show Decompiled Class As Java" />
+    <option name="show" path="ActionManager" hit="Show Decompiled Class As Java" />
+    <option name="hints" path="ActionManager" hit="Show Implicit Hints" />
+    <option name="implicit" path="ActionManager" hit="Show Implicit Hints" />
+    <option name="show" path="ActionManager" hit="Show Implicit Hints" />
+    <option name="and" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="for" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="hints" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="range" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="show" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="to" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="until" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
+    <option name="result" path="ActionManager" hit="Show Result" />
+    <option name="show" path="ActionManager" hit="Show Result" />
+    <option name="compiler" path="ActionManager" hit="Show Scala Compiler Trees" />
+    <option name="scala" path="ActionManager" hit="Show Scala Compiler Trees" />
+    <option name="show" path="ActionManager" hit="Show Scala Compiler Trees" />
+    <option name="trees" path="ActionManager" hit="Show Scala Compiler Trees" />
+    <option name="info" path="ActionManager" hit="Show Type Info" />
+    <option name="show" path="ActionManager" hit="Show Type Info" />
+    <option name="type" path="ActionManager" hit="Show Type Info" />
+    <option name="show" path="ActionManager" hit="Show Value" />
+    <option name="value" path="ActionManager" hit="Show Value" />
+    <option name="exclusive" path="ActionManager" hit="Show exclusive Range hint" />
+    <option name="hint" path="ActionManager" hit="Show exclusive Range hint" />
+    <option name="range" path="ActionManager" hit="Show exclusive Range hint" />
+    <option name="show" path="ActionManager" hit="Show exclusive Range hint" />
+    <option name="arguments" path="ActionManager" hit="Show implicit arguments" />
+    <option name="implicit" path="ActionManager" hit="Show implicit arguments" />
+    <option name="show" path="ActionManager" hit="Show implicit arguments" />
+    <option name="conversions" path="ActionManager" hit="Show implicit conversions" />
+    <option name="implicit" path="ActionManager" hit="Show implicit conversions" />
+    <option name="show" path="ActionManager" hit="Show implicit conversions" />
+    <option name="arguments" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="as" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="conversions" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="editor" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="hints" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="implicit" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="in" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="inlay" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="show" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="in" path="ActionManager" hit="Show setting in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Show setting in sbt shell" />
+    <option name="setting" path="ActionManager" hit="Show setting in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Show setting in sbt shell" />
+    <option name="show" path="ActionManager" hit="Show setting in sbt shell" />
+    <option name="in" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="result" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="sbt" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="shell" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="show" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="task" path="ActionManager" hit="Show task result in sbt shell" />
+    <option name="aware" path="ActionManager" hit="Toggle Type Aware Highlighting" />
+    <option name="highlighting" path="ActionManager" hit="Toggle Type Aware Highlighting" />
+    <option name="toggle" path="ActionManager" hit="Toggle Type Aware Highlighting" />
+    <option name="type" path="ActionManager" hit="Toggle Type Aware Highlighting" />
+    <option name="chain" path="ActionManager" hit="Toggle method chain hints" />
+    <option name="hints" path="ActionManager" hit="Toggle method chain hints" />
+    <option name="method" path="ActionManager" hit="Toggle method chain hints" />
+    <option name="toggle" path="ActionManager" hit="Toggle method chain hints" />
+    <option name="hints" path="ActionManager" hit="Toggle type mismatch hints" />
+    <option name="mismatch" path="ActionManager" hit="Toggle type mismatch hints" />
+    <option name="toggle" path="ActionManager" hit="Toggle type mismatch hints" />
+    <option name="type" path="ActionManager" hit="Toggle type mismatch hints" />
+    <option name="info" path="ActionManager" hit="Type Info" />
+    <option name="type" path="ActionManager" hit="Type Info" />
+    <option name="hints" path="ActionManager" hit="Type mismatch hints" />
+    <option name="mismatch" path="ActionManager" hit="Type mismatch hints" />
+    <option name="type" path="ActionManager" hit="Type mismatch hints" />
+    <option name="compiler" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="error" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="for" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="highlighting" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="in" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="scala" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="use" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
+    <option name="3" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="compiler" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="error" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="for" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="highlighting" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="in" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="scala" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="use" path="ActionManager" hit="Use compiler for error highlighting in Scala 3" />
+    <option name="and" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="available" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="be" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="built-in" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="but" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="compiler" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="directly" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="error" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="from" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="highlighter" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="highlighting" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="in" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="inspections" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="instead" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="is" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="may" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="messages" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="more" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="not" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="of" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="precise" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="quickfixes" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="result" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="show" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="slowly" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="that" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="the" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="this" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="up" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="use" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="will" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="and" path="ActionManager" hit="equals() and hashCode()" />
+    <option name="equals" path="ActionManager" hit="equals() and hashCode()" />
+    <option name="hashcode" path="ActionManager" hit="equals() and hashCode()" />
+    <option name="tostring" path="ActionManager" hit="toString()" />
+  </configurable>
+  <configurable id="editor.breadcrumbs" configurable_name="Breadcrumbs">
+    <option name="scala" hit="Scala" />
+  </configurable>
+  <configurable id="ScalaSmartKeys" configurable_name="Scala">
+    <option name="add" hit="Add braces automatically" />
+    <option name="automatically" hit="Add braces automatically" />
+    <option name="braces" hit="Add braces automatically" />
+    <option name="based" hit="Control curly braces based on indentation:" />
+    <option name="braces" hit="Control curly braces based on indentation:" />
+    <option name="control" hit="Control curly braces based on indentation:" />
+    <option name="curly" hit="Control curly braces based on indentation:" />
+    <option name="indentation" hit="Control curly braces based on indentation:" />
+    <option name="on" hit="Control curly braces based on indentation:" />
+    <option name="after" hit="Delete closing brace after deleting '{'" />
+    <option name="brace" hit="Delete closing brace after deleting '{'" />
+    <option name="closing" hit="Delete closing brace after deleting '{'" />
+    <option name="delete" hit="Delete closing brace after deleting '{'" />
+    <option name="deleting" hit="Delete closing brace after deleting '{'" />
+    <option name="at" hit="Indent pasted lines at caret" />
+    <option name="caret" hit="Indent pasted lines at caret" />
+    <option name="indent" hit="Indent pasted lines at caret" />
+    <option name="lines" hit="Indent pasted lines at caret" />
+    <option name="pasted" hit="Indent pasted lines at caret" />
+    <option name="for" hit="Insert pair quotes for multiline string" />
+    <option name="insert" hit="Insert pair quotes for multiline string" />
+    <option name="multiline" hit="Insert pair quotes for multiline string" />
+    <option name="pair" hit="Insert pair quotes for multiline string" />
+    <option name="quotes" hit="Insert pair quotes for multiline string" />
+    <option name="string" hit="Insert pair quotes for multiline string" />
+    <option name="automatically" hit="Remove braces automatically" />
+    <option name="braces" hit="Remove braces automatically" />
+    <option name="remove" hit="Remove braces automatically" />
+    <option name="scala" hit="Scala" />
+    <option name="after" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="interpolated" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="into" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="simple" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="string" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="typing" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="upgrade" hit="Upgrade simple string into interpolated after typing '${'" />
+    <option name="after" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="body" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="brace" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="closing" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="expression" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="single" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="typing" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="with" hit="Wrap single expression body with closing brace after typing '{'" />
+    <option name="wrap" hit="Wrap single expression body with closing brace after typing '{'" />
+  </configurable>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Scala" configurable_name="Scala">
+    <option name="scala" hit="Scala" />
+    <option name="abstract" hit="Abstract class" />
+    <option name="class" hit="Abstract class" />
+    <option name="annotation" hit="Annotation attribute name" />
+    <option name="attribute" hit="Annotation attribute name" />
+    <option name="name" hit="Annotation attribute name" />
+    <option name="annotation" hit="Annotation name" />
+    <option name="name" hit="Annotation name" />
+    <option name="arrow" hit="Arrow" />
+    <option name="assign" hit="Assign" />
+    <option name="bad" hit="Bad character" />
+    <option name="character" hit="Bad character" />
+    <option name="block" hit="Block comment" />
+    <option name="comment" hit="Block comment" />
+    <option name="braces" hit="Braces" />
+    <option name="brackets" hit="Brackets" />
+    <option name="class" hit="Class" />
+    <option name="call" hit="Class method call" />
+    <option name="class" hit="Class method call" />
+    <option name="method" hit="Class method call" />
+    <option name="colon" hit="Colon" />
+    <option name="comma" hit="Comma" />
+    <option name="dot" hit="Dot" />
+    <option name="enum" hit="Enum" />
+    <option name="case" hit="Enum class case" />
+    <option name="class" hit="Enum class case" />
+    <option name="enum" hit="Enum class case" />
+    <option name="case" hit="Enum singleton case" />
+    <option name="enum" hit="Enum singleton case" />
+    <option name="singleton" hit="Enum singleton case" />
+    <option name="for" hit="For statement value" />
+    <option name="statement" hit="For statement value" />
+    <option name="value" hit="For statement value" />
+    <option name="collection" hit="Immutable collection" />
+    <option name="immutable" hit="Immutable collection" />
+    <option name="conversion" hit="Implicit conversion" />
+    <option name="implicit" hit="Implicit conversion" />
+    <option name="injection" hit="Interpolated string injection" />
+    <option name="interpolated" hit="Interpolated string injection" />
+    <option name="string" hit="Interpolated string injection" />
+    <option name="escape" hit="Invalid escape in string" />
+    <option name="in" hit="Invalid escape in string" />
+    <option name="invalid" hit="Invalid escape in string" />
+    <option name="string" hit="Invalid escape in string" />
+    <option name="keyword" hit="Keyword" />
+    <option name="comment" hit="Line comment" />
+    <option name="line" hit="Line comment" />
+    <option name="lazy" hit="Local lazy val/var" />
+    <option name="local" hit="Local lazy val/var" />
+    <option name="val" hit="Local lazy val/var" />
+    <option name="var" hit="Local lazy val/var" />
+    <option name="call" hit="Local method call" />
+    <option name="local" hit="Local method call" />
+    <option name="method" hit="Local method call" />
+    <option name="local" hit="Local value" />
+    <option name="value" hit="Local value" />
+    <option name="local" hit="Local variable" />
+    <option name="variable" hit="Local variable" />
+    <option name="declaration" hit="Method declaration" />
+    <option name="method" hit="Method declaration" />
+    <option name="collection" hit="Mutable collection" />
+    <option name="mutable" hit="Mutable collection" />
+    <option name="number" hit="Number" />
+    <option name="object" hit="Object" />
+    <option name="call" hit="Object method call" />
+    <option name="method" hit="Object method call" />
+    <option name="object" hit="Object method call" />
+    <option name="parameter" hit="Parameter" />
+    <option name="anonimous" hit="Parameter of anonimous function" />
+    <option name="function" hit="Parameter of anonimous function" />
+    <option name="of" hit="Parameter of anonimous function" />
+    <option name="parameter" hit="Parameter of anonimous function" />
+    <option name="parentheses" hit="Parentheses" />
+    <option name="pattern" hit="Pattern value" />
+    <option name="value" hit="Pattern value" />
+    <option name="predefined" hit="Predefined types" />
+    <option name="types" hit="Predefined types" />
+    <option name="attribute" hit="Scala XML attribute name" />
+    <option name="name" hit="Scala XML attribute name" />
+    <option name="scala" hit="Scala XML attribute name" />
+    <option name="xml" hit="Scala XML attribute name" />
+    <option name="attribute" hit="Scala XML attribute value" />
+    <option name="scala" hit="Scala XML attribute value" />
+    <option name="value" hit="Scala XML attribute value" />
+    <option name="xml" hit="Scala XML attribute value" />
+    <option name="comment" hit="Scala XML comment" />
+    <option name="scala" hit="Scala XML comment" />
+    <option name="xml" hit="Scala XML comment" />
+    <option name="scala" hit="Scala XML tag" />
+    <option name="tag" hit="Scala XML tag" />
+    <option name="xml" hit="Scala XML tag" />
+    <option name="data" hit="Scala XML tag data" />
+    <option name="scala" hit="Scala XML tag data" />
+    <option name="tag" hit="Scala XML tag data" />
+    <option name="xml" hit="Scala XML tag data" />
+    <option name="name" hit="Scala XML tag name" />
+    <option name="scala" hit="Scala XML tag name" />
+    <option name="tag" hit="Scala XML tag name" />
+    <option name="xml" hit="Scala XML tag name" />
+    <option name="command" hit="Scala directive command" />
+    <option name="directive" hit="Scala directive command" />
+    <option name="scala" hit="Scala directive command" />
+    <option name="directive" hit="Scala directive key" />
+    <option name="key" hit="Scala directive key" />
+    <option name="scala" hit="Scala directive key" />
+    <option name="directive" hit="Scala directive prefix" />
+    <option name="prefix" hit="Scala directive prefix" />
+    <option name="scala" hit="Scala directive prefix" />
+    <option name="directive" hit="Scala directive value" />
+    <option name="scala" hit="Scala directive value" />
+    <option name="value" hit="Scala directive value" />
+    <option name="param" hit="ScalaDoc @param value" />
+    <option name="scaladoc" hit="ScalaDoc @param value" />
+    <option name="value" hit="ScalaDoc @param value" />
+    <option name="comment" hit="ScalaDoc comment" />
+    <option name="scaladoc" hit="ScalaDoc comment" />
+    <option name="comment" hit="ScalaDoc comment tag" />
+    <option name="scaladoc" hit="ScalaDoc comment tag" />
+    <option name="tag" hit="ScalaDoc comment tag" />
+    <option name="escape" hit="ScalaDoc html escape sequences" />
+    <option name="html" hit="ScalaDoc html escape sequences" />
+    <option name="scaladoc" hit="ScalaDoc html escape sequences" />
+    <option name="sequences" hit="ScalaDoc html escape sequences" />
+    <option name="html" hit="ScalaDoc html tag" />
+    <option name="scaladoc" hit="ScalaDoc html tag" />
+    <option name="tag" hit="ScalaDoc html tag" />
+    <option name="elements" hit="ScalaDoc wiki syntax elements" />
+    <option name="scaladoc" hit="ScalaDoc wiki syntax elements" />
+    <option name="syntax" hit="ScalaDoc wiki syntax elements" />
+    <option name="wiki" hit="ScalaDoc wiki syntax elements" />
+    <option name="keyword" hit="Scalatest keyword" />
+    <option name="scalatest" hit="Scalatest keyword" />
+    <option name="highlighting" hit="Semantic highlighting" />
+    <option name="semantic" hit="Semantic highlighting" />
+    <option name="semicolon" hit="Semicolon" />
+    <option name="collection" hit="Standard Java collection" />
+    <option name="java" hit="Standard Java collection" />
+    <option name="standard" hit="Standard Java collection" />
+    <option name="string" hit="String" />
+    <option name="lazy" hit="Template lazy val/var" />
+    <option name="template" hit="Template lazy val/var" />
+    <option name="val" hit="Template lazy val/var" />
+    <option name="var" hit="Template lazy val/var" />
+    <option name="template" hit="Template val" />
+    <option name="val" hit="Template val" />
+    <option name="template" hit="Template var" />
+    <option name="var" hit="Template var" />
+    <option name="trait" hit="Trait" />
+    <option name="alias" hit="Type alias" />
+    <option name="type" hit="Type alias" />
+    <option name="parameter" hit="Type parameter" />
+    <option name="type" hit="Type parameter" />
+    <option name="escape" hit="Valid escape in string" />
+    <option name="in" hit="Valid escape in string" />
+    <option name="string" hit="Valid escape in string" />
+    <option name="valid" hit="Valid escape in string" />
+  </configurable>
+  <configurable id="project.propDebugger" configurable_name="Debugger">
+    <option name="debugger" hit="Do not show runtime refs in debugger" />
+    <option name="do" hit="Do not show runtime refs in debugger" />
+    <option name="in" hit="Do not show runtime refs in debugger" />
+    <option name="not" hit="Do not show runtime refs in debugger" />
+    <option name="refs" hit="Do not show runtime refs in debugger" />
+    <option name="runtime" hit="Do not show runtime refs in debugger" />
+    <option name="show" hit="Do not show runtime refs in debugger" />
+    <option name="collections" hit="Friendly display of Scala collections in debugger" />
+    <option name="debugger" hit="Friendly display of Scala collections in debugger" />
+    <option name="display" hit="Friendly display of Scala collections in debugger" />
+    <option name="friendly" hit="Friendly display of Scala collections in debugger" />
+    <option name="in" hit="Friendly display of Scala collections in debugger" />
+    <option name="of" hit="Friendly display of Scala collections in debugger" />
+    <option name="scala" hit="Friendly display of Scala collections in debugger" />
+    <option name="scala" hit="Scala" />
+    <option name="from" hit="Show variables from outer scopes in variables view" />
+    <option name="in" hit="Show variables from outer scopes in variables view" />
+    <option name="outer" hit="Show variables from outer scopes in variables view" />
+    <option name="scopes" hit="Show variables from outer scopes in variables view" />
+    <option name="show" hit="Show variables from outer scopes in variables view" />
+    <option name="variables" hit="Show variables from outer scopes in variables view" />
+    <option name="view" hit="Show variables from outer scopes in variables view" />
+  </configurable>
+  <configurable id="debugger.stepping" configurable_name="Stepping">
+    <option name="always" hit="Always do smart step into" />
+    <option name="do" hit="Always do smart step into" />
+    <option name="into" hit="Always do smart step into" />
+    <option name="smart" hit="Always do smart step into" />
+    <option name="step" hit="Always do smart step into" />
+    <option name="classes" hit="Do not step into specific Scala classes" />
+    <option name="do" hit="Do not step into specific Scala classes" />
+    <option name="into" hit="Do not step into specific Scala classes" />
+    <option name="not" hit="Do not step into specific Scala classes" />
+    <option name="scala" hit="Do not step into specific Scala classes" />
+    <option name="specific" hit="Do not step into specific Scala classes" />
+    <option name="step" hit="Do not step into specific Scala classes" />
+    <option name="scala" hit="Scala" />
+  </configurable>
+  <configurable id="preferences.sourceCode.Scala" configurable_name="Scala">
+    <option name="" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="code" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="ctrl+alt+l" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="hint" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="reformat" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="use" path="Scalafmt" hit=" Hint: use Reformat Code (Ctrl+Alt+L)" />
+    <option name="accidental" path="Type Annotations" hit="Accidental structural type*" />
+    <option name="structural" path="Type Annotations" hit="Accidental structural type*" />
+    <option name="type" path="Type Annotations" hit="Accidental structural type*" />
+    <option name="a" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="add" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="at" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="comment" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="line" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="space" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="start" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="add" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="additional" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="asterisk" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="for" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="leading" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="space" path="ScalaDoc" hit="Add additional space for leading asterisk" />
+    <option name="add" path="Imports" hit="Add fully qualified imports" />
+    <option name="fully" path="Imports" hit="Add fully qualified imports" />
+    <option name="imports" path="Imports" hit="Add fully qualified imports" />
+    <option name="qualified" path="Imports" hit="Add fully qualified imports" />
+    <option name="add" path="Imports" hit="Add import statement in closest block" />
+    <option name="block" path="Imports" hit="Add import statement in closest block" />
+    <option name="closest" path="Imports" hit="Add import statement in closest block" />
+    <option name="import" path="Imports" hit="Add import statement in closest block" />
+    <option name="in" path="Imports" hit="Add import statement in closest block" />
+    <option name="statement" path="Imports" hit="Add import statement in closest block" />
+    <option name="add" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="around" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="block" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="comments" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="spaces" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="add" path="Other" hit="Add when multiline" />
+    <option name="multiline" path="Other" hit="Add when multiline" />
+    <option name="when" path="Other" hit="Add when multiline" />
+    <option name="after" path="Blank Lines" hit="After anonymous class header:" />
+    <option name="anonymous" path="Blank Lines" hit="After anonymous class header:" />
+    <option name="class" path="Blank Lines" hit="After anonymous class header:" />
+    <option name="header" path="Blank Lines" hit="After anonymous class header:" />
+    <option name="after" path="Blank Lines" hit="After class header:" />
+    <option name="class" path="Blank Lines" hit="After class header:" />
+    <option name="header" path="Blank Lines" hit="After class header:" />
+    <option name="after" path="Blank Lines" hit="After imports:" />
+    <option name="imports" path="Blank Lines" hit="After imports:" />
+    <option name="after" path="Blank Lines" hit="After package statement:" />
+    <option name="package" path="Blank Lines" hit="After package statement:" />
+    <option name="statement" path="Blank Lines" hit="After package statement:" />
+    <option name="align" path="Multi-line Strings" hit="Align dangling closing quotes" />
+    <option name="closing" path="Multi-line Strings" hit="Align dangling closing quotes" />
+    <option name="dangling" path="Multi-line Strings" hit="Align dangling closing quotes" />
+    <option name="quotes" path="Multi-line Strings" hit="Align dangling closing quotes" />
+    <option name="alternate" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="and" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="args" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="constructor" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="declarations" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="for" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="indentation" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="parameter" path="Other" hit="Alternate indentation for constructor args and parameter declarations:" />
+    <option name="annotated" path="Type Annotations" hit="Annotated with:" />
+    <option name="with" path="Type Annotations" hit="Annotated with:" />
+    <option name="arguments" path="Other" hit="Arguments list" />
+    <option name="list" path="Other" hit="Arguments list" />
+    <option name="around" path="Blank Lines" hit="Around class in inner scopes" />
+    <option name="class" path="Blank Lines" hit="Around class in inner scopes" />
+    <option name="in" path="Blank Lines" hit="Around class in inner scopes" />
+    <option name="inner" path="Blank Lines" hit="Around class in inner scopes" />
+    <option name="scopes" path="Blank Lines" hit="Around class in inner scopes" />
+    <option name="around" path="Blank Lines" hit="Around class:" />
+    <option name="class" path="Blank Lines" hit="Around class:" />
+    <option name="around" path="Blank Lines" hit="Around field in inner scopes" />
+    <option name="field" path="Blank Lines" hit="Around field in inner scopes" />
+    <option name="in" path="Blank Lines" hit="Around field in inner scopes" />
+    <option name="inner" path="Blank Lines" hit="Around field in inner scopes" />
+    <option name="scopes" path="Blank Lines" hit="Around field in inner scopes" />
+    <option name="around" path="Blank Lines" hit="Around field in interface:" />
+    <option name="field" path="Blank Lines" hit="Around field in interface:" />
+    <option name="in" path="Blank Lines" hit="Around field in interface:" />
+    <option name="interface" path="Blank Lines" hit="Around field in interface:" />
+    <option name="around" path="Blank Lines" hit="Around field:" />
+    <option name="field" path="Blank Lines" hit="Around field:" />
+    <option name="around" path="Blank Lines" hit="Around method in inner scopes" />
+    <option name="in" path="Blank Lines" hit="Around method in inner scopes" />
+    <option name="inner" path="Blank Lines" hit="Around method in inner scopes" />
+    <option name="method" path="Blank Lines" hit="Around method in inner scopes" />
+    <option name="scopes" path="Blank Lines" hit="Around method in inner scopes" />
+    <option name="around" path="Blank Lines" hit="Around method in interface:" />
+    <option name="in" path="Blank Lines" hit="Around method in interface:" />
+    <option name="interface" path="Blank Lines" hit="Around method in interface:" />
+    <option name="method" path="Blank Lines" hit="Around method in interface:" />
+    <option name="around" path="Blank Lines" hit="Around method:" />
+    <option name="method" path="Blank Lines" hit="Around method:" />
+    <option name="arrangement" path="Arrangement" hit="Arrangement" />
+    <option name="before" path="Blank Lines" hit="Before '}':" />
+    <option name="before" path="Blank Lines" hit="Before class end:" />
+    <option name="class" path="Blank Lines" hit="Before class end:" />
+    <option name="end" path="Blank Lines" hit="Before class end:" />
+    <option name="before" path="Blank Lines" hit="Before imports:" />
+    <option name="imports" path="Blank Lines" hit="Before imports:" />
+    <option name="before" path="Blank Lines" hit="Before method body:" />
+    <option name="body" path="Blank Lines" hit="Before method body:" />
+    <option name="method" path="Blank Lines" hit="Before method body:" />
+    <option name="before" path="Blank Lines" hit="Before package statement:" />
+    <option name="package" path="Blank Lines" hit="Before package statement:" />
+    <option name="statement" path="Blank Lines" hit="Before package statement:" />
+    <option name="blank" path="Blank Lines" hit="Blank Lines" />
+    <option name="lines" path="Blank Lines" hit="Blank Lines" />
+    <option name="at" path="Code Generation" hit="Block comment at first column" />
+    <option name="block" path="Code Generation" hit="Block comment at first column" />
+    <option name="column" path="Code Generation" hit="Block comment at first column" />
+    <option name="comment" path="Code Generation" hit="Block comment at first column" />
+    <option name="first" path="Code Generation" hit="Block comment at first column" />
+    <option name="class" path="Imports" hit="Class count to use import with '_':" />
+    <option name="count" path="Imports" hit="Class count to use import with '_':" />
+    <option name="import" path="Imports" hit="Class count to use import with '_':" />
+    <option name="to" path="Imports" hit="Class count to use import with '_':" />
+    <option name="use" path="Imports" hit="Class count to use import with '_':" />
+    <option name="with" path="Imports" hit="Class count to use import with '_':" />
+    <option name="classes" path="Imports" hit="Classes to use only with prefix" />
+    <option name="only" path="Imports" hit="Classes to use only with prefix" />
+    <option name="prefix" path="Imports" hit="Classes to use only with prefix" />
+    <option name="to" path="Imports" hit="Classes to use only with prefix" />
+    <option name="use" path="Imports" hit="Classes to use only with prefix" />
+    <option name="with" path="Imports" hit="Classes to use only with prefix" />
+    <option name="code" path="Code Generation" hit="Code Generation" />
+    <option name="generation" path="Code Generation" hit="Code Generation" />
+    <option name="code" path="Code Generation" hit="Comment Code" />
+    <option name="comment" path="Code Generation" hit="Comment Code" />
+    <option name="configuration" path="Scalafmt" hit="Configuration:" />
+    <option name="constant" path="Type Annotations" hit="Constant (final val)" />
+    <option name="final" path="Type Annotations" hit="Constant (final val)" />
+    <option name="val" path="Type Annotations" hit="Constant (final val)" />
+    <option name="continuation" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="indent" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="create" path="Scalafmt" hit="Create new file" />
+    <option name="file" path="Scalafmt" hit="Create new file" />
+    <option name="new" path="Scalafmt" hit="Create new file" />
+    <option name="disable" hit="Disable" />
+    <option name="change" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="do" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="during" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="for" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="imports" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="local" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="not" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="optimize" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="path" path="Imports" hit="Do not change path during optimize imports for local imports" />
+    <option name="enable" path="ScalaDoc" hit="Enable scaladoc formatting" />
+    <option name="formatting" path="ScalaDoc" hit="Enable scaladoc formatting" />
+    <option name="scaladoc" path="ScalaDoc" hit="Enable scaladoc formatting" />
+    <option name="enforce" path="Type Annotations" hit="Enforce for" />
+    <option name="for" path="Type Annotations" hit="Enforce for" />
+    <option name="enforce" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="for" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="functional" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="methods" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="return" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="syntax" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="type" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="unit" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="with" path="Other" hit="Enforce functional syntax for methods with Unit return type" />
+    <option name="enforce" path="Code Generation" hit="Enforce on reformat" />
+    <option name="on" path="Code Generation" hit="Enforce on reformat" />
+    <option name="reformat" path="Code Generation" hit="Enforce on reformat" />
+    <option name="base" path="Imports" hit="Except for base package" />
+    <option name="except" path="Imports" hit="Except for base package" />
+    <option name="for" path="Imports" hit="Except for base package" />
+    <option name="package" path="Imports" hit="Except for base package" />
+    <option name="except" path="Type Annotations" hit="Except when" />
+    <option name="when" path="Type Annotations" hit="Except when" />
+    <option name="default" path="Scalafmt" hit="Fallback to default IntelliJ settings" />
+    <option name="fallback" path="Scalafmt" hit="Fallback to default IntelliJ settings" />
+    <option name="intellij" path="Scalafmt" hit="Fallback to default IntelliJ settings" />
+    <option name="settings" path="Scalafmt" hit="Fallback to default IntelliJ settings" />
+    <option name="to" path="Scalafmt" hit="Fallback to default IntelliJ settings" />
+    <option name="formatter" hit="Formatter:" />
+    <option name="function" path="Type Annotations" hit="Function literal parameter" />
+    <option name="literal" path="Type Annotations" hit="Function literal parameter" />
+    <option name="parameter" path="Type Annotations" hit="Function literal parameter" />
+    <option name="grouping" path="Arrangement" hit="Grouping rules:" />
+    <option name="rules" path="Arrangement" hit="Grouping rules:" />
+    <option name="class" path="Other" hit="Implicit class prefix / suffix" />
+    <option name="implicit" path="Other" hit="Implicit class prefix / suffix" />
+    <option name="prefix" path="Other" hit="Implicit class prefix / suffix" />
+    <option name="suffix" path="Other" hit="Implicit class prefix / suffix" />
+    <option name="definition" path="Type Annotations" hit="Implicit definition" />
+    <option name="implicit" path="Type Annotations" hit="Implicit definition" />
+    <option name="import" path="Imports" hit="Import Layout" />
+    <option name="layout" path="Imports" hit="Import Layout" />
+    <option name="import" path="Other" hit="Import selector" />
+    <option name="selector" path="Other" hit="Import selector" />
+    <option name="-xsource" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="3" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="import" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="syntax" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="using" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="when" path="Imports" hit="Import syntax when using -Xsource:3:" />
+    <option name="imports" path="Imports" hit="Imports" />
+    <option name="always" path="Imports" hit="Imports always marked as used" />
+    <option name="as" path="Imports" hit="Imports always marked as used" />
+    <option name="imports" path="Imports" hit="Imports always marked as used" />
+    <option name="marked" path="Imports" hit="Imports always marked as used" />
+    <option name="used" path="Imports" hit="Imports always marked as used" />
+    <option name="dialect" path="Type Annotations" hit="In Scala dialect sources*" />
+    <option name="in" path="Type Annotations" hit="In Scala dialect sources*" />
+    <option name="scala" path="Type Annotations" hit="In Scala dialect sources*" />
+    <option name="sources" path="Type Annotations" hit="In Scala dialect sources*" />
+    <option name="code" path="Blank Lines" hit="In code:" />
+    <option name="in" path="Blank Lines" hit="In code:" />
+    <option name="declarations" path="Blank Lines" hit="In declarations:" />
+    <option name="in" path="Blank Lines" hit="In declarations:" />
+    <option name="in" path="Type Annotations" hit="In test sources" />
+    <option name="sources" path="Type Annotations" hit="In test sources" />
+    <option name="test" path="Type Annotations" hit="In test sources" />
+    <option name="indent" path="Tabs and Indents" hit="Indent:" />
+    <option name="char" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="enter" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="for" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="insert" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="lines" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="margin" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="new" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="on" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="press" path="Multi-line Strings" hit="Insert margin char for new lines on enter press" />
+    <option name="intellij" hit="IntelliJ" />
+    <option name="keep" path="Other" hit="Keep" />
+    <option name="empty" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="indents" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="keep" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="lines" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="on" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="blank" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="keep" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="lines" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="maximum" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="kind" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="lambda" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="projector" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="replace" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="symbol" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="unicode" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="with" path="Other" hit="Kind Projector: Replace 'Lambda' with unicode symbol" />
+    <option name="at" path="Code Generation" hit="Line comment at first column" />
+    <option name="column" path="Code Generation" hit="Line comment at first column" />
+    <option name="comment" path="Code Generation" hit="Line comment at first column" />
+    <option name="first" path="Code Generation" hit="Line comment at first column" />
+    <option name="line" path="Code Generation" hit="Line comment at first column" />
+    <option name="loading" hit="Loading..." />
+    <option name="definition" path="Type Annotations" hit="Local definition" />
+    <option name="local" path="Type Annotations" hit="Local definition" />
+    <option name="char" path="Multi-line Strings" hit="Margin char indent:" />
+    <option name="indent" path="Multi-line Strings" hit="Margin char indent:" />
+    <option name="margin" path="Multi-line Strings" hit="Margin char indent:" />
+    <option name="char" path="Multi-line Strings" hit="Margin char:" />
+    <option name="margin" path="Multi-line Strings" hit="Margin char:" />
+    <option name="matching" path="Arrangement" hit="Matching rules:" />
+    <option name="rules" path="Arrangement" hit="Matching rules:" />
+    <option name="anonymous" path="Type Annotations" hit="Member of anonymous class" />
+    <option name="class" path="Type Annotations" hit="Member of anonymous class" />
+    <option name="member" path="Type Annotations" hit="Member of anonymous class" />
+    <option name="of" path="Type Annotations" hit="Member of anonymous class" />
+    <option name="class" path="Type Annotations" hit="Member of private class" />
+    <option name="member" path="Type Annotations" hit="Member of private class" />
+    <option name="of" path="Type Annotations" hit="Member of private class" />
+    <option name="private" path="Type Annotations" hit="Member of private class" />
+    <option name="member" path="Type Annotations" hit="Member of:" />
+    <option name="of" path="Type Annotations" hit="Member of:" />
+    <option name="imports" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="into" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="merge" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="one" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="prefix" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="same" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="statement" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="the" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="with" path="Imports" hit="Merge imports with the same prefix into one statement" />
+    <option name="blank" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="lines" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="minimum" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="multi-line" path="Multi-line Strings" hit="Multi-line Strings" />
+    <option name="strings" path="Multi-line Strings" hit="Multi-line Strings" />
+    <option name="configuration" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="file" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="found" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="no" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="path" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="specified" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="under" path="Scalafmt" hit="No configuration file found under specified path" />
+    <option name="other" path="Other" hit="Other" />
+    <option name="list" path="Other" hit="Parameters list" />
+    <option name="parameters" path="Other" hit="Parameters list" />
+    <option name="arguments" path="Other" hit="Pattern arguments list" />
+    <option name="list" path="Other" hit="Pattern arguments list" />
+    <option name="pattern" path="Other" hit="Pattern arguments list" />
+    <option name="a" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="closing" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="enter" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="line" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="new" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="on" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="place" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="press" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="quotes" path="Multi-line Strings" hit="Place closing quotes on a new line on enter press" />
+    <option name="line" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="new" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="on" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="opening" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="place" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="quotes" path="Multi-line Strings" hit="Place opening quotes on new line" />
+    <option name="member" path="Type Annotations" hit="Private member" />
+    <option name="private" path="Type Annotations" hit="Private member" />
+    <option name="member" path="Type Annotations" hit="Protected member" />
+    <option name="protected" path="Type Annotations" hit="Protected member" />
+    <option name="member" path="Type Annotations" hit="Public member" />
+    <option name="public" path="Type Annotations" hit="Public member" />
+    <option name="ctrl+s" path="Scalafmt" hit="Reformat on Save (Ctrl+S)" />
+    <option name="on" path="Scalafmt" hit="Reformat on Save (Ctrl+S)" />
+    <option name="reformat" path="Scalafmt" hit="Reformat on Save (Ctrl+S)" />
+    <option name="save" path="Scalafmt" hit="Reformat on Save (Ctrl+S)" />
+    <option name="compile" path="Other" hit="Reformat on compile" />
+    <option name="on" path="Other" hit="Reformat on compile" />
+    <option name="reformat" path="Other" hit="Reformat on compile" />
+    <option name="multiline" path="Other" hit="Remove when multiline" />
+    <option name="remove" path="Other" hit="Remove when multiline" />
+    <option name="when" path="Other" hit="Remove when multiline" />
+    <option name="-" path="Other" hit="Replace '-&gt;' with unicode symbol" />
+    <option name="replace" path="Other" hit="Replace '-&gt;' with unicode symbol" />
+    <option name="symbol" path="Other" hit="Replace '-&gt;' with unicode symbol" />
+    <option name="unicode" path="Other" hit="Replace '-&gt;' with unicode symbol" />
+    <option name="with" path="Other" hit="Replace '-&gt;' with unicode symbol" />
+    <option name="-" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="for" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="generator" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="in" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="replace" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="symbol" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="unicode" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="with" path="Other" hit="Replace '&lt;-' in \&quot;for\&quot; generator with unicode symbol" />
+    <option name="replace" path="Other" hit="Replace '=&gt;' with unicode symbol" />
+    <option name="symbol" path="Other" hit="Replace '=&gt;' with unicode symbol" />
+    <option name="unicode" path="Other" hit="Replace '=&gt;' with unicode symbol" />
+    <option name="with" path="Other" hit="Replace '=&gt;' with unicode symbol" />
+    <option name="scala" hit="Scala" />
+    <option name="2" path="Imports" hit="Scala 2 (=&gt;, _)" />
+    <option name="scala" path="Imports" hit="Scala 2 (=&gt;, _)" />
+    <option name="3" path="Other" hit="Scala 3" />
+    <option name="scala" path="Other" hit="Scala 3" />
+    <option name="3" path="Imports" hit="Scala 3 (as, *)" />
+    <option name="as" path="Imports" hit="Scala 3 (as, *)" />
+    <option name="scala" path="Imports" hit="Scala 3 (as, *)" />
+    <option name="scaladoc" path="ScalaDoc" hit="ScalaDoc" />
+    <option name="scalafmt" hit="Scalafmt" />
+    <option name="scalafmt" path="Scalafmt" hit="Scalafmt version:" />
+    <option name="version" path="Scalafmt" hit="Scalafmt version:" />
+    <option name="scheme" hit="Scheme:" />
+    <option name="from" hit="Set from..." />
+    <option name="set" hit="Set from..." />
+    <option name="code" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="format" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="invalid" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="show" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="to" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="trying" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="warnings" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="when" path="Scalafmt" hit="Show warnings when trying to format invalid code" />
+    <option name="smart" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="tabs" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="for" path="Imports" hit="Sort imports (for optimize imports):" />
+    <option name="imports" path="Imports" hit="Sort imports (for optimize imports):" />
+    <option name="optimize" path="Imports" hit="Sort imports (for optimize imports):" />
+    <option name="sort" path="Imports" hit="Sort imports (for optimize imports):" />
+    <option name="spaces" path="Spaces" hit="Spaces" />
+    <option name="copy" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="insert" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="margin" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="on" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="paste" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="strip" path="Multi-line Strings" hit="Strip/Insert margin on copy/paste" />
+    <option name="size" path="Tabs and Indents" hit="Tab size:" />
+    <option name="tab" path="Tabs and Indents" hit="Tab size:" />
+    <option name="and" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="indents" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="tabs" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="comma" path="Other" hit="Trailing Comma" />
+    <option name="trailing" path="Other" hit="Trailing Comma" />
+    <option name="tuple" path="Other" hit="Tuple" />
+    <option name="tuple" path="Other" hit="Tuple type" />
+    <option name="type" path="Other" hit="Tuple type" />
+    <option name="annotations" path="Type Annotations" hit="Type Annotations" />
+    <option name="type" path="Type Annotations" hit="Type Annotations" />
+    <option name="is" path="Type Annotations" hit="Type is stable*" />
+    <option name="stable" path="Type Annotations" hit="Type is stable*" />
+    <option name="type" path="Type Annotations" hit="Type is stable*" />
+    <option name="matches" path="Type Annotations" hit="Type matches:" />
+    <option name="type" path="Type Annotations" hit="Type matches:" />
+    <option name="list" path="Other" hit="Type parameters list" />
+    <option name="parameters" path="Other" hit="Type parameters list" />
+    <option name="type" path="Other" hit="Type parameters list" />
+    <option name="parameter" path="Type Annotations" hit="Underscore parameter" />
+    <option name="underscore" path="Type Annotations" hit="Underscore parameter" />
+    <option name="type" path="Type Annotations" hit="Unit type" />
+    <option name="unit" path="Type Annotations" hit="Unit type" />
+    <option name="code" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="for" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="formatter" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="formatting" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="intellij" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="range" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="use" path="Scalafmt" hit="Use IntelliJ formatter for code range formatting" />
+    <option name="for" path="Type Annotations" hit="Use for" />
+    <option name="use" path="Type Annotations" hit="Use for" />
+    <option name="indentation-based" path="Other" hit="Use indentation-based syntax" />
+    <option name="syntax" path="Other" hit="Use indentation-based syntax" />
+    <option name="use" path="Other" hit="Use indentation-based syntax" />
+    <option name="character" path="Tabs and Indents" hit="Use tab character" />
+    <option name="tab" path="Tabs and Indents" hit="Use tab character" />
+    <option name="use" path="Tabs and Indents" hit="Use tab character" />
+    <option name="already" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="import" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="imported" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="name" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="path" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="reference" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="shortest" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="the" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="to" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="trying" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="use" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="when" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="with" path="Imports" hit="Use the shortest path, when trying to import reference with already imported name " />
+    <option name="and" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="braces" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="wrapping" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="lexicographically" path="Imports" hit="lexicographically" />
+    <option name="consistent" path="Imports" hit="scalastyle consistent" />
+    <option name="scalastyle" path="Imports" hit="scalastyle consistent" />
+    <option name="spaces" path="Other" hit="spaces" />
+    <option name="" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="line" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="next" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="on" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="signs" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="and" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="line" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="next" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="on" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="signs" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="catch" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="do" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="while" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="else" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="finally" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="" path="Spaces" hit="'for' parentheses" />
+    <option name="for" path="Spaces" hit="'for' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'for' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="for" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="" path="Spaces" hit="'if' parentheses" />
+    <option name="if" path="Spaces" hit="'if' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'if' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="if" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="switch" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="try" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="" path="Wrapping and Braces" hit="'try-with-resources'" />
+    <option name="try-with-resources" path="Wrapping and Braces" hit="'try-with-resources'" />
+    <option name="" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="while" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="" path="Spaces" hit="'while' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'while' parentheses" />
+    <option name="while" path="Spaces" hit="'while' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="while" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="after" path="Spaces" hit="After 'for' semicolon" />
+    <option name="for" path="Spaces" hit="After 'for' semicolon" />
+    <option name="semicolon" path="Spaces" hit="After 'for' semicolon" />
+    <option name="after" path="Spaces" hit="After colon, before declarations' type" />
+    <option name="before" path="Spaces" hit="After colon, before declarations' type" />
+    <option name="colon" path="Spaces" hit="After colon, before declarations' type" />
+    <option name="declarations" path="Spaces" hit="After colon, before declarations' type" />
+    <option name="type" path="Spaces" hit="After colon, before declarations' type" />
+    <option name="after" path="Spaces" hit="After comma" />
+    <option name="comma" path="Spaces" hit="After comma" />
+    <option name="after" path="ScalaDoc" hit="After parameter descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="After parameter descriptions" />
+    <option name="parameter" path="ScalaDoc" hit="After parameter descriptions" />
+    <option name="after" path="ScalaDoc" hit="After return" />
+    <option name="return" path="ScalaDoc" hit="After return" />
+    <option name="align" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="method" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="start" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="throws" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="to" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="align" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="assignments" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="fields" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align if-else statements" />
+    <option name="if-else" path="Wrapping and Braces" hit="Align if-else statements" />
+    <option name="statements" path="Wrapping and Braces" hit="Align if-else statements" />
+    <option name="align" path="Wrapping and Braces" hit="Align in columns 'case' branches" />
+    <option name="branches" path="Wrapping and Braces" hit="Align in columns 'case' branches" />
+    <option name="case" path="Wrapping and Braces" hit="Align in columns 'case' branches" />
+    <option name="columns" path="Wrapping and Braces" hit="Align in columns 'case' branches" />
+    <option name="in" path="Wrapping and Braces" hit="Align in columns 'case' branches" />
+    <option name="align" path="ScalaDoc" hit="Align list items content" />
+    <option name="content" path="ScalaDoc" hit="Align list items content" />
+    <option name="items" path="ScalaDoc" hit="Align list items content" />
+    <option name="list" path="ScalaDoc" hit="Align list items content" />
+    <option name="align" path="Wrapping and Braces" hit="Align multiline pattern alternatives" />
+    <option name="alternatives" path="Wrapping and Braces" hit="Align multiline pattern alternatives" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align multiline pattern alternatives" />
+    <option name="pattern" path="Wrapping and Braces" hit="Align multiline pattern alternatives" />
+    <option name="align" path="ScalaDoc" hit="Align other tags descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="Align other tags descriptions" />
+    <option name="other" path="ScalaDoc" hit="Align other tags descriptions" />
+    <option name="tags" path="ScalaDoc" hit="Align other tags descriptions" />
+    <option name="align" path="ScalaDoc" hit="Align parameter descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="Align parameter descriptions" />
+    <option name="parameter" path="ScalaDoc" hit="Align parameter descriptions" />
+    <option name="align" path="Wrapping and Braces" hit="Align parameter types when multiline" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align parameter types when multiline" />
+    <option name="parameter" path="Wrapping and Braces" hit="Align parameter types when multiline" />
+    <option name="types" path="Wrapping and Braces" hit="Align parameter types when multiline" />
+    <option name="when" path="Wrapping and Braces" hit="Align parameter types when multiline" />
+    <option name="align" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="parenthesised" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="when" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="align" path="ScalaDoc" hit="Align return value description" />
+    <option name="description" path="ScalaDoc" hit="Align return value description" />
+    <option name="return" path="ScalaDoc" hit="Align return value description" />
+    <option name="value" path="ScalaDoc" hit="Align return value description" />
+    <option name="align" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="methods" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="simple" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="align" path="ScalaDoc" hit="Align throws exception descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="Align throws exception descriptions" />
+    <option name="exception" path="ScalaDoc" hit="Align throws exception descriptions" />
+    <option name="throws" path="ScalaDoc" hit="Align throws exception descriptions" />
+    <option name="align" path="Wrapping and Braces" hit="Align tuple elements" />
+    <option name="elements" path="Wrapping and Braces" hit="Align tuple elements" />
+    <option name="tuple" path="Wrapping and Braces" hit="Align tuple elements" />
+    <option name="align" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="variables" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="when" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="alignment" path="ScalaDoc" hit="Alignment" />
+    <option name="anonymous" path="Wrapping and Braces" hit="Anonymous method definition" />
+    <option name="definition" path="Wrapping and Braces" hit="Anonymous method definition" />
+    <option name="method" path="Wrapping and Braces" hit="Anonymous method definition" />
+    <option name="around" path="Spaces" hit="Around '@' in pattern bindings" />
+    <option name="bindings" path="Spaces" hit="Around '@' in pattern bindings" />
+    <option name="in" path="Spaces" hit="Around '@' in pattern bindings" />
+    <option name="pattern" path="Spaces" hit="Around '@' in pattern bindings" />
+    <option name="array" path="Wrapping and Braces" hit="Array initializer" />
+    <option name="initializer" path="Wrapping and Braces" hit="Array initializer" />
+    <option name="assert" path="Wrapping and Braces" hit="Assert statement" />
+    <option name="statement" path="Wrapping and Braces" hit="Assert statement" />
+    <option name="assignment" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="line" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="next" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="on" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="sign" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="assignment" path="Wrapping and Braces" hit="Assignment statement" />
+    <option name="statement" path="Wrapping and Braces" hit="Assignment statement" />
+    <option name="after" path="Spaces" hit="Before colon, after declarations' name" />
+    <option name="before" path="Spaces" hit="Before colon, after declarations' name" />
+    <option name="colon" path="Spaces" hit="Before colon, after declarations' name" />
+    <option name="declarations" path="Spaces" hit="Before colon, after declarations' name" />
+    <option name="name" path="Spaces" hit="Before colon, after declarations' name" />
+    <option name="before" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="bound" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="colon" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="context" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="higher-kinded" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="leading" path="Spaces" hit="Before context bound colon (leading higher-kinded)" />
+    <option name="before" path="Spaces" hit="Before context bound colon (leading)" />
+    <option name="bound" path="Spaces" hit="Before context bound colon (leading)" />
+    <option name="colon" path="Spaces" hit="Before context bound colon (leading)" />
+    <option name="context" path="Spaces" hit="Before context bound colon (leading)" />
+    <option name="leading" path="Spaces" hit="Before context bound colon (leading)" />
+    <option name="before" path="Spaces" hit="Before context bound colon (rest)" />
+    <option name="bound" path="Spaces" hit="Before context bound colon (rest)" />
+    <option name="colon" path="Spaces" hit="Before context bound colon (rest)" />
+    <option name="context" path="Spaces" hit="Before context bound colon (rest)" />
+    <option name="rest" path="Spaces" hit="Before context bound colon (rest)" />
+    <option name="before" path="Spaces" hit="Before left brace" />
+    <option name="brace" path="Spaces" hit="Before left brace" />
+    <option name="left" path="Spaces" hit="Before left brace" />
+    <option name="before" path="Spaces" hit="Before opening square bracket" />
+    <option name="bracket" path="Spaces" hit="Before opening square bracket" />
+    <option name="opening" path="Spaces" hit="Before opening square bracket" />
+    <option name="square" path="Spaces" hit="Before opening square bracket" />
+    <option name="before" path="ScalaDoc" hit="Before parameter descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="Before parameter descriptions" />
+    <option name="parameter" path="ScalaDoc" hit="Before parameter descriptions" />
+    <option name="before" path="Spaces" hit="Before parentheses" />
+    <option name="parentheses" path="Spaces" hit="Before parentheses" />
+    <option name="before" path="ScalaDoc" hit="Before tags" />
+    <option name="tags" path="ScalaDoc" hit="Before tags" />
+    <option name="between" path="ScalaDoc" hit="Between parameter descriptions" />
+    <option name="descriptions" path="ScalaDoc" hit="Between parameter descriptions" />
+    <option name="parameter" path="ScalaDoc" hit="Between parameter descriptions" />
+    <option name="binary" path="Wrapping and Braces" hit="Binary expressions" />
+    <option name="expressions" path="Wrapping and Braces" hit="Binary expressions" />
+    <option name="blank" path="ScalaDoc" hit="Blank lines" />
+    <option name="lines" path="ScalaDoc" hit="Blank lines" />
+    <option name="braces" path="Wrapping and Braces" hit="Braces placement" />
+    <option name="placement" path="Wrapping and Braces" hit="Braces placement" />
+    <option name="brackets" path="Spaces" hit="Brackets" />
+    <option name="builder" path="Wrapping and Braces" hit="Builder methods" />
+    <option name="methods" path="Wrapping and Braces" hit="Builder methods" />
+    <option name="calls" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="chained" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="method" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="annotations" path="Wrapping and Braces" hit="Class annotations" />
+    <option name="class" path="Wrapping and Braces" hit="Class annotations" />
+    <option name="class" path="Wrapping and Braces" hit="Class definition" />
+    <option name="definition" path="Wrapping and Braces" hit="Class definition" />
+    <option name="brace" path="Spaces" hit="Class left brace" />
+    <option name="class" path="Spaces" hit="Class left brace" />
+    <option name="left" path="Spaces" hit="Class left brace" />
+    <option name="at" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="column" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="comment" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="first" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="comments" path="Wrapping and Braces" hit="Comments" />
+    <option name="constructor" path="Spaces" hit="Constructor parameters with modifiers" />
+    <option name="modifiers" path="Spaces" hit="Constructor parameters with modifiers" />
+    <option name="parameters" path="Spaces" hit="Constructor parameters with modifiers" />
+    <option name="with" path="Spaces" hit="Constructor parameters with modifiers" />
+    <option name="control" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="statement" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="align" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="block" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="do" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="expression" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="not" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="parameters" path="Wrapping and Braces" hit="Do not align block expression parameters" />
+    <option name="body" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="case" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="clause" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="do" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="indent" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="not" path="Wrapping and Braces" hit="Do not indent case clause body" />
+    <option name="closing" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="do" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="indent" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="not" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="parenthesis" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="tuples" path="Wrapping and Braces" hit="Do not indent tuples closing parenthesis" />
+    <option name="a" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="case" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="each" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="line" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="on" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="separate" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="call" path="Spaces" hit="Empty method call parentheses" />
+    <option name="empty" path="Spaces" hit="Empty method call parentheses" />
+    <option name="method" path="Spaces" hit="Empty method call parentheses" />
+    <option name="parentheses" path="Spaces" hit="Empty method call parentheses" />
+    <option name="ensure" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="exceeded" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="is" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="margin" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="not" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="right" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="constants" path="Wrapping and Braces" hit="Enum constants" />
+    <option name="enum" path="Wrapping and Braces" hit="Enum constants" />
+    <option name="extends" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="implements" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="keyword" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="permits" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="extends" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="implements" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="list" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="permits" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="annotations" path="Wrapping and Braces" hit="Field annotations" />
+    <option name="field" path="Wrapping and Braces" hit="Field annotations" />
+    <option name="braces" path="Wrapping and Braces" hit="Force 'case' branch braces" />
+    <option name="branch" path="Wrapping and Braces" hit="Force 'case' branch braces" />
+    <option name="case" path="Wrapping and Braces" hit="Force 'case' branch braces" />
+    <option name="force" path="Wrapping and Braces" hit="Force 'case' branch braces" />
+    <option name="braces" path="Wrapping and Braces" hit="Force 'finally' braces" />
+    <option name="finally" path="Wrapping and Braces" hit="Force 'finally' braces" />
+    <option name="force" path="Wrapping and Braces" hit="Force 'finally' braces" />
+    <option name="braces" path="Wrapping and Braces" hit="Force 'try' braces" />
+    <option name="force" path="Wrapping and Braces" hit="Force 'try' braces" />
+    <option name="try" path="Wrapping and Braces" hit="Force 'try' braces" />
+    <option name="braces" path="Wrapping and Braces" hit="Force braces" />
+    <option name="force" path="Wrapping and Braces" hit="Force braces" />
+    <option name="declarations" path="Wrapping and Braces" hit="Group declarations" />
+    <option name="group" path="Wrapping and Braces" hit="Group declarations" />
+    <option name="grouping" path="Spaces" hit="Grouping parentheses" />
+    <option name="parentheses" path="Spaces" hit="Grouping parentheses" />
+    <option name="at" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="hard" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="wrap" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="braces" path="Spaces" hit="Import braces" />
+    <option name="import" path="Spaces" hit="Import braces" />
+    <option name="class" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="lambda" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="method" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent" />
+    <option name="break" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="case" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="from" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="branches" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="case" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="3" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="arguments" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="colons" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="scala" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="with" path="Wrapping and Braces" hit="Indent arguments with colons (Scala 3)" />
+    <option name="arguments" path="Wrapping and Braces" hit="Indent braced arguments" />
+    <option name="braced" path="Wrapping and Braces" hit="Indent braced arguments" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent braced arguments" />
+    <option name="clause" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="first" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="if" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="parameter" path="Wrapping and Braces" hit="Indent first parameter clause if on new line" />
+    <option name="first" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="if" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="parameter" path="Wrapping and Braces" hit="Indent first parameter if on new line" />
+    <option name="after" path="Wrapping and Braces" hit="Indent yield after one-line enumerators" />
+    <option name="enumerators" path="Wrapping and Braces" hit="Indent yield after one-line enumerators" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent yield after one-line enumerators" />
+    <option name="one-line" path="Wrapping and Braces" hit="Indent yield after one-line enumerators" />
+    <option name="yield" path="Wrapping and Braces" hit="Indent yield after one-line enumerators" />
+    <option name="call" path="Spaces" hit="Infix method call parentheses" />
+    <option name="infix" path="Spaces" hit="Infix method call parentheses" />
+    <option name="method" path="Spaces" hit="Infix method call parentheses" />
+    <option name="parentheses" path="Spaces" hit="Infix method call parentheses" />
+    <option name="infix" path="Spaces" hit="Infix method parentheses" />
+    <option name="method" path="Spaces" hit="Infix method parentheses" />
+    <option name="parentheses" path="Spaces" hit="Infix method parentheses" />
+    <option name="call" path="Spaces" hit="Infix operator-like method call parentheses" />
+    <option name="infix" path="Spaces" hit="Infix operator-like method call parentheses" />
+    <option name="method" path="Spaces" hit="Infix operator-like method call parentheses" />
+    <option name="operator-like" path="Spaces" hit="Infix operator-like method call parentheses" />
+    <option name="parentheses" path="Spaces" hit="Infix operator-like method call parentheses" />
+    <option name="braces" path="Spaces" hit="Inside closure braces" />
+    <option name="closure" path="Spaces" hit="Inside closure braces" />
+    <option name="inside" path="Spaces" hit="Inside closure braces" />
+    <option name="be" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="between" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="blank" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="keep" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="lines" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="not" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="removed" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="tags" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="will" path="ScalaDoc" hit="Keep (blank lines between tags will not be removed)" />
+    <option name="builder" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="indents" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="methods" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="comments" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="keep" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="line" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="on" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="one-line" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="same" path="Spaces" hit="Keep one-line comments on same line" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="reformatting" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="when" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="formatting" path="Wrapping and Braces" hit="Keep xml formatting" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep xml formatting" />
+    <option name="xml" path="Wrapping and Braces" hit="Keep xml formatting" />
+    <option name="breaks" path="Wrapping and Braces" hit="Line breaks" />
+    <option name="line" path="Wrapping and Braces" hit="Line breaks" />
+    <option name="annotations" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="local" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="variable" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="annotations" path="Wrapping and Braces" hit="Method annotations" />
+    <option name="method" path="Wrapping and Braces" hit="Method annotations" />
+    <option name="arguments" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="call" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="method" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="brace" path="Spaces" hit="Method call left brace" />
+    <option name="call" path="Spaces" hit="Method call left brace" />
+    <option name="left" path="Spaces" hit="Method call left brace" />
+    <option name="method" path="Spaces" hit="Method call left brace" />
+    <option name="call" path="Spaces" hit="Method call parentheses" />
+    <option name="method" path="Spaces" hit="Method call parentheses" />
+    <option name="parentheses" path="Spaces" hit="Method call parentheses" />
+    <option name="declaration" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="method" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="parameters" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="declaration" path="Spaces" hit="Method declaration parentheses" />
+    <option name="method" path="Spaces" hit="Method declaration parentheses" />
+    <option name="parentheses" path="Spaces" hit="Method declaration parentheses" />
+    <option name="definition" path="Wrapping and Braces" hit="Method definition" />
+    <option name="method" path="Wrapping and Braces" hit="Method definition" />
+    <option name="brace" path="Spaces" hit="Method left brace" />
+    <option name="left" path="Spaces" hit="Method left brace" />
+    <option name="method" path="Spaces" hit="Method left brace" />
+    <option name="method" path="Wrapping and Braces" hit="Method parentheses" />
+    <option name="parentheses" path="Wrapping and Braces" hit="Method parentheses" />
+    <option name="list" path="Wrapping and Braces" hit="Modifier list" />
+    <option name="modifier" path="Wrapping and Braces" hit="Modifier list" />
+    <option name="expressions" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="multiple" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="after" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="line" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="new" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="after" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="line" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="new" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="after" path="Spaces" hit="Newline after annotations" />
+    <option name="annotations" path="Spaces" hit="Newline after annotations" />
+    <option name="newline" path="Spaces" hit="Newline after annotations" />
+    <option name="line" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="next" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="on" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="operation" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="sign" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="other" path="Wrapping and Braces" hit="Other" />
+    <option name="annotations" path="Wrapping and Braces" hit="Parameter annotations" />
+    <option name="parameter" path="Wrapping and Braces" hit="Parameter annotations" />
+    <option name="line" path="Wrapping and Braces" hit="Parameters on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Parameters on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Parameters on new line" />
+    <option name="parameters" path="Wrapping and Braces" hit="Parameters on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="self" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="type" path="Wrapping and Braces" hit="Place self type on new line" />
+    <option name="before" path="Spaces" hit="Preserve space before method parentheses" />
+    <option name="method" path="Spaces" hit="Preserve space before method parentheses" />
+    <option name="parentheses" path="Spaces" hit="Preserve space before method parentheses" />
+    <option name="preserve" path="Spaces" hit="Preserve space before method parentheses" />
+    <option name="space" path="Spaces" hit="Preserve space before method parentheses" />
+    <option name="in" path="ScalaDoc" hit="Preserve spaces in tags" />
+    <option name="preserve" path="ScalaDoc" hit="Preserve spaces in tags" />
+    <option name="spaces" path="ScalaDoc" hit="Preserve spaces in tags" />
+    <option name="tags" path="ScalaDoc" hit="Preserve spaces in tags" />
+    <option name="braces" path="Spaces" hit="Self type braces" />
+    <option name="self" path="Spaces" hit="Self type braces" />
+    <option name="type" path="Spaces" hit="Self type braces" />
+    <option name="blocks" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="classes" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="lambdas" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="methods" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="block" path="Spaces" hit="Simple one line block braces" />
+    <option name="braces" path="Spaces" hit="Simple one line block braces" />
+    <option name="line" path="Spaces" hit="Simple one line block braces" />
+    <option name="one" path="Spaces" hit="Simple one line block braces" />
+    <option name="simple" path="Spaces" hit="Simple one line block braces" />
+    <option name="arg" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="in" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="lambdas" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="list" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="one-line" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple one-line lambdas in arg list" />
+    <option name="else" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="if" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="special" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="treatment" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="call" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="chain" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="over" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="priority" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="take" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="wrapping" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="operation" path="Wrapping and Braces" hit="Ternary operation" />
+    <option name="ternary" path="Wrapping and Braces" hit="Ternary operation" />
+    <option name="keyword" path="Wrapping and Braces" hit="Throws keyword" />
+    <option name="throws" path="Wrapping and Braces" hit="Throws keyword" />
+    <option name="list" path="Wrapping and Braces" hit="Throws list" />
+    <option name="throws" path="Wrapping and Braces" hit="Throws list" />
+    <option name="tuple" path="Wrapping and Braces" hit="Tuple" />
+    <option name="arguments" path="Wrapping and Braces" hit="Type Arguments" />
+    <option name="type" path="Wrapping and Braces" hit="Type Arguments" />
+    <option name="parameters" path="Wrapping and Braces" hit="Type Parameters" />
+    <option name="type" path="Wrapping and Braces" hit="Type Parameters" />
+    <option name="arguments" path="Spaces" hit="Type arguments" />
+    <option name="type" path="Spaces" hit="Type arguments" />
+    <option name="parameters" path="Spaces" hit="Type parameters" />
+    <option name="type" path="Spaces" hit="Type parameters" />
+    <option name="for" path="Wrapping and Braces" hit="Use normal indent for parameters" />
+    <option name="indent" path="Wrapping and Braces" hit="Use normal indent for parameters" />
+    <option name="normal" path="Wrapping and Braces" hit="Use normal indent for parameters" />
+    <option name="parameters" path="Wrapping and Braces" hit="Use normal indent for parameters" />
+    <option name="use" path="Wrapping and Braces" hit="Use normal indent for parameters" />
+    <option name="guides" path="Wrapping and Braces" hit="Visual guides" />
+    <option name="visual" path="Wrapping and Braces" hit="Visual guides" />
+    <option name="within" path="Spaces" hit="Within" />
+    <option name="after" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="list" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="modifier" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="at" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="margin" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="right" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="before" path="Wrapping and Braces" hit="Wrap before 'with' keyword" />
+    <option name="keyword" path="Wrapping and Braces" hit="Wrap before 'with' keyword" />
+    <option name="with" path="Wrapping and Braces" hit="Wrap before 'with' keyword" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap before 'with' keyword" />
+    <option name="call" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="first" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="on" path="Wrapping and Braces" hit="Wrap on typing" />
+    <option name="typing" path="Wrapping and Braces" hit="Wrap on typing" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap on typing" />
+    <option name="formatting" path="Wrapping and Braces" hit="Xml formatting" />
+    <option name="xml" path="Wrapping and Braces" hit="Xml formatting" />
+  </configurable>
+  <configurable id="copyright.filetypes.Scala" configurable_name="Scala">
+    <option name="a" hit="Add blank line after" />
+    <option name="after" hit="Add blank line after" />
+    <option name="blank" hit="Add blank line after" />
+    <option name="dd" hit="Add blank line after" />
+    <option name="line" hit="Add blank line after" />
+    <option name="add" hit="Add blank line before" />
+    <option name="before" hit="Add blank line before" />
+    <option name="blank" hit="Add blank line before" />
+    <option name="line" hit="Add blank line before" />
+    <option name="afte" hit="After other comments" />
+    <option name="comments" hit="After other comments" />
+    <option name="other" hit="After other comments" />
+    <option name="r" hit="After other comments" />
+    <option name="bef" hit="Before other comments" />
+    <option name="comments" hit="Before other comments" />
+    <option name="ore" hit="Before other comments" />
+    <option name="other" hit="Before other comments" />
+    <option name="borders" hit="Borders" />
+    <option name="box" hit="Box" />
+    <option name="comment" hit="Comment Type" />
+    <option name="type" hit="Comment Type" />
+    <option name="length" hit="Length:" />
+    <option name="copyright" hit="No copyright" />
+    <option name="no" hit="No copyright" />
+    <option name="each" hit="Prefix each line" />
+    <option name="line" hit="Prefix each line" />
+    <option name="prefix" hit="Prefix each line" />
+    <option name="location" hit="Relative Location" />
+    <option name="relative" hit="Relative Location" />
+    <option name="scala" hit="Scala" />
+    <option name="after" hit="Separator after" />
+    <option name="separator" hit="Separator after" />
+    <option name="before" hit="Separator before" />
+    <option name="separator" hit="Separator before" />
+    <option name="separator" hit="Separator:" />
+    <option name="block" hit="Use block comment" />
+    <option name="comment" hit="Use block comment" />
+    <option name="use" hit="Use block comment" />
+    <option name="custom" hit="Use custom formatting options" />
+    <option name="formatting" hit="Use custom formatting options" />
+    <option name="options" hit="Use custom formatting options" />
+    <option name="use" hit="Use custom formatting options" />
+    <option name="default" hit="Use default settings" />
+    <option name="settings" hit="Use default settings" />
+    <option name="use" hit="Use default settings" />
+    <option name="comment" hit="Use line comment" />
+    <option name="line" hit="Use line comment" />
+    <option name="use" hit="Use line comment" />
+  </configurable>
+  <configurable id="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable" configurable_name="Scala">
+    <option name="add" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="implementation" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="keyword" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="method" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="override" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="to" path="Editor" hit="Add override keyword to method implementation" />
+    <option name="ahead-of-time" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="and" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="completion" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="names" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="parameter" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="variable" path="Editor" hit="Ahead-of-time completion (parameter and variable names)" />
+    <option name="aliases" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="and" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="are" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="in" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="predef" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="scala" path="Editor" hit="Aliases in scala and scala.Predef are:" />
+    <option name="all" path="Editor" hit="All" />
+    <option name="always" path="Worksheet" hit="Always Ammonite" />
+    <option name="ammonite" path="Worksheet" hit="Always Ammonite" />
+    <option name="always" path="Worksheet" hit="Always Worksheet" />
+    <option name="worksheet" path="Worksheet" hit="Always Worksheet" />
+    <option name="ammonite" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="in" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="otherwise" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="sources" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="test" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="worksheet" path="Worksheet" hit="Ammonite in test sources, otherwise Worksheet" />
+    <option name="auto" path="Misc" hit="Auto" />
+    <option name="autocomplete" path="Editor" hit="Autocomplete" />
+    <option name="base" path="Base Packages" hit="Base Packages" />
+    <option name="packages" path="Base Packages" hit="Base Packages" />
+    <option name="built-in" path="Editor" hit="Built-in" />
+    <option name="check" path="Updates" hit="Check Now" />
+    <option name="now" path="Updates" hit="Check Now" />
+    <option name="classes" path="Performance" hit="Classes" />
+    <option name="code" path="Editor" hit="Code Conversion" />
+    <option name="conversion" path="Editor" hit="Code Conversion" />
+    <option name="by" path="Worksheet" hit="Collapse long output by default" />
+    <option name="collapse" path="Worksheet" hit="Collapse long output by default" />
+    <option name="default" path="Worksheet" hit="Collapse long output by default" />
+    <option name="long" path="Worksheet" hit="Collapse long output by default" />
+    <option name="output" path="Worksheet" hit="Collapse long output by default" />
+    <option name="collection" path="Editor" hit="Collection type highlighting:" />
+    <option name="highlighting" path="Editor" hit="Collection type highlighting:" />
+    <option name="type" path="Editor" hit="Collection type highlighting:" />
+    <option name="compiler" path="Editor" hit="Compiler" />
+    <option name="code" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="convert" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="copy-paste" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="java" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="on" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="scala" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="to" path="Editor" hit="Convert Java code to Scala on copy-paste" />
+    <option name="custom" path="Editor" hit="Custom scalaTest keywords highlighting" />
+    <option name="highlighting" path="Editor" hit="Custom scalaTest keywords highlighting" />
+    <option name="keywords" path="Editor" hit="Custom scalaTest keywords highlighting" />
+    <option name="scalatest" path="Editor" hit="Custom scalaTest keywords highlighting" />
+    <option name="definitions" path="Editor" hit="Definitions" />
+    <option name="auto-run" path="Worksheet" hit="Delay before auto-run:" />
+    <option name="before" path="Worksheet" hit="Delay before auto-run:" />
+    <option name="delay" path="Worksheet" hit="Delay before auto-run:" />
+    <option name="auto" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="completion" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="disable" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="files" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="freeze" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="in" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="injected" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="injection" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="language" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="languages" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="may" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="popup" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="scala" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="typing" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="with" path="Performance" hit="Disable language injection in Scala files (injected languages may freeze typing with auto popup completion)" />
+    <option name="comments" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="disable" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="documentation" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="editor" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="files" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="for" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="improve" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="large" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="may" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="of" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="parsing" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="performance" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="scl-2900" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="this" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="very" path="Performance" hit="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)" />
+    <option name="disabled" path="Performance" hit="Disabled" />
+    <option name="big" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="cache" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="case" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="compound" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="don" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="gc" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="in" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="it" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="of" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="pauses" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="t" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="types" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="use" path="Performance" hit="Don't cache compound types (use it in case of big pauses in GC)" />
+    <option name="and" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="automatically" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="code" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="convert" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="dialog" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="don" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="on" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="paste" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="scala" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="show" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="t" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="to" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="access" path="Updates" hit="Early Access Program" />
+    <option name="early" path="Updates" hit="Early Access Program" />
+    <option name="program" path="Updates" hit="Early Access Program" />
+    <option name="editor" path="Editor" hit="Editor" />
+    <option name="enable" path="Extensions" hit="Enable loading external extensions" />
+    <option name="extensions" path="Extensions" hit="Enable loading external extensions" />
+    <option name="external" path="Extensions" hit="Enable loading external extensions" />
+    <option name="loading" path="Extensions" hit="Enable loading external extensions" />
+    <option name="enabled" path="Performance" hit="Enabled" />
+    <option name="error" path="Editor" hit="Error highlighting" />
+    <option name="highlighting" path="Editor" hit="Error highlighting" />
+    <option name="execution" path="Performance" hit="Execution of scala.meta programs" />
+    <option name="meta" path="Performance" hit="Execution of scala.meta programs" />
+    <option name="of" path="Performance" hit="Execution of scala.meta programs" />
+    <option name="programs" path="Performance" hit="Execution of scala.meta programs" />
+    <option name="scala" path="Performance" hit="Execution of scala.meta programs" />
+    <option name="exports" path="Editor" hit="Exports" />
+    <option name="extensions" path="Extensions" hit="Extensions" />
+    <option name="extensions" path="Extensions" hit="Extensions in selected library" />
+    <option name="in" path="Extensions" hit="Extensions in selected library" />
+    <option name="library" path="Extensions" hit="Extensions in selected library" />
+    <option name="selected" path="Extensions" hit="Extensions in selected library" />
+    <option name="group" path="Project View" hit="Group package object with package" />
+    <option name="object" path="Project View" hit="Group package object with package" />
+    <option name="package" path="Project View" hit="Group package object with package" />
+    <option name="with" path="Project View" hit="Group package object with package" />
+    <option name="arguments" path="Editor" hit="Highlight arguments to by-name parameters" />
+    <option name="by-name" path="Editor" hit="Highlight arguments to by-name parameters" />
+    <option name="highlight" path="Editor" hit="Highlight arguments to by-name parameters" />
+    <option name="parameters" path="Editor" hit="Highlight arguments to by-name parameters" />
+    <option name="to" path="Editor" hit="Highlight arguments to by-name parameters" />
+    <option name="conversions" path="Editor" hit="Highlight implicit conversions" />
+    <option name="highlight" path="Editor" hit="Highlight implicit conversions" />
+    <option name="implicit" path="Editor" hit="Highlight implicit conversions" />
+    <option name="errors" path="Project View" hit="Highlight nodes with errors" />
+    <option name="highlight" path="Project View" hit="Highlight nodes with errors" />
+    <option name="nodes" path="Project View" hit="Highlight nodes with errors" />
+    <option name="with" path="Project View" hit="Highlight nodes with errors" />
+    <option name="highlighting" path="Editor" hit="Highlighting" />
+    <option name="-1" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="depth" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="for" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="implicit" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="none" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="parameters" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="search" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
+    <option name="block" path="Editor" hit="Include block expressions" />
+    <option name="expressions" path="Editor" hit="Include block expressions" />
+    <option name="include" path="Editor" hit="Include block expressions" />
+    <option name="include" path="Editor" hit="Include literals" />
+    <option name="literals" path="Editor" hit="Include literals" />
+    <option name="a" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="folder" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="from" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="inherit" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="of" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="package" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="prefix" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="source" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
+    <option name="extension" path="Extensions" hit="Known extension libraries" />
+    <option name="known" path="Extensions" hit="Known extension libraries" />
+    <option name="libraries" path="Extensions" hit="Known extension libraries" />
+    <option name="for" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="injection" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="interpolated" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="language" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="settings" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="strings" path="Misc" hit="Language Injection Settings for Interpolated Strings" />
+    <option name="cache" path="Performance" hit="Local ivy2 cache indexing mode" />
+    <option name="indexing" path="Performance" hit="Local ivy2 cache indexing mode" />
+    <option name="ivy2" path="Performance" hit="Local ivy2 cache indexing mode" />
+    <option name="local" path="Performance" hit="Local ivy2 cache indexing mode" />
+    <option name="mode" path="Performance" hit="Local ivy2 cache indexing mode" />
+    <option name="manual" path="Performance" hit="Manual" />
+    <option name="metadata" path="Performance" hit="Metadata" />
+    <option name="misc" path="Misc" hit="Misc" />
+    <option name="builds" path="Updates" hit="Nightly Builds" />
+    <option name="nightly" path="Updates" hit="Nightly Builds" />
+    <option name="none" path="Editor" hit="None" />
+    <option name="non-qualified" path="Editor" hit="Only non-qualified" />
+    <option name="only" path="Editor" hit="Only non-qualified" />
+    <option name="cutoff" path="Worksheet" hit="Output cutoff limit:" />
+    <option name="limit" path="Worksheet" hit="Output cutoff limit:" />
+    <option name="output" path="Worksheet" hit="Output cutoff limit:" />
+    <option name="performance" path="Performance" hit="Performance" />
+    <option name="project" path="Project View" hit="Project View" />
+    <option name="view" path="Project View" hit="Project View" />
+    <option name="compiler" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="in" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="mode" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="only" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="plain" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="process" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="run" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="the" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="worksheet" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
+    <option name="scala" hit="Scala" />
+    <option name="class" path="Misc" hit="ScalaTest default super class:" />
+    <option name="default" path="Misc" hit="ScalaTest default super class:" />
+    <option name="scalatest" path="Misc" hit="ScalaTest default super class:" />
+    <option name="super" path="Misc" hit="ScalaTest default super class:" />
+    <option name="all" path="Performance" hit="Search all symbols (include locals)" />
+    <option name="include" path="Performance" hit="Search all symbols (include locals)" />
+    <option name="locals" path="Performance" hit="Search all symbols (include locals)" />
+    <option name="search" path="Performance" hit="Search all symbols (include locals)" />
+    <option name="symbols" path="Performance" hit="Search all symbols (include locals)" />
+    <option name="ambiguous" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="arguments" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="found" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="hints" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="if" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="implicit" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="show" path="Editor" hit="Show hints if ambiguous implicit arguments found" />
+    <option name="arguments" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="found" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="hints" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="if" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="implicit" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="no" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="show" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="releases" path="Updates" hit="Stable Releases" />
+    <option name="stable" path="Updates" hit="Stable Releases" />
+    <option name="back" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="experimental" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="in" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="references" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="shared" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="sources" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="support" path="Misc" hit="Support back references in shared sources (experimental)" />
+    <option name="commas" path="Misc" hit="Trailing commas:" />
+    <option name="trailing" path="Misc" hit="Trailing commas:" />
+    <option name="as" path="Worksheet" hit="Treat .sc files as:" />
+    <option name="files" path="Worksheet" hit="Treat .sc files as:" />
+    <option name="sc" path="Worksheet" hit="Treat .sc files as:" />
+    <option name="treat" path="Worksheet" hit="Treat .sc files as:" />
+    <option name="as" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="files" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="scala" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="scratch" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="treat" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="worksheet" path="Worksheet" hit="Treat Scala scratch files as worksheet files" />
+    <option name="bodies" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="by" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="expanded" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="meta" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="method" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="scala" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="trim" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="channel" path="Updates" hit="Update channel:" />
+    <option name="update" path="Updates" hit="Update channel:" />
+    <option name="updates" path="Updates" hit="Updates" />
+    <option name="compatibility" path="Worksheet" hit="Use &quot;eclipse compatibility&quot; mode" />
+    <option name="eclipse" path="Worksheet" hit="Use &quot;eclipse compatibility&quot; mode" />
+    <option name="mode" path="Worksheet" hit="Use &quot;eclipse compatibility&quot; mode" />
+    <option name="use" path="Worksheet" hit="Use &quot;eclipse compatibility&quot; mode" />
+    <option name="classes" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="java" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="over" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="priority" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="scala" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="use" path="Editor" hit="Use Scala classes priority over Java classes" />
+    <option name="custom" path="Base Packages" hit="Use custom:" />
+    <option name="use" path="Base Packages" hit="Use custom:" />
+    <option name="by" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="compiler" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="ranges" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="reported" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="scala" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="text" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="the" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="use" path="Editor" hit="Use text ranges reported by the Scala compiler" />
+    <option name="worksheet" path="Worksheet" hit="Worksheet" />
+    <option name="a" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="access" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="always" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="build" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="can" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="early" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="more" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="or" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="program" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="release" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="revert" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="select" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="stable" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="to" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="you" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
+    <option name="lines" path="Worksheet" hit="lines" />
+    <option name="milliseconds" path="Worksheet" hit="milliseconds" />
+  </configurable>
+  <configurable id="scala.compiler" configurable_name="Scala Compiler">
+    <option name="additional" hit="Additional compiler options:" />
+    <option name="compiler" hit="Additional compiler options:" />
+    <option name="options" hit="Additional compiler options:" />
+    <option name="compile" hit="Compile order:" />
+    <option name="order" hit="Compile order:" />
+    <option name="compiler" hit="Compiler plugins" />
+    <option name="plugins" hit="Compiler plugins" />
+    <option name="call" hit="Complete, no tail call optimization" />
+    <option name="complete" hit="Complete, no tail call optimization" />
+    <option name="no" hit="Complete, no tail call optimization" />
+    <option name="optimization" hit="Complete, no tail call optimization" />
+    <option name="tail" hit="Complete, no tail call optimization" />
+    <option name="debugging" hit="Debugging info level:" />
+    <option name="info" hit="Debugging info level:" />
+    <option name="level" hit="Debugging info level:" />
+    <option name="deprecation" hit="Deprecation warnings" />
+    <option name="warnings" hit="Deprecation warnings" />
+    <option name="dynamics" hit="Dynamics" />
+    <option name="continuations" hit="Enable continuations" />
+    <option name="enable" hit="Enable continuations" />
+    <option name="enable" hit="Enable specialization" />
+    <option name="specialization" hit="Enable specialization" />
+    <option name="enable" hit="Enable warnings" />
+    <option name="warnings" hit="Enable warnings" />
+    <option name="existential" hit="Existential types" />
+    <option name="types" hit="Existential types" />
+    <option name="experimental" hit="Experimental Features" />
+    <option name="features" hit="Experimental Features" />
+    <option name="errors" hit="Explain type errors" />
+    <option name="explain" hit="Explain type errors" />
+    <option name="type" hit="Explain type errors" />
+    <option name="feature" hit="Feature warnings" />
+    <option name="warnings" hit="Feature warnings" />
+    <option name="features" hit="Features" />
+    <option name="higher-kinded" hit="Higher-kinded types" />
+    <option name="types" hit="Higher-kinded types" />
+    <option name="idea" hit="IDEA" />
+    <option name="conversions" hit="Implicit conversions" />
+    <option name="implicit" hit="Implicit conversions" />
+    <option name="incrementality" hit="Incrementality type:" />
+    <option name="type" hit="Incrementality type:" />
+    <option name="java" hit="Java then Scala" />
+    <option name="scala" hit="Java then Scala" />
+    <option name="then" hit="Java then Scala" />
+    <option name="macros" hit="Macros" />
+    <option name="mixed" hit="Mixed" />
+    <option name="none" hit="None" />
+    <option name="bytecode" hit="Optimise bytecode (use with care*)" />
+    <option name="care" hit="Optimise bytecode (use with care*)" />
+    <option name="optimise" hit="Optimise bytecode (use with care*)" />
+    <option name="use" hit="Optimise bytecode (use with care*)" />
+    <option name="with" hit="Optimise bytecode (use with care*)" />
+    <option name="options" hit="Options" />
+    <option name="notation" hit="Postfix operator notation" />
+    <option name="operator" hit="Postfix operator notation" />
+    <option name="postfix" hit="Postfix operator notation" />
+    <option name="calls" hit="Reflective calls" />
+    <option name="reflective" hit="Reflective calls" />
+    <option name="compiler" hit="Scala Compiler" />
+    <option name="scala" hit="Scala Compiler" />
+    <option name="java" hit="Scala then Java" />
+    <option name="scala" hit="Scala then Java" />
+    <option name="then" hit="Scala then Java" />
+    <option name="and" hit="Source and line number information" />
+    <option name="information" hit="Source and line number information" />
+    <option name="line" hit="Source and line number information" />
+    <option name="number" hit="Source and line number information" />
+    <option name="source" hit="Source and line number information" />
+    <option name="attribute" hit="Source file attribute" />
+    <option name="file" hit="Source file attribute" />
+    <option name="source" hit="Source file attribute" />
+    <option name="and" hit="Source, line number and local variable information" />
+    <option name="information" hit="Source, line number and local variable information" />
+    <option name="line" hit="Source, line number and local variable information" />
+    <option name="local" hit="Source, line number and local variable information" />
+    <option name="number" hit="Source, line number and local variable information" />
+    <option name="source" hit="Source, line number and local variable information" />
+    <option name="variable" hit="Source, line number and local variable information" />
+    <option name="unchecked" hit="Unchecked warnings" />
+    <option name="warnings" hit="Unchecked warnings" />
+    <option name="zinc" hit="Zinc" />
+  </configurable>
+  <configurable id="sbt.project.settings.configurable" configurable_name="sbt">
+    <option name="environment" hit="Environment variables" />
+    <option name="variables" hit="Environment variables" />
+    <option name="general" hit="General Settings" />
+    <option name="settings" hit="General Settings" />
+    <option name="jre" hit="JRE:" />
+    <option name="jar" hit="Launcher (sbt-launch.jar)" />
+    <option name="launcher" hit="Launcher (sbt-launch.jar)" />
+    <option name="sbt-launch" hit="Launcher (sbt-launch.jar)" />
+    <option name="heap" hit="Maximum heap size, MB" />
+    <option name="maximum" hit="Maximum heap size, MB" />
+    <option name="mb" hit="Maximum heap size, MB" />
+    <option name="size" hit="Maximum heap size, MB" />
+    <option name="options" hit="Sbt options" />
+    <option name="sbt" hit="Sbt options" />
+    <option name="parameters" hit="VM parameters" />
+    <option name="vm" hit="VM parameters" />
+    <option name="sbt" hit="sbt" />
+  </configurable>
+  <configurable id="bsp.project.settings.configurable" configurable_name="BSP">
+    <option name="bsp" hit="BSP" />
+    <option name="bsp" hit="BSP trace log" />
+    <option name="log" hit="BSP trace log" />
+    <option name="trace" hit="BSP trace log" />
+    <option name="enable" hit="Enable" />
+    <option name="general" hit="General Settings" />
+    <option name="settings" hit="General Settings" />
+  </configurable>
+  <configurable id="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm" configurable_name="Scala Compile Server">
+    <option name="compile" hit="Compile independent modules in parallel, in up to" />
+    <option name="in" hit="Compile independent modules in parallel, in up to" />
+    <option name="independent" hit="Compile independent modules in parallel, in up to" />
+    <option name="modules" hit="Compile independent modules in parallel, in up to" />
+    <option name="parallel" hit="Compile independent modules in parallel, in up to" />
+    <option name="to" hit="Compile independent modules in parallel, in up to" />
+    <option name="up" hit="Compile independent modules in parallel, in up to" />
+    <option name="jdk" hit="JDK:" />
+    <option name="jvm" hit="JVM" />
+    <option name="heap" hit="Maximum heap size, MB:" />
+    <option name="maximum" hit="Maximum heap size, MB:" />
+    <option name="mb" hit="Maximum heap size, MB:" />
+    <option name="size" hit="Maximum heap size, MB:" />
+    <option name="compile" hit="Scala Compile Server" />
+    <option name="scala" hit="Scala Compile Server" />
+    <option name="server" hit="Scala Compile Server" />
+    <option name="directory" hit="Start process in project directory" />
+    <option name="in" hit="Start process in project directory" />
+    <option name="process" hit="Start process in project directory" />
+    <option name="project" hit="Start process in project directory" />
+    <option name="start" hit="Start process in project directory" />
+    <option name="for" hit="Stop if idle for" />
+    <option name="idle" hit="Stop if idle for" />
+    <option name="if" hit="Stop if idle for" />
+    <option name="stop" hit="Stop if idle for" />
+    <option name="compile" hit="Use compile server" />
+    <option name="server" hit="Use compile server" />
+    <option name="use" hit="Use compile server" />
+    <option name="options" hit="VM options:" />
+    <option name="vm" hit="VM options:" />
+    <option name="minutes" hit="minutes" />
+    <option name="threads" hit="threads" />
+  </configurable>
+  <configurable id="Bytecode Indices" configurable_name="Bytecode Indices">
+    <option name="add" hit="Add the following line to build.sbt:" />
+    <option name="build" hit="Add the following line to build.sbt:" />
+    <option name="following" hit="Add the following line to build.sbt:" />
+    <option name="line" hit="Add the following line to build.sbt:" />
+    <option name="sbt" hit="Add the following line to build.sbt:" />
+    <option name="the" hit="Add the following line to build.sbt:" />
+    <option name="to" hit="Add the following line to build.sbt:" />
+    <option name="add" hit="Add the following line to project/plugins.sbt:" />
+    <option name="following" hit="Add the following line to project/plugins.sbt:" />
+    <option name="line" hit="Add the following line to project/plugins.sbt:" />
+    <option name="plugins" hit="Add the following line to project/plugins.sbt:" />
+    <option name="project" hit="Add the following line to project/plugins.sbt:" />
+    <option name="sbt" hit="Add the following line to project/plugins.sbt:" />
+    <option name="the" hit="Add the following line to project/plugins.sbt:" />
+    <option name="to" hit="Add the following line to project/plugins.sbt:" />
+    <option name="automatic" hit="Automatic (requires sbt shell)" />
+    <option name="requires" hit="Automatic (requires sbt shell)" />
+    <option name="sbt" hit="Automatic (requires sbt shell)" />
+    <option name="shell" hit="Automatic (requires sbt shell)" />
+    <option name="bytecode" hit="Bytecode Indices" />
+    <option name="indices" hit="Bytecode Indices" />
+    <option name="delete" hit="Delete indices" />
+    <option name="indices" hit="Delete indices" />
+    <option name="flatmap" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="for-comprehension" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="foreach" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="map" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="methods" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="withfilter" hit="For-comprehension methods (map, withFilter, flatMap, foreach)" />
+    <option name="definitions" hit="Implicit definitions" />
+    <option name="implicit" hit="Implicit definitions" />
+    <option name="class" hit="Index .class files" />
+    <option name="files" hit="Index .class files" />
+    <option name="index" hit="Index .class files" />
+    <option name="manual" hit="Manual" />
+    <option name="number" hit="Port number:" />
+    <option name="port" hit="Port number:" />
+    <option name="sam" hit="SAM types" />
+    <option name="types" hit="SAM types" />
+    <option name="for" hit="Use indices to search for usages of:" />
+    <option name="indices" hit="Use indices to search for usages of:" />
+    <option name="of" hit="Use indices to search for usages of:" />
+    <option name="search" hit="Use indices to search for usages of:" />
+    <option name="to" hit="Use indices to search for usages of:" />
+    <option name="usages" hit="Use indices to search for usages of:" />
+    <option name="use" hit="Use indices to search for usages of:" />
+    <option name="apply" hit="apply / unapply methods" />
+    <option name="methods" hit="apply / unapply methods" />
+    <option name="unapply" hit="apply / unapply methods" />
+    <option name="application-wide" hit="sbt compilation listener configuration (application-wide)" />
+    <option name="compilation" hit="sbt compilation listener configuration (application-wide)" />
+    <option name="configuration" hit="sbt compilation listener configuration (application-wide)" />
+    <option name="listener" hit="sbt compilation listener configuration (application-wide)" />
+    <option name="sbt" hit="sbt compilation listener configuration (application-wide)" />
+  </configurable>
+</options>
