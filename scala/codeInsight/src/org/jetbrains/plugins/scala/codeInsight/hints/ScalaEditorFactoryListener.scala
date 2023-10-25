@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
+import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
@@ -32,6 +35,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     component.removeMouseMotionListener(editorMouseListerner)
   }
 
+  private var keyPressEvent: KeyEvent = _
+
   private var mouseHasMoved = false
 
   private val editorFocusListener = new FocusAdapter {
@@ -39,6 +44,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (xRayMode) {
         xRayMode = false
       }
+      keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
     }
@@ -53,6 +59,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (e.getKeyCode == ModifierKey) {
         if (System.currentTimeMillis() - firstKeyPressTime < 500) {
           firstKeyPressTime = 0
+          keyPressEvent = e
           longDelay.stop()
           shortDelay.start()
         } else {
@@ -70,6 +77,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (xRayMode) {
         xRayMode = false
       }
+      keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
     }
@@ -97,6 +105,16 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     ScalaHintsSettings.xRayMode = b
     ImplicitHints.enabled = b
     ImplicitHints.updateInAllEditors()
+
+    if (b) {
+      keyPressEvent.getSource match {
+        case component: EditorComponentImpl =>
+          val action = ActionManager.getInstance.getAction(XRayModeAction.Id)
+          val event = AnActionEvent.createFromInputEvent(keyPressEvent, ActionPlaces.KEYBOARD_SHORTCUT, null, component.getEditor.getDataContext)
+          ActionUtil.performActionDumbAwareWithCallbacks(action, event)
+        case _ =>
+      }
+    }
   }
 
   private var indentGuidesShownSetting: Boolean = _

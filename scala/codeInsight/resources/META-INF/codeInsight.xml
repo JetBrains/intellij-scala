@@ -340,6 +340,8 @@
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
 
+        <action id="Scala.XRayMode" text="X-Ray Mode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction" />
+
         <group id="ScalaGenerateGroup">
             <separator/>
             <action id="Scala.GenerateEquals" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction" />
