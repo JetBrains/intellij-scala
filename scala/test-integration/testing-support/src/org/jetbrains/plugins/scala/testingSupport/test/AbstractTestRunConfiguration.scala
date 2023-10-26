@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package testingSupport
-package test
+package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
@@ -24,6 +22,7 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.testingSupport.TestingSupportBundle
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -174,7 +173,7 @@ abstract class AbstractTestRunConfiguration(
     val suiteClass = getSuiteClass
     suiteClass.fold(
       exception => {
-        Log.traceSafe(s"isValidSuite: false (${exception.getMessage})")
+        Log.traceSafe(s"isValidSuite: false (${exception.getMessageHtml.toString})")
         false
       },
       validityChecker.isValidSuite(clazz, _)
