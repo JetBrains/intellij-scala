@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExpressionExt, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
@@ -394,9 +395,39 @@ object TypeAdjuster extends ApplicationListener {
     result.toMap
   }
 
+  private def findIncomingExpressions(position: PsiElement): Seq[ScExpression] = {
+    @tailrec
+    def findIncomingExpressions(element: PsiElement): Set[ScExpression] =
+      element.getContext match {
+        case fun: ScFunctionDefinition if fun.returnTypeElement.contains(element) =>
+          fun.returnUsages
+        case variable: ScValueOrVariableDefinition if variable.typeElement.contains(element) =>
+          variable.expr.fold(Set.empty[ScExpression])(_.calculateTailReturns)
+        case typeElement: ScTypeElement =>
+          findIncomingExpressions(typeElement)
+        case _ =>
+          Set.empty
+      }
+
+    val incomingExpressions = findIncomingExpressions(position)
+    incomingExpressions.toSeq
+  }
+
   private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean): Option[ScTypeAliasDefinition] = {
     if (!useTypeAliases) None
     else {
+      val clazzTy = ScDesignatorType(clazz)
+      val incomingTypes =
+        findIncomingExpressions(position)
+          .filter(!_.isInstanceOf[PsiLiteral])
+          .flatMap(_.`type`().toOption)
+          .filter(!_.isAliasType)
+
+      // Let's not search for type aliases if one of the incoming types is obviously something else
+      if (incomingTypes.exists(_ equiv clazzTy)) {
+        return None
+      }
+
       class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS))(clazz) {
         var collected: Option[ScTypeAliasDefinition] = None
 

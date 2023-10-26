@@ -459,6 +459,48 @@ class ObjectTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
      """.stripMargin
 }
 
+class OtherTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
+  // SCL-21725
+  def test_not_type_alias(): Unit = testQuickFix(
+    s"""
+       |class A {
+       |  type MyAlias = Int
+       |  def foo: Int = ???
+       |  def ${START}bar$END = foo
+       |}
+       |""".stripMargin,
+    s"""
+       |class A {
+       |  type MyAlias = Int
+       |  def foo: Int = ???
+       |  def bar: Int = foo
+       |}
+       |""".stripMargin,
+  )
+
+
+  def test_better_type_alias(): Unit = testQuickFix(
+    s"""
+       |class A {
+       |  type MyAlias1 = Int
+       |  type MyAlias2 = Int
+       |  type MyAlias3 = Int
+       |  def foo: MyAlias2 = ???
+       |  def ${START}bar$END = foo
+       |}
+       |""".stripMargin,
+    s"""
+       |class A {
+       |  type MyAlias1 = Int
+       |  type MyAlias2 = Int
+       |  type MyAlias3 = Int
+       |  def foo: MyAlias2 = ???
+       |  def bar: MyAlias2 = foo
+       |}
+       |""".stripMargin,
+  )
+}
+
 class FailingTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
   def testErrorGivesAny(): Unit = testQuickFix(
     text =
