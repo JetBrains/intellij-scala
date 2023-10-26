@@ -19,7 +19,7 @@ class CompilationChartsBuildManagerListener extends BuildManagerListener with Sc
   // It runs BEFORE compilation.
   // We use it instead of buildStarted or beforeBuildProcessStarted methods to avoid an exception (EA-263973).
   // Also it's an optimization. We need to schedule updates only for compilation not for UP_TO_DATE_CHECK.
-  override def run(compileContext: CompileContext): Boolean = {
+  override protected def run(compileContext: CompileContext): Boolean = {
     if (isUnitTestMode)
       return true
 
@@ -34,7 +34,7 @@ class CompilationChartsBuildManagerListener extends BuildManagerListener with Sc
   }
 
   @Nls
-  override def presentableName: String = CompilerIntegrationBundle.message("compilation.charts.compile.task.presentable.name")
+  override protected def presentableName: String = CompilerIntegrationBundle.message("compilation.charts.compile.task.presentable.name")
 
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
   }

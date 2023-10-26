@@ -600,8 +600,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case Right(ScMethodType(_, params, _)) =>
         fromMethodTypeParams(params)
       case Right(t @ ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
-        val expectedType = call.flatMap(_.expectedType()).getOrElse(Any(expr))
-        fromMethodTypeParams(params, t.argsProtoTypeSubst(expectedType))
+        val callPt = call.flatMap(_.expectedType()).getOrElse(Any(expr))
+        val unwrappedPt = callPt match {
+          case ContextFunctionType(ret, _) => ret
+          case _                           => callPt
+        }
+        fromMethodTypeParams(params, t.argsProtoTypeSubst(unwrappedPt))
       case Right(anotherType) if !forApply =>
         val (internalType, typeParams) = anotherType match {
           case ScTypePolymorphicType(internal, tps) => (internal, tps)

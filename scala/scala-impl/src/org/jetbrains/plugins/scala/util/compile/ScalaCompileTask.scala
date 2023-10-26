@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util.compile
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerMessageCategory}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -8,6 +9,20 @@ import scala.concurrent.duration._
 
 trait ScalaCompileTask extends CompileTask {
   final override def execute(context: CompileContext): Boolean = {
+    if (shouldMeasure)
+      measure(context)
+    else
+      run(context)
+  }
+
+  protected def run(context: CompileContext): Boolean
+
+  @Nls
+  protected def presentableName: String
+
+  protected def shouldMeasure: Boolean = ApplicationManager.getApplication.isInternal
+
+  private def measure(context: CompileContext): Boolean = {
     val start = System.nanoTime()
     try {
       @Nls val message = ScalaBundle.message("scala.compile.task.measure.start", presentableName)
@@ -21,11 +36,6 @@ trait ScalaCompileTask extends CompileTask {
       context.addMessage(CompilerMessageCategory.STATISTICS, message, null, -1, -1)
     }
   }
-
-  def run(context: CompileContext): Boolean
-
-  @Nls
-  def presentableName: String
 
   private def pretty(duration: FiniteDuration): String = {
     var rest = duration

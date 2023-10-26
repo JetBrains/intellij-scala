@@ -7,7 +7,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.impl.light.LightPsiClassBuilder
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
@@ -15,16 +17,18 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.indexing.FileBasedIndex
-import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
@@ -321,6 +325,39 @@ class ScalaFileImpl(
     case stub => byStub(stub)
   }
 
+  override def topLevelWrapperObject: Option[PsiClass] = _topLevelWrapperObject()
+
+  private val _topLevelWrapperObject =
+    cached("topLevelWrapperObject", ModTracker.anyScalaPsiChange, () => {
+      val topLevelMembers    = members.filter(m => m.is[ScFunction] || m.is[ScPatternDefinition])
+      val hasTopLevelMembers = topLevelMembers.nonEmpty
+
+      Option.when(hasTopLevelMembers) {
+        val wrapperName = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(getName)) + "$package"
+        val wrapper = new LightPsiClassBuilder(this, wrapperName)
+
+        members.foreach {
+          case fn: ScFunction =>
+            val fnWrappers = fn.getFunctionWrappers(isStatic = true, isAbstract = false, wrapper.toOption)
+            fnWrappers.foreach(wrapper.addMethod)
+          case pat: ScPatternDefinition =>
+            pat.bindings.collect { case bpat if !bpat.isWildcard =>
+              PsiTypedDefinitionWrapper.processWrappersFor(
+                bpat,
+                wrapper.toOption,
+                bpat.name,
+                isStatic = true,
+                isInterface = false,
+                wrapper.addMethod,
+                _ => ()
+              )
+            }
+          case _ => ()
+        }
+        wrapper
+      }
+    })
+
   /**
    * Set to `false` when constructing a new synthetic element, for which a temporary `ScalaFileImpl` is created
    *
@@ -342,7 +379,13 @@ class ScalaFileImpl(
 
   override val allowsForwardReferences: Boolean = false
 
-  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean = cachedInUserData("shouldNotProcessDefaultImport", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, Tuple1(fqn)) {
+  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean =
+    cachedInUserData(
+      "shouldNotProcessDefaultImport",
+      this,
+      ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
+      Tuple1(fqn)
+    ) {
     typeDefinitions match {
       case Seq(head) => head.qualifiedName == fqn
       case _         => false

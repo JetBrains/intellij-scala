@@ -49,7 +49,7 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = false))
 
       val scalaLibrary: Option[library] = scalaLibraryVersion.map { version =>
         new library {

@@ -408,11 +408,11 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           addParamForApplyDynamicNamed()
         case _ if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
           addParamForApplyDynamicNamed()
-        case fun: ScFunction =>
+        case fun: ScMethodLike =>
           val substitutor = result.substitutor
           processor match {
             case completionProcessor: CompletionProcessor =>
-              collectNamedCompletions(fun.paramClauses, completionProcessor, substitutor, exprs, index)
+              collectNamedCompletions(fun.parameterList, completionProcessor, substitutor, exprs, index)
             case _ =>
               getParamByName(fun, refName, index) match {
                 //todo: why -1?

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
                                                           nodeType: ScFunctionElementType[S],
@@ -64,9 +65,9 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
       val parent = getParent
       val isCalculating = isCalculatingFor(parent)
 
-      if (isCalculating.get()) returnTypeInner(this)
+      if (isCalculating.value) returnTypeInner(this)
       else {
-        isCalculating.set(true)
+        isCalculating.value = true
         try {
           val children = parent.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionDefinitionFactory).iterator
 
@@ -86,7 +87,7 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
           returnTypeInner(this)
         }
         finally {
-          isCalculating.set(false)
+          isCalculating.value = false
         }
       }
     } else returnTypeInner(this)
@@ -112,11 +113,11 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 private object ScFunctionDefinitionImpl {
   import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
-  private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
+  private val calculatingBlockKey: Key[UnloadableThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
 
-  private def isCalculatingFor(e: PsiElement) = e.getOrUpdateUserData(
+  private def isCalculatingFor(e: PsiElement): UnloadableThreadLocal[Boolean] = e.getOrUpdateUserData(
     calculatingBlockKey,
-    ThreadLocal.withInitial[Boolean](() => false)
+    new UnloadableThreadLocal(false)
   )
 
   private def importantOrderFunction(function: ScFunction): Boolean = function match {

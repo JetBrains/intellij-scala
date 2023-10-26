@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import javax.swing.Icon
 
@@ -36,13 +37,13 @@ trait ScFunction
     with ScMethodLike
     with ScBlockStatement {
 
-  private[this] val probablyRecursive = ThreadLocal.withInitial[Boolean](() => false)
+  private[this] val probablyRecursive = new UnloadableThreadLocal[Boolean](false)
 
-  final def isProbablyRecursive: Boolean = probablyRecursive.get
+  final def isProbablyRecursive: Boolean = probablyRecursive.value
 
   //noinspection AccessorLikeMethodIsUnit
   final def isProbablyRecursive_=(value: Boolean): Unit = {
-    probablyRecursive.set(value)
+    probablyRecursive.value = value
   }
 
   final def syntheticCaseClass: ScClass = name match {

@@ -8,8 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
 import org.jetbrains.plugins.scala.structureView.element.TypeDefinition.childrenOf
+import org.jetbrains.plugins.scala.util.ScalaElementPresentationUtil
+
+import javax.swing.Icon
 
 class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDelegatingChildrenToPsi(definition) {
+
+  override def getIcon(open: Boolean): Icon =
+    ScalaElementPresentationUtil.getTypeDefinitionIconWithKind(definition)
 
   override def getPresentableText: String = {
     val name = Option(definition.nameId).map(_.getText)

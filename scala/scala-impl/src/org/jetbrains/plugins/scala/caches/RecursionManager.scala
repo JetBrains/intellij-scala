@@ -4,10 +4,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import org.jetbrains.plugins.scala.util.HashBuilder._
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.util
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
 /**
@@ -21,7 +21,7 @@ object RecursionManager {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.RecursionManager")
   private type LocalCacheMap = Map[MyKey[_], (Any, Int)]
 
-  private val ourStack: RichThreadLocal[CalculationStack] = new RichThreadLocal(new CalculationStack)
+  private val ourStack: UnloadableThreadLocal[CalculationStack] = new UnloadableThreadLocal(new CalculationStack)
 
   /** see [[com.intellij.openapi.util.RecursionGuard#markStack]]*/
   def markStack(): StackStamp = new StackStamp {

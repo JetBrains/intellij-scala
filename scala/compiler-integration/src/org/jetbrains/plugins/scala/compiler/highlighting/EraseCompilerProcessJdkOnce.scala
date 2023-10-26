@@ -15,7 +15,7 @@ class EraseCompilerProcessJdkOnce extends ScalaCompileTask {
 
   import EraseCompilerProcessJdkOnce.RegistryKey
 
-  override def run(context: CompileContext): Boolean = {
+  override protected def run(context: CompileContext): Boolean = {
     val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
     val needErase = Registry.is(RegistryKey)
     if (!isUnitTestMode && context.getProject.hasScala && needErase) {
@@ -26,7 +26,7 @@ class EraseCompilerProcessJdkOnce extends ScalaCompileTask {
   }
 
   @Nls
-  override def presentableName: String = CompilerIntegrationBundle.message("erase.compiler.process.jdk.once.compile.task.presentable.name")
+  override protected def presentableName: String = CompilerIntegrationBundle.message("erase.compiler.process.jdk.once.compile.task.presentable.name")
 }
 
 object EraseCompilerProcessJdkOnce {

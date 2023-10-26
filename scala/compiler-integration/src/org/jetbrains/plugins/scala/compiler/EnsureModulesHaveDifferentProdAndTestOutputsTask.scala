@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
  */
 final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends ScalaCompileTask {
 
-  override def run(context: CompileContext): Boolean = {
+  override protected def run(context: CompileContext): Boolean = {
     val project = context.getProject
 
     if (!project.hasScala) {
@@ -29,7 +29,7 @@ final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends ScalaCompil
   }
 
   @Nls
-  override def presentableName: String = CompilerIntegrationBundle.message("ensure.modules.compile.task.presentable.name")
+  override protected def presentableName: String = CompilerIntegrationBundle.message("ensure.modules.compile.task.presentable.name")
 
   private def checkCompilationSettings(project: Project): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {

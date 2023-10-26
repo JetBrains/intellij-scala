@@ -29,11 +29,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
-import org.jetbrains.plugins.scala.util.{RichThreadLocal, ScEquivalenceUtil}
+import org.jetbrains.plugins.scala.util.{ScEquivalenceUtil, UnloadableThreadLocal}
 
+import java.util
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{HashMap => JMap, List => JList}
-import java.util
 import scala.annotation.tailrec
 import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.collection.mutable
@@ -111,8 +111,8 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 }
 
 object MixinNodes {
-  val currentlyProcessedSigs: RichThreadLocal[JMap[PsiClass, Map[TermSignature]]] =
-    new RichThreadLocal(new JMap)
+  val currentlyProcessedSigs: UnloadableThreadLocal[JMap[PsiClass, Map[TermSignature]]] =
+    new UnloadableThreadLocal(new JMap)
 
   def withSignaturesFor[T](cls: PsiClass, sigs: Map[TermSignature])(f: =>T): T = try {
     currentlyProcessedSigs.value.put(cls, sigs)

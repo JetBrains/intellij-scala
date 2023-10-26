@@ -5,8 +5,11 @@ import org.jetbrains.plugins.scala.LatestScalaVersions._
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, isInternalMode}
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.plugins.scala.util.HttpDownloadUtil
+import org.jetbrains.sbt.{SbtVersion, MinorVersionGenerator}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.util.Failure
 import scala.util.matching.Regex
 
 case class Versions(defaultVersion: String,
@@ -18,24 +21,46 @@ object Versions {
 
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
-    final def loadVersionsWithProgress(): Versions = {
+    final def loadVersionsWithProgressDialog(): Versions = {
       val cancelable = true
       val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
-           entities.flatMap(loadVersions(_, cancelable, None))
+           entities.flatMap(loadVersions(_, cancelable, None, propagateDownloadExceptions = false))
       }
-      val versions = loaded
+      mapVersionListToVersions(loaded)
+    }
+
+    final def loadVersionsWithProgress(indicator: ProgressIndicator): Versions = {
+      val loaded = entities.flatMap(loadVersions(_, cancelable = true, Some(indicator), propagateDownloadExceptions = true))
+      mapVersionListToVersions(loaded)
+    }
+
+    private def mapVersionListToVersions(versions: List[Version]): Versions = {
+      val stringVersions = versions
         .sorted
         .reverse
         .map(_.presentation)
+      Versions(defaultVersion, stringVersions)
+    }
 
-      Versions(defaultVersion, versions)
+    def initiallySelectedVersion(versions: Seq[String]): String =
+      versions.headOption.getOrElse(defaultVersion)
+
+    lazy val allHardcodedVersions: Versions = {
+      val versions = entities
+        .flatMap {
+          case DownloadableEntity(_, minVersionStr, hardcodedVersions, _) =>
+            val minVersion = Version(minVersionStr)
+            hardcodedVersions
+              .map(Version(_))
+              .filter(_ >= minVersion)
+          case StaticEntity(_, hardcodedVersions) =>
+            hardcodedVersions.map(Version.apply)
+        }
+      mapVersionListToVersions(versions)
     }
 
     protected def defaultVersion: String =
       entities.head.hardcodedVersions.head
-
-    def initiallySelectedVersion(versions: Seq[String]): String =
-      versions.headOption.getOrElse(defaultVersion)
   }
 
   case object Scala extends Kind(
@@ -72,12 +97,22 @@ object Versions {
     )
   }
 
-  private def loadVersions(entity: Entity, cancelable: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = {
+  private def loadVersions(
+    entity: Entity,
+    cancelable: Boolean,
+    indicatorOpt: Option[ProgressIndicator],
+    propagateDownloadExceptions: Boolean,
+    timeout: FiniteDuration = 10.seconds
+  ): Seq[Version] = {
     entity match {
       case DownloadableEntity(url, minVersionStr, hardcodedVersions, versionPattern) =>
         val minVersion = Version(minVersionStr)
 
-        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt)
+        val lines = HttpDownloadUtil.loadLinesFrom(url, cancelable, indicatorOpt, timeout)
+        lines match {
+          case Failure(exc) if propagateDownloadExceptions => throw exc
+          case _ =>
+        }
         val versionStrings = lines.fold(
           Function.const(hardcodedVersions),
           extractVersions(_, versionPattern)
@@ -94,9 +129,10 @@ object Versions {
       case pattern(number) => number
     }
 
-  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt)
-
-  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt)
+  def loadScala2Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(ScalaEntity, canBeCanceled, indicatorOpt, propagateDownloadExceptions = true)
+  lazy val scala2HardcodedVersions: List[String] = ScalaEntity.hardcodedVersions
+  def loadSbt1Versions(canBeCanceled: Boolean, indicatorOpt: Option[ProgressIndicator]): Seq[Version] = loadVersions(Sbt1Entity, canBeCanceled, indicatorOpt, propagateDownloadExceptions = true)
+  lazy val sbt1HardcodedVersions: Seq[String] = Sbt1Entity.hardcodedVersions
 
   private sealed trait Entity {
     def minVersion: String
@@ -121,12 +157,12 @@ object Versions {
     val ScalaEntity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       minVersion = Scala_2_10.major + ".0",
-      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala2).map(_.minor).toList
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala2, (v: ScalaVersion) => v.minor)
     )
     val Scala3Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
       minVersion = Scala_3_0.major + ".0",
-      hardcodedVersions = ScalaVersion.generateAllMinorScalaVersions(allScala3).map(_.minor).toList
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala3, (v: ScalaVersion) => v.minor)
     )
 
     private val CandidateVersionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
@@ -143,7 +179,7 @@ object Versions {
     val Sbt1Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/maven-metadata.xml",
       minVersion = "1.0.0",
-      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct,
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(SbtVersion.allSbt1, (v: Version) => v.presentation),
       versionPattern = """^\s+<version>(\d+\.\d+\.\d+)</version>$""".r
     )
   }

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.util.regex.Pattern
 import scala.collection.immutable.ArraySeq
@@ -32,7 +32,7 @@ object JavaToScala {
 
   case class AssociationHelper(node: IntermediateNode, path: DependencyPath)
 
-  private val context: RichThreadLocal[java.util.Stack[(Boolean, String)]] = new RichThreadLocal(new java.util.Stack)
+  private val context: UnloadableThreadLocal[java.util.Stack[(Boolean, String)]] = new UnloadableThreadLocal(new java.util.Stack)
 
   private def findVariableUsage(elementToFind: PsiElement, maybeElement: Option[PsiElement]): Seq[PsiReferenceExpression] =
     maybeElement.fold(Seq.empty[PsiReferenceExpression]) { element =>

@@ -35,7 +35,7 @@ import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 // IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
 // SbtProjectStructureImportingWithTransitiveProjectDependenciesTest.scala. Before each test performed in this class
-// insertProjectTransitiveDependencies is set true, so that the functionality of transitive dependencies can be tested
+// insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
 final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingLike {
 

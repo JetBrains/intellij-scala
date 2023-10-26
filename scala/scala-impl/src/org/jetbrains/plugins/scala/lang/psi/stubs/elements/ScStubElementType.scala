@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import scala.annotation.tailrec
 
@@ -74,16 +75,16 @@ object ScStubElementType {
   }
 
   object Processing {
-    private[this] val flag = ThreadLocal.withInitial[Long](() => 0)
+    private[this] val flag = new UnloadableThreadLocal[Long](0)
 
     def run[R](action: => R): R =
       try {
-        flag.set(flag.get + 1)
+        flag.update(_ + 1)
         action
       } finally {
-        flag.set(flag.get - 1)
+        flag.update(_ - 1)
       }
 
-    def isRunning: Boolean = flag.get > 0
+    def isRunning: Boolean = flag.value > 0
   }
 }

@@ -7,6 +7,7 @@ import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 import java.util.Collections
@@ -30,8 +31,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
     } else Collections.emptyList()
 
   private def transitiveProjectDependenciesParams(): Seq[String] = {
-    val insertProjectTransitiveDependencies = SbtProjectSettings.forProject(project).exists(_.insertProjectTransitiveDependencies)
-    Seq(s"-Dsbt.process.dependencies.recursively=${!insertProjectTransitiveDependencies}")
+    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
+    Seq(s"-Dsbt.process.dependencies.recursively=${!projectTransitiveDependenciesUsed}")
   }
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {

@@ -62,6 +62,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var groupProjectsFromSameBuild = true
 
   //See SCL-21158 for details
+  //This should be in sync with what is used as a default value in
+  // org.jetbrains.jps.incremental.scala.model.impl.JpsSbtDependenciesEnumerationHandler.shouldProcessDependenciesRecursively
   @BeanProperty
   var insertProjectTransitiveDependencies: Boolean = true
 

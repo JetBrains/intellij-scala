@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.compiler.references
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.ModificationTracker
@@ -22,6 +24,7 @@ import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage._
 import org.jetbrains.plugins.scala.compiler.references.indices._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
+import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
@@ -68,6 +71,9 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
   private[this] val compilationTimestamps               = new ConcurrentHashMap[String, Long]()
   private[this] val messageBus                          = project.getMessageBus
   private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
+
+  @volatile
+  private[references] var initialized: Boolean = false
 
   project.getMessageBus.connect(this)
     .subscribe[SbtProjectSettingsControl.CompilerModeChangeListener](SbtProjectSettingsControl.CompilerModeChangeTopic, (mode: CompilerMode) => {
@@ -218,6 +224,36 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
       }
     }
 
+  private[references] def hasIndex: Boolean =
+    indexDir(project).exists { dir =>
+      CompilerReferenceIndex.exists(dir) &&
+        !CompilerReferenceIndex.versionDiffers(dir, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
+    }
+
+  // TODO: handle the following scenario:
+  //       no indices are present and all modules are up-to-date
+  //       currently it will simply do nothing
+  private[references] def markUpToDate(): Unit = {
+    val timestamp = System.currentTimeMillis()
+
+    val allModules = ReadAction.nonBlocking[Option[Array[Module]]] { () =>
+      if (project.isDisposed) None
+      else Some(ModuleManager.getInstance(project).getModules)
+    }.expireWith(this).executeSynchronously()
+
+    allModules.foreach { modules =>
+      val moduleNames = modules.map(_.getName).toSet
+      transactionManager.inTransaction { _ =>
+        publisher.onCompilationStart()
+        publisher.startIndexing(false)
+        val info = JpsCompilationInfo(moduleNames, Set.empty, Set.empty, timestamp)
+        publisher.processCompilationInfo(info, offline = false)
+        publisher.finishIndexing()
+        publisher.onCompilationFinish(true)
+      }
+    }
+  }
+
   override def getModificationCount: Long = compilationCount.longValue()
 
   def initializeReferenceService(): Unit =
@@ -239,7 +275,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
     dirtyScopeHolder.markProjectAsOutdated()
-    dirtyScopeHolder.installVFSListener()
+    dirtyScopeHolder.installVFSListener(this)
 
     invokeOnDispose(project.unloadAwareDisposable) {
       openCloseLock.withLock {
@@ -250,6 +286,8 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
         closeReader(incrementBuildCount = false)
       }
     }
+
+    initialized = true
   }
 
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.withLock {
@@ -313,6 +351,14 @@ object ScalaCompilerReferenceService {
 
   def apply(project: Project): ScalaCompilerReferenceService =
     project.getService(classOf[ScalaCompilerReferenceService])
+
+  private[references] def executeOnBuildThread(runnable: Runnable): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      runnable.run()
+    } else {
+      BuildManager.getInstance().runCommand(runnable)
+    }
+  }
 
   class Startup extends ProjectActivity with ProjectManagerListener {
     override def execute(project: Project): Unit = {

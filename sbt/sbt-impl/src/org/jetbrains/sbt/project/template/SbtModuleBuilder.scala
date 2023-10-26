@@ -33,9 +33,11 @@ class SbtModuleBuilder(
 
   private val selections = _selections.copy() // Selections is mutable data structure
 
-  private lazy val availableScalaVersions: Versions = Versions.Scala.loadVersionsWithProgress()
-  private lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
-  private lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
+  private lazy val defaultAvailableScalaVersions: Versions = Versions.Scala.allHardcodedVersions
+
+  private lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
+
+  private lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
 
   def this() = this(SbtModuleBuilderSelections.default)
 
@@ -73,12 +75,12 @@ object SbtModuleBuilder {
 
     // NOTE: ModuleWizardStep is recreated on validation failures, so to avoid multiple "Scala / Sbt versions download"
     // after each validation failure, we need to take this lazy values from the sbtModuleBuilder, which is not recreated
-    override protected val availableScalaVersions: Versions = sbtModuleBuilder.availableScalaVersions
-    override protected val availableSbtVersions: Versions = sbtModuleBuilder.availableSbtVersions
-    override protected val availableSbtVersionsForScala3: Versions = sbtModuleBuilder.availableSbtVersionsForScala3
+    override protected lazy val defaultAvailableScalaVersions: Versions = sbtModuleBuilder.defaultAvailableScalaVersions
+    override protected lazy val defaultAvailableSbtVersions: Versions = sbtModuleBuilder.defaultAvailableSbtVersions
+    override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = sbtModuleBuilder.defaultAvailableSbtVersionsForScala3
 
     locally {
-      initSelectionsAndUi()
+      initSelectionsAndUi(myWizardContext.getDisposable)
 
       //
       // Add UI elements to the Wizard Step
