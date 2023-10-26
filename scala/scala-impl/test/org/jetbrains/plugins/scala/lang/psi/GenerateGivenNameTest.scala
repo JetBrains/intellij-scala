@@ -5,14 +5,14 @@ import junit.framework.{TestCase, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.GenerateGivenOrExtensionNameTest.{GivenNameTestData, allTests}
+import org.jetbrains.plugins.scala.lang.psi.GenerateGivenNameTest.{GivenNameTestData, allTests}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class GenerateGivenOrExtensionNameTest extends TestCase
+class GenerateGivenNameTest extends TestCase
 
-object GenerateGivenOrExtensionNameTest {
+object GenerateGivenNameTest {
   def suite: TestSuite = {
     val testSuite = new TestSuite()
     allTests.map(createTest).foreach(testSuite.addTest)
@@ -360,7 +360,7 @@ object GenerateGivenOrExtensionNameTest {
   }
 }
 
-object GenerateGivenOrExtensionNameTest_MakeReferenceCode {
+object GenerateGivenNameTest_MakeReferenceCode {
   /**
    * Prints out a scala file that you can put into the scala compiler to see that the test cases are correct
    */
