@@ -68,10 +68,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
-      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2
-    extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild
-    extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
-
+      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
+      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
+      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
