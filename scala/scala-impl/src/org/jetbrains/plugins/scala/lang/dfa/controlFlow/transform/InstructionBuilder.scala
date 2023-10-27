@@ -12,7 +12,7 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaStatementAnchor}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
@@ -131,14 +131,13 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
   }
 
   def invoke(args: Seq[StackValue],
-             invocationInfo: InvocationInfo, invocationAnchor: ScalaDfaAnchor,
+             invocationInfo: InvocationInfo,
              qualifier: Option[ScalaDfaVariableDescriptor],
              currentAnalysedMethodInfo: AnalysedMethodInfo): StackValue = {
     stack.pop(args)
     addPushingInstruction(
       new ScalaInvocationInstruction(
         invocationInfo,
-        invocationAnchor,
         qualifier,
         exceptionTransfer = maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE),
         currentAnalysedMethodInfo
@@ -273,7 +272,7 @@ object InstructionBuilder {
     private var active: Boolean = true
     private var stack: VStack = Nil
 
-    def stackHeight: Int = stack.headOption.fold(0)(_.posOnStack + 1)
+    private def stackHeight: Int = stack.headOption.fold(0)(_.posOnStack + 1)
 
     def push(idx: Int): StackValue = {
       assert(active)
@@ -292,7 +291,7 @@ object InstructionBuilder {
 
     def checkTop(value: StackValue): Unit = {
       assert(active)
-      assert(!value.hasBeenJoined, s"${value} is joined and cannot be used (joined into: ${value.afterJoin})")
+      assert(!value.hasBeenJoined, s"$value is joined and cannot be used (joined into: ${value.afterJoin})")
       assert(stack.nonEmpty, s"stack is empty, cannot inspect $value")
       val expected = stack.head.afterJoin
 

@@ -25,11 +25,11 @@ import scala.language.postfixOps
  * and are present on the top of the stack. It consumes all of those arguments and produces one value
  * on the stack that is the return value of this invocation.
  */
-class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAnchor: ScalaDfaAnchor,
+class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
                                  qualifier: Option[ScalaDfaVariableDescriptor],
                                  exceptionTransfer: Option[DfaControlTransferValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
-  extends ExpressionPushingInstruction(invocationAnchor) {
+  extends ExpressionPushingInstruction(invocationInfo.anchor) {
 
   override def toString: String = {
     val invokedElementString = invocationInfo.invokedElement

@@ -171,4 +171,85 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |69: RETURN
       |""".stripMargin
   }
+
+  def testLogicalOperatorsAsCalls(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |2.<=(2).&&(2.<=(3)).&&(2.==(2)).&&(3.==(5.-(2)))
+      |3.==(3).&&(5.>(10))
+      |false.||(3.!=(4)).||(10.<(2)).||(3.!=(3))
+      |""".stripMargin
+  }) {
+    """
+      |0: PUSH_VAL 2
+      |1: PUSH_VAL 2
+      |2: BOOLEAN_OP <=
+      |3: IF_EQ true 6
+      |4: PUSH_VAL false
+      |5: GOTO 10
+      |6: FINISH
+      |7: PUSH_VAL 2
+      |8: PUSH_VAL 3
+      |9: BOOLEAN_OP <=
+      |10: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |11: IF_EQ true 14
+      |12: PUSH_VAL false
+      |13: GOTO 18
+      |14: FINISH
+      |15: PUSH_VAL 2
+      |16: PUSH_VAL 2
+      |17: BOOLEAN_OP ==
+      |18: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |19: IF_EQ true 22
+      |20: PUSH_VAL false
+      |21: GOTO 28
+      |22: FINISH
+      |23: PUSH_VAL 3
+      |24: PUSH_VAL 5
+      |25: PUSH_VAL 2
+      |26: NUMERIC_OP -
+      |27: BOOLEAN_OP ==
+      |28: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |29: POP
+      |30: PUSH_VAL 3
+      |31: PUSH_VAL 3
+      |32: BOOLEAN_OP ==
+      |33: IF_EQ true 36
+      |34: PUSH_VAL false
+      |35: GOTO 40
+      |36: FINISH
+      |37: PUSH_VAL 5
+      |38: PUSH_VAL 10
+      |39: BOOLEAN_OP >
+      |40: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |41: POP
+      |42: PUSH_VAL false
+      |43: IF_EQ false 46
+      |44: PUSH_VAL true
+      |45: GOTO 50
+      |46: FINISH
+      |47: PUSH_VAL 3
+      |48: PUSH_VAL 4
+      |49: BOOLEAN_OP !=
+      |50: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |51: IF_EQ false 54
+      |52: PUSH_VAL true
+      |53: GOTO 58
+      |54: FINISH
+      |55: PUSH_VAL 10
+      |56: PUSH_VAL 2
+      |57: BOOLEAN_OP <
+      |58: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |59: IF_EQ false 62
+      |60: PUSH_VAL true
+      |61: GOTO 66
+      |62: FINISH
+      |63: PUSH_VAL 3
+      |64: PUSH_VAL 3
+      |65: BOOLEAN_OP !=
+      |66: RESULT_OF ScalaStatementAnchor(MethodCall)
+      |67: POP
+      |68: FINISH BlockExpression
+      |69: RETURN
+      |""".stripMargin
+  }
 }

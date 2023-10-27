@@ -4,7 +4,6 @@ package specialSupport
 import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.SpecialSyntheticMethodsTransformation.syntheticTransformations
@@ -19,8 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 
 trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =>
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,
-                                                   invocationInfo: InvocationInfo,
-                                                   invocation: ScExpression): Option[StackValue] = {
+                                                   invocationInfo: InvocationInfo): Option[StackValue] = {
     val argCount = invocationInfo.argListsInEvaluationOrder match {
       case head :: Nil => head.size
       case _ => return None
@@ -33,7 +31,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
     syntheticTransformations
       .get((argCount, properReturnedClass, function.name))
-      .map(f => f(this)(function, invocationInfo, invocation))
+      .map(f => f(this)(function, invocationInfo))
   }
 
   private def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
@@ -72,8 +70,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
   private[SpecialSyntheticMethodsTransformation]
   def transformBinaryNumericOperator(function: ScSyntheticFunction,
-                                     invocationInfo: InvocationInfo,
-                                     invocation: ScExpression): StackValue = {
+                                     invocationInfo: InvocationInfo): StackValue = {
     val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
     val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = false)
 
@@ -82,7 +79,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
         left,
         right,
         NumericBinary(function.name),
-        ScalaStatementAnchor(invocation)
+        invocationInfo.anchor
       )
     } else {
       buildUnknownCall(ResultReq.Required, Seq(left, right))
@@ -91,8 +88,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
   private[SpecialSyntheticMethodsTransformation]
   def transformBinaryBooleanOperator(function: ScSyntheticFunction,
-                                     invocationInfo: InvocationInfo,
-                                     invocation: ScExpression): StackValue = {
+                                     invocationInfo: InvocationInfo): StackValue = {
 
     val operation = RelationalBinary(function.name)
     val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
@@ -100,7 +96,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
     val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
 
     if (successful) {
-      binaryBoolOp(left, right, operation, forceEqualityByContent, ScalaStatementAnchor(invocation))
+      binaryBoolOp(left, right, operation, forceEqualityByContent, invocationInfo.anchor)
     } else {
       buildUnknownCall(ResultReq.Required, Seq(left, right))
     }
@@ -108,13 +104,12 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
   private[SpecialSyntheticMethodsTransformation]
   def transformBinaryLogicalOperator(function: ScSyntheticFunction,
-                                     invocationInfo: InvocationInfo,
-                                     invocation: ScExpression): StackValue = {
+                                     invocationInfo: InvocationInfo): StackValue = {
     val operation = LogicalBinary(function.name)
     val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
     if (verifyBooleanArgumentType(leftArg.content) || verifyBooleanArgumentType(rightArg.content)) {
       val stack = stackSnapshot
-      val anchor = ScalaStatementAnchor(invocation)
+      val anchor = invocationInfo.anchor
       val nextConditionLabel = newDeferredLabel()
       val endLabel = newDeferredLabel()
 
@@ -143,28 +138,26 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
   private[SpecialSyntheticMethodsTransformation]
   def transformUnaryNumericOperator(function: ScSyntheticFunction,
-                                    invocationInfo: InvocationInfo,
-                                    invocation: ScExpression): StackValue = {
+                                    invocationInfo: InvocationInfo): StackValue = {
     val operation = NumericUnary(function.name)
     val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
 
     val zero = push(DfTypes.defaultValue(function.retType.toPsiType))
     val value = transformExpression(singleThisArg.content, ResultReq.Required)
 
-    binaryNumOp(zero, value, operation, ScalaStatementAnchor(invocation))
+    binaryNumOp(zero, value, operation, invocationInfo.anchor)
   }
 
   private[SpecialSyntheticMethodsTransformation]
   def transformUnaryLogicalOperator(function: ScSyntheticFunction,
-                                    invocationInfo: InvocationInfo,
-                                    invocation: ScExpression): StackValue = {
+                                    invocationInfo: InvocationInfo): StackValue = {
     val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
     val operation = LogicalUnary(function.name)
     operation match {
       case LogicalOperation.Not =>
         val value = transformExpression(singleThisArg.content, ResultReq.Required)
         if (verifyBooleanArgumentType(singleThisArg.content)) {
-          not(value, ScalaStatementAnchor(invocation))
+          not(value, invocationInfo.anchor)
         } else {
           buildUnknownCall(ResultReq.Required, Seq(value))
         }
@@ -180,7 +173,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 }
 
 private object SpecialSyntheticMethodsTransformation {
-  private type TransformF = ScalaDfaControlFlowBuilder => (ScSyntheticFunction, InvocationInfo, ScExpression) => StackValue
+  private type TransformF = ScalaDfaControlFlowBuilder => (ScSyntheticFunction, InvocationInfo) => StackValue
   private def sig(args: Int)(classes: IterableOnce[String], functionNames: IterableOnce[String], target: TransformF): Iterator[((Int, String, String), TransformF)] =
     classes.iterator.flatMap(clazz => functionNames.iterator.map(f => ((args, clazz, f), target)))
   private val binary = sig(2) _

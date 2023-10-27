@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
 ))
 abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
 
-  protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
+  protected def codeFromMethodBody(returnType: String = "Unit")(body: String): String = commonCodeTemplate(returnType)(body)
 
   def testWithUnsupportedPsiElements(code: String)(expectedResult: (String, String)*): Unit =
     test(code, buildUnsupportedPsiElements = true)(expectedResult: _*)

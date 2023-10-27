@@ -15,11 +15,12 @@ object InvocationChainExtractor {
   def innerInvocationChain(methodCall: ScMethodCall): List[MethodInvocation] = {
     @tailrec
     def inner(currentExpression: ScExpression,
-              collectedInvocations: List[MethodInvocation]): List[MethodInvocation] = currentExpression match {
-      case methodCall: ScMethodCall => inner(methodCall.getEffectiveInvokedExpr, methodCall :: collectedInvocations)
-      case infixCall: ScInfixExpr => infixCall :: collectedInvocations
-      case _ => collectedInvocations
-    }
+              collectedInvocations: List[MethodInvocation]): List[MethodInvocation] =
+      currentExpression match {
+        case methodCall: ScMethodCall => inner(methodCall.getEffectiveInvokedExpr, methodCall :: collectedInvocations)
+        case infixCall: ScInfixExpr => infixCall :: collectedInvocations
+        case _ => collectedInvocations
+      }
 
     inner(methodCall.getEffectiveInvokedExpr, methodCall :: Nil)
   }
@@ -52,7 +53,8 @@ object InvocationChainExtractor {
     val argumentsListsWithThis = insertThisArgToArgList(call, sortedMatchedParameters.head, thisArgument) +:
       sortedMatchedParameters.tail
 
-    val invocationInfo = InvocationInfo(InvokedElement.fromTarget(target, call.applicationProblems), argumentsListsWithThis)
+    val invokedElement = InvokedElement.fromTarget(target, call.applicationProblems)
+    val invocationInfo = InvocationInfo(invokedElement, argumentsListsWithThis, call)
     invocationInfo :: collectInvocationsInfo(followingCalls)
   }
 }
