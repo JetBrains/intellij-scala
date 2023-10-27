@@ -68,9 +68,10 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
-      extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0 != settings.preferScala2 ||
-      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
-      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
+      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2
+    extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild
+    extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
+
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -88,7 +89,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
     extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
-    extraControls.scalaVersionPreferenceComboBox.setSelectedIndex(if (settings.preferScala2) 0 else 1)
+    extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
   }
@@ -104,7 +105,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.resolveSbtClassifiers = extraControls.resolveSbtClassifiersCheckBox.isSelected
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
-    settings.preferScala2 = extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0
+    settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
     settings.groupProjectsFromSameBuild = extraControls.groupProjectsFromSameBuildCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
 

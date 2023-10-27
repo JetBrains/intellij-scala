@@ -5,14 +5,13 @@ import junit.framework.{TestCase, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.GenerateGivenOrExtensionNameTest.{GivenNameTestData, allTests}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class GenerateGivenOrExtensionNameTest extends TestCase
+class GenerateGivenNameTest extends TestCase
 
-object GenerateGivenOrExtensionNameTest {
+object GenerateGivenNameTest {
   def suite: TestSuite = {
     val testSuite = new TestSuite()
     allTests.map(createTest).foreach(testSuite.addTest)
@@ -21,6 +20,12 @@ object GenerateGivenOrExtensionNameTest {
 
   case class GivenNameTestData(code: String, expectedName: String)
 
+  /**
+   * All test cases.
+   *
+   * See CheckGenerateGivenNameTestDataTest, which uses the real scala compiler to check
+   * if these testcases compile correctly.
+   */
   lazy val allTests: Seq[GivenNameTestData] = Seq(
     //////////////////// atoms /////////////////
     GivenNameTestData(
@@ -357,25 +362,5 @@ object GenerateGivenOrExtensionNameTest {
       val givenElement = givens.head
       givenElement.name shouldBe expectedName
     }
-  }
-}
-
-object GenerateGivenOrExtensionNameTest_MakeReferenceCode {
-  /**
-   * Prints out a scala file that you can put into the scala compiler to see that the test cases are correct
-   */
-  def main(args: Array[String]): Unit = {
-    val code = allTests.zipWithIndex.map {
-      case (GivenNameTestData(code, expected), idx) =>
-        val testObj = s"Test$idx"
-        s"""
-           |object $testObj {
-           |  ${code.trim.replace("\n", "\n  ")}
-           |}
-           |println($testObj.`$expected`)
-           |""".stripMargin
-    }.mkString("\n")
-
-    println(code)
   }
 }
