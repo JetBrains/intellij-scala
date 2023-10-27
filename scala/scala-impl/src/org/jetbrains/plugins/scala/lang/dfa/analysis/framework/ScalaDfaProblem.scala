@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem
 
 case class ScalaCollectionAccessProblem(lengthDescriptor: DerivedVariableDescriptor,
-                                        accessExpression: ScExpression, exceptionName: String)
+                                        accessExpression: ScExpression,
+                                        exceptionName: String)
   extends ScalaDfaProblem with IndexOutOfBoundsProblem {
   override def getLengthDescriptor: DerivedVariableDescriptor = lengthDescriptor
 }

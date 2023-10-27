@@ -14,14 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait CollectionAccessAssertionUtils { this: ScalaDfaControlFlowBuilder =>
-  def buildCollectionAccessAssertions(invocationExpression: ScExpression,
-                                      invocationInfo: InvocationInfo): Unit = {
+  def buildCollectionAccessAssertions(invocationInfo: InvocationInfo): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
       for (thisArgument <- invocationInfo.thisArgument) {
         val container = transformExpression(thisArgument.content, ResultReq.Required)
         val index = transformExpression(accessedIndex, ResultReq.Required)
 
-        val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationExpression, exceptionName)
+        val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationInfo.place, exceptionName)
         ensureInBounds(container, index, exceptionName, problem)
       }
     }

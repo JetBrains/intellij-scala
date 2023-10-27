@@ -3,17 +3,11 @@ package org.jetbrains.plugins.scala.lang
 package object dfa {
 
   object Messages {
-
     val ConditionAlwaysTrue = "Condition is always true"
-
     val ConditionAlwaysFalse = "Condition is always false"
-
     val ExpressionAlwaysZero = "Expression always evaluates to 0"
-
     val ExpressionAlwaysNull = "Expression always evaluates to null"
-
     val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
-
     val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
   }
 

@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{ArgumentCountLimit, buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 
 /**
  * An abstraction to represent all possible Scala invocations in a standardized, convenient, syntax-agnostic way.
@@ -24,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
  *                                  '''this''' argument etc.
  */
 case class InvocationInfo(invokedElement: Option[InvokedElement],
-                          argListsInEvaluationOrder: List[List[Argument]]) {
+                          argListsInEvaluationOrder: List[List[Argument]],
+                          place: ScExpression) {
 
   /**
    * @return the ''this'' argument for this invocation, for example ```obj``` in ```obj.method(5)``` or ```list``` in ```x :: list```
@@ -48,17 +50,18 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
    * @return list representing parameter-to-proper-argument mapping for this invocation
    */
   val paramToProperArgMapping: List[Option[Int]] = generateParamToArgMapping(invokedElement, properArguments)
+
+  val anchor: ScalaStatementAnchor = ScalaStatementAnchor(place)
 }
 
 object InvocationInfo {
-
   def fromMethodCall(methodCall: ScMethodCall): Seq[InvocationInfo] = {
     val innerChain = innerInvocationChain(methodCall)
     splitInvocationChain(innerChain)
   }
 
   def fromMethodInvocation(invocation: MethodInvocation): InvocationInfo = {
-    if (invocation.matchedParameters.size > ArgumentCountLimit) InvocationInfo(None, Nil)
+    if (invocation.matchedParameters.size > ArgumentCountLimit) InvocationInfo(None, Nil, invocation)
     else {
       val target = invocation.target
       val isTupled = target.exists(_.tuplingUsed)
@@ -68,7 +71,7 @@ object InvocationInfo {
         List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
       val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
 
-      InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
+      InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments), invocation)
     }
   }
 
@@ -79,7 +82,7 @@ object InvocationInfo {
     val properArguments = buildAllArguments(List(referenceExpression.matchedParameters), List(),
       referenceExpression, isTupled = false).headOption.getOrElse(Nil)
 
-    InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments))
+    InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments), referenceExpression)
   }
 
   def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo = {
@@ -94,9 +97,9 @@ object InvocationInfo {
           constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
         val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
 
-        InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
+        InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments, newTemplateDefinition)
       }
 
-    invocationInfo.getOrElse(InvocationInfo(None, Nil))
+    invocationInfo.getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
   }
 }

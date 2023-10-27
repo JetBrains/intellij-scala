@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
-import com.intellij.psi.CommonClassNames
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
@@ -25,14 +23,14 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
       invocationsInfos.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
       buildUnknownCall(ResultReq.Required)
     } else{
-      tryTransformIntoSpecialRepresentation(invocation, invocationsInfos)
+      tryTransformIntoSpecialRepresentation(invocationsInfos)
         .getOrElse {
           invocationsInfos.tail.foreach(invocationInfo => {
-            val result = transformMethodInvocation(invocation, invocationInfo, instanceQualifier)
+            val result = transformMethodInvocation(invocationInfo, instanceQualifier)
             pop(result)
           })
 
-          transformMethodInvocation(invocation, invocationsInfos.head, instanceQualifier)
+          transformMethodInvocation(invocationsInfos.head, instanceQualifier)
         }
     }
   }
@@ -63,10 +61,9 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
   }
 
-  private def transformMethodInvocation(invocation: ScExpression,
-                                        invocationInfo: InvocationInfo,
-                                        instanceQualifier: Option[ScalaDfaVariableDescriptor]): StackValue = {
-    buildCollectionAccessAssertions(invocation, invocationInfo)
+  def transformMethodInvocation(invocationInfo: InvocationInfo,
+                                instanceQualifier: Option[ScalaDfaVariableDescriptor]): StackValue = {
+    buildCollectionAccessAssertions(invocationInfo)
 
     val byValueArgs = invocationInfo.argListsInEvaluationOrder.flatMap(_.filter(_.passingMechanism == PassByValue))
     val args = byValueArgs.map(arg => transformExpression(arg.content, ResultReq.Required))
@@ -74,14 +71,12 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
     invoke(
       args,
       invocationInfo,
-      ScalaStatementAnchor(invocation),
       instanceQualifier,
       analysedMethodInfo
     )
   }
 
-  private def tryTransformIntoSpecialRepresentation(invocation: ScExpression,
-                                                    invocationsInfo: Seq[InvocationInfo]): Option[StackValue] = {
+  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo]): Option[StackValue] = {
     if (invocationsInfo.size > 1) {
       None
     } else {
@@ -89,7 +84,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
 
       invocationInfo.invokedElement match {
         case Some(InvokedElement(psiElement)) => psiElement match {
-          case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo, invocation)
+          case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo)
           case _ => None
         }
         case _ => None
