@@ -43,6 +43,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.util
 import java.util.concurrent.atomic.AtomicReference
@@ -53,11 +54,9 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ScalaPsiManager(implicit val project: Project) {
 
-  private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  }
+  private val inJavaPsiFacade: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(false)
 
-  def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
+  def isInJavaPsiFacade: Boolean = inJavaPsiFacade.value
 
   private val clearCacheOnChange = new CleanupScheduler
   private val clearCacheOnTopLevelChange = new CleanupScheduler
@@ -277,12 +276,12 @@ class ScalaPsiManager(implicit val project: Project) {
       clearCacheOnTopLevelChange,
       (scope: GlobalSearchScope, fqn: String) => {
         def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
-          inJavaPsiFacade.set(true)
+          inJavaPsiFacade.value = true
           try {
             val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
             if (clazz == null || clazz.is[ScTemplateDefinition] || clazz.is[PsiClassWrapper]) None
             else Option(clazz)
-          } finally inJavaPsiFacade.set(false)
+          } finally inJavaPsiFacade.value = false
         }
 
         val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
@@ -377,7 +376,7 @@ class ScalaPsiManager(implicit val project: Project) {
     implicit
     scope: GlobalSearchScope
   ) = {
-    inJavaPsiFacade.set(true)
+    inJavaPsiFacade.value = true
     try
       JavaPsiFacade
         .getInstance(project)
@@ -388,7 +387,7 @@ class ScalaPsiManager(implicit val project: Project) {
           case _                                            => true
         }
     finally
-      inJavaPsiFacade.set(false)
+      inJavaPsiFacade.value = false
   }
 
   private[this] def getScalaClasses(
@@ -417,7 +416,7 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCacheOnTopLevelChange,
     (scope: GlobalSearchScope, fqn: String) => {
       def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
-        inJavaPsiFacade.set(true)
+        inJavaPsiFacade.value = true
         try {
           val classes = JavaPsiFacade
             .getInstance(project)
@@ -430,7 +429,7 @@ class ScalaPsiManager(implicit val project: Project) {
             .filterNot(p => p.is[ScTemplateDefinition] || p.is[PsiClassWrapper])
 
           classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
-        } finally inJavaPsiFacade.set(false)
+        } finally inJavaPsiFacade.value = false
       }
 
       if (DumbService.getInstance(project).isDumb) Array.empty[PsiClass]

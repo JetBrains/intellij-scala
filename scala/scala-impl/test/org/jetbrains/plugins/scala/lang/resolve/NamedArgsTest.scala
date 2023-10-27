@@ -1,7 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolve
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class NamedArgsTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3
 
   def testSCL9144(): Unit = {
     doResolveTest(
@@ -59,6 +63,26 @@ class NamedArgsTest extends SimpleResolveTestBase {
        |val addOne: Int => Int = _ + 1
        |val toStr: Int => String = s => s.toString
        |compose(toStr, addOne)(v${REFSRC}1 = 42)
+       |""".stripMargin
+  )
+
+  def testSCL21670(): Unit = doResolveTest(
+    s"""
+       |object A {
+       |  object Foo {
+       |    val typ: String = "hello"
+       |  }
+       |
+       |  class Bar(
+       |    val t${REFTGT}yp: String,
+       |  )
+       |
+       |  import Foo.* // same for `import Foo.typ`
+       |
+       |  val x = Bar(
+       |    t${REFSRC}yp = "bar"
+       |  )
+       |}
        |""".stripMargin
   )
 }

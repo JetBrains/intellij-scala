@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.compiler.references
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
 import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
-import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events._
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.{AsyncFileListener, VirtualFile, VirtualFileManager}
 import com.intellij.platform.backend.workspace.{WorkspaceModelChangeListener, WorkspaceModelTopics}
 import com.intellij.platform.workspace.jps.entities.{ContentRootEntity, ModuleEntity}
 import com.intellij.platform.workspace.storage.VersionedStorageChange
@@ -38,7 +40,7 @@ abstract class DirtyScopeHolder[Scope](
   fileDocManager: FileDocumentManager,
   psiDocManager: PsiDocumentManager,
   modificationTracker: ModificationTracker
-) extends UserDataHolderBase with BulkFileListener {
+) extends UserDataHolderBase with AsyncFileListener {
 
   protected val lock: Lock = new ReentrantLock()
   protected val fileTypeRegistry: FileTypeRegistry = FileTypeRegistry.getInstance()
@@ -47,9 +49,10 @@ abstract class DirtyScopeHolder[Scope](
   protected val compilationAffectedScopes: util.Set[Scope] = ContainerUtil.newConcurrentSet[Scope]()
   protected var indexingPhases: Int = 0
 
-  protected def scopeForSourceContentFile(vFile: VirtualFile): Set[Scope]
+  protected def scopeForSourceContentFile(vFile: VirtualFile): Option[Scope]
   protected def moduleScopes(module: Module): Set[Scope]
   protected def scopeToSearchScope(scope: Scope): GlobalSearchScope
+  protected def calculateDependentScopes(scopes: Set[Scope]): Set[Scope]
 
   private[references] def markScopeUpToDate(scope: Scope): Unit = {
     compilationAffectedScopes.add(scope)
@@ -66,7 +69,39 @@ abstract class DirtyScopeHolder[Scope](
     indexingPhases = 0
   }
 
-  override def after(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
+  override def prepareChange(events: util.List[_ <: VFileEvent]): AsyncFileListener.ChangeApplier = {
+    if (project.isDisposed) return null
+    val dirty = scopesToBeMarkedDirtyBefore(events)
+
+    new AsyncFileListener.ChangeApplier {
+      override def beforeVfsChange(): Unit = {
+        addToDirtyScopes(dirty)
+      }
+
+      override def afterVfsChange(): Unit = {
+        if (project.isDisposed) return
+        after(events)
+      }
+    }
+  }
+
+  private def scopesToBeMarkedDirtyBefore(events: util.List[_ <: VFileEvent]): Set[Scope] = {
+    val dirty = Set.newBuilder[Scope]
+
+    events.forEach { event =>
+      ProgressManager.checkCanceled()
+
+      event match {
+        case _: VFileDeleteEvent | _: VFileMoveEvent | _: VFileContentChangeEvent =>
+          dirty ++= scopeForChangedFile(event.getFile)
+        case _ => ()
+      }
+    }
+
+    dirty.result()
+  }
+
+  private def after(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
     case event @ (_: VFileCreateEvent | _: VFileMoveEvent | _: VFileCopyEvent) =>
       onFileChange(event.getFile)
     case event: VFilePropertyChangeEvent =>
@@ -76,16 +111,13 @@ abstract class DirtyScopeHolder[Scope](
     case _ => ()
   }
 
-  override def before(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
-    case event @ (_: VFileDeleteEvent | _: VFileMoveEvent | _: VFileContentChangeEvent) =>
-      onFileChange(event.getFile)
-    case _ => ()
-  }
-
   private def isRenameEvent(event: VFilePropertyChangeEvent) = {
     val propertyName = event.getPropertyName
     propertyName == VirtualFile.PROP_NAME || propertyName == VirtualFile.PROP_SYMLINK_TARGET
   }
+
+  private def scopeForChangedFile(@Nullable vFile: VirtualFile): Option[Scope] =
+    Option(vFile).flatMap(scopeForSourceContentFile)
 
   private def onFileChange(@Nullable vFile: VirtualFile): Unit = {
     if (vFile != null) {
@@ -99,14 +131,13 @@ abstract class DirtyScopeHolder[Scope](
     addToDirtyScopes(scopes)
   }
 
-  protected def addToDirtyScopes(scopes: Set[Scope]): Unit = lock.withLock {
+  protected def addToDirtyScopes(scopes: Iterable[Scope]): Unit = lock.withLock {
     if (indexingPhases != 0) {
       scopes.foreach { scope =>
         modifiedDuringIndexing.merge(scope, indexingPhases, Math.max(_, _))
       }
-    }
-    else {
-      vfsChangedScopes.addAll(scopes.asJava)
+    } else {
+      vfsChangedScopes.addAll(scopes.asJavaCollection)
     }
   }
 
@@ -114,31 +145,46 @@ abstract class DirtyScopeHolder[Scope](
     indexingPhases += 1
   }
 
-  private[references] def indexingFinished(): Unit = lock.withLock {
-    indexingPhases -= 1
-    vfsChangedScopes.removeAll(compilationAffectedScopes)
-    compilationAffectedScopes.clear()
+  private[references] def indexingFinished(): Unit =
+    ReadAction.nonBlocking[Unit] { () =>
+      lock.withLock {
+        // Because we no longer compute the dependent scopes when reacting to VFS events, the vfsChangedScopes map
+        // holds only scopes where files have been directly edited.
+        // However, during compilation, more scopes could have been recompiled, and are therefore no longer dirty.
+        // But we also need to account for the edge case where only the root module is recompiled, but its dependent
+        // modules aren't. In this case, we can make the mistake of clearing _all_ vfsChangedScopes (which the root
+        // scope is a part of and therefore implicitly clearing its dependent scopes).
+        // So, the solution is to calculate the transitive dependents of the root module, fully expand the
+        // vfsChangedScopes set, and then subtract all recompiled scopes. Luckily, this case is covered by a test.
+        val dependent = calculateDependentScopes(vfsChangedScopes.asScala.toSet)
 
-    val iter = modifiedDuringIndexing.entrySet().iterator()
-    while (iter.hasNext) {
-      val entry = iter.next()
-      entry.setValue(entry.getValue - indexingPhases)
+        // Run the rest in a non-cancellable section, otherwise the non-blocking read action loses idempotency.
+        ProgressManager.getInstance().executeNonCancelableSection { () =>
+          indexingPhases -= 1
+          vfsChangedScopes.addAll(dependent.asJava)
+          vfsChangedScopes.removeAll(compilationAffectedScopes)
+          compilationAffectedScopes.clear()
 
-      if (entry.getValue == 0) {
-        iter.remove()
+          val iter = modifiedDuringIndexing.entrySet().iterator()
+          while (iter.hasNext) {
+            val entry = iter.next()
+            entry.setValue(entry.getValue - indexingPhases)
+
+            if (entry.getValue == 0) {
+              iter.remove()
+            } else {
+              addToDirtyScopes(Some(entry.getKey))
+            }
+          }
+        }
       }
-      else {
-        addToDirtyScopes(Set(entry.getKey))
-      }
-    }
+    }.expireWith(project.unloadAwareDisposable).expireWhen(() => project.isDisposed).executeSynchronously()
+
+  private[references] def installVFSListener(parentDisposable: Disposable): Unit = {
+    VirtualFileManager.getInstance().addAsyncFileListener(this, parentDisposable)
   }
 
-  private[references] def installVFSListener(): Unit = {
-    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
-    connection.subscribe(VirtualFileManager.VFS_CHANGES, this)
-  }
-
-  def dirtyScope: GlobalSearchScope = inReadAction {
+  def dirtyScope: GlobalSearchScope = ReadAction.nonBlocking[GlobalSearchScope] { () =>
     lock.withLock {
       if (indexingPhases != 0)
         GlobalSearchScope.allScope(project)
@@ -157,18 +203,22 @@ abstract class DirtyScopeHolder[Scope](
       }
       else GlobalSearchScope.EMPTY_SCOPE
     }
+  }.expireWith(project.unloadAwareDisposable).expireWhen(() => project.isDisposed).executeSynchronously()
+
+  private[this] def calcDirtyScope(): GlobalSearchScope = {
+    val dirty = dirtyScopes
+    if (dirty.isEmpty) GlobalSearchScope.EMPTY_SCOPE
+    else GlobalSearchScope.union(dirty.map(scopeToSearchScope).asJavaCollection)
   }
 
-  private[this] def calcDirtyScope(): GlobalSearchScope =
-    if (dirtyScopes.isEmpty) GlobalSearchScope.EMPTY_SCOPE
-    else                     GlobalSearchScope.union(dirtyScopes.map(scopeToSearchScope).asJavaCollection)
-
-  def dirtyScopes: Set[Scope] = {
+  private[references] def dirtyScopes: Set[Scope] = {
+    ProgressManager.checkCanceled()
     val dirty = Set.newBuilder[Scope]
     dirty ++= vfsChangedScopes.asScala
 
     val unsavedDocuments = fileDocManager.getUnsavedDocuments
     unsavedDocuments.foreach { doc =>
+      ProgressManager.checkCanceled()
       for {
         file  <- fileDocManager.getFile(doc).toOption
         scope <- scopeForSourceContentFile(file)
@@ -179,6 +229,7 @@ abstract class DirtyScopeHolder[Scope](
 
     val uncommittedDocuments = psiDocManager.getUncommittedDocuments
     uncommittedDocuments.foreach { doc =>
+      ProgressManager.checkCanceled()
       for {
         pFile <- psiDocManager.getPsiFile(doc).toOption
         vFile <- pFile.getVirtualFile.toOption
@@ -188,7 +239,7 @@ abstract class DirtyScopeHolder[Scope](
       }
     }
 
-    dirty.result()
+    calculateDependentScopes(dirty.result())
   }
 
   private def sourceModules: Seq[Module] =

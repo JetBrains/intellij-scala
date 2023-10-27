@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, P
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScTypeAliasDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
@@ -42,8 +42,8 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
           case d: ScTypeDefinition => computeCanBePrivate(d, isOnTheFly)
           case t: ScTypeAliasDefinition if !t.isOpaque => computeCanBePrivate(t, isOnTheFly)
           case v: ScValueOrVariableDefinition =>
-            val allRefPatterns = v.pList.depthFirst().filterByType[ScReferencePattern]
-            allRefPatterns.forall(computeCanBePrivate(_, isOnTheFly))
+            val allRefPatterns = v.pList.depthFirst().filterByType[ScBindingPattern]
+            allRefPatterns.nonEmpty && allRefPatterns.forall(computeCanBePrivate(_, isOnTheFly))
           case _ => false
         }
 

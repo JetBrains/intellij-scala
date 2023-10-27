@@ -126,4 +126,14 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
        |//A.Foo[Int, Int with String]
        |""".stripMargin
   )
+
+  def testSCL21687(): Unit = doTest(
+    s"""
+       |object A {
+       |  def contextual[A](f: String ?=> A): A = ???
+       |  def test() = contextual(${START}Option("").map(_ => 1).getOrElse(2)$END)
+       |}
+       |//String ?=> Int
+       |""".stripMargin
+  )
 }

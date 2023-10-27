@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
+import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
@@ -31,13 +35,14 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     component.removeMouseMotionListener(editorMouseListerner)
   }
 
+  private var keyPressEvent: KeyEvent = _
+
   private var mouseHasMoved = false
 
   private val editorFocusListener = new FocusAdapter {
     override def focusLost(e: FocusEvent): Unit = {
-      if (xRayMode) {
-        xRayMode = false
-      }
+      xRayMode = false
+      keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
     }
@@ -52,6 +57,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (e.getKeyCode == ModifierKey) {
         if (System.currentTimeMillis() - firstKeyPressTime < 500) {
           firstKeyPressTime = 0
+          keyPressEvent = e
           longDelay.stop()
           shortDelay.start()
         } else {
@@ -66,9 +72,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
 
     override def keyReleased(e: KeyEvent): Unit = {
-      if (xRayMode) {
-        xRayMode = false
-      }
+      xRayMode = false
+      keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
     }
@@ -85,9 +90,35 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
   private def xRayMode: Boolean = ScalaHintsSettings.xRayMode
 
-  private def xRayMode_=(b: Boolean): Unit = {
-    ScalaHintsSettings.xRayMode = b
-    ImplicitHints.enabled = b
-    ImplicitHints.updateInAllEditors()
+  private def xRayMode_=(enabled: Boolean): Unit = {
+    if (ScalaHintsSettings.xRayMode == enabled) return
+
+    ScalaHintsSettings.xRayMode = enabled
+
+    if (enabled) {
+      indentGuidesShownSetting = EditorSettingsExternalizable.getInstance.isIndentGuidesShown
+      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(true)
+
+      showImplicitHintsSetting = ImplicitHints.enabled
+      ImplicitHints.enabled = true
+      ImplicitHints.updateInAllEditors()
+
+      keyPressEvent.getSource match {
+        case component: EditorComponentImpl =>
+          val action = ActionManager.getInstance.getAction(XRayModeAction.Id)
+          val event = AnActionEvent.createFromInputEvent(keyPressEvent, ActionPlaces.KEYBOARD_SHORTCUT, null, component.getEditor.getDataContext)
+          ActionUtil.performActionDumbAwareWithCallbacks(action, event)
+        case _ =>
+      }
+    } else {
+      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(indentGuidesShownSetting)
+
+      ImplicitHints.enabled = showImplicitHintsSetting
+      ImplicitHints.updateInAllEditors()
+    }
   }
+
+  private var indentGuidesShownSetting: Boolean = _
+
+  private var showImplicitHintsSetting: Boolean = _
 }

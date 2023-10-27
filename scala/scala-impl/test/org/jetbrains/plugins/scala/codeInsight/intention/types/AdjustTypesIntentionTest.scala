@@ -98,4 +98,21 @@ class AdjustTypesIntentionTest extends ScalaIntentionTestBase {
        |}
        |""".stripMargin
   )
+
+
+  def test_use_type_alias(): Unit = doTest(
+    s"""
+       |class A {
+       |  type MyAlias = Int
+       |  def bar: ${CARET}Int = 1
+       |}
+       |""".stripMargin,
+    s"""
+       |class A {
+       |  type MyAlias = Int
+       |
+       |  def bar: MyAlias = 1
+       |}
+       |""".stripMargin,
+  )
 }

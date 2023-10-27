@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import scala.collection.immutable.HashMap
 
 object ImplicitsRecursionGuard {
 
   type RecursionMap = Map[PsiElement, List[ScType]]
-  private val recursionMap: RichThreadLocal[RecursionMap] =
-    new RichThreadLocal(new HashMap[PsiElement, List[ScType]])
+  private val recursionMap: UnloadableThreadLocal[RecursionMap] =
+    new UnloadableThreadLocal(new HashMap[PsiElement, List[ScType]])
 
   def currentMap: RecursionMap = recursionMap.value
 

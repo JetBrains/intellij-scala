@@ -36,12 +36,6 @@ val intellijPluginsScopeFilter: ScopeFilter =
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
-val remoteCacheCompileScopeFilter: ScopeFilter =
-  ScopeFilter(inAnyProject -- inProjects(scalaCommunity), inConfigurations(Compile))
-
-val remoteCacheTestScopeFilter: ScopeFilter =
-  ScopeFilter(inAnyProject -- inProjects(scalaCommunity), inConfigurations(Test))
-
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
@@ -89,11 +83,7 @@ lazy val scalaCommunity: sbt.Project =
         //"org.jetbrains.kotlin".toPlugin
       ),
       // all sub-project tests need to be run within main project's classpath
-      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
-      Compile / pushRemoteCache := pushRemoteCache.all(remoteCacheCompileScopeFilter).value,
-      Compile / pullRemoteCache := pullRemoteCache.all(remoteCacheCompileScopeFilter).value,
-      Test / pushRemoteCache := pushRemoteCache.all(remoteCacheTestScopeFilter).value,
-      Test / pullRemoteCache := pullRemoteCache.all(remoteCacheTestScopeFilter).value
+      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
@@ -174,8 +164,7 @@ lazy val worksheetReplInterface =
       (Compile / scalacOptions) := Seq.empty, // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true),
       intellijMainJars := Seq.empty,
-      intellijPlugins := Seq.empty,
-      compilationCacheSettings
+      intellijPlugins := Seq.empty
     )
 
 lazy val worksheetReplInterfaceImpls: Project =
@@ -297,8 +286,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
-    ),
-    compilationCacheSettings
+    )
   )
 
 lazy val scalacPatches: sbt.Project =
@@ -310,7 +298,6 @@ lazy val scalacPatches: sbt.Project =
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
-      compilationCacheSettings,
       intellijMainJars := Nil
     )
 
@@ -531,8 +518,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
     javacOptions := globalJavacOptions, // finders are run in IDEA process, so using JDK 17
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
-    intellijMainJars := Nil, //without this lineon SDK is still added (as "Provided"), while it shouldn't
-    compilationCacheSettings
+    intellijMainJars := Nil //without this lineon SDK is still added (as "Provided"), while it shouldn't
   )
 
 lazy val scalatestFindersTestSettings = Seq(
@@ -550,8 +536,7 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
-    intellijMainJars := Nil,
-    compilationCacheSettings
+    intellijMainJars := Nil
   )
 
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
@@ -562,8 +547,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     scalatestFindersTestSettings,
     scalaVersion := "2.12.17",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
-    intellijMainJars := Nil,
-    compilationCacheSettings
+    intellijMainJars := Nil
   )
 
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
@@ -574,8 +558,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
     scalatestFindersTestSettings,
     scalaVersion := Versions.scalaVersion,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
-    intellijMainJars := Nil,
-    compilationCacheSettings
+    intellijMainJars := Nil
   )
 
 lazy val nailgunRunners =
@@ -820,6 +803,3 @@ addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
 addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")
 addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
-
-// Compilation cache setup
-ThisBuild / pushRemoteCacheTo := Some(MavenCache("compilation-cache", (ThisBuild / baseDirectory).value / "compilation-cache"))

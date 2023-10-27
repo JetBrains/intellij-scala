@@ -274,4 +274,28 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
          |object B { val b2 = new B().b1 + 1 }
          |object A { B.b2 }
          |""".stripMargin, AllowAdditionalHighlights)
+
+  // SCL-21690
+  def test_patterns(): Unit =
+    checkTextHasError(
+      s"""
+         |object G {
+         |  val (a: Int, b: Int) = (1, 2)
+         |  val $START(c: Int, d: Int)$END = (1, 2)
+         |  val $START(x: Int)$END = 1
+         |  val (y: Int) = 1
+         |
+         |  println(a)
+         |  println(b)
+         |  println(c)
+         |  println(d)
+         |  println(x)
+         |}
+         |
+         |object A {
+         |  println(G.a)
+         |}
+         |""".stripMargin,
+      AllowAdditionalHighlights
+    )
 }

@@ -277,4 +277,22 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
          |class C extends B { type Foo = Int; val x: Foo = 1 }
          |""".stripMargin)
 
+  // SCL-21690
+  def test_patterns(): Unit =
+    checkTextHasNoErrors(
+      """
+        |object G {
+        |  val (a: Int, b: Int) = (1, 2)
+        |  val (x: Int) = 1
+        |}
+        |
+        |object Use {
+        |  println(G.b)
+        |  println(G.x)
+        |}
+        |""".stripMargin
+    )
+
+  def test_test_wildcard_pattern(): Unit =
+    checkTextHasNoErrors("object A { val (_: Int) = 3 }")
 }

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.ProcessorUtils
-import org.jetbrains.plugins.scala.util.RichThreadLocal
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.{util => ju}
 
@@ -133,8 +133,8 @@ trait ScPackageLike extends PsiElement {
 }
 
 object ScPackageLike {
-  private val processingExport: RichThreadLocal[ju.Set[ScExportStmt]] =
-    new RichThreadLocal[ju.Set[ScExportStmt]](new ju.HashSet)
+  private val processingExport: UnloadableThreadLocal[ju.Set[ScExportStmt]] =
+    new UnloadableThreadLocal[ju.Set[ScExportStmt]](new ju.HashSet)
 
   /**
    * Exports are processed in batches, grouped by their ScExportsHolder,

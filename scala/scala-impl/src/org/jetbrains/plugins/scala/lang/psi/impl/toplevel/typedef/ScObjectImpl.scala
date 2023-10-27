@@ -70,7 +70,7 @@ class ScObjectImpl(
   override def isObject : Boolean = true
 
   override def isPackageObject: Boolean = byStubOrPsi(_.isPackageObject) {
-    findChildByType(ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
+    hasPackageKeyword || name == "`package`"
   }
 
   override def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
