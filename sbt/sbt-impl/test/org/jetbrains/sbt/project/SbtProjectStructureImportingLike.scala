@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 
 
-class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
+abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
   with ProjectStructureMatcher
   with ExactMatch {
 
