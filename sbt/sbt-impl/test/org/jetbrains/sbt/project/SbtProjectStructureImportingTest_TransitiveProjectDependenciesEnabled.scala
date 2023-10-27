@@ -2,21 +2,14 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
 
 import java.net.URI
 
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingWithTransitiveProjectDependenciesTest extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
-
-  override def setUp(): Unit = {
-    super.setUp()
-    val projectSettings = SbtProjectSettings.default
-    projectSettings.insertProjectTransitiveDependencies = true
-  }
 
   def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
     new project("sharedSourcesWithNestedProjectDependencies") {
