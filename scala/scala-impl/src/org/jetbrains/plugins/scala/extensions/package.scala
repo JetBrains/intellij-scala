@@ -331,6 +331,11 @@ package object extensions {
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {
     def findByType[T <: AnyRef : ClassTag]: Option[T] = collectFirstByType(identity[T])
 
+    def filterByType[T <: AnyRef : ClassTag]: Array[T] = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      array.filter(aClass.isInstance).asInstanceOf[Array[T]]
+    }
+
     def collectFirstByType[T <: AnyRef : ClassTag, R](f: T => R): Option[R] = {
       var idx = 0
       val clazz = implicitly[ClassTag[T]].runtimeClass
