@@ -645,4 +645,17 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
     checkTextHasNoErrors(s"type T[A] = (A match { case Int => Char }) => Any")
     checkTextHasNoErrors(s"type T[A] = [X] => (A match { case Int => Char }) => Any")
   }
+
+  def testUnionTypeInMatch(): Unit = {
+    // SCL-21744
+    checkTextHasNoErrors(
+      """
+        |"1" match
+        |  case s:(String|CharSequence) => println(s)
+        |""".stripMargin
+    )
+    checkTextHasNoErrors("val s@(_: (String && Int)) = null")
+    checkTextHasErrors(s"val s: $START(String && Int)$END = null")
+    checkTextHasErrors(s"type X[A] = A match { case $START(Int || Float)$END => Int }")
+  }
 }
