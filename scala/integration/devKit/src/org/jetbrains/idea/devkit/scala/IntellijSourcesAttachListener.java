@@ -1,5 +1,6 @@
 package org.jetbrains.idea.devkit.scala;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId;
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListenerAdapter;
@@ -22,6 +23,8 @@ public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificatio
     public void onSuccess(@NotNull ExternalSystemTaskId id) {
         Project project = id.findProject();
         if (project == null || project.isDisposed())
+            return;
+        if (!ApplicationManager.getApplication().isInternal())
             return;
 
         if (hasSbtIdeaPlugin(project)) {
