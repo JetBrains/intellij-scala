@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
@@ -23,7 +23,7 @@ final class ScEnumCasesImpl(
     "ScEnumCases" + ifReadAllowed(declaredNames.mkString(": ", ", ", ""))("")
 
   override def declaredElements: Seq[ScEnumCase] =
-    byPsiOrStub(findChildrenByClassScala(classOf[ScEnumCase]))(_.getChildrenByType(ScalaElementType.EnumCase, new Array[ScEnumCase](_))).toSeq
+    byPsiOrStub(findChildrenByClassScala(classOf[ScEnumCase]))(_.getChildrenByType(TokenSets.ENUM_CASES, new Array[ScEnumCase](_))).toSeq
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitEnumCases(this)

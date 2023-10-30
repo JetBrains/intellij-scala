@@ -85,12 +85,42 @@ class EnumResolveTest extends SimpleResolveTestBase {
     )
   }
 
-  def testClassCase(): Unit =
+  def testClassCaseType(): Unit =
     doResolveTest(
       s"""
          |object Test {
-         |  enum Bar { case Foo(x: Int, y: String) }
-         |  val b = Bar.Fo${REFSRC}o(1, "2")
+         |  enum Color { case Green(x: Int) }
+         |  type T = Color.Gree${REFSRC}n
+         |}
+         |""".stripMargin
+    )
+
+  def testClassCaseConstructor(): Unit =
+    doResolveTest(
+      s"""
+         |object Test {
+         |  enum Color { case Green(x: Int) }
+         |  new Color.Gree${REFSRC}n(123)
+         |}
+         |""".stripMargin
+    )
+
+  def testClassCaseObject(): Unit =
+    doResolveTest(
+      s"""
+         |object Test {
+         |  enum Color { case Green(x: Int) }
+         |  Color.Gree${REFSRC}n
+         |}
+         |""".stripMargin
+    )
+
+  def testClassCaseApplyMethod(): Unit =
+    doResolveTest(
+      s"""
+         |object Test {
+         |  enum Color { case Green(x: Int) }
+         |  Color.Gree${REFSRC}n(123)
          |}
          |""".stripMargin
     )
@@ -300,6 +330,22 @@ class EnumResolveTest extends SimpleResolveTestBase {
       |  private enum Color { case Green }
       |}
       |type T = Scope.Co${CARET}lor
+      |""".stripMargin
+  )
+
+  def testSingletonCaseWidening(): Unit = checkTextHasNoErrors(
+    s"""
+      |enum Color { case Red, Green }
+      |var color = Color.Red
+      |color = Color.Green
+      |""".stripMargin
+  )
+
+  def testSingletonCaseType(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |enum Color { case Red, Green }
+      |var color: Color.Red.type = Color.Red
+      |color = Color.Gre${CARET}en
       |""".stripMargin
   )
 }

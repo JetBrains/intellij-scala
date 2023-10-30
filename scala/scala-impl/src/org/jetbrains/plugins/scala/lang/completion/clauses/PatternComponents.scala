@@ -138,8 +138,6 @@ final class StablePatternComponents(`class`: PsiClass, qualifiedName: String)
   extends ClassPatternComponents(`class`, qualifiedName, ScalaTypePresentation.ObjectTypeSuffix) {
 
   def this(`object`: ScObject) = this(`object`, `object`.qualifiedName)
-
-  def this(enumCase: ScEnumCase) = this(enumCase, enumCase.qualifiedName)
 }
 
 object WildcardPatternComponents extends PatternComponents {

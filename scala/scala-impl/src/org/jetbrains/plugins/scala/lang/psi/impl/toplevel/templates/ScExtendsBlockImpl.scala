@@ -78,7 +78,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ => syntheticTypeElements.map(_.`type`().getOrAny).foreach(addType)
     }
 
-    if (isUnderCaseClass && !isInDesugaredEnumCase) {
+    if (isUnderCaseClass && !isInEnumCase) {
       buffer ++= scalaProduct
       buffer ++= scalaSerializableBaseTypeForCaseClasses
     }
@@ -232,10 +232,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     case _         => false
   }
 
-  private def isInDesugaredEnumCase: Boolean = getParentByStub match {
-    case cse: ScEnumCase       => true
-    case named: ScNamedElement => ScEnumCase.isDesugaredEnumCase(named)
-    case _                     => false
+  private def isInEnumCase: Boolean = getParentByStub match {
+    case _: ScEnumCase       => true
+    case _                   => false
   }
 
   private def templateBodies = templateBody.toSeq

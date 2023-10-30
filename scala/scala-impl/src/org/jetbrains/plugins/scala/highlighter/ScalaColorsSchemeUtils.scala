@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCaseKind, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
@@ -18,14 +18,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 object ScalaColorsSchemeUtils {
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
+      case _: ScEnum                                  => Some(DefaultHighlighter.ENUM)
+      case _: ScEnumClassCase                         => Some(DefaultHighlighter.ENUM_CLASS_CASE)
+      case _: ScEnumSingletonCase                     => Some(DefaultHighlighter.ENUM_SINGLETON_CASE)
       case _: ScNameValuePair                         => Some(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
       case _: ScTypeParam                             => Some(DefaultHighlighter.TYPEPARAM)
       case c: ScClass if c.getModifierList.isAbstract => Some(DefaultHighlighter.ABSTRACT_CLASS)
       case c: ScClass                                 => Some(DefaultHighlighter.CLASS)
       case _: ScObject                                => Some(DefaultHighlighter.OBJECT)
       case _: ScTrait                                 => Some(DefaultHighlighter.TRAIT)
-      case _: ScEnum                                  => Some(DefaultHighlighter.ENUM)
-      case ec: ScEnumCase                             => Some(enumCaseAttributes(ec))
       case x: ScBindingPattern =>
         x.nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
@@ -55,18 +56,14 @@ object ScalaColorsSchemeUtils {
       case _ => None
     }
 
-  private def enumCaseAttributes(ec: ScEnumCase): TextAttributesKey =
-    if (ec.enumKind == ScEnumCaseKind.SingletonCase) DefaultHighlighter.ENUM_SINGLETON_CASE
-    else DefaultHighlighter.ENUM_CLASS_CASE
-
   def textAttributesKey(resolvedElement: PsiElement,
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {
+      case _: ScEnum | ScObject.Companion(_: ScEnum)                                     => DefaultHighlighter.ENUM
+      case _: ScEnumClassCase | ScObject.Companion(_: ScEnumClassCase)                   => DefaultHighlighter.ENUM_CLASS_CASE
+      case _: ScEnumSingletonCase                                                        => DefaultHighlighter.ENUM_SINGLETON_CASE
       case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => DefaultHighlighter.PREDEF //this is td, it's important!
-      case _: ScEnum | ScEnum.FromObject(_)                                              => DefaultHighlighter.ENUM
-      case ec: ScEnumCase                                                                => enumCaseAttributes(ec)
-      case ScEnumCase.Original(ec)                                                       => enumCaseAttributes(ec)
       case c: ScClass if c.getModifierList.isAbstract                                    => DefaultHighlighter.ABSTRACT_CLASS
       case _: ScTypeParam                                                                => DefaultHighlighter.TYPEPARAM
       case _: ScTypeAlias                                                                => DefaultHighlighter.TYPE_ALIAS

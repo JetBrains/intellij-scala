@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.icons.Icons.FIELD_VAL
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
@@ -349,7 +350,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
         """.stripMargin,
     item = "x, y",
     isSuper = true,
-    icons = PARAMETER, PARAMETER
+    icons = FIELD_VAL, FIELD_VAL
   )
 
   def testAfterParenthesisOnlyInEnumConstructor(): Unit = checkNoCompletion(

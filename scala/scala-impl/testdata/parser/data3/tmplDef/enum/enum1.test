@@ -38,25 +38,25 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: NORTH
+          ScEnumSingletonCase: NORTH
             PsiElement(identifier)('NORTH')
             ExtendsBlock
               <empty list>
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ScEnumCase: WEST
+          ScEnumSingletonCase: WEST
             PsiElement(identifier)('WEST')
             ExtendsBlock
               <empty list>
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ScEnumCase: SOUTH
+          ScEnumSingletonCase: SOUTH
             PsiElement(identifier)('SOUTH')
             ExtendsBlock
               <empty list>
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ScEnumCase: EAST
+          ScEnumSingletonCase: EAST
             PsiElement(identifier)('EAST')
             ExtendsBlock
               <empty list>

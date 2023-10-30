@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package typedef
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
@@ -40,5 +41,9 @@ trait ScObject extends ScTypeDefinition
 object ScObject {
   object withModifierList {
     def unapply(obj: ScObject): Some[ScModifierList] = Some(obj.getModifierList)
+  }
+
+  object Companion {
+    def unapply(obj: ScObject): Option[ScTypeDefinition] = ScalaPsiUtil.getCompanionModule(obj)
   }
 }

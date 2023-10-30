@@ -37,7 +37,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: A
+          ScEnumSingletonCase: A
             PsiElement(identifier)('A')
             ExtendsBlock
               <empty list>
@@ -50,7 +50,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: B
+          ScEnumSingletonCase: B
             PsiElement(identifier)('B')
             ExtendsBlock
               <empty list>
@@ -71,7 +71,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: C
+          ScEnumSingletonCase: C
             PsiElement(identifier)('C')
             ExtendsBlock
               <empty list>
@@ -102,7 +102,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: D
+          ScEnumSingletonCase: D
             PsiElement(identifier)('D')
             ExtendsBlock
               <empty list>
@@ -133,7 +133,7 @@ ScalaFile
           PsiWhiteSpace('\n    ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: E
+          ScEnumSingletonCase: E
             PsiElement(identifier)('E')
             ExtendsBlock
               <empty list>

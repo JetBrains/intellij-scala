@@ -1,38 +1,24 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Model, StringsExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, methodsForCompanionObject}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.methodsForCompanionObject
 
 /**
- * Injects synthetic methods into generated companion object of enum
- * classes (`values`, `valueOf`, `fromOrdinal`) as well as translates
- * `ScEnumCase`s into proper vals/classes.
+ * Injects synthetic methods into companion objects of enums: `values`, `valueOf`, `fromOrdinal`.
  */
 class EnumMembersInjector extends SyntheticMembersInjector {
-  private[this] def processEnumCases(scEnum: ScEnum): Seq[String] =
-    scEnum.cases.map(injectEnumCase)
-
   private[this] def companionEnum(obj: ScObject): Option[ScEnum] =
     obj.fakeCompanionClassOrCompanionClass match {
       case enum: ScEnum          => Some(enum)
       case _                     => None
     }
 
-  override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
-    case obj: ScObject => companionEnum(obj).fold(Seq.empty[String])(processEnumCases)
-    case _             => Seq.empty
-  }
-
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject =>
       companionEnum(obj).fold(Seq.empty[String]) { enum =>
-        val singletonCases =
-          enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
-
+        val singletonCases = enum.cases.filterByType[ScEnumSingletonCase]
         methodsForCompanionObject(enum, singletonCases)
       }
     case _ => Seq.empty
@@ -43,35 +29,6 @@ class EnumMembersInjector extends SyntheticMembersInjector {
 }
 
 object EnumMembersInjector {
-  private def injectEnumCase(cse: ScEnumCase): String = {
-    def supersToString(superTypes: Seq[ScType]): String =
-      superTypes.map(_.canonicalText).mkString(" with ")
-
-    val modifiers   = cse.asInstanceOf[ScEnumCaseImpl].modifierListText
-    val annotations = cse.asInstanceOf[ScEnumCaseImpl].annotationsText
-    val supersText  = supersToString(cse.superTypes)
-
-    cse.constructor match {
-      case Some(cons) =>
-        val tps = cse.typeParameters
-
-        val typeParamsText  =
-          if (tps.isEmpty) ""
-          else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
-
-        s"""$annotations
-           |$modifiers final case class ${cse.name}$typeParamsText${cons.getText} extends $supersText {
-           |  override def ordinal: Int = ???
-           |}""".stripMargin
-      case None =>
-        val separator =
-          if (cse.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " "
-          else                                                                 ""
-
-        s"$annotations $modifiers val ${cse.name}$separator: $supersText = ???"
-    }
-  }
-
   private def methodsForCompanionObject(owner: ScEnum, singletonCases: Seq[ScEnumCase]): Seq[String] = {
     val tps = owner.typeParameters
 
@@ -80,13 +37,13 @@ object EnumMembersInjector {
       else             tps.map(_ => "_").commaSeparated(model = Model.SquareBrackets)
 
     val rawEnumTypeText = s"${owner.name}$wildcardsText"
-    val fromOrdinal     = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
+    val fromOrdinal     = s"def fromOrdinal(ordinal: _root_.scala.Int): $rawEnumTypeText = ???"
 
     // @TODO: valueOf return type is actually LUB of all singleton cases
     if (singletonCases.size == owner.cases.size)
       Seq(
-        s"def values: Array[$rawEnumTypeText] = ???",
-        s"def valueOf(name: String): $rawEnumTypeText = ???",
+        s"def values: _root_.scala.Array[$rawEnumTypeText] = ???",
+        s"def valueOf(name: _root_.scala.Predef.String): $rawEnumTypeText = ???",
         fromOrdinal
       )
     else Seq(fromOrdinal)

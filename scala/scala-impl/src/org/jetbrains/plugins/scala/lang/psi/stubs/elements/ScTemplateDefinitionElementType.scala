@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumClassCaseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
@@ -40,8 +40,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeOptionName(stub.topLevelQualifier)
     dataStream.writeBoolean(stub.isGiven)
     dataStream.writeNames(stub.givenClassNames)
-    dataStream.writeOptionName(stub.enumCaseModifierListText)
-    dataStream.writeOptionName(stub.enumCaseAnnotationsText)
   }
 
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
@@ -65,8 +63,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       topLevelQualifier                = dataStream.readOptionName,
       isGiven                          = dataStream.readBoolean,
       givenClassNames                  = dataStream.readNames,
-      enumCaseModifierListText         = dataStream.readOptionName,
-      enumCaseAnnotationsText          = dataStream.readOptionName,
     )
 
   override final def createStubImpl(definition: TypeDef,
@@ -122,16 +118,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                           => (false, EMPTY_STRING_ARRAY)
     }
 
-    val enumCaseModifierListText = definition match {
-      case e: ScEnumCaseImpl => Some(e.modifierListText)
-      case _                 => None
-    }
-
-    val enumCaseAnnotationsText = definition match {
-      case e: ScEnumCaseImpl => Some(e.annotationsText)
-      case _                 => None
-    }
-
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
@@ -151,9 +137,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isTopLevel                       = isTopLevel,
       topLevelQualifier                = topLevelQualifier,
       isGiven                          = isGivenDefinition,
-      givenClassNames                  = givenDefinitionClassNames,
-      enumCaseModifierListText         = enumCaseModifierListText,
-      enumCaseAnnotationsText          = enumCaseAnnotationsText
+      givenClassNames                  = givenDefinitionClassNames
     )
   }
 

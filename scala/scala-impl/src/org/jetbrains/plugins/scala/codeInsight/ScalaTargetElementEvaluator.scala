@@ -131,26 +131,9 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
       case Some(typeAlias) =>
         typeAlias
       case None =>
-        adjustTargetElementForScala3Enums(targetElement) match {
-          case Some(result) =>
-            result
-          case None =>
-            super.adjustTargetElement(editor, offset, flags, targetElement)
-        }
+        super.adjustTargetElement(editor, offset, flags, targetElement)
     }
   }
-
-  /**
-   * This method is initially added to handle Scala 3 enums, enum cases, enum primary and auxiliary constructors<br>
-   * in "Quick Documentation" and "Quick Definition" actions
-   */
-  private def adjustTargetElementForScala3Enums(targetElement: PsiElement): Option[PsiElement] =
-    targetElement match {
-      case ScEnumCase.Original(enumCase) =>
-        Some(enumCase)
-      case _ =>
-        None
-    }
 
   /**
    * This is a solution for SCL-20826

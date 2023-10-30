@@ -33,7 +33,6 @@ class ScalaFindUsagesHandler(
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {
-      case e: ScEnumCase => Array(e.getSyntheticCounterpart)
       case t: ScObject =>
         t.fakeCompanionClass match {
           case Some(clazz) => Array(clazz)

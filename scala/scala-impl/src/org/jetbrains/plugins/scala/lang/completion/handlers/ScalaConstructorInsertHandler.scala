@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScGenericCall, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumClassCase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -59,6 +59,8 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
       case clazz: PsiClass =>
         var needsEmptyParens = false
         clazz match {
+          case enumCase: ScEnumClassCase =>
+            if (enumCase.constructor.isDefined) needsEmptyParens = true
           case c: ScClass =>
             c.constructor match {
               case Some(constr)
@@ -69,8 +71,6 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
               case _ =>
             }
             c.secondaryConstructors.foreach(fun => if (fun.parameters.nonEmpty) needsEmptyParens = true)
-          case enumCase: ScEnumCase =>
-            if (enumCase.constructor.isDefined) needsEmptyParens = true
           case _ =>
             clazz.constructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) needsEmptyParens = true)
         }

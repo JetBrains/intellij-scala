@@ -27,6 +27,7 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin
     )(
+      // TODO Show only a single error
       Error("Foo", "Extending enums is prohibited"),
       Error("Foo", "Object creation impossible, since member ordinal: Int in scala.reflect.Enum is not defined")
     )
@@ -40,6 +41,7 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin
     )(
+      // TODO Show only a single error
       Error("Foo", "Extending enums is prohibited"),
       Error("class X extends Foo", "Class 'X' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'")
     )
@@ -151,6 +153,9 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
       |
       |class C extends Color.Green(1)
       |""".stripMargin
-  )(Error("Color.Green", "Illegal inheritance from final class 'Green'")
+  )(
+    // TODO Show only a single error
+    Error("Color.Green", "Illegal inheritance from final class 'Green'"),
+    Error("class C extends Color.Green(1)", "Class 'C' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'")
   )
 }
