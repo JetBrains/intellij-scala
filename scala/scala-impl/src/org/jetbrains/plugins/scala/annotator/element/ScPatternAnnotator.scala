@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
@@ -23,10 +23,16 @@ import scala.collection.immutable.ArraySeq
 
 object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
-  override def annotate(element: ScPattern, typeAware: Boolean)
+  override def annotate(pattern: ScPattern, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
+    pattern match {
+      case ScTypedPattern(ScInfixTypeElement(_, op, _)) =>
+        holder.createErrorAnnotation(op, "Cannot have infix type directly in typed pattern. Try to surround it with parenthesis.")
+      case _ =>
+    }
+
     if (typeAware) {
-      checkPattern(element)
+      checkPattern(pattern)
     }
   }
 
