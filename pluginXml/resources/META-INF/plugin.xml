@@ -46,7 +46,6 @@
     <depends optional="true" config-file="scala-properties-integration.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="scala-gradle-integration.xml">com.intellij.gradle</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
-    <depends optional="true" config-file="scala-devkit-integration.xml">DevKit</depends>
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
 <!--    <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends>-->
 
@@ -62,5 +61,6 @@
     <xi:include href="testing-support.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
 </idea-plugin>
