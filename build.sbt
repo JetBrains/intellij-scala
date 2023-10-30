@@ -598,19 +598,13 @@ lazy val bsp =
     )
 
 // Integration with other IDEA plugins
-
-// TODO: ideally intellij plugin dependency should be used
-//       but if the plugin cannot be resolved use the library dependency below as a workaround
-//lazy val devKitPluginDependency = intellijPlugins += "DevKit".toPlugin
-lazy val devKitPluginDependency = Seq(
-  libraryDependencies += "com.jetbrains.intellij.devkit" % "devkit" % "233-EAP-SNAPSHOT" % Provided notTransitive() changing(),
-  resolvers += org.jetbrains.sbtidea.download.idea.IntellijRepositories.Eap,
-)
-
+//TODO: rename the module module and maybe base packages (check external usages)
+// it actually doesn't have anything related to actual devkit integration, it doesn't depend on anything from it
+// it's similar to DevKit plugin in it's purpose, but it's different.
+// It just contains some internal actions required for Scala Plugin development (or other Scala-based plugins using sbt-idea-plugin)
 lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
     .dependsOn(scalaImpl, sbtImpl)
-    .settings(devKitPluginDependency)
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
