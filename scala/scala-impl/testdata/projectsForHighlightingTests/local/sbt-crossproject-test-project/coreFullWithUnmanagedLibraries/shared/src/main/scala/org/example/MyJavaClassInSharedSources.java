@@ -1,5 +1,6 @@
 package org.example;
 
+@SuppressWarnings("unused")
 public class MyJavaClassInSharedSources {
     static {
         {
