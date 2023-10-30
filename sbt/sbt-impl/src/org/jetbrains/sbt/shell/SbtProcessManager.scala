@@ -111,6 +111,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  private val IdeaRunIdVmOption = "idea.runid"
+
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
@@ -157,8 +159,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     vmParams.addAll(allOpts.asJava)
 
     // don't add runid when using addPluginSbtFile command
-    if (! addPluginSupported)
-      vmParams.add(s"-Didea.runid=$runid")
+    if (!addPluginSupported)
+      vmParams.add(s"-D$IdeaRunIdVmOption=$runid")
 
     // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
     if(SystemInfo.isWindows)
@@ -182,7 +184,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
       val plugins = injectedPlugins(sbtMajorVersion.presentation)
-      injectSettings(runid, ! addPluginSupported, settingsFile, pluginResolverSetting +: plugins)
+      injectSettings(runid, !addPluginSupported, settingsFile, pluginResolverSetting +: plugins)
 
       if (addPluginSupported) {
         val settingsPath = settingsFile.getAbsolutePath
@@ -355,7 +357,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     // any idea-specific settings should be added conditional on sbt being started from idea
     val guardedSettings =
       if (guardSettings)
-        s"""if (java.lang.System.getProperty("idea.runid", "false") == "$runid") $settingsString else scala.collection.Seq.empty"""
+        s"""if (java.lang.System.getProperty("$IdeaRunIdVmOption", "false") == "$runid") $settingsString else scala.collection.Seq.empty"""
       else settingsString
 
     val content = header + "\n" + guardedSettings
