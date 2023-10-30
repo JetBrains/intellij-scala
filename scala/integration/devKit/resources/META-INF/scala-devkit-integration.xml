@@ -3,7 +3,9 @@
 <idea-plugin>
 
     <actions>
-        <action class="org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction" text="Attach IntelliJ Sources">
+        <action class="org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction"
+                text="Attach IntelliJ Sources"
+                internal="true">
             <add-to-group group-id="MaintenanceGroup"/>
         </action>
     </actions>
