@@ -36,7 +36,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2023.3.1"
+  val sbtStructureVersion: String = "2023.3.2"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.14"
 
@@ -48,16 +48,17 @@ object Versions {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
+    //sbt-structure-extractor is cross-published in a non-standard way,
+    //against multiple 1.x versions so it uses an exact binary version 1.x.
+    //Versions 1.0-1.2 use 1.2, versions 1.3 and above use 1.3
+    val structure_extractor_binary_1_2 = "1.2"
+    val structure_extractor_binary_1_3 = "1.3"
+
     val latest_0_13 = "0.13.18"
     val latest_1_0 = "1.9.7"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
-
-    def scalaVersion(v: String): String =
-      if (v.startsWith(Sbt.binary_0_13)) "2.10"
-      else if (v.startsWith(Sbt.binary_1_0)) "2.12"
-      else throw new RuntimeException(s"Unknown sbt binary version: $v -- need to update dependencies.scala?")
   }
 }
 
@@ -138,10 +139,6 @@ object Dependencies {
     fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
       fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
   }
-
-  private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
-    sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
-
 }
 
 object DependencyGroups {

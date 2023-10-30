@@ -14,6 +14,7 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 
 import java.io.{File, Serializable}
 import java.net.URI
+import java.util
 import java.util.{Objects, HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
 
@@ -201,11 +202,20 @@ object SbtModuleExtData {
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
 @SerialVersionUID(1)
-case class SbtScalaSdkData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath")) (
+case class SbtScalaSdkData @PropertyMapping(Array(
+  "scalaVersion",
+  "scalacClasspath",
+  "scaladocExtraClasspath",
+  "compilerBridgeBinaryJar"
+)) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scaladocExtraClasspath: JList[File],
-) extends SbtEntityData
+  @Nullable compilerBridgeBinaryJar: File
+) extends SbtEntityData {
+  //Default constructor is needed in order intellij can deserialize data in old format
+  def this() = this(null, new util.ArrayList(), new util.ArrayList(), null)
+}
 
 object SbtScalaSdkData {
   val Key: Key[SbtScalaSdkData] = datakey(classOf[SbtScalaSdkData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
@@ -214,11 +224,13 @@ object SbtScalaSdkData {
     scalaVersion: Option[String],
     scalacClasspath: Seq[File] = Seq.empty,
     scaladocExtraClasspath: Seq[File] = Seq.empty,
+    @Nullable compilerBridgeBinaryJar: Option[File] = None
   ): SbtScalaSdkData =
     new SbtScalaSdkData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
-      scaladocExtraClasspath.toJavaList
+      scaladocExtraClasspath.toJavaList,
+      compilerBridgeBinaryJar.orNull
     )
 }
 

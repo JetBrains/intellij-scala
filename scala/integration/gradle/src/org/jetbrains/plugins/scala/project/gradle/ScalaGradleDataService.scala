@@ -91,7 +91,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
             modelsProvider,
             library,
             compilerClasspath,
-            scaladocExtraClasspath = Nil // TODO SCL-17219
+            scaladocExtraClasspath = Nil, // TODO SCL-17219
+            None //TODO: support it for Gradle (or maybe just implement a generic resolver)
           )
         case None =>
           showScalaLibraryNotFoundWarning(compilerVersion, moduleName)

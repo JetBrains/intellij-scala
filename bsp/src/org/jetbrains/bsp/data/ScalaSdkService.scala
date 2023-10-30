@@ -55,7 +55,8 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       //  and we should probably create a separate request to obtain scaladoc classpath
       //  see https://github.com/build-server-protocol/build-server-protocol/issues/229
       scaladocExtraClasspath = Nil,
-      Some(presentation)
+      maybeVersion = Some(presentation),
+      compilerBridgeBinaryJar = None //TODO: support it for Bsp (or maybe just implement a generic resolver?)
     )
   }
 

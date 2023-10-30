@@ -145,7 +145,8 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
           scalaLibrary,
           compilerClasspathFull,
           scaladocExtraClasspath = Nil, // TODO SCL-17219
-          Some(scalaLibraryVersion.toString)
+          Some(scalaLibraryVersion.toString),
+          compilerBridgeBinaryJar = None //TODO: support it for Maven (or maybe just implement a generic resolver)
         )
       case None =>
         val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"

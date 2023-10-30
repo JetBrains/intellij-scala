@@ -170,6 +170,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
             .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
+          log.debug(s"sbtStructureJar: $sbtStructureJar")
           // TODO add error/warning messages during dump, report directly
           val environment = settings.environment ++ settings.userSetEnvironment
           dumper.dumpFromProcess(
@@ -641,7 +642,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
       scalacClasspath = scala.fold(Seq.empty[File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars)
+      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
+      compilerBridgeBinaryJar = scala.flatMap(_.compilerBridgeBinaryJar),
     )
     new ScalaSdkNode(data)
   }

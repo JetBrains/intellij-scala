@@ -104,13 +104,17 @@ object LocalRepoPackager extends AutoPlugin {
   def sbtDep(org: String, moduleName: String, version: String, sbtVersion: String): Dependency = {
     val scalaVersion = sbtVersion match {
       case "0.13" => "2.10"
-      case "1.0" => "2.12"
+      case x if x.startsWith("1.") => "2.12"
       case _ => throw new IllegalArgumentException(s"unsupported sbt version: $sbtVersion")
     }
 
     val mod = Module(
-      Organization(org), ModuleName(moduleName),
-      attributes = Map("scalaVersion" -> scalaVersion, "sbtVersion" -> sbtVersion)
+      Organization(org),
+      ModuleName(moduleName),
+      attributes = Map(
+        "scalaVersion" -> scalaVersion,
+        "sbtVersion" -> sbtVersion
+      )
     )
     Dependency(mod, version)
   }

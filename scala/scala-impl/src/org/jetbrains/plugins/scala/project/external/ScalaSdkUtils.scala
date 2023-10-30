@@ -14,13 +14,14 @@ object ScalaSdkUtils {
     library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File],
   ): Unit = {
     if (!library.isScalaSdk) {
       // library created but not yet marked as Scala SDK
-      ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath)
+      ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
     }
     else {
-      ScalaSdkUtils.updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath)
+      ScalaSdkUtils.updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
     }
   }
 
@@ -30,13 +31,14 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
     maybeVersion: Option[String],
+    compilerBridgeBinaryJar: Option[File],
   ): Unit = {
     if (!library.isScalaSdk) {
       // library created but not yet marked as Scala SDK
-      convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion)
+      convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion, compilerBridgeBinaryJar)
     }
     else {
-      updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion)
+      updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion, compilerBridgeBinaryJar)
     }
   }
 
@@ -45,8 +47,16 @@ object ScalaSdkUtils {
     library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File]
   ): Unit = {
-    convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
+    convertScalaLibraryToScalaSdk(
+      modelsProvider,
+      library,
+      compilerClasspath,
+      scaladocExtraClasspath,
+      library.libraryVersion,
+      compilerBridgeBinaryJar
+    )
   }
 
   private def convertScalaLibraryToScalaSdk(
@@ -54,9 +64,10 @@ object ScalaSdkUtils {
     library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String]
+    maybeVersion: Option[String],
+    compilerBridgeBinaryJar: Option[File]
   ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath)
+    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
     val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
     model.setKind(ScalaLibraryType.Kind)
     model.setProperties(properties)
@@ -67,8 +78,9 @@ object ScalaSdkUtils {
     library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File],
   ): Unit = {
-    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
+    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion, compilerBridgeBinaryJar)
   }
 
   private def updateScalaLibraryProperties(
@@ -76,9 +88,10 @@ object ScalaSdkUtils {
     library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String]
+    maybeVersion: Option[String],
+    compilerBridgeBinaryJar: Option[File],
   ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath)
+    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
     val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
     model.setProperties(properties)
   }

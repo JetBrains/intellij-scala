@@ -25,9 +25,15 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtScalaSdkData(scalaVersion, scalacClasspath, scaladocExtraClasspath) = dataNode.getData
+      SbtScalaSdkData(scalaVersion, scalacClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar) = dataNode.getData
     } {
-      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq, scaladocExtraClasspath.asScala.toSeq)(modelsProvider))
+      Option(scalaVersion).foreach(configureScalaSdk(
+        module,
+        _,
+        scalacClasspath.asScala.toSeq,
+        scaladocExtraClasspath.asScala.toSeq,
+        Option(compilerBridgeBinaryJar)
+      )(modelsProvider))
     }
   }
 
@@ -44,7 +50,8 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
     module: Module,
     compilerVersion: String,
     scalacClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File]
+    scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File],
   )(
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
@@ -53,11 +60,19 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
       .getLibraries
       .find { lib => lib.getName == s"sbt: scala-sdk-$compilerVersion" && lib.isScalaSdk }
     scalaSDKForSpecificVersion match {
-      case Some(scalaSDK) => rootModel.addLibraryEntry(scalaSDK)
+      case Some(existingScalaSdkLibrary) =>
+        ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, existingScalaSdkLibrary, scalacClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
+        rootModel.addLibraryEntry(existingScalaSdkLibrary)
       case None =>
         val tableModel = modelsProvider.getModifiableProjectLibrariesModel
         val scalaSdkLibrary = tableModel.createLibrary(s"sbt: scala-sdk-$compilerVersion")
-        ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, scalaSdkLibrary, scalacClasspath, scaladocExtraClasspath)
+        ScalaSdkUtils.convertScalaLibraryToScalaSdk(
+          modelsProvider,
+          scalaSdkLibrary,
+          scalacClasspath,
+          scaladocExtraClasspath,
+          compilerBridgeBinaryJar
+        )
         rootModel.addLibraryEntry(scalaSdkLibrary)
     }
   }

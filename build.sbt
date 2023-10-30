@@ -75,11 +75,14 @@ lazy val scalaCommunity: sbt.Project =
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
       intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct ++ Seq(
-        /*
-         * Uncomment if you want to add Kotlin plugin jar dependencies to inspect them
-         * Note: we don't have any dependencies on Kotlin plugin,
-         * however sometimes it might be useful to see how some features are implemented in Kotlin plugin.
-         */
+        //Below are some other useful plugins which you might be interested to inspect
+        //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
+        //You can uncomment any of them locally
+
+        //This bundled plugin contains some internal development tools such as "View Psi Structure" action
+        //(note there is also PsiViewer plugin, but it's a different plugin)
+        //"com.intellij.dev".toPlugin,
+
         //"org.jetbrains.kotlin".toPlugin
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -112,10 +115,9 @@ lazy val sbtApi =
         "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
         "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
         "sbtLatestVersion" -> Versions.sbtVersion,
-        "sbtStructurePath_0_13" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
-        "sbtStructurePath_1_0" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0"))
+        "sbtStructurePath_0_13" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
+        "sbtStructurePath_1_2" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.2")),
+        "sbtStructurePath_1_3" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.3"))
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
@@ -731,9 +733,12 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
     ),
     localRepoDependencies := List(
       sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_0_13),
-      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_1_0),
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_2),
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_3),
+
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
+
       sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
       sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_1_0)
     ),
