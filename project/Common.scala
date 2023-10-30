@@ -1,6 +1,7 @@
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
 import sbt.Keys.*
+import sbt.Project.projectToRef
 import sbt.{Def, *}
 
 import java.nio.file.Path
@@ -146,7 +147,10 @@ object Common {
   }
 
   implicit class ProjectOps(private val project: Project) extends AnyVal {
-    def withCompilerPluginIn(plugin: Project): Project = project
+    def withCompilerPluginIn(plugin: Project): Project =
+      withCompilerPluginIn(projectToRef(plugin))
+
+    def withCompilerPluginIn(plugin: ProjectReference): Project = project
       .dependsOn(
         plugin % Provided
       )
