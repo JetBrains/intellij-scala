@@ -20,10 +20,8 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -33,26 +31,20 @@ import java.net.URI
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
+// IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
+// SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
+// insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestLike
-  with ProjectStructureMatcher
-  with ExactMatch {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
-  override protected def getTestProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
-
+  // note: it is needed to set insertProjectTransitiveDependencies to false in projectSettings because it is enabled
+  //by default
   override def setUp(): Unit = {
     super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-  }
-
-  protected def runTest(expected: project): Unit = {
-    importProject(false)
-
-    assertProjectsEqual(expected, myProject)(ProjectComparisonOptions.Implicit.default)
-    assertNoNotificationsShown(myProject)
+    val projectSettings = getCurrentExternalProjectSettings
+    projectSettings.setInsertProjectTransitiveDependencies(false)
   }
 
   def testSimple(): Unit = {
@@ -256,12 +248,16 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
       lazy val foo: module = new module("foo") {
         libraryDependencies := scalaLibraries
-        moduleDependencies := Seq(sharedSourcesModule)
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModule) { isExported := true }
+        )
       }
 
       lazy val bar: module = new module("bar") {
         libraryDependencies := scalaLibraries
-        moduleDependencies := Seq(sharedSourcesModule)
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModule) { isExported := true }
+        )
       }
 
       modules := Seq(root, foo, bar, sharedSourcesModule)
@@ -289,7 +285,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       }
 
       val jvmModule: module = new module("p1") {
-        moduleDependencies += sharedModule
+        moduleDependencies += new dependency(sharedModule) { isExported := true }
         contentRoots += getProjectPath + "/p1/jvm"
       }
 
@@ -544,7 +540,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
   // SCL-16204, SCL-17597
   @nowarn("cat=deprecation")
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
+    val projectLangaugeLevel = SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
 
     def doRunTest(): Unit = runTest(
       new project("java-language-level-and-target-byte-code-level-no-options") {
@@ -637,7 +633,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9

@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
+import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -160,6 +161,12 @@ object SbtUtil {
       Option(properties.getProperty(name))
     }
 
+  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
+    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
+    sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
+      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
+  }
+
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
@@ -242,6 +249,11 @@ object SbtUtil {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
     file << deep
+  }
+
+  private def getSbtProjectData(project: Project): Option[SbtProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key)
+    dataEither.toSeq.flatten.headOption
   }
 
   private def getDirInPlugin(dirName: String): File = {

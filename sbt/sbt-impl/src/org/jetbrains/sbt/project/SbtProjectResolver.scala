@@ -282,7 +282,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     Seq("download") ++
       settings.resolveClassifiers.seq("resolveClassifiers") ++
       settings.resolveJavadocs.seq("resolveJavadocs") ++
-      settings.resolveSbtClassifiers.seq("resolveSbtClassifiers")
+      settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
+      settings.insertProjectTransitiveDependencies.seq("insertProjectTransitiveDependencies")
   }
 
   /**
@@ -315,9 +316,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val libraryNodes = Seq.empty[LibraryNode]
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, projects, None))
-    val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies = false)
 
-    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath)
+    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath, projectTransitiveDependenciesUsed = false)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 
@@ -354,7 +355,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectJdk = chooseJdk(rootProject, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, data.sbtVersion, root)))
+    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, data.sbtVersion, root, settings.insertProjectTransitiveDependencies)))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
@@ -366,7 +367,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] =
       createBuildProjectGroups(projectRootFile.toURI, projects, settings)
-    val projectToModule = createModules(buildProjectsGroups, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(buildProjectsGroups, libraryNodes, moduleFilesDirectory, settings.insertProjectTransitiveDependencies)
 
     //Sort modules by id to make project imports more reproducible
     //In particular this will easy testing of `org.jetbrains.sbt.project.SbtProjectImportingTest.testSCL13600`
@@ -374,7 +375,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleNode] = projectToModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(modulesSorted)
 
-    val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
+    val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory, settings.insertProjectTransitiveDependencies)
     projectNode.addAll(sharedSourceModules)
 
     val buildModuleForProject: BuildData => BuildModuleNodeWithBuildBaseDir =
@@ -464,18 +465,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(default)
   }
 
-  private def createModuleDependencies(projectToModule: Map[ProjectData,ModuleNode]): Unit = {
-    projectToModule.foreach { case (moduleProject, moduleNode) =>
-      moduleProject.dependencies.projects.foreach { dependencyId =>
-        val dependency =
-          projectToModule.values
-            .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
-            .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
-        val data = new ModuleDependencyNode(moduleNode, dependency)
-        data.setScope(scopeFor(dependencyId.configuration))
-        data.setExported(true)
-        moduleNode.add(data)
-      }
+  private def createModulesDependencies(projectToModule: Map[ProjectData,ModuleNode], insertProjectTransitiveDependencies: Boolean): Unit = {
+    val allModules = projectToModule.values.toSeq
+    projectToModule.foreach { case (projectData, moduleNode) =>
+      createModuleDependencies(projectData.dependencies.projects, allModules, moduleNode, insertProjectTransitiveDependencies)
     }
   }
 
@@ -526,7 +519,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createModules(
     projectsGrouped: Seq[BuildProjectsGroup],
     libraryNodes: Seq[LibraryNode],
-    moduleFilesDirectory: File
+    moduleFilesDirectory: File,
+    insertProjectTransitiveDependencies: Boolean
   ): Map[ProjectData,ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
 
@@ -575,7 +569,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val projectToModuleMap = projectToModule.toMap
-    createModuleDependencies(projectToModuleMap)
+    createModulesDependencies(projectToModuleMap, insertProjectTransitiveDependencies)
 
     projectToModuleMap
   }
@@ -941,10 +935,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.COMPILE
     else if (ids.contains(sbtStructure.Configuration.Runtime))
       DependencyScope.RUNTIME //note: in sbt Runtime and Provided dependencies are also automatically included into Test scope
-    else if (ids.contains(sbtStructure.Configuration.Test))
-      DependencyScope.TEST
     else if (ids.contains(sbtStructure.Configuration.Provided))
       DependencyScope.PROVIDED
+    else if (ids.contains(sbtStructure.Configuration.Test))
+      DependencyScope.TEST
     else
       DependencyScope.COMPILE
   }
