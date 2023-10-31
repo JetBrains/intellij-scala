@@ -85,7 +85,10 @@ case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbt
   projectPath: String,
   //TODO Ideally this property should be stored in the workspace model
   projectTransitiveDependenciesUsed: Boolean
-) extends SbtEntityData
+) extends SbtEntityData {
+  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
+  def this() = this(null, "1.0.0", ".", true)
+}
 
 object SbtProjectData {
   val Key: Key[SbtProjectData] = datakey(classOf[SbtProjectData])
@@ -213,7 +216,7 @@ case class SbtScalaSdkData @PropertyMapping(Array(
   scaladocExtraClasspath: JList[File],
   @Nullable compilerBridgeBinaryJar: File
 ) extends SbtEntityData {
-  //Default constructor is needed in order intellij can deserialize data in old format
+  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
   def this() = this(null, new util.ArrayList(), new util.ArrayList(), null)
 }
 
