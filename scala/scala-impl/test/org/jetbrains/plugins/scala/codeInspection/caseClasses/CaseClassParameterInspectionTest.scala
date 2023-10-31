@@ -22,4 +22,6 @@ class CaseClassParameterInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testWithModifier(): Unit = checkTextHasNoErrors("case class A(protected val x: Int)")
+
+  def testWithAnnotation(): Unit = checkTextHasError(s"case class A(@Blub ${START}val$END x: Int)")
 }

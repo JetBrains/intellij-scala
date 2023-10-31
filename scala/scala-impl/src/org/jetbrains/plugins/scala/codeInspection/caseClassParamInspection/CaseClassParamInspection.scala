@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -19,10 +20,15 @@ class CaseClassParamInspection extends LocalInspectionTool {
         classParam@(__ : ScClassParameter) <- paramClause.parameters
         if classParam.isVal && classParam.isCaseClassVal && !hasExplicitModifier(classParam)
       } {
-        val descriptor = new ProblemDescriptorImpl(classParam, classParam,
-          ScalaBundle.message("val.on.case.class.param.redundant"), Array(new RemoveValQuickFix(classParam)),
-          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false, TextRange.create(0, 3), holder.isOnTheFly)
-        holder.registerProblem(descriptor)
+        val valToken = classParam.findFirstChildByType(ScalaTokenTypes.kVAL)
+        val errorElement = valToken.getOrElse(classParam)
+
+        holder.registerProblem(
+          errorElement,
+          ScalaBundle.message("val.on.case.class.param.redundant"),
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+          new RemoveValQuickFix(classParam)
+        )
       }
     case _ =>
   }
