@@ -300,6 +300,11 @@ package object project {
         _.properties.compilerClasspath
       }
 
+    def customScalaCompilerBridgeJar: Option[File] = module.scalaSdk
+      .fold(throw new ScalaSdkNotConfiguredException(module)) {
+        _.properties.compilerBridgeBinaryJar
+      }
+
     def literalTypesEnabled: Boolean =
       scalaModuleSettings.exists(_.literalTypesEnabled)
 

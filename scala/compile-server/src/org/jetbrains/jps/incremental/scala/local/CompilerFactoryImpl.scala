@@ -1,6 +1,6 @@
-package org.jetbrains.jps.incremental.scala
-package local
+package org.jetbrains.jps.incremental.scala.local
 
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, compilerVersion}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, IncrementalityType, SbtData}
@@ -46,7 +46,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         }
 
         val javac = {
-          val scala = getScalaInstance(compilerData.compilerJars).getOrElse(dummyScalaInstance._1)
+          val scala = compilerData.compilerJars.map(getOrCreateScalaInstance).getOrElse(dummyScalaInstance._1)
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
@@ -70,15 +70,23 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
 
   override def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
-    getScalaInstance(compilerJars).map { scalaInstance =>
-      val compiledInterfaceJar = getOrCompileInterfaceJar(
+    compilerJars.map { compilerJars =>
+      val scalaInstance = getOrCreateScalaInstance(compilerJars)
+      val customCompilerBridge = compilerJars.customCompilerBridgeJar match {
+        case Some(file) if !file.isFile =>
+          client.error(CompileServerBundle.message("invalid.compiler.bridge.jar", file))
+          None //fallback to bundled bridge
+        case other => other
+      }
+
+      val compiledInterfaceJar = customCompilerBridge.getOrElse(getOrCompileInterfaceJar(
         home = sbtData.interfacesHome,
         compilerBridges = sbtData.compilerBridges,
         interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
         scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client)
-      )
+      ))
 
       new AnalyzingCompiler(
         scalaInstance,
@@ -88,9 +96,6 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       )
     }
   }
-
-  private def getScalaInstance(compilerJars: Option[CompilerJars]): Option[ScalaInstance] =
-    compilerJars.map(getOrCreateScalaInstance)
 }
 
 object CompilerFactoryImpl {

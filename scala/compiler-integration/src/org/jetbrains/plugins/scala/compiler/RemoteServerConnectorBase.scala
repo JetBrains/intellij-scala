@@ -69,7 +69,7 @@ abstract class RemoteServerConnectorBase(
   protected final def arguments: Arguments = Arguments(
     sbtData = sbtData,
     compilerData = CompilerData(
-      compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath).toOption,
+      compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath, module.customScalaCompilerBridgeJar).toOption,
       javaHome = Some(findJdk),
       incrementalType = IncrementalityType.IDEA
     ),

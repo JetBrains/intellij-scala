@@ -180,7 +180,7 @@ object Main {
           action
         } catch {
           case t: Throwable =>
-            println(t)
+            client.trace(t)
         } finally {
           currentParallelism.decrementAndGet()
         }

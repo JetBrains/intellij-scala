@@ -347,11 +347,14 @@ lazy val scalaImpl: sbt.Project =
 //and do not depend on other libraries or IntelliJ SDK
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
+
+//Same as scalaLanguageUtils, but utilities from this module can be used form both IntelliJ IDEA process and JPS process
+lazy val scalaLanguageUtilsRt: sbt.Project =
+  newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
     .settings(
-      libraryDependencies ++= Seq(
-        //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull annotations
-        Dependencies.jetbrainsAnnotations % Provided,
-      )
+      Compile / javacOptions := outOfIDEAProcessJavacOptions,
+      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
+      packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
     )
 
 lazy val sbtImpl =
@@ -445,6 +448,7 @@ lazy val repackagedZinc =
 
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
+    .dependsOn(scalaLanguageUtilsRt)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,

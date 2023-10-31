@@ -40,7 +40,7 @@ object Common {
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
-  val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
+  private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
@@ -61,6 +61,11 @@ object Common {
       name := projectName,
       intellijMainJars := Seq.empty,
       intellijPlugins := Seq.empty,
+      libraryDependencies ++= Seq(
+        //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull annotations
+        Dependencies.jetbrainsAnnotations % Provided,
+        Dependencies.junit % Test
+      )
     )
 
   def newProject(projectName: String, base: File): Project =

@@ -11,16 +11,15 @@ case class Arguments(sbtData: SbtData,
 
   import SerializationUtils._
 
+  /** @see `org.jetbrains.jps.incremental.scala.data.ArgumentsParser.parse` */
   def asStrings: Seq[String] = {
-
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
     val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
 
     val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.allJars))
-
+    val customCompilerBridgeJarPath = compilerData.compilerJars.flatMap(_.customCompilerBridgeJar.map(fileToPath))
     val javaHomePath = compilerData.javaHome.map(fileToPath)
-
     val incrementalType = compilerData.incrementalType
 
     Seq(
@@ -28,6 +27,7 @@ case class Arguments(sbtData: SbtData,
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
+      optionToString(customCompilerBridgeJarPath),
       optionToString(javaHomePath),
       filesToPaths(compilationData.sources),
       filesToPaths(compilationData.classpath),

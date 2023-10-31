@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.Extractor
 import org.jetbrains.jps.incremental.scala.data.ArgumentsParser.ArgumentsParserError
-import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, _}
+import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
 
 import java.io.File
@@ -10,7 +10,7 @@ import java.io.File
 // TODO: move to compiler-shared
 //  unify with serializers org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer
 trait ArgumentsParser {
-
+  /** @see [[org.jetbrains.plugins.scala.compiler.data.Arguments.asStrings]] */
   def parse(string: Seq[String]): Either[ArgumentsParserError, Arguments]
 }
 
@@ -25,6 +25,7 @@ object ArgumentsParser
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
+      StringToOption(customCompilerBridgeJarPath),
       StringToOption(javaHomePath),
       PathsToFiles(sources),
       PathsToFiles(classpath),
@@ -52,7 +53,8 @@ object ArgumentsParser
 
       val compilerJars = compilerJarPaths.map {
         case PathsToFiles(files) =>
-          CompilerJarsFactory.fromFiles(files) match {
+          val compilerBridgeJar = customCompilerBridgeJarPath.map(PathToFile)
+          CompilerJarsFactory.fromFiles(files, compilerBridgeJar) match {
             case Left(resolveError) => return error(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n" + resolveError.toString)
             case Right(value)       => value
           }
