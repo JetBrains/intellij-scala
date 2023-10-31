@@ -49,9 +49,8 @@ object Common {
     scalaVersion := Versions.scalaVersion,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
-    //TODO: it shouldn't append but should completely replace the default source dirs, otherwise there will be overlapping dirs: src and src/scala
-    (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-    (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
+    (Compile / unmanagedSourceDirectories) := Seq(baseDirectory.value / "src"),
+    (Test / unmanagedSourceDirectories) := Seq(baseDirectory.value / "test"),
     updateOptions := updateOptions.value.withCachedResolution(true),
   )
 
