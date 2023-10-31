@@ -227,10 +227,10 @@ class ScalaFileImpl(
         val result = myTypeDefinitions.flatMap { definition =>
 
           val companions = definition match {
+            case e: ScEnum   => e.fakeCompanionModule.toList ++ Some(e)
             case o: ScObject => o.fakeCompanionClass.toList
             case t: ScTrait  => t.fakeCompanionClass :: t.fakeCompanionModule.toList
             case c: ScClass  => c.fakeCompanionModule.toList
-            case e: ScEnum   => e.fakeCompanionModule.toList ++ Some(e)
             case _           => Nil
           }
 

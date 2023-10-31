@@ -21,10 +21,10 @@ private class ClassPrinter(isScala3: Boolean) {
     val modifiers = textOf(cls.getModifierList)
 
     val keyword = cls match {
+      case _: ScEnum => "enum"
       case _: ScTrait => "trait"
       case _: ScClass => "class"
       case _: ScObject => "object"
-      case _: ScEnum => "enum"
       case _: ScGiven => "given"
       case _ => ""
     }

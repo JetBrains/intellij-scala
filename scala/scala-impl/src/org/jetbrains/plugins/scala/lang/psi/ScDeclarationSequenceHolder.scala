@@ -103,11 +103,11 @@ object ScDeclarationSequenceHolder {
   /** @return false to stop processing */
   private[psi] def processSyntheticsForTopLevelDefinition(definition: ScMember, processor: PsiScopeProcessor, state: ResolveState): Boolean = {
     val synthetics: Iterable[ScMember] = definition match {
-      case cls: ScClass           => cls.getSyntheticImplicitMethod
       case e: ScEnum              =>
         val cls = Some(e)
         val obj  = e.fakeCompanionModule
         cls ++ obj
+      case cls: ScClass           => cls.getSyntheticImplicitMethod
       case gvn: ScGivenDefinition => gvn.desugaredDefinitions
       case _                      => None
     }

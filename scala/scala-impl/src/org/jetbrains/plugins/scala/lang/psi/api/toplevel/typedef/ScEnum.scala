@@ -3,6 +3,6 @@ package typedef
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 
-trait ScEnum extends ScConstructorOwner with ScDerivesClauseOwner {
+trait ScEnum extends ScClass {
   def cases: Seq[ScEnumCase]
 }

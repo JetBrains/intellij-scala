@@ -94,9 +94,9 @@ object ScalaElementType {
       new ScObjectImpl(stub, nodeType, node, debugName)
   }
 
-  val EnumDefinition = new ScTemplateDefinitionElementType[ScEnum]("ScEnum") {
+  val EnumDefinition = new ScTemplateDefinitionElementType[ScClass]("ScEnum") {
 
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScEnum],
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
                                      nodeType: this.type,
                                      node: ASTNode,
                                      debugName: String) =

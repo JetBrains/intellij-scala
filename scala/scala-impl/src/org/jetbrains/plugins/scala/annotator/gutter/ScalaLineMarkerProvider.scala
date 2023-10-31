@@ -412,18 +412,18 @@ private object GutterUtil {
   }
 
   private[this] def nameOf(definition: ScTypeDefinition) = definition match {
+    case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScClass => ScalaBundle.message("companion.class")
     case _: ScTrait => ScalaBundle.message("companion.trait")
-    case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScObject => ScalaBundle.message("companion.object")
     case _ => "" // Just "Has a companion" is OK.
   }
 
   private[this] def iconFor(definition: ScTypeDefinition, swapped: Boolean): Icon = definition match {
+    case _: ScEnum => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION
     case _: ScObject => if (swapped) Icons.OBJECT_COMPANION_SWAPPED else Icons.OBJECT_COMPANION
-    case _: ScEnum => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _ => null
   }
 }
