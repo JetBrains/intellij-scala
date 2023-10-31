@@ -2,7 +2,9 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, IncrementalityType, SbtData}
+import org.jetbrains.plugins.scala.project.Version
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.{ClassLoaderCache, ClasspathUtil}
 import sbt.internal.inc.javac.JavaTools
@@ -153,7 +155,7 @@ object CompilerFactoryImpl {
                                        scalaInstance: ScalaInstance,
                                        javaClassVersion: String,
                                        client: Option[Client]): File = {
-    val scalaVersion = scalaInstance.actualVersion
+    val scalaVersion = Version(scalaInstance.actualVersion)
     if (is3_0(scalaVersion))
       compilerBridges.scala3._3_0
     else if (is3_1(scalaVersion))
@@ -168,7 +170,7 @@ object CompilerFactoryImpl {
         else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
         else compilerBridges.scala._2_13
 
-      val interfaceId = s"compiler-interface-$scalaVersion-$javaClassVersion"
+      val interfaceId = s"compiler-interface-${scalaVersion.presentation}-$javaClassVersion"
       val targetJar = new File(home, interfaceId + ".jar")
 
       if (!targetJar.exists) {
@@ -189,12 +191,12 @@ object CompilerFactoryImpl {
     }
   }
 
-  private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
-  private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
-  private def is3_0(version: String): Boolean = version.startsWith("3.0")
-  private def is3_1(version: String): Boolean = version.startsWith("3.1")
-  private def is3_2(version: String): Boolean = version.startsWith("3.2")
-  private def isLatest3(version: String): Boolean = version.startsWith("3.")
+  private def isBefore_2_11(version: Version): Boolean = version.major(2) < Version("2.11")
+  private def isBefore_2_13(version: Version): Boolean = version.major(2) < Version("2.13")
+  private def is3_0(version: Version): Boolean = version.presentation.startsWith("3.0")
+  private def is3_1(version: Version): Boolean = version.presentation.startsWith("3.1")
+  private def is3_2(version: Version): Boolean = version.presentation.startsWith("3.2")
+  private def isLatest3(version: Version): Boolean = version.presentation.startsWith("3.")
 
   private object NullLogger extends Logger {
     override def log(level: sbt.util.Level.Value, message: => String): Unit = {}
