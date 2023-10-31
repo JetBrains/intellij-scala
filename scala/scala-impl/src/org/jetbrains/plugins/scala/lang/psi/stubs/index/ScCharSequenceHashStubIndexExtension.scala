@@ -43,6 +43,8 @@ abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement : ClassTag
     )
     !noElements
   }
+
+  override def getVersion: Int = 2 // Workaround for SCL-21752
 }
 
 abstract class ScFqnHashStubIndexExtension[Psi <: PsiElement : ClassTag] extends ScCharSequenceHashStubIndexExtension[Psi] {
