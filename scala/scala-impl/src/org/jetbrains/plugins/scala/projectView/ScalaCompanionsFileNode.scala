@@ -29,10 +29,10 @@ final class ScalaCompanionsFileNode(
   //(com.intellij.projectView.BaseProjectViewTestCase)
   override def getTestPresentation: String = {
     val kind = delegate match {
+      case _: ScEnum => "enum"
       case _: ScClass => "class"
       case _: ScTrait => "trait"
       case _: ScObject => "object"
-      case _: ScEnum => "enum"
     }
     s"ScalaCompanionsFileNode: $kind ${delegate.name}"
   }
