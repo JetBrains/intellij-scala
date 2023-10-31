@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.XCollection;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -27,16 +28,24 @@ public final class ScalaLibraryPropertiesState {
     )
     private final String[] scaladocExtraClasspath;
 
+    @Tag("compiler-bridge-binary-jar")
+    @Nullable
+    private final String compilerBridgeBinaryJar;
+
     public ScalaLibraryPropertiesState() {
-        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY);
+        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY, null);
     }
 
-    public ScalaLibraryPropertiesState(ScalaLanguageLevel languageLevel,
-                                       String[] compilerClasspath,
-                                       String[] scaladocExtraClasspath) {
+    public ScalaLibraryPropertiesState(
+            ScalaLanguageLevel languageLevel,
+            String[] compilerClasspath,
+            String[] scaladocExtraClasspath,
+            String compilerBridgeBinaryJar
+    ) {
         this.languageLevel = languageLevel;
         this.compilerClasspath = compilerClasspath;
         this.scaladocExtraClasspath = scaladocExtraClasspath;
+        this.compilerBridgeBinaryJar = compilerBridgeBinaryJar;
     }
 
     public ScalaLanguageLevel getLanguageLevel() {
@@ -51,6 +60,11 @@ public final class ScalaLibraryPropertiesState {
         return scaladocExtraClasspath;
     }
 
+    @Nullable
+    public String getCompilerBridgeBinaryJar() {
+        return compilerBridgeBinaryJar;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -59,11 +73,17 @@ public final class ScalaLibraryPropertiesState {
         ScalaLibraryPropertiesState that = (ScalaLibraryPropertiesState) o;
         return languageLevel == that.languageLevel &&
                 Arrays.equals(compilerClasspath, that.compilerClasspath) &&
-                Arrays.equals(scaladocExtraClasspath, that.scaladocExtraClasspath);
+                Arrays.equals(scaladocExtraClasspath, that.scaladocExtraClasspath) &&
+                Objects.equals(compilerBridgeBinaryJar, that.compilerBridgeBinaryJar);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(languageLevel, Arrays.hashCode(compilerClasspath), Arrays.hashCode(scaladocExtraClasspath));
+        return Objects.hash(
+                languageLevel,
+                Arrays.hashCode(compilerClasspath),
+                Arrays.hashCode(scaladocExtraClasspath),
+                compilerBridgeBinaryJar
+        );
     }
 }

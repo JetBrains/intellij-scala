@@ -26,32 +26,35 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
   //noinspection TypeAnnotation
   override def createPropertiesEditor(editorComponent: ui.LibraryEditorComponent[ScalaLibraryProperties]) =
     new ui.LibraryPropertiesEditor {
-
-      private val form = new ScalaLibraryEditorForm()
+      private val form = new ScalaLibraryEditorForm(editorComponent)
 
       override def createComponent: JComponent = form.contentPanel
 
       override def isModified: Boolean = formState != propertiesState
 
       override def apply(): Unit = {
-        properties.loadState(formState)
+        if (form.isValid) {
+          properties.loadState(formState)
+        }
       }
 
       override def reset(): Unit = {
         val state = propertiesState
         form.languageLevel = state.getLanguageLevel
         form.classpath = state.getCompilerClasspath
+        form.compilerBridgeBinaryJar = state.getCompilerBridgeBinaryJar
       }
 
       private def properties = editorComponent.getProperties
 
       private def propertiesState = properties.getState
 
-      private def formState = new ScalaLibraryPropertiesState(
+      private def formState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(
         form.languageLevel,
         form.classpath,
         // NOTE: currently do not support editing scaladocExtraClasspathFrom UI, so just propagate old settings
-        properties.scaladocExtraClasspath.map(_.getAbsolutePath).toArray
+        properties.scaladocExtraClasspath.map(ScalaLibraryProperties.fileToUrl).toArray,
+        form.compilerBridgeBinaryJar.orNull,
       )
     }
 }
@@ -89,7 +92,7 @@ object ScalaLibraryType {
       new NewLibraryConfiguration(
         "scala-sdk-" + version.getOrElse(Version.Default),
         ScalaLibraryType(),
-        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath)
+        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, None)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
           addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)

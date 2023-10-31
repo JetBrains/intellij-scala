@@ -1,17 +1,25 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.roots.libraries.ui
+import com.intellij.openapi.roots.ui.distribution.DistributionComboBox
+import com.intellij.openapi.ui.{ComboBox, ComponentValidator}
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.ui.IdeBorderFactory
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.ui.components.JBLabel
+import com.intellij.uiDesigner.core.{GridLayoutManager, Spacer}
 import com.intellij.util.ui.JBUI
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ScalaLibraryEditorForm._
+import org.jetbrains.plugins.scala.util.ui.distribution.{DistributionComboBoxUtils, GenericBundledDistributionInfo, LocalDistributionInfoWithShorterDisplayedPath, SimpleFileChooserInfo}
 
 import java.awt._
 import javax.swing._
 
-class ScalaLibraryEditorForm() {
-
+class ScalaLibraryEditorForm(
+  editorComponent: ui.LibraryEditorComponent[ScalaLibraryProperties]
+) {
   final private val myClasspathEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true))
 
   private val myClasspathPanel: JPanel = {
@@ -29,21 +37,58 @@ class ScalaLibraryEditorForm() {
     combo
   }
 
+  private val BundledCompilerBridgeDistributionInfo = new GenericBundledDistributionInfo
+
+  private val myCompilerBridgeBinaryJarDistributionComboBox: DistributionComboBox = {
+    val comboBox = new DistributionComboBox(editorComponent.getProject, new SimpleFileChooserInfo)
+    comboBox.setSpecifyLocationActionName("Specify custom jar")
+    comboBox.addDistributionIfNotExists(BundledCompilerBridgeDistributionInfo)
+
+    DistributionComboBoxUtils.setCaretToStartOnContentChange(comboBox)
+    DistributionComboBoxUtils.installLocalDistributionInfoPathTooltip(comboBox)
+
+    comboBox
+  }
+
+  private val compilerBridgeValidator: Option[ComponentValidator] = editorComponent match {
+    case parentDisposable: Disposable =>
+      Some(DistributionComboBoxUtils.installLocalDistributionInfoPointsToExistingJarFileValidator(
+        myCompilerBridgeBinaryJarDistributionComboBox,
+        parentDisposable
+      ))
+    case _ =>
+      None
+  }
+
   val contentPanel: JPanel = {
-    val panel = new JPanel(new GridLayoutManager(5, 3, JBUI.emptyInsets, -1, -1))
+    val panel = new JPanel(new GridLayoutManager(6, 3, JBUI.emptyInsets, -1, -1))
 
-    panel.add(new JLabel("Scala version:"), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false))
-    panel.add(myLanguageLevel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-    panel.add(new Spacer, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false))
+    import com.intellij.uiDesigner.core.{GridConstraints => GC}
 
-    panel.add(new Spacer, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 5), new Dimension(-1, 5), new Dimension(-1, 5), 0, false))
+    panel.add(new JBLabel(ScalaBundle.message("scala.library.editor.form.scala.version")), new GC(0, 0, 1, 1, GC.ANCHOR_WEST, GC.FILL_NONE, GC.SIZEPOLICY_FIXED, GC.SIZEPOLICY_FIXED, null, null, null, 1, false))
+    panel.add(myLanguageLevel, new GC(0, 1, 1, 1, GC.ANCHOR_WEST, GC.FILL_NONE, GC.SIZEPOLICY_CAN_GROW, GC.SIZEPOLICY_FIXED, null, null, null, 0, false))
 
-    panel.add(new JLabel("Compiler classpath:"), new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 20), null, null, 1, false))
-    panel.add(myClasspathPanel, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false))
+    panel.add(new JBLabel(ScalaBundle.message("scala.library.editor.form.compiler.bridge.jar")), new GC(1, 0, 1, 1, GC.ANCHOR_WEST, GC.FILL_NONE, GC.SIZEPOLICY_FIXED, GC.SIZEPOLICY_FIXED, null, null, null, 1, false))
+    panel.add(myCompilerBridgeBinaryJarDistributionComboBox, new GC(
+      1, 1, 1, 1, GC.ANCHOR_WEST, GC.FILL_NONE,
+      GC.SIZEPOLICY_FIXED, GC.SIZEPOLICY_FIXED,
+      null, null, new Dimension(300, 100), 0, false
+    ))
+    panel.add(new Spacer, new GC(1, 2, 1, 1, GC.ANCHOR_CENTER, GC.FILL_HORIZONTAL, GC.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false))
 
-    panel.add(new JLabel("Standard library:"), new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 20), null, null, 1, false))
+    panel.add(new Spacer, new GC(2, 0, 1, 3, GC.ANCHOR_CENTER, GC.FILL_VERTICAL, 1, GC.SIZEPOLICY_FIXED, new Dimension(-1, 5), new Dimension(-1, 5), new Dimension(-1, 5), 0, false))
+
+    panel.add(new JBLabel(ScalaBundle.message("scala.library.editor.form.compiler.classpath")), new GC(3, 0, 1, 3, GC.ANCHOR_WEST, GC.FILL_NONE, GC.SIZEPOLICY_FIXED, GC.SIZEPOLICY_FIXED, new Dimension(-1, 20), null, null, 1, false))
+    panel.add(myClasspathPanel, new GC(4, 0, 1, 3, GC.ANCHOR_CENTER, GC.FILL_BOTH, GC.SIZEPOLICY_CAN_SHRINK | GC.SIZEPOLICY_CAN_GROW, GC.SIZEPOLICY_CAN_SHRINK | GC.SIZEPOLICY_WANT_GROW, null, null, null, 0, false))
+
+    //NOTE: after we split Scala SDK and Scala library, this label is not very informative because library jars
+    // are mostly always empty (unless it's an IntelliJ project)
+    panel.add(new JBLabel(ScalaBundle.message("scala.library.editor.form.standard.library")), new GC(5, 0, 1, 3, GC.ANCHOR_WEST, GC.FILL_NONE, GC.SIZEPOLICY_FIXED, GC.SIZEPOLICY_FIXED, new Dimension(-1, 20), null, null, 1, false))
     panel
   }
+
+  def isValid: Boolean =
+    compilerBridgeValidator.forall(_.getValidationInfo == null)
 
   def languageLevel: ScalaLanguageLevel = myLanguageLevel.getSelectedItem.asInstanceOf[ScalaLanguageLevel]
   def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = {
@@ -58,6 +103,28 @@ class ScalaLibraryEditorForm() {
 
   def classpath: Array[String] = myClasspathEditor.getPaths
   def classpath_=(classpath: Array[String]): Unit = myClasspathEditor.setPaths(classpath)
+
+  def compilerBridgeBinaryJar: Option[String] = {
+    val info = myCompilerBridgeBinaryJarDistributionComboBox.getSelectedDistribution
+    info match {
+      case localDistributionInfo: LocalDistributionInfoWithShorterDisplayedPath =>
+        val path = localDistributionInfo.canonicalPath
+        val url = VfsUtilCore.pathToUrl(path)
+        Some(url)
+      case _ =>
+        None //means "use bundled"
+    }
+  }
+
+  def compilerBridgeBinaryJar_=(url: String): Unit = {
+    val info = if (url == null)
+      BundledCompilerBridgeDistributionInfo
+    else {
+      val path = MyPathEditor.pathToVirtualFile(url).getPath
+      new LocalDistributionInfoWithShorterDisplayedPath(path)
+    }
+    myCompilerBridgeBinaryJarDistributionComboBox.setSelectedDistribution(info)
+  }
 }
 
 private object ScalaLibraryEditorForm {
