@@ -3,23 +3,15 @@ package org.jetbrains.plugins.scala.project;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.XCollection;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class ScalaLibraryPropertiesState {
+public final class ScalaLibraryPropertiesState extends ScalaLibraryPropertiesStateSharedInIdeaAndJps {
 
     // We have to rely on the Java's enumeration for serialization
     @Tag("language-level")
     private final ScalaLanguageLevel languageLevel;
-
-    @Tag("compiler-classpath")
-    @XCollection(
-            elementName = "root",
-            valueAttributeName = "url"
-    )
-    private final String[] compilerClasspath;
 
     @Tag("scaladoc-extra-classpath")
     @XCollection(
@@ -27,10 +19,6 @@ public final class ScalaLibraryPropertiesState {
             valueAttributeName = "url"
     )
     private final String[] scaladocExtraClasspath;
-
-    @Tag("compiler-bridge-binary-jar")
-    @Nullable
-    private final String compilerBridgeBinaryJar;
 
     public ScalaLibraryPropertiesState() {
         this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY, null);
@@ -42,27 +30,18 @@ public final class ScalaLibraryPropertiesState {
             String[] scaladocExtraClasspath,
             String compilerBridgeBinaryJar
     ) {
+        super(compilerClasspath, compilerBridgeBinaryJar);
+
         this.languageLevel = languageLevel;
-        this.compilerClasspath = compilerClasspath;
         this.scaladocExtraClasspath = scaladocExtraClasspath;
-        this.compilerBridgeBinaryJar = compilerBridgeBinaryJar;
     }
 
     public ScalaLanguageLevel getLanguageLevel() {
         return languageLevel;
     }
 
-    public String[] getCompilerClasspath() {
-        return compilerClasspath;
-    }
-
     public String[] getScaladocExtraClasspath() {
         return scaladocExtraClasspath;
-    }
-
-    @Nullable
-    public String getCompilerBridgeBinaryJar() {
-        return compilerBridgeBinaryJar;
     }
 
     @Override
