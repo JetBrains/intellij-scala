@@ -182,8 +182,7 @@ object SbtUtil {
 
   def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
     val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
-    sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
-      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
+    sbtProjectDataOpt.exists(_.projectTransitiveDependenciesUsed)
   }
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
