@@ -50,8 +50,6 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
     @NotNull
     private final String myPattern;
 
-    public static final Key<ScalaLanguageLevel> KEY = Key.create("SCALA_LANGUAGE_LEVEL");
-
     ScalaLanguageLevel(@NotNull String version) {
         this(version, Pattern.quote(version) + ".*");
     }
