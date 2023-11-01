@@ -1081,7 +1081,7 @@ private[importing] object BspResolverLogic {
         buildModuleIdOpt match {
           case Some(buildModuleId) =>
             val moduleId = new MyURI(moduleDescriptionData.idUri)
-            val sbtModuleData = SbtModuleDataBsp(moduleId, buildModuleId)
+            val sbtModuleData = SbtModuleDataBsp(moduleId, buildModuleId, moduleDescriptionData.basePath.orNull)
             val sbtModuleDataNode = new DataNode[SbtModuleDataBsp](SbtModuleDataBsp.Key, sbtModuleData, moduleNode)
             moduleNode.addChild(sbtModuleDataNode)
           case _ =>

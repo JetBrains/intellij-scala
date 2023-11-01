@@ -553,7 +553,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.addAll(libraryDependenciesNodes)
       moduleNode.add(createModuleExtData(project))
       moduleNode.add(createScalaSdkData(project.scala))
-      moduleNode.add(new SbtModuleNode(SbtModuleData(project.id, project.buildURI)))
+      moduleNode.add(new SbtModuleNode(SbtModuleData(project.id, project.buildURI, project.base)))
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
       moduleNode.addAll(createCommandData(project))

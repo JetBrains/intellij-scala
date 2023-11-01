@@ -4,6 +4,7 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.ApiStatus
 
+import java.io.File
 import java.net.URI
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
@@ -23,6 +24,13 @@ trait SbtBuildModuleUriProvider {
    * for module `root-build` (corresponding to a build module itself) it will return `None`
    */
   def getBuildModuleUri(module: Module): Option[URI]
+
+
+  /**
+   * Same as `getBuildModuleUri` but returns a base directory instead of URI
+   * (read about the difference in `org.jetbrains.sbt.project.data.SbtModuleData`)
+   */
+  def getBuildModuleBaseDirectory(module: Module): Option[File]
 }
 
 object SbtBuildModuleUriProvider {
@@ -32,5 +40,10 @@ object SbtBuildModuleUriProvider {
   def getBuildModuleUri(module: Module): Option[URI] = {
     val implementations = EP.getExtensionList.iterator()
     implementations.asScala.flatMap(_.getBuildModuleUri(module)).nextOption()
+  }
+
+  def getBuildModuleBaseDirectory(module: Module): Option[File] = {
+    val implementations = EP.getExtensionList.iterator()
+    implementations.asScala.flatMap(_.getBuildModuleBaseDirectory(module)).nextOption()
   }
 }

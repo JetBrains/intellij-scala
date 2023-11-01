@@ -63,18 +63,41 @@ object SbtBuildModuleData {
     new SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
 }
 
-/** Data describing a project which is part of an sbt build. */
+/**
+ * Data describing a project which is part of an sbt build
+ *
+ * @param buildURI      ~ `sbt.ProjectRef#build()`<br>
+ *                      Note `buildURI` doesn't always equal to `baseDirectory`.
+ *                      For example if you have this sub-project: {{{
+ *                        lazy val uriSchemeGit = RootProject(uri("https://github.com/JetBrains/sbt-idea-plugin.git"))
+ *                      }}}
+ *                      then `baseURI` equals to `https://github.com/JetBrains/sbt-idea-plugin.git`<br>
+ *                      and `baseDirectory` will be something like `~/.sbt/1.0/staging/_some_hash_/sbt-idea-plugin/`
+ * @param baseDirectory ~ `sbt.Keys$#baseDirectory()`<br>
+ *                      Ideally shouldn't be @Nullable (cause org.jetbrains.sbt.structure.ProjectData#base() is not nullable)
+ *                      but we have to mark it @Nullable to avoid deserialization exceptions when transiting from IDEA 2023.2
+ *                      It can be removed later if Platform ES STORAGE_VERSION is incremented in future releases
+ *                      (see IDEA-314999 for the details)
+ */
 @SerialVersionUID(2)
-case class SbtModuleData @PropertyMapping(Array("id", "buildURI")) (
+case class SbtModuleData @PropertyMapping(Array(
+  "id",
+  "buildURI",
+  "baseDirectory"
+))(
   id: String,
-  buildURI: MyURI
-) extends SbtEntityData
+  buildURI: MyURI,
+  @Nullable baseDirectory: File
+) extends SbtEntityData {
+  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
+  def this() = this(null, null, null)
+}
 
 object SbtModuleData {
   val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
 
-  def apply(id: String, buildURI: URI): SbtModuleData =
-    new SbtModuleData(id, new MyURI(buildURI))
+  def apply(id: String, buildURI: URI, baseDirectory: File): SbtModuleData =
+    new SbtModuleData(id, new MyURI(buildURI), baseDirectory)
 }
 
 @SerialVersionUID(2)
@@ -87,7 +110,7 @@ case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbt
   projectTransitiveDependenciesUsed: Boolean
 ) extends SbtEntityData {
   //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
-  def this() = this(null, "1.0.0", ".", true)
+  def this() = this(null, "1.0.0", ".", false)
 }
 
 object SbtProjectData {
