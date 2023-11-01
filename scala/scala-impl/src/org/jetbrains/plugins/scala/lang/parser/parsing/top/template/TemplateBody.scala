@@ -1,20 +1,22 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package template
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType}
 
 sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) extends ParsingRule {
 
   import ScalaTokenTypes._
 
   protected def statementRule: Stat
+  protected def generateIndentedDefinitionsExpectedError: Boolean = true
 
   override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -57,8 +59,13 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
           case indentO@Some(indent) if indent > currentIndent =>
             BlockIndentation.noBlock -> indentO
           case _ =>
-            if (canAcceptEnd)
+            val endsWithEndMarker = if (canAcceptEnd)
               End(builder.currentIndentationWidth)
+            else
+              false
+            if (!endsWithEndMarker && generateIndentedDefinitionsExpectedError) {
+              builder.error(ScalaBundle.message("indented.definitions.expected"))
+            }
             marker.done(ScalaElementType.TEMPLATE_BODY)
             builder.restoreNewlinesState()
             return true
@@ -98,6 +105,8 @@ object TemplateBody extends Body {
 
 object GivenTemplateBody extends Body(indentationCanStartWithoutColon = true) {
   override protected def statementRule: TemplateStat.type = TemplateStat
+  //scala compiler does not generate the error for given definitions block
+  override protected def generateIndentedDefinitionsExpectedError: Boolean = false
 }
 
 /**

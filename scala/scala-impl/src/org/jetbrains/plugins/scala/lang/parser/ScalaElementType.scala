@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumClassCaseImpl, ScEnumSingletonCaseImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
@@ -94,22 +94,31 @@ object ScalaElementType {
       new ScObjectImpl(stub, nodeType, node, debugName)
   }
 
-  val EnumDefinition = new ScTemplateDefinitionElementType[ScEnum]("ScEnum") {
+  val EnumDefinition = new ScTemplateDefinitionElementType[ScClass]("ScEnum") {
 
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScEnum],
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
                                      nodeType: this.type,
                                      node: ASTNode,
                                      debugName: String) =
       new ScEnumImpl(stub, nodeType, node, debugName)
   }
 
-  val EnumCase = new ScTemplateDefinitionElementType[ScEnumCase]("ScEnumCase") {
+  val EnumClassCase = new ScTemplateDefinitionElementType[ScClass]("ScEnumClassCase") {
 
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScEnumCase],
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
                                      nodeType: this.type,
                                      node: ASTNode,
                                      debugName: String) =
-      new ScEnumCaseImpl(stub, nodeType, node, debugName)
+      new ScEnumClassCaseImpl(stub, nodeType, node, debugName)
+  }
+
+  val EnumSingletonCase = new ScTemplateDefinitionElementType[ScObject]("ScEnumSingletonCase") {
+
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScObject],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String) =
+      new ScEnumSingletonCaseImpl(stub, nodeType, node, debugName)
   }
 
   val EnumCases = ScEnumCasesElementType

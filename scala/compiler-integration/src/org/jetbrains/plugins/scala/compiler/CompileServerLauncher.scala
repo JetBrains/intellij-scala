@@ -328,6 +328,9 @@ object CompileServerLauncher {
     sdk.flatMap(toJdk)
   }
 
+  /**
+   * NOTE: extra classpath for JPS process is defined in a differ place in `compiler-integration.xml` in `compileServer.plugin` extension
+   */
   def compileServerJars: Seq[File] = Seq(
     IntellijPlatformJars.jpsBuildersJar,
     IntellijPlatformJars.utilJar,
@@ -347,6 +350,7 @@ object CompileServerLauncher {
     ScalaPluginJars.compileServerJar,
     ScalaPluginJars.compilerJpsJar,
     ScalaPluginJars.replInterface,
+    ScalaPluginJars.utilsRt,
   ).distinct
 
   def jvmParameters: Seq[String] = {

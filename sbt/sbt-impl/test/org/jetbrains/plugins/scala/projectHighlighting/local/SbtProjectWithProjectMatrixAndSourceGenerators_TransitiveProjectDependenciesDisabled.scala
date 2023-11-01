@@ -8,7 +8,9 @@ import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOption
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert.fail
 
-class SbtProjectWithProjectMatrixAndSourceGenerators
+import java.lang
+
+class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenciesDisabled
   extends SbtProjectHighlightingLocalProjectsTestBase
     with ProjectStructureMatcher
     with ExactMatch {
@@ -21,6 +23,12 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
 
   override def testHighlighting(): Unit = {
     super.testHighlighting()
+  }
+
+  override def importProject(skipIndexing: lang.Boolean): Unit = {
+    val projectSettings = getCurrentExternalProjectSettings
+    projectSettings.setInsertProjectTransitiveDependencies(false)
+    super.importProject(skipIndexing)
   }
 
   override protected def highlightSingleFile(

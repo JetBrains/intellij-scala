@@ -83,7 +83,7 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ScEnumCase: EnumMember
+          ScEnumClassCase: EnumMember
             PsiElement(identifier)('EnumMember')
             TypeParameterClause
               PsiElement([)('[')

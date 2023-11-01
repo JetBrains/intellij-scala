@@ -99,14 +99,14 @@ object SbtExternalSystemManager {
       customSbtStructureFile,
       projectJdkName,
       projectSettings.resolveClassifiers,
-      projectSettings.resolveJavadocs,
       projectSettings.resolveSbtClassifiers,
       projectSettings.useSbtShellForImport,
       projectSettings.enableDebugSbtShell,
       projectSettings.preferScala2,
       projectSettings.groupProjectsFromSameBuild,
       settingsState.sbtEnvironment.asScala.toMap,
-      settingsState.sbtPassParentEnvironment
+      settingsState.sbtPassParentEnvironment,
+      projectSettings.insertProjectTransitiveDependencies
     )
   }
 

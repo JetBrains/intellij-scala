@@ -1,17 +1,17 @@
 package org.jetbrains.jps.incremental.scala.model.impl;
 
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.intellij.util.xmlb.annotations.Tag;
-import com.intellij.util.xmlb.annotations.XCollection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.scala.model.LibrarySettings;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 import org.jetbrains.jps.util.JpsPathUtil;
+import org.jetbrains.plugins.scala.project.ScalaLibraryPropertiesStateSharedInIdeaAndJps;
 
 import java.io.File;
 
 public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> implements LibrarySettings {
-  private State myState;
+  private final State myState;
 
   public LibrarySettingsImpl(State state) {
     myState = state;
@@ -19,8 +19,14 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
 
   @Override
   public File[] getCompilerClasspath() {
-    String[] classpath = myState.compilerClasspath;
+    String[] classpath = myState.getCompilerClasspath();
     return classpath == null ? new File[0] : toFiles(classpath);
+  }
+
+  @Override
+  public @Nullable File getCompilerBridgeJar() {
+    String url = myState.getCompilerBridgeBinaryJar();
+    return url == null ? null : JpsPathUtil.urlToFile(url);
   }
 
   private static File[] toFiles(String[] urls) {
@@ -44,9 +50,6 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
     // do nothing
   }
 
-  public static class State {
-    @Tag("compiler-classpath")
-    @XCollection(elementName = "root", valueAttributeName = "url")
-    public String[] compilerClasspath;
+  public static final class State extends ScalaLibraryPropertiesStateSharedInIdeaAndJps {
   }
 }

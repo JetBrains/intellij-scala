@@ -33,7 +33,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDe
 
   override def children: Seq[PsiElement] = childrenOf(definition)
 
-  override def isAlwaysLeaf: Boolean = false
+  override def isAlwaysLeaf: Boolean = definition.is[ScEnumCase]
 
   override def isAlwaysShowsPlus: Boolean = true
 }
@@ -46,7 +46,7 @@ object TypeDefinition {
 
      val members = definition.members.flatMap {
        case constructor: ScPrimaryConstructor => definition match {
-         case c: ScClass if c.isCase => constructor.effectiveFirstParameterSection
+         case c: ScClass if c.isCase && !c.is[ScEnumClassCase] => constructor.effectiveFirstParameterSection
          case _ => constructor.valueParameters
        }
        case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias | _: ScExtension) => Seq(element)

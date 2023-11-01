@@ -207,7 +207,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_enum_interop(): Unit = doTest("enum-interop", true)
   def test_enum_List_control(): Unit = doTest("enum-List-control", true)
   def test_enum_variance(): Unit = doTest("enum-variance", false) // #enum
-  def test_enum_widen(): Unit = doTest("enum-widen", false) // #enum, #intersectionType
+  def test_enum_widen(): Unit = doTest("enum-widen", true) // #enum, #intersectionType
   def test_enums_capture(): Unit = doTest("enums-capture", false) // #enum
   def test_erased_class_separate(): Unit = doTest("erased-class-separate", false)
   def test_erased_conforms(): Unit = doTest("erased-conforms", false) // #extension
@@ -1704,7 +1704,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_projections(): Unit = doTest("projections", false)
   def test_propagate(): Unit = doTest("propagate", true)
   def test_protected_static(): Unit = doTest("protected-static", true)
-  def test_pseudo_thistype_constraints(): Unit = doTest("pseudo-thistype-constraints", false) // #enum, #unionType
+  def test_pseudo_thistype_constraints(): Unit = doTest("pseudo-thistype-constraints", true) // #enum, #unionType
   def test_range(): Unit = doTest("range", false)
   def test_rangepos(): Unit = doTest("rangepos", true)
   def test_rangepos_anonapply(): Unit = doTest("rangepos-anonapply", true)

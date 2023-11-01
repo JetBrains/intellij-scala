@@ -4,17 +4,24 @@ package project.settings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.messages.Topic
+import com.intellij.util.ui.{GridBag, JBUI}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
-import java.awt.FlowLayout
+import java.awt.{FlowLayout, GridBagConstraints}
 import javax.swing._
 
+/**
+ * The settings UI is used it two places with slightly different UI:
+ *  1. In `Settings | Build, Execution, Deployment | Build Tools | sbt` in `sbt Projects` subsection
+ *  1. During new project creation via `Import project from existing sources` (`File | New | Project from Existing Sources...`)
+ */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
@@ -33,9 +40,10 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    content.add(extraControls.rootComponent, fillLineConstraints)
+    val rootComponent = extraControls.rootComponent
 
     if (context == Context.Wizard) {
+      content.add(rootComponent, fillLineConstraints)
       val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
       label.setLabelFor(jdkComboBox)
 
@@ -46,6 +54,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       content.add(jdkPanel, fillLineConstraints)
 
       extraControls.remoteDebugSbtShellCheckBox.panelWithTooltip.setVisible(false)
+    } else {
+      // This scroll pane was introduced, because when we consider the scenario that these settings will be used
+      // in "Settings | Build, Execution, Deployment | Build Tools | sbt" and the user minimizes the window as much as possible,
+      // the checkbox at the bottom ("Enable debugging") is not fully visible.
+      val scrollPane = new JBScrollPane(rootComponent)
+      scrollPane.setBorder(null)
+      content.add(scrollPane, fillLineAndColumnConstraints(indentLevel))
     }
   }
 
@@ -58,8 +73,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
-      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2
-    extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild
+      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
+      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
+      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -79,6 +95,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
+    extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
   }
 
   override def updateInitialExtraSettings(): Unit = {
@@ -94,6 +111,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
     settings.groupProjectsFromSameBuild = extraControls.groupProjectsFromSameBuildCheckBox.isSelected
+    settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
 
     val useSbtShellForBuildSettingChanged =
       settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected
@@ -111,6 +129,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
+
+  private def fillLineAndColumnConstraints(indentLevel: Int): GridBag = {
+    val insets = JBUI.insets(INSETS, INSETS + INSETS * indentLevel, 0, INSETS)
+    new GridBag().weightx(1).coverLine().coverColumn().fillCell().anchor(GridBagConstraints.WEST).insets(insets)
+  }
 
   override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }

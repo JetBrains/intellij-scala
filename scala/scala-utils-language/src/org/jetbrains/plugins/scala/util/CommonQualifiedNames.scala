@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.psi.CommonClassNames
-
+/**
+ * Note, this class is similar to `com.intellij.psi.CommonClassNames`, but we don't reuse it
+ * because we want to stay minimalistic and not depend on intellij modules here
+ */
 //noinspection ScalaUnusedSymbol
 object CommonQualifiedNames {
 
   private final val Root = "_root_."
 
-  final val JavaLangObjectFqn = CommonClassNames.JAVA_LANG_OBJECT
+  final val JavaLangObjectFqn = "java.lang.Object"
   final val JavaLangObjectCanonical = Root + JavaLangObjectFqn
 
-  final val JavaLangComparableFqn = CommonClassNames.JAVA_LANG_COMPARABLE
+  final val JavaLangComparableFqn = "java.lang.Comparable"
   final val JavaLangComparableCanonical = Root + JavaLangComparableFqn
 
-  final val JavaIoSerializableFqn = CommonClassNames.JAVA_IO_SERIALIZABLE
+  final val JavaIoSerializableFqn = "java.io.Serializable"
   final val JavaIoSerializableCanonical = Root + JavaIoSerializableFqn
 
   final val ProductFqn = "scala.Product"

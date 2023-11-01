@@ -27,9 +27,9 @@ object SbtData {
       compilerInterfaceJar = pluginJpsDir.resolve("compiler-interface.jar").toFile,
       compilerBridges = CompilerBridges(
         scala = ScalaSourceJars(
-          _2_10 = pluginJpsDir.resolve("compiler-interface-sources_2.10.jar").toFile,
-          _2_11 = pluginJpsDir.resolve("compiler-interface-sources_2.11.jar").toFile,
-          _2_13 = pluginJpsDir.resolve("compiler-interface-sources_2.13.jar").toFile
+          _2_10 = pluginJpsDir.resolve("compiler-bridge-sources_2.10.jar").toFile,
+          _2_11 = pluginJpsDir.resolve("compiler-bridge-sources_2.11.jar").toFile,
+          _2_13 = pluginJpsDir.resolve("compiler-bridge-sources_2.13.jar").toFile
         ),
         scala3 = Scala3Jars(
           _3_0 = pluginJpsDir.resolve("scala3-sbt-bridge_3.0.jar").toFile,

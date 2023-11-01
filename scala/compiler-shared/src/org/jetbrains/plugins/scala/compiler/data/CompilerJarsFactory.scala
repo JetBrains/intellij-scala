@@ -16,13 +16,19 @@ object CompilerJarsFactory {
     case class FilesDoNotExist(files: Seq[File]) extends CompilerJarsResolveError
   }
 
-  def fromFiles(scalacJars: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
-    val withName = JarUtil.collectJars(scalacJars)
-    fromJarFiles(withName)
+  def fromFiles(
+    compilerClasspathJars: Seq[File],
+    compilerBridgeJar: Option[File],
+  ): Either[CompilerJarsResolveError, CompilerJars] = {
+    val withName = JarUtil.collectJars(compilerClasspathJars)
+    fromJarFiles(withName, compilerBridgeJar)
   }
 
-  def fromJarFiles(scalacJars: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
-    val ioFiles = scalacJars.map(_.file)
+  private def fromJarFiles(
+    compilerClasspathJars: Seq[JarFileWithName],
+    compilerBridgeJar: Option[File]
+  ): Either[CompilerJarsResolveError, CompilerJars] = {
+    val ioFiles = compilerClasspathJars.map(_.file)
     val isScala3 = containsScala3(ioFiles)
     val compilerPrefix =
       if (isScala3) "scala3"
@@ -33,19 +39,20 @@ object CompilerJarsFactory {
     val libraryJarsE = Set("scala-library", s"$compilerPrefix-library").foldLeft(init) { (acc, kind) =>
       for {
         jars <- acc
-        jar <- find(scalacJars, kind)
+        jar <- find(compilerClasspathJars, kind)
       } yield jars :+ jar
     }
 
     for {
       libraryJars <- libraryJarsE
-      compilerJars = scalacJars.filterNot(libraryJars.contains)
-      compilerJar <- find(scalacJars, s"$compilerPrefix-compiler")
+      compilerJars = compilerClasspathJars.filterNot(libraryJars.contains)
+      compilerJar <- find(compilerClasspathJars, s"$compilerPrefix-compiler")
       _           <- scalaReflectIfRequired(compilerJar, compilerJars)
     } yield CompilerJars(
       libraryJars = libraryJars.map(_.file),
       compilerJars = compilerJars.map(_.file),
-      compilerJar = compilerJar.file
+      compilerJar = compilerJar.file,
+      compilerBridgeJar,
     )
   }
 

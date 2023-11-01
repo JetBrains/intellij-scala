@@ -21,7 +21,7 @@ object Enumerator extends ParsingRule {
         case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer() //Ate =
           if (!ExprInIndentationRegion()) {
-            builder.error(ErrMsg("wrong.expression"))
+            builder.wrongExpressionError()
           }
           enumeratorMarker.done(ScalaElementType.FOR_BINDING)
           true

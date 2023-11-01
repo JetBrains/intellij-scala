@@ -181,6 +181,7 @@
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.StringLiteralPreProcessor"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.MultiLineStringCopyPastePreProcessor" order="first"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor"/>
+        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.ReformatCodeAfterDefinitionWithAssignCopyPastePreProcessor"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
@@ -551,6 +552,7 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaSemicolonSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaDocCommentSelectioner"/>
 
         <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
 

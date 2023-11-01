@@ -25,11 +25,15 @@ public class MyPathEditor extends PathEditor {
   private static List<VirtualFile> pathsToVirtualFiles(String[] urls) {
     List<VirtualFile> result = new ArrayList<VirtualFile>(urls.length);
     for (String url : urls) {
-      String path = VfsUtil.urlToPath(url);
-      VirtualFile file = VfsUtil.findFileByIoFile(new File(path), true);
-      result.add(file == null ? new AbsentLocalFile(url, path) : file);
+      result.add(pathToVirtualFile(url));
     }
     return result;
+  }
+
+  static VirtualFile pathToVirtualFile(String url) {
+    String path = VfsUtil.urlToPath(url);
+    VirtualFile file = VfsUtil.findFileByIoFile(new File(path), true);
+    return file == null ? new AbsentLocalFile(url, path) : file;
   }
 
   private static String[] virtualFilesToPaths(VirtualFile[] files) {

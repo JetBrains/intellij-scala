@@ -1,9 +1,10 @@
-import sbt.{Def, *}
-import LocalRepoPackager.localRepoDependencies
-import Keys.*
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
-import sbtide.Keys.ideSkipProject
+import sbt.Keys.*
+import sbt.Project.projectToRef
+import sbt.{Def, *}
+
+import java.nio.file.Path
 
 object Common {
   private val globalJavacOptionsCommon = Seq(
@@ -39,19 +40,39 @@ object Common {
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
-  val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
+  private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
+  private val NewProjectBaseSettings: Seq[Def.SettingsDefinition] = Seq(
+    organization := "JetBrains",
+    scalaVersion := Versions.scalaVersion,
+    (Compile / javacOptions) := globalJavacOptions,
+    (Compile / scalacOptions) := globalScalacOptions,
+    (Compile / unmanagedSourceDirectories) := Seq(baseDirectory.value / "src"),
+    (Test / unmanagedSourceDirectories) := Seq(baseDirectory.value / "test"),
+    updateOptions := updateOptions.value.withCachedResolution(true),
+  )
+
+  def newPlainScalaProject(projectName: String, base: File): Project =
+    Project(projectName, base).settings(
+      NewProjectBaseSettings *
+    ).settings(
+      name := projectName,
+      intellijMainJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+      libraryDependencies ++= Seq(
+        //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull annotations
+        Dependencies.jetbrainsAnnotations % Provided,
+        Dependencies.junit % Test
+      )
+    )
+
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
+      NewProjectBaseSettings *
+    ).settings(
       name := projectName,
-      organization := "JetBrains",
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := globalJavacOptions,
-      (Compile / scalacOptions) := globalScalacOptions,
-      (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-      (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       //Note: we explicitly don't mark "testdata" directories as "test resources", because they are not test resources
       // (those directories don't contain files which are supposed to be copied to `target/scala-2.13/test-classes
       //(Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
@@ -60,7 +81,6 @@ object Common {
         Dependencies.junit % Test,
         Dependencies.junitInterface % Test,
       ),
-      updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _,
@@ -131,7 +151,10 @@ object Common {
   }
 
   implicit class ProjectOps(private val project: Project) extends AnyVal {
-    def withCompilerPluginIn(plugin: Project): Project = project
+    def withCompilerPluginIn(plugin: Project): Project =
+      withCompilerPluginIn(projectToRef(plugin))
+
+    def withCompilerPluginIn(plugin: ProjectReference): Project = project
       .dependsOn(
         plugin % Provided
       )
@@ -142,9 +165,12 @@ object Common {
       )
   }
 
-  def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
-    // TODO we should generally filter META-INF when merging jars
+  private def excludePathsFromPackage(path: java.nio.file.Path): Boolean =
+    `is signature file in META-INF`(path)
 
+  //This filtering was originally added within SCL-14474
+  //TODO we should generally filter META-INF when merging jars
+  private def `is signature file in META-INF`(path: Path): Boolean = {
     val parent = path.getParent
     val filename = path.getFileName.toString
 

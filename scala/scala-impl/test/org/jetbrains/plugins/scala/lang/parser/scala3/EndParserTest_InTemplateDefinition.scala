@@ -265,7 +265,7 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |            <empty list>
       |          PsiElement(case)('case')
       |          PsiWhiteSpace(' ')
-      |          ScEnumCase: X
+      |          ScEnumSingletonCase: X
       |            PsiElement(identifier)('X')
       |            ExtendsBlock
       |              <empty list>
@@ -370,5 +370,175 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |          PsiElement(end)('end')
       |          PsiWhiteSpace(' ')
       |          PsiElement(given)('given')""".stripMargin
+  )
+
+  def test_end_marker_missing_empty_body_template_definition(): Unit = checkTree(
+    """class C:
+      |trait T:
+      |object O:
+      |enum E:
+      |new Object():
+      |""".stripMargin,
+    """ScalaFile
+      |  ScClass: C
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('C')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScTrait: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(trait)('trait')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScObject: O
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('O')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScEnum: E
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(enum)('enum')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('E')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScNewTemplateDefinition: <anonymous>
+      |    PsiElement(new)('new')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Object
+      |            CodeReferenceElement: Object
+      |              PsiElement(identifier)('Object')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Indented definitions expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')""".stripMargin,
+  )
+
+  def test_end_marker_missing_empty_body_definition_with_assign(): Unit = checkTree(
+    """
+      |def foo =
+      |val foo =
+      |var foo =
+      |given foo =
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiErrorElement:Expression expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: foo
+      |        PsiElement(identifier)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiErrorElement:Expression expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScVariableDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: foo
+      |        PsiElement(identifier)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiErrorElement:Expression expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDefinition: given_foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: foo
+      |      CodeReferenceElement: foo
+      |        PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiErrorElement:Expression expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')""".stripMargin,
   )
 }

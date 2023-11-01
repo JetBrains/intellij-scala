@@ -8,7 +8,7 @@ import org.junit.Assert.fail
 import org.junit.runner.RunWith
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
@@ -17,15 +17,13 @@ class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
 
   def testJavaConverters(): Unit = doCompletionTest(
     fileText =
-      s"""
-         |val ja = new java.util.ArrayList[Int]
+      s"""val ja = new java.util.ArrayList[Int]
          |ja.asSc$CARET
-      """.stripMargin,
+         |""".stripMargin,
     resultText =
-      s"""
-         |val ja = new java.util.ArrayList[Int]
+      s"""val ja = new java.util.ArrayList[Int]
          |ja.asScala$CARET
-      """.stripMargin,
+         |""".stripMargin,
     item = "asScala",
     invocationCount = 2
   )
@@ -47,9 +45,14 @@ abstract class AbstractConversionCompletionTest extends ScalaCompletionTestBase 
 
   protected def convertersNames: Seq[String]
 
-  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
+  protected override def setUp(): Unit = {
+    super.setUp()
+    scalaCompletionTestFixture.scalaFixture.setCustomCheckResultByTextFunction(myCheckResultByText)
+  }
+
+  private def myCheckResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
     def runCheck(fileText: String): Either[ComparisonFailure, Unit] = try {
-      super.checkResultByText(fileText, ignoreTrailingSpaces)
+      myFixture.checkResult(fileText, ignoreTrailingSpaces)
       Right(())
     } catch {
       case cf: ComparisonFailure =>
@@ -57,10 +60,10 @@ abstract class AbstractConversionCompletionTest extends ScalaCompletionTestBase 
     }
 
     val expectedTextCandidates: Seq[String] = convertersNames.map { qualifiedName =>
-      s"""
-         |import $qualifiedName
+      s"""import $qualifiedName
+         |
          |$expectedFileText
-       """.stripMargin
+         |""".stripMargin.trim
     }
     val lazyCheckResults: LazyList[Either[ComparisonFailure, Unit]] = expectedTextCandidates.toList.to(LazyList).map(runCheck)
     if (lazyCheckResults.exists(_.isRight)) {

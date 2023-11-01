@@ -1,48 +1,37 @@
-package org.jetbrains.sbt
-package project.module
+package org.jetbrains.sbt.project.module
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import com.intellij.ui.CollectionListModel
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.SbtResolver
 import org.jetbrains.sbt.settings.SbtSettings
 
-import java.util.Collections
 import javax.swing.JPanel
 import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 
-class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
+private class SbtModuleSettingsEditor(state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
 
   import SbtModule._
 
   private val myForm = new SbtModuleSettingsForm
-  private val model = new CollectionListModel[String](Collections.emptyList)
   private val resolvers = Resolvers(getModel.getModule).toSeq
 
   override def getDisplayName: String = SbtBundle.message("sbt.settings.sbtModuleSettings")
 
   override def saveData(): Unit = {}
 
-  override def createComponentImpl(): JPanel = {
-    myForm.sbtImportsList.setEmptyText(SbtBundle.message("sbt.settings.noImplicitImportsFound"))
-    myForm.sbtImportsList.setModel(model)
-
-    myForm.mainPanel
-  }
+  override def createComponentImpl(): JPanel = myForm.getMainPanel
 
   override def reset(): Unit = {
     val module = getModel.getModule
-    val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
-    myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected")))
+    val sbtProjectSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
 
-    model.replaceAll(Imports(module).asJava)
+    val sbtVersion = sbtProjectSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected"))
+    val imports = Imports(module).asJava
+    val resolversModel = new ResolversModel(resolvers, state.getProject)
 
-    myForm.resolversTable.setModel(new ResolversModel(resolvers, state.getProject))
-    if (myForm.resolversTable.getRowCount > 0)
-      myForm.resolversTable.setRowSelectionInterval(0, 0)
-    myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
-    myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
+    myForm.reset(sbtVersion, imports, resolversModel)
   }
 }
 

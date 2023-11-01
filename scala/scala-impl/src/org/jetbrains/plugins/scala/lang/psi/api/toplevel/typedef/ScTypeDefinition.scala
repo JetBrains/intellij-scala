@@ -72,10 +72,10 @@ object ScTypeDefinition {
 
     def keywordPrefix: String =
       target match {
+        case _: ScEnum   => "enum "
         case _: ScObject => "object "
         case _: ScTrait  => "trait "
         case _: ScClass  => "class "
-        case _: ScEnum   => "enum "
         case _: ScGiven   => "given "
         case _           => ""
       }

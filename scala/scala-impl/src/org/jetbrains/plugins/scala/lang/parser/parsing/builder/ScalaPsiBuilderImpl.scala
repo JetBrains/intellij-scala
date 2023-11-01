@@ -6,7 +6,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
-import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, IndentationWidth}
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
 

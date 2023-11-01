@@ -10,8 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 
 import scala.util.matching.Regex
 
-//TODO: rename this utility, it's not about "auto brace" it's about "indentation syntax
-// Maybe just merge with ScalaIndentationSyntaxUtils?
+/**
+ * @todo rename this utility, it's not about "auto brace" it's about "indentation syntax
+ *       Maybe just merge with [[org.jetbrains.plugins.scala.editor.ScalaIndentationSyntaxUtils]]?
+ *
+ * Also see [[org.jetbrains.plugins.scala.util.IndentUtil]]
+ */
 object AutoBraceUtils {
   def nextExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
     element.nextSiblingNotWhitespaceComment match {

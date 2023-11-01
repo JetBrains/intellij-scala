@@ -65,7 +65,7 @@ object ClassParam extends ParsingRule {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate '='
         if (!Expr()) {
-          builder error ScalaBundle.message("wrong.expression")
+          builder.wrongExpressionError()
         }
       case _ =>
     }

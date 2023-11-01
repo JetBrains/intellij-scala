@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.util.IndentUtil
  *       Currently there are no direct tests for [[ScalaIndentationSyntaxUtils]],
  *       however it's tested indirectly via enter-handler & backspace-handler and other tests.<br>
  *       However, ideally, it would be nice to test functionality of this class more explicitly in dedicated test
+ * @see [[org.jetbrains.plugins.scala.util.IndentUtil]]
  */
 object ScalaIndentationSyntaxUtils {
   /**

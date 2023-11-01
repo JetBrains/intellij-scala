@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package settings
+package org.jetbrains.sbt.settings
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components._
@@ -13,10 +12,23 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter}
 import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
+import org.jetbrains.sbt.{JvmMemorySize, RichOption}
 
 import java.{util => j}
 import scala.beans.BeanProperty
 
+/**
+ * Represents some configuration parameters which will be used to start sbt process during project reload and when launching sbt shell.
+ * (such as VM path, VM options, environment variables, extra sbt options)
+ *
+ * These settings are displayed in `Settings | Build, Execution, Deployment | Build Tools | sbt`<br>
+ * in `General Settings` subsection
+ *
+ * @see [[org.jetbrains.sbt.settings.SbtSettingsControl]]<br>
+ *      [[org.jetbrains.sbt.settings.SbtSettingsPane]]<br>
+ *      (UI for current settings)
+ * @see [[org.jetbrains.sbt.project.settings.SbtProjectSettings]]
+ */
 @State(
   name = "ScalaSbtSettings",
   storages = Array(new Storage(value = "sbt.xml", roamingType = RoamingType.DISABLED)),
@@ -115,36 +127,16 @@ object SbtSettings {
   val SbtTopic: Topic[SbtProjectSettingsListener] = new Topic("sbt-specific settings", classOf[SbtProjectSettingsListener])
 
   class State extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
-
-    @BeanProperty
-    var customLauncherEnabled: Boolean = false
-
-    @BeanProperty
-    var customLauncherPath: String = ""
-
-    @BeanProperty
-    var maximumHeapSize: String = defaultMaxHeapSize
-
-    @BeanProperty
-    var vmParameters: String = ""
-
-    @BeanProperty
-    var sbtOptions: String = ""
-
-    @BeanProperty
-    var customVMEnabled: Boolean = false
-
-    @BeanProperty
-    var customVMPath: String = ""
-
-    @BeanProperty
-    var customSbtStructurePath: String = ""
-
-    @BeanProperty
-    var sbtEnvironment: j.Map[String, String] = j.Collections.emptyMap()
-
-    @BeanProperty
-    var sbtPassParentEnvironment: Boolean = true
+    @BeanProperty var customLauncherEnabled: Boolean = false
+    @BeanProperty var customLauncherPath: String = ""
+    @BeanProperty var maximumHeapSize: String = defaultMaxHeapSize
+    @BeanProperty var vmParameters: String = ""
+    @BeanProperty var sbtOptions: String = ""
+    @BeanProperty var customVMEnabled: Boolean = false
+    @BeanProperty var customVMPath: String = ""
+    @BeanProperty var customSbtStructurePath: String = ""
+    @BeanProperty var sbtEnvironment: j.Map[String, String] = j.Collections.emptyMap()
+    @BeanProperty var sbtPassParentEnvironment: Boolean = true
 
     private val linkedProjectSettings: j.TreeSet[SbtProjectSettings] = new j.TreeSet[SbtProjectSettings]
 

@@ -32,4 +32,18 @@ object ClassConstr extends ClassConstr(dropConstructorIfEmpty = false)
 
 object TraitConstr extends ClassConstr(dropConstructorIfEmpty = true)
 
-object EnumCaseConstr extends ClassConstr(dropConstructorIfEmpty = true)
+object EnumCaseConstr extends ClassConstr(dropConstructorIfEmpty = false) {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    val idx = builder.getCurrentOffset
+    TypeParamClause()
+    val constructorMarker = builder.mark()
+    ConstrMods()
+    ClassParamClauses()
+    if (idx == builder.getCurrentOffset) {
+      constructorMarker.rollbackTo()
+    } else {
+      constructorMarker.done(ScalaElementType.PRIMARY_CONSTRUCTOR)
+    }
+    true
+  }
+}

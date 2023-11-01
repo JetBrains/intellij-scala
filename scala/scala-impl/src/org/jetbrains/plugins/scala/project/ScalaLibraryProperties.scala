@@ -11,8 +11,12 @@ final class ScalaLibraryProperties private(
   private[this] var _languageLevel: ScalaLanguageLevel,
   private[this] var _compilerClasspath: Seq[File],
   private[this] var _scaladocExtraClasspath: Seq[File],
+  private[this] var _compilerBridgeBinaryJar: Option[File]
 ) extends LibraryProperties[ScalaLibraryPropertiesState] {
   import ScalaLibraryProperties._
+
+  def compilerBridgeBinaryJar: Option[File] = _compilerBridgeBinaryJar
+  def compilerBridgeBinaryJar_=(value: Option[File]): Unit = _compilerBridgeBinaryJar = value
 
   def languageLevel: ScalaLanguageLevel = _languageLevel
 
@@ -34,49 +38,59 @@ final class ScalaLibraryProperties private(
 
   override def loadState(state: ScalaLibraryPropertiesState): Unit = {
     languageLevel = state.getLanguageLevel
-    compilerClasspath = state.getCompilerClasspath.map(pathToFile).toSeq
-    scaladocExtraClasspath = state.getScaladocExtraClasspath.map(pathToFile).toSeq
+    compilerClasspath = state.getCompilerClasspath.map(urlToFile).toSeq
+    scaladocExtraClasspath = state.getScaladocExtraClasspath.map(urlToFile).toSeq
+    compilerBridgeBinaryJar = Option(state.getCompilerBridgeBinaryJar).map(urlToFile)
   }
 
   override def getState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(
     languageLevel,
-    compilerClasspath.map(fileToPath).toArray,
-    scaladocExtraClasspath.map(fileToPath).toArray,
+    compilerClasspath.map(fileToUrl).toArray,
+    scaladocExtraClasspath.map(fileToUrl).toArray,
+    compilerBridgeBinaryJar.map(fileToUrl).orNull
   )
 
   override def equals(obj: Any): Boolean = obj match {
     case properties: ScalaLibraryProperties =>
       languageLevel == properties.languageLevel &&
         compilerClasspath.map(_.getAbsolutePath) == properties.compilerClasspath.map(_.getAbsolutePath) &&
-        scaladocExtraClasspath.map(_.getAbsolutePath) == properties.scaladocExtraClasspath.map(_.getAbsolutePath)
+        scaladocExtraClasspath.map(_.getAbsolutePath) == properties.scaladocExtraClasspath.map(_.getAbsolutePath) &&
+        compilerBridgeBinaryJar.map(_.getAbsolutePath) == properties.compilerBridgeBinaryJar.map(_.getAbsolutePath)
     case _ => false
   }
 
-  override def hashCode: Int = languageLevel #+ compilerClasspath #+ scaladocExtraClasspath
+  override def hashCode: Int = languageLevel #+ compilerClasspath #+ scaladocExtraClasspath #+ compilerBridgeBinaryJar
 
-  override def toString = s"ScalaLibraryProperties($languageLevel, $compilerClasspath, $scaladocExtraClasspath)"
+  override def toString = s"ScalaLibraryProperties($languageLevel, $compilerClasspath, $scaladocExtraClasspath, $compilerBridgeBinaryJar)"
 }
 
 object ScalaLibraryProperties {
 
   import ScalaLanguageLevel._
-  import VfsUtilCore._
 
   def apply(): ScalaLibraryProperties =
-    apply(None, Seq.empty, Seq.empty)
+    apply(None, Seq.empty, Seq.empty, None)
 
   def apply(
     version: Option[String],
     compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File]
+    scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File]
   ): ScalaLibraryProperties = {
     val languageLevel = version.flatMap(findByVersion).getOrElse(getDefault)
-    new ScalaLibraryProperties(languageLevel, compilerClasspath, scaladocExtraClasspath)
+    new ScalaLibraryProperties(
+      languageLevel,
+      compilerClasspath,
+      scaladocExtraClasspath,
+      compilerBridgeBinaryJar,
+    )
   }
 
-  private def pathToFile(url: String) =
-    new File(urlToPath(url))
+  private def urlToFile(url: String): File =
+    new File(VfsUtilCore.urlToPath(url))
 
-  private def fileToPath(file: File) =
-    pathToUrl(FileUtil.toCanonicalPath(file.getAbsolutePath))
+  private[project] def fileToUrl(file: File): String = {
+    val canonicalPath = FileUtil.toCanonicalPath(file.getAbsolutePath)
+    VfsUtilCore.pathToUrl(canonicalPath)
+  }
 }

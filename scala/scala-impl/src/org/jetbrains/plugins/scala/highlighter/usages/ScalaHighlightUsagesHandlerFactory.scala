@@ -121,23 +121,11 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
           return new CompanionHighlightHandler(element, typeDefinition, editor, file)
         }
       case `tIDENTIFIER` =>
-        lazy val isInScala3File = element.isInScala3File
-
         element.getParent match {
-          case enumCase: ScEnumCase => return new ScalaHighlightEnumCaseUsagesHandler(enumCase, file, editor)
           case ScConstructorInvocation.byReference(constr) => return new ScalaHighlightConstructorInvocationUsages(constr, file, editor)
           case ref@ScConstructorInvocation.byUniversalApply(_) => return new ScalaHighlightConstructorInvocationUsages(Option(ref), file, editor)
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
-          case ref: ScReference =>
-            if (isInScala3File) {
-              //this can potentially cause freezes, but I couldn't find
-              //a reliable way to do it the other way. Also, other implementations
-              //of HighlightUsagesHandlerFactory seem to ebe using resovle-based logic too.
-              ref.resolve() match {
-                case ScEnumCase.Original(enumCase) => return new ScalaHighlightEnumCaseUsagesHandler(enumCase, file, editor)
-                case _ => return implicitHighlighter(editor, file, ref)
-              }
-            } else return implicitHighlighter(editor, file, ref)
+          case ref: ScReference => return implicitHighlighter(editor, file, ref)
           case _ =>
         }
 

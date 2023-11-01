@@ -32,7 +32,7 @@ object NameValuePair extends ParsingRule {
         builder error ScalaBundle.message("assign.expected")
     }
     if (!PrefixExpr()) {
-      builder error ScalaBundle.message("wrong.expression")
+      builder.wrongExpressionError()
     }
     nameMarker.done(ScalaElementType.NAME_VALUE_PAIR)
     true

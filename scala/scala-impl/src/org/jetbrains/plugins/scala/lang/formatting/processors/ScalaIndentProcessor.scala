@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.formatting.Indent
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
 import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.isIndented
+import com.intellij.psi.{PsiComment, PsiElement}
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
@@ -88,19 +88,20 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       if (bracesShifted && b.isEnclosedByBraces) Indent.getNormalIndent
       else Indent.getNoneIndent
 
-    @inline def canIndentChildComment: Boolean = !settings.KEEP_FIRST_COLUMN_COMMENT || isIndented(child.getPsi)
-
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
       case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
       case b: ScBlockExpr      => blockIndent(b, isMethodBraceNextLineShifted)
       case _: ScBlockStatement => Indent.getNormalIndent
+      case c: PsiComment       => commentInBodyIndent(c)
       case _                   => Indent.getNoneIndent
     }
+    //NOTE: it's not actually about `val` indent only, it's used in many different contexts
     def valIndent = childPsi match {
       case b: ScBlockExpr      => blockIndent(b, isBraceNextLineShifted)
       case _: ScBlockStatement => Indent.getNormalIndent
       case _: ScTypeElement    => Indent.getNormalIndent
+      case c: PsiComment       => commentInBodyIndent(c)
       case _                   => Indent.getNoneIndent
     }
     def assignmentIndent = childPsi match {
@@ -114,6 +115,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     def blockChildIndent: Indent = childPsi match {
       case b: ScBlock => blockIndent(b, isBraceNextLineShifted)
       case _          => Indent.getNormalIndent
+    }
+
+    childPsi match {
+      case c: PsiComment if settings.KEEP_FIRST_COLUMN_COMMENT && Scala3IndentationBasedSyntaxUtils.isNotIndentedAtFirstColumn(c) =>
+        return Indent.getNoneIndent
+      case _ =>
     }
 
     childElementType match {
@@ -131,6 +138,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         case _: ScBlockExpr if isBraceNextLineShifted => Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE)
         case _: ScBlockExpr => Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
         case _: ScExpression => Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE)
+        case c: PsiComment => commentInBodyIndent(c)
         case _ => Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
       }
     }
@@ -299,11 +307,21 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           Indent.getNormalIndent
         else
           Indent.getNoneIndent
-      case _: ScIf | _: ScWhile | _: ScDo  | _: ScFinallyBlock | _: ScCatchBlock |
-           _: ScValue | _: ScVariable | _: ScTypeAlias =>
+      case _: ScIf |
+           _: ScWhile |
+           _: ScDo  |
+           _: ScFinallyBlock |
+           _: ScCatchBlock |
+           _: ScReturn |
+           _: ScValue |
+           _: ScVariable |
+           _: ScTypeAlias =>
         valIndent
+      case _ if childPsi.is[PsiComment] && (parentElementType == ScalaTokenTypes.kIF || parentElementType == ScalaTokenTypes.kELSE  || parentElementType == ScalaTokenType.ThenKeyword) =>
+        commentInBodyIndent(childPsi.asInstanceOf[PsiComment])
       case _ if ScalaTokenTypes.VAL_VAR_TOKEN_SET.contains(parentElementType) ||
-        TokenSets.PROPERTIES.contains(parentParentElementType) && parentElementType == ScalaElementType.MODIFIERS =>
+        TokenSets.PROPERTIES.contains(parentParentElementType) && parentElementType == ScalaElementType.MODIFIERS ||
+        parentElementType == ScalaTokenTypes.kRETURN =>
         valIndent
       case _: ScCaseClause =>
         childElementType match {
@@ -380,15 +398,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         } else {
           Indent.getContinuationWithoutFirstIndent
         }
-      case _: ScReturn =>
-        if (childElementType == ScalaTokenTypes.kRETURN)
-          Indent.getNoneIndent
-        else childPsi match {
-          case b: ScBlockExpr => blockIndent(b, isBraceNextLineShifted)
-          case _              => Indent.getNormalIndent
-        }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes =>
+           _: ScExpression | _: ScTypeElement | _: ScTypes =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
         if (ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(childElementType)) Indent.getNoneIndent
@@ -400,8 +411,6 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         childElementType != ScalaTokenTypes.tLBRACE                    => Indent.getNormalIndent
       case Parent(_: ScReferenceExpression) if childElementType == ScalaElementType.TYPE_ARGS =>
         Indent.getContinuationWithoutFirstIndent
-      // TODO this is only needed until ScExtensionBody comments get parsed correctly, see SCL-20286
-      case _: ScExtension if child.isInstanceOf[PsiComment] && canIndentChildComment => Indent.getNormalIndent
       case _ =>
         Indent.getNoneIndent
     }
@@ -426,5 +435,50 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case ws: PsiWhiteSpaceImpl => !ws.textContains('\n')
       case _                    => true
     })
+  }
+
+  private def commentInBodyIndent(c: PsiComment): Indent = {
+    val prev = c.getPrevSiblingNotWhitespaceComment
+    if (prev != null && isBeginningOfOneStatementBlock(prev))
+      Indent.getNormalIndent
+    else
+      Indent.getNoneIndent
+  }
+  private def isBeginningOfOneStatementBlock(element: PsiElement): Boolean = {
+    element.elementType match {
+      case ScalaTokenTypes.tASSIGN |
+           ScalaTokenTypes.tFUNTYPE |
+           ScalaTokenType.ImplicitFunctionArrow |
+           ScalaTokenTypes.tCHOOSE |
+
+           ScalaTokenTypes.kDO |
+           ScalaTokenTypes.kWHILE |
+
+           ScalaTokenTypes.kFOR |
+           ScalaTokenTypes.kYIELD |
+
+           ScalaTokenTypes.kIF |
+           ScalaTokenType.ThenKeyword |
+           ScalaTokenTypes.kELSE |
+
+           ScalaTokenTypes.kTRY |
+           ScalaTokenTypes.kCATCH |
+           ScalaTokenTypes.kFINALLY |
+           ScalaTokenTypes.kTHROW |
+
+           ScalaTokenTypes.kMATCH |
+           ScalaTokenTypes.kRETURN => true
+      case ScalaTokenTypes.tRPARENTHESIS => element.getParent match {
+        case innerIf: ScIf => innerIf.condition.isDefined
+        case innerWhile: ScWhile => innerWhile.condition.isDefined
+        case innerFor: ScFor => innerFor.enumerators.isDefined
+        case _ => false
+      }
+      case ScalaTokenTypes.tRBRACE => element.getParent match {
+        case innerFor: ScFor => innerFor.enumerators.isDefined
+        case _ => false
+      }
+      case _ => false
+    }
   }
 }

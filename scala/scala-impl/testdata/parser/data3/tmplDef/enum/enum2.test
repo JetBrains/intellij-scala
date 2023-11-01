@@ -52,7 +52,7 @@ ScalaFile
                   <empty list>
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                ScEnumCase: Cons
+                ScEnumClassCase: Cons
                   PsiElement(identifier)('Cons')
                   PrimaryConstructor
                     AnnotationsList
@@ -106,7 +106,7 @@ ScalaFile
                   <empty list>
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                ScEnumCase: Nil
+                ScEnumSingletonCase: Nil
                   PsiElement(identifier)('Nil')
                   ExtendsBlock
                     <empty list>

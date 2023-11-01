@@ -331,6 +331,11 @@ package object extensions {
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {
     def findByType[T <: AnyRef : ClassTag]: Option[T] = collectFirstByType(identity[T])
 
+    def filterByType[T <: AnyRef : ClassTag]: Array[T] = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      array.filter(aClass.isInstance).asInstanceOf[Array[T]]
+    }
+
     def collectFirstByType[T <: AnyRef : ClassTag, R](f: T => R): Option[R] = {
       var idx = 0
       val clazz = implicitly[ClassTag[T]].runtimeClass
@@ -786,10 +791,16 @@ package object extensions {
       inner(PsiTreeUtil.prevLeaf(element))
     }
 
-    def followedByNewLine(ignoreComments: Boolean = true): Boolean = {
+    def followedByNewLine(ignoreComments: Boolean = true): Boolean =
+      followedByNewLine(ignoreComments, treatEofAsNewLine = false)
+
+    def followedByNewLineOrEof(ignoreComments: Boolean = true): Boolean =
+      followedByNewLine(ignoreComments, treatEofAsNewLine = true)
+
+    def followedByNewLine(ignoreComments: Boolean, treatEofAsNewLine: Boolean): Boolean = {
       @tailrec
       def inner(el: PsiElement): Boolean = el match {
-        case null => false
+        case null => treatEofAsNewLine
         case ws: PsiWhiteSpace =>
           if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.nextLeaf(el))
@@ -850,6 +861,14 @@ package object extensions {
 
     def prevLeaf: Option[PsiElement] =
       PsiTreeUtil.prevLeaf(element).toOption
+
+    def prevLeafNotWhitespaceComment: Option[PsiElement] = {
+      var prev: PsiElement = PsiTreeUtil.prevLeaf(element)
+      while (prev != null && (prev.is[PsiWhiteSpace] ||
+        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.is[PsiComment]))
+        prev = PsiTreeUtil.prevLeaf(prev)
+      Option(prev)
+    }
 
     def prevLeafs: Iterator[PsiElement] = new Iterator[PsiElement] {
       private var cur: PsiElement = element
@@ -1153,7 +1172,6 @@ package object extensions {
             processMethod(toProcess)
             processName(toProcess.getName)
           }
-        case ScEnumCase.Original(_) => () // why no forwarder is generated for enum cases???
         case t: ScTypedDefinition if t.isVal || t.isVar ||
           (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
           PsiTypedDefinitionWrapper.processWrappersFor(

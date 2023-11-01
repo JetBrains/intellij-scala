@@ -6,13 +6,14 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -93,7 +94,6 @@ object UsageTracker {
 
   private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
     val originalsFromSynthetics = resolveResult.element match {
-      case ScEnumCase.Original(enumCase) => Seq(enumCase)
       case ScEnum.FromObject(enum) => Seq(enum)
       case ScEnum.FromSyntheticMethod(enum) => enum.cases
       case o: ScObject if o.isSyntheticObject => Seq(o.syntheticNavigationElement).collect {
@@ -134,4 +134,27 @@ object UsageTracker {
                                   checkWrite: Boolean): Unit =
     collectAllNamedElementTargets(resolveResult)
       .foreach(registerTargetElement(sourceElement, _, checkWrite))
+
+  private object ScEnum {
+    object FromObject {
+      def unapply(obj: ScObject): Option[ScEnum] = obj.syntheticNavigationElement match {
+        case cls: ScEnum => Some(cls)
+        case _ => None
+      }
+    }
+
+    object FromSyntheticMethod {
+      def unapply(functionDefinition: ScFunctionDefinition): Option[ScEnum] =
+        if (ScalaUsageNamesUtil.enumSyntheticMethodNames.contains(functionDefinition.name))
+          functionDefinition.context match {
+            case cls: ScClass if cls.syntheticNavigationElement != null =>
+              cls.syntheticNavigationElement match {
+                case enum: ScEnum => Some(enum)
+                case _ => None
+              }
+            case _ => None
+          }
+        else None
+    }
+  }
 }

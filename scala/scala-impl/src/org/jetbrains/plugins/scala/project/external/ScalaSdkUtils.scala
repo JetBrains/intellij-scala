@@ -12,74 +12,17 @@ object ScalaSdkUtils {
   def ensureScalaLibraryIsConvertedToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,
     library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-  ): Unit = {
-    if (!library.isScalaSdk) {
-      // library created but not yet marked as Scala SDK
-      ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath)
-    }
-    else {
-      ScalaSdkUtils.updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath)
-    }
-  }
-
-  def ensureScalaLibraryIsConvertedToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
     maybeVersion: Option[String],
+    compilerClasspath: Seq[File],
+    scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File],
   ): Unit = {
+    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
+    val modifiableModel = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
     if (!library.isScalaSdk) {
-      // library created but not yet marked as Scala SDK
-      convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion)
+      modifiableModel.setKind(ScalaLibraryType.Kind)
     }
-    else {
-      updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion)
-    }
-  }
-
-  def convertScalaLibraryToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-  ): Unit = {
-    convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
-  }
-
-  private def convertScalaLibraryToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String]
-  ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath)
-    val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
-    model.setKind(ScalaLibraryType.Kind)
-    model.setProperties(properties)
-  }
-
-  private def updateScalaLibraryProperties(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-  ): Unit = {
-    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
-  }
-
-  private def updateScalaLibraryProperties(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String]
-  ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath)
-    val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
-    model.setProperties(properties)
+    //NOTE: must be called after `setKind` because later resets the properties
+    modifiableModel.setProperties(properties)
   }
 }

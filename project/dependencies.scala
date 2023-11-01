@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.9.5"
 
   // ATTENTION: check the comment in CommonUltimate when updating this version
-  val intellijVersion = "233.11361.10"
+  val intellijVersion = "233.11555.6"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -36,7 +36,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2023.3.0"
+  val sbtStructureVersion: String = "2023.3.2"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.14"
 
@@ -48,16 +48,17 @@ object Versions {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
+    //sbt-structure-extractor is cross-published in a non-standard way,
+    //against multiple 1.x versions so it uses an exact binary version 1.x.
+    //Versions 1.0-1.2 use 1.2, versions 1.3 and above use 1.3
+    val structure_extractor_binary_1_2 = "1.2"
+    val structure_extractor_binary_1_3 = "1.3"
+
     val latest_0_13 = "0.13.18"
     val latest_1_0 = "1.9.7"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
-
-    def scalaVersion(v: String): String =
-      if (v.startsWith(Sbt.binary_0_13)) "2.10"
-      else if (v.startsWith(Sbt.binary_1_0)) "2.12"
-      else throw new RuntimeException(s"Unknown sbt binary version: $v -- need to update dependencies.scala?")
   }
 }
 
@@ -118,8 +119,7 @@ object Dependencies {
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.1"
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
-  /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
-  val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
+  val compilerInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
@@ -138,10 +138,6 @@ object Dependencies {
     fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
       fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
   }
-
-  private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
-    sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
-
 }
 
 object DependencyGroups {

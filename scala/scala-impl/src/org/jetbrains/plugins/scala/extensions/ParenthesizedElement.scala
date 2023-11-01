@@ -71,6 +71,7 @@ object ParenthesizedElement {
         case expr@ScParenthesisedExpr(inner)                               => ScalaPsiUtil.needParentheses(expr, inner)
         case _ if parenthesized.innerElement.isEmpty                       => true
         case ScParenthesizedElement(inner) if containsSomethingElse(inner) => true
+        case InfixTypeInPattern()                                          => true
         case _ if isFunctionTupleParameter                                 => true
         case SameKindParentAndInner(parent, inner)                         => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructorInvocation | _: ScTemplateParents)    => true
@@ -184,6 +185,10 @@ object ParenthesizedElement {
     case _ => false
   }
 
+  private object InfixTypeInPattern {
+    def unapply(p: ScParenthesisedTypeElement): Boolean =
+      p.innerElement.exists(_.is[ScInfixLikeTypeElement]) && p.parent.exists(_.is[ScPattern, ScTypePattern])
+  }
 
   private object SameKindParentAndInner {
     def unapply(p: ScParenthesizedElement): Option[(p.Kind, p.Kind)] =

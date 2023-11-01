@@ -13,7 +13,7 @@ import java.util
  * ATTENTION: implementation should be in sync with<br>
  * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
  */
-class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
+class SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed: Boolean) extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
       case (library: LibraryOrderEntry, enumerator: ModuleOrderEnumerator) =>
@@ -34,6 +34,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     modules.asScala.headOption
   }
 
+  //TODO: after splitting sources to production and test it should be changed to false SCL-21157
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
@@ -46,11 +47,17 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    super.shouldProcessDependenciesRecursively
+    if (projectTransitiveDependenciesUsed) false
+    else true
+
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
-  override def createHandler(module: Module): OrderEnumerationHandler = new SbtOrderEnumeratorHandler
+  override def createHandler(module: Module): OrderEnumerationHandler = {
+    val project = module.getProject
+    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
+    new SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed)
+  }
 
   override def isApplicable(module: Module): Boolean =
     SbtUtil.isSbtModule(module)

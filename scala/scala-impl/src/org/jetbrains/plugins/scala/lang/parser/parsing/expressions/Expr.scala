@@ -29,7 +29,7 @@ object Expr extends ParsingRule {
             completeParamClauses(pmarker)()
 
             builder.advanceLexer() //Ate =>
-            if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
+            if (!ExprInIndentationRegion()) builder.wrongExpressionError()
             exprMarker.done(ScalaElementType.FUNCTION_EXPR)
             return true
           case _ =>
@@ -45,7 +45,7 @@ object Expr extends ParsingRule {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
               builder.advanceLexer() //Ate =>
-              if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
+              if (!ExprInIndentationRegion()) builder.wrongExpressionError()
               exprMarker.done(ScalaElementType.FUNCTION_EXPR)
               return true
             case _ => exprMarker.rollbackTo()

@@ -77,7 +77,7 @@ object Expr1 extends ParsingRule {
             case ScalaTokenTypes.tLPARENTHESIS =>
               builder.advanceLexer() //Ate (
               builder.disableNewlines()
-              if (!Expr()) builder error ErrMsg("wrong.expression")
+              if (!Expr()) builder.wrongExpressionError()
               builder.getTokenType match {
                 case ScalaTokenTypes.tRPARENTHESIS =>
                   builder.advanceLexer() //Ate )
@@ -90,7 +90,7 @@ object Expr1 extends ParsingRule {
           }
         }
         if (!ExprInIndentationRegion()) {
-          builder error ErrMsg("wrong.expression")
+          builder.wrongExpressionError()
         }
         End(iw)
         exprMarker.done(ScalaElementType.WHILE_STMT)
@@ -100,14 +100,14 @@ object Expr1 extends ParsingRule {
         val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate try
         if (!ExprInIndentationRegion()) {
-          builder error ErrMsg("wrong.expression")
+          builder.wrongExpressionError()
         }
         val catchMarker = builder.mark()
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
             builder.advanceLexer() //Ate catch
             if (!CaseClausesOrExprCaseClause() && !ExprInIndentationRegion()) {
-              builder.error(ErrMsg("wrong.expression"))
+              builder.wrongExpressionError()
             }
             catchMarker.done(ScalaElementType.CATCH_BLOCK)
           case _ =>
@@ -118,7 +118,7 @@ object Expr1 extends ParsingRule {
           case ScalaTokenTypes.kFINALLY =>
             builder.advanceLexer() //Ate finally
             if (!ExprInIndentationRegion()) {
-              builder error ErrMsg("wrong.expression")
+              builder.wrongExpressionError()
             }
             finallyMarker.done(ScalaElementType.FINALLY_BLOCK)
           case _ =>
@@ -131,7 +131,7 @@ object Expr1 extends ParsingRule {
       case ScalaTokenTypes.kDO =>
         val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate do
-        if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
+        if (!ExprInIndentationRegion()) builder.wrongExpressionError()
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON =>
             builder.advanceLexer() //Ate semi
@@ -144,7 +144,7 @@ object Expr1 extends ParsingRule {
               case ScalaTokenTypes.tLPARENTHESIS =>
                 builder.advanceLexer() //Ate (
                 builder.disableNewlines()
-                if (!Expr()) builder error ErrMsg("wrong.expression")
+                if (!Expr()) builder.wrongExpressionError()
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRPARENTHESIS =>
                     builder.advanceLexer() //Ate )
@@ -215,7 +215,7 @@ object Expr1 extends ParsingRule {
         }
 
         if (!ExprInIndentationRegion()) {
-          builder error ErrMsg("wrong.expression")
+          builder.wrongExpressionError()
         }
 
         End(iw)
@@ -225,7 +225,7 @@ object Expr1 extends ParsingRule {
       case ScalaTokenTypes.kTHROW =>
         builder.advanceLexer() //Ate throw
         if (!ExprInIndentationRegion()) {
-          builder error ErrMsg("wrong.expression")
+          builder.wrongExpressionError()
         }
         exprMarker.done(ScalaElementType.THROW_STMT)
         return true
@@ -255,7 +255,7 @@ object Expr1 extends ParsingRule {
                 completeParamClauses(pmarker)(ipmarker)
 
                 builder.advanceLexer() //Ate =>
-                if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
+                if (!ExprInIndentationRegion()) builder.wrongExpressionError()
                 exprMarker.done(ScalaElementType.FUNCTION_EXPR)
                 return true
               case _ =>
@@ -304,7 +304,7 @@ object Expr1 extends ParsingRule {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             if (!ExprInIndentationRegion()) {
-              builder error ErrMsg("wrong.expression")
+              builder.wrongExpressionError()
             }
             exprMarker.done(ScalaElementType.ASSIGN_STMT)
             return true
@@ -366,7 +366,7 @@ object Expr1 extends ParsingRule {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
-        if (!Expr()) builder error ErrMsg("wrong.expression")
+        if (!Expr()) builder.wrongExpressionError()
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
@@ -387,7 +387,7 @@ object Expr1 extends ParsingRule {
     builder.skipExternalToken()
 
     if (!ExprInIndentationRegion()) {
-      builder error ErrMsg("wrong.expression")
+      builder.wrongExpressionError()
     }
     val rollbackMarker = builder.mark()
     builder.getTokenType match {
@@ -405,7 +405,7 @@ object Expr1 extends ParsingRule {
           builder.findPreviousIndent.exists(_ < iw)
         ) =>
         builder.advanceLexer()
-        if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
+        if (!ExprInIndentationRegion()) builder.wrongExpressionError()
         rollbackMarker.drop()
       case _ =>
         rollbackMarker.rollbackTo()

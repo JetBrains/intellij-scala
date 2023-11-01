@@ -9,14 +9,16 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[EditorTests]))
 abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
-  override protected final def configureFromFileText(fileText: String) =
-    super.configureFromFileText(
+  override protected def setUp(): Unit = {
+    super.setUp()
+    scalaFixture.setFileTextPatcher { fileText =>
       s"""class Foo {
          |$fileText
          |}
          |
          |new Foo""".stripMargin
-    )
+    }
+  }
 
   protected def doInlayTest(text: String): Unit = {
     configureFromFileText(text)

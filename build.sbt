@@ -75,11 +75,14 @@ lazy val scalaCommunity: sbt.Project =
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
       intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct ++ Seq(
-        /*
-         * Uncomment if you want to add Kotlin plugin jar dependencies to inspect them
-         * Note: we don't have any dependencies on Kotlin plugin,
-         * however sometimes it might be useful to see how some features are implemented in Kotlin plugin.
-         */
+        //Below are some other useful plugins which you might be interested to inspect
+        //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
+        //You can uncomment any of them locally
+
+        //This bundled plugin contains some internal development tools such as "View Psi Structure" action
+        //(note there is also PsiViewer plugin, but it's a different plugin)
+        //"com.intellij.dev".toPlugin,
+
         //"org.jetbrains.kotlin".toPlugin
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -95,8 +98,8 @@ lazy val scalaApi = newProject(
   "scala-api",
   file("scala/scala-api")
 ).settings(
-  idePackagePrefix := Some("org.jetbrains.plugins.scala"),
-)
+      idePackagePrefix := Some("org.jetbrains.plugins.scala"),
+    )
 
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
@@ -112,10 +115,9 @@ lazy val sbtApi =
         "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
         "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
         "sbtLatestVersion" -> Versions.sbtVersion,
-        "sbtStructurePath_0_13" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
-        "sbtStructurePath_1_0" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0"))
+        "sbtStructurePath_0_13" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
+        "sbtStructurePath_1_2" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.2")),
+        "sbtStructurePath_1_3" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.3"))
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
@@ -344,7 +346,16 @@ lazy val scalaImpl: sbt.Project =
 //The module is meant to keep utilities which only depend on Scala standard library
 //and do not depend on other libraries or IntelliJ SDK
 lazy val scalaLanguageUtils: sbt.Project =
-  newProject("scala-utils-language", file("scala/scala-utils-language"))
+  newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
+
+//Same as scalaLanguageUtils, but utilities from this module can be used form both IntelliJ IDEA process and JPS process
+lazy val scalaLanguageUtilsRt: sbt.Project =
+  newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
+    .settings(
+      Compile / javacOptions := outOfIDEAProcessJavacOptions,
+      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
+      packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
+    )
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
@@ -425,18 +436,19 @@ lazy val repackagedZinc =
       packageAssembleLibraries := true,
       shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
       packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
-      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.zincInterface, Dependencies.sbtInterface),
+      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.compilerInterface, Dependencies.sbtInterface),
       // We package and ship these jars separately. They are also transitive dependencies of `zinc`.
       // These mappings ensure that the transitive dependencies are not packaged into the assembled
       // `incremental-compiler.jar`, which leads to a bloated classpath with repeated classes.
       packageLibraryMappings ++= Seq(
-        Dependencies.zincInterface -> None,
+        Dependencies.compilerInterface -> None,
         Dependencies.sbtInterface -> None
       )
     )
 
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
+    .dependsOn(scalaLanguageUtilsRt)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
@@ -702,10 +714,15 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
       binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
       binaryDep("org.scala-sbt", "compiler-interface", Versions.zincVersion) -> "lib/jps/compiler-interface.jar",
+
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.10", Versions.zincVersion) -> "lib/jps/compiler-bridge-sources_2.10.jar",
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.11", Versions.zincVersion) -> "lib/jps/compiler-bridge-sources_2.11.jar",
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.13", Versions.zincVersion) -> "lib/jps/compiler-bridge-sources_2.13.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.0.2") -> "lib/jps/scala3-sbt-bridge_3.0.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.1.3") -> "lib/jps/scala3-sbt-bridge_3.1.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.2.2") -> "lib/jps/scala3-sbt-bridge_3.2.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.1") -> "lib/jps/scala3-sbt-bridge_3.3.jar",
+
       binaryDep("org.scala-sbt.rt", "java9-rt-export", Versions.java9rtExportVersion) -> "java9-rt-export/java9-rt-export.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.1", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.1.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.0", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.0.jar",
@@ -719,15 +736,15 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.0.2", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.0.2.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.0.1", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.0.1.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.0.0", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.0.0.jar",
-      sourceDep("org.scala-sbt", "compiler-bridge", "2.10", Versions.zincVersion) -> "lib/jps/compiler-interface-sources_2.10.jar",
-      sourceDep("org.scala-sbt", "compiler-bridge", "2.11", Versions.zincVersion) -> "lib/jps/compiler-interface-sources_2.11.jar",
-      sourceDep("org.scala-sbt", "compiler-bridge", "2.13", Versions.zincVersion) -> "lib/jps/compiler-interface-sources_2.13.jar",
     ),
     localRepoDependencies := List(
       sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_0_13),
-      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_1_0),
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_2),
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_3),
+
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
+
       sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
       sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_1_0)
     ),

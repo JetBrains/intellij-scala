@@ -36,6 +36,12 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
 
   def testWithSemanticDb_Scala3(): Unit = {
     buildProjectAndCheckThatNoSemanticDbIsGeneratedInSrcFolder()
+    import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+    val module = this.myTestFixture.getProject.modules.find(m => !m.isBuildModule).get
+    assertTrue(
+      "Custom compiler bridge is expected to be non empty for Scala 3 language in SBT projects (see SCL-21741)",
+      module.customScalaCompilerBridgeJar.nonEmpty
+    )
   }
 
   def testWithSemanticDb_Scala2(): Unit = {

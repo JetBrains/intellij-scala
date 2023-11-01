@@ -1,8 +1,10 @@
-package org.jetbrains.jps.incremental.scala
-package local
+package org.jetbrains.jps.incremental.scala.local
 
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, compilerVersion}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, IncrementalityType, SbtData}
+import org.jetbrains.plugins.scala.project.Version
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.{ClassLoaderCache, ClasspathUtil}
 import sbt.internal.inc.javac.JavaTools
@@ -44,7 +46,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         }
 
         val javac = {
-          val scala = getScalaInstance(compilerData.compilerJars).getOrElse(dummyScalaInstance._1)
+          val scala = compilerData.compilerJars.map(getOrCreateScalaInstance).getOrElse(dummyScalaInstance._1)
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
@@ -68,15 +70,23 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
 
   override def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
-    getScalaInstance(compilerJars).map { scalaInstance =>
-      val compiledInterfaceJar = getOrCompileInterfaceJar(
+    compilerJars.map { compilerJars =>
+      val scalaInstance = getOrCreateScalaInstance(compilerJars)
+      val customCompilerBridge = compilerJars.customCompilerBridgeJar match {
+        case Some(file) if !file.isFile =>
+          client.error(CompileServerBundle.message("invalid.compiler.bridge.jar", file))
+          None //fallback to bundled bridge
+        case other => other
+      }
+
+      val compiledInterfaceJar = customCompilerBridge.getOrElse(getOrCompileInterfaceJar(
         home = sbtData.interfacesHome,
         compilerBridges = sbtData.compilerBridges,
         interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
         scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client)
-      )
+      ))
 
       new AnalyzingCompiler(
         scalaInstance,
@@ -86,9 +96,6 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       )
     }
   }
-
-  private def getScalaInstance(compilerJars: Option[CompilerJars]): Option[ScalaInstance] =
-    compilerJars.map(getOrCreateScalaInstance)
 }
 
 object CompilerFactoryImpl {
@@ -153,7 +160,7 @@ object CompilerFactoryImpl {
                                        scalaInstance: ScalaInstance,
                                        javaClassVersion: String,
                                        client: Option[Client]): File = {
-    val scalaVersion = scalaInstance.actualVersion
+    val scalaVersion = Version(scalaInstance.actualVersion)
     if (is3_0(scalaVersion))
       compilerBridges.scala3._3_0
     else if (is3_1(scalaVersion))
@@ -168,8 +175,8 @@ object CompilerFactoryImpl {
         else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
         else compilerBridges.scala._2_13
 
-      val interfaceId = s"compiler-interface-$scalaVersion-$javaClassVersion"
-      val targetJar = new File(home, interfaceId + ".jar")
+      val bridgeFileName = s"compiler-bridge-${scalaVersion.presentation}-$javaClassVersion"
+      val targetJar = new File(home, s"$bridgeFileName.jar")
 
       if (!targetJar.exists) {
         client.foreach(_.progress(CompileServerBundle.message("compiling.scalac.interface", scalaVersion)))
@@ -179,7 +186,7 @@ object CompilerFactoryImpl {
           Seq(sourceJar.toPath),
           targetJar.toPath,
           interfaceJars.map(_.toPath),
-          interfaceId,
+          id = bridgeFileName,
           raw,
           NullLogger
         )
@@ -189,12 +196,12 @@ object CompilerFactoryImpl {
     }
   }
 
-  private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
-  private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
-  private def is3_0(version: String): Boolean = version.startsWith("3.0")
-  private def is3_1(version: String): Boolean = version.startsWith("3.1")
-  private def is3_2(version: String): Boolean = version.startsWith("3.2")
-  private def isLatest3(version: String): Boolean = version.startsWith("3.")
+  private def isBefore_2_11(version: Version): Boolean = version.major(2) < Version("2.11")
+  private def isBefore_2_13(version: Version): Boolean = version.major(2) < Version("2.13")
+  private def is3_0(version: Version): Boolean = version.presentation.startsWith("3.0")
+  private def is3_1(version: Version): Boolean = version.presentation.startsWith("3.1")
+  private def is3_2(version: Version): Boolean = version.presentation.startsWith("3.2")
+  private def isLatest3(version: Version): Boolean = version.presentation.startsWith("3.")
 
   private object NullLogger extends Logger {
     override def log(level: sbt.util.Level.Value, message: => String): Unit = {}

@@ -3,18 +3,15 @@ package org.jetbrains.sbt.settings;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.DefaultJreSelector;
 import com.intellij.execution.ui.JrePathEditor;
-import com.intellij.ide.macro.Macro;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.distribution.DistributionComboBox;
 import com.intellij.openapi.roots.ui.distribution.DistributionInfo;
-import com.intellij.openapi.roots.ui.distribution.FileChooserInfo;
 import com.intellij.openapi.roots.ui.distribution.LocalDistributionInfo;
-import com.intellij.openapi.ui.*;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.RawCommandLineEditor;
@@ -22,19 +19,20 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UI;
-import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.util.ui.distribution.DistributionComboBoxUtils;
+import org.jetbrains.plugins.scala.util.ui.distribution.GenericBundledDistributionInfo;
+import org.jetbrains.plugins.scala.util.ui.distribution.SimpleFileChooserInfo;
 import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.text.*;
+import javax.swing.text.Document;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.io.File;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 
 @SuppressWarnings("deprecation")
@@ -54,7 +52,7 @@ public class SbtSettingsPane {
     private JLabel maximumHeapSizeLabel;
 
     private final Project myProject;
-    private final DistributionInfo sbtLauncherBundledDistributionInfo = new SbtLauncherBundledDistributionInfo();
+    private final DistributionInfo sbtLauncherBundledDistributionInfo = new GenericBundledDistributionInfo();
 
     public SbtSettingsPane(Project project) {
 
@@ -79,76 +77,34 @@ public class SbtSettingsPane {
         sbtLauncherLabel.setLabelFor(sbtLauncherChooser);
     }
 
-    public static <T> Optional<T> castSafely(Object value, Class<T> expectedClass) {
-        if (expectedClass.isInstance(value)) {
-            return Optional.of(expectedClass.cast(value));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Boolean ifSelectedSbtLauncherIsCorrect(ItemEvent itemEvent) {
-        return castSafely(itemEvent.getItem(), DistributionComboBox.Item.Distribution.class)
-                .flatMap(distribution -> castSafely(distribution.getInfo(), LocalDistributionInfo.class))
-                .map(localDistributionInfo -> {
-                    String path = localDistributionInfo.getPath();
-                    return !path.isEmpty() && new File(path).isFile();
-                })
-                .orElse(true);
-    }
-
-    private void addDocumentFilterToJTextFieldDocument(JTextField jTextField) {
-        castSafely(jTextField.getDocument(), AbstractDocument.class)
-                .ifPresent(abstractDocument -> abstractDocument.setDocumentFilter(new DocumentFilter() {
-                    @Override
-                    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-                            throws BadLocationException {
-                        super.replace(fb, offset, length, text, attrs);
-                        jTextField.setCaretPosition(0);
-                    }
-                }));
-    }
-
     private void addListenersToSbtLauncherChooser() {
-        installSbtLauncherChooserValidator();
+        DialogWrapper dialog = DialogWrapper.findInstanceFromFocus();
+        if (dialog != null) {
+            Disposable disposable = dialog.getDisposable();
+            DistributionComboBoxUtils.installLocalDistributionInfoPointsToExistingJarFileValidator(sbtLauncherChooser, disposable);
+        }
 
-        Component sbtLauncherEditorComponent = sbtLauncherChooser.getEditor().getEditorComponent();
-        Optional<JTextField> sbtLauncherJTextField = castSafely(sbtLauncherEditorComponent, JTextField.class);
-        sbtLauncherJTextField.ifPresent(this::addDocumentFilterToJTextFieldDocument);
-        sbtLauncherChooser.addItemListener(listener -> sbtLauncherChooser.setToolTipText(getLauncherPath()));
+        DistributionComboBoxUtils.setCaretToStartOnContentChange(sbtLauncherChooser);
+        DistributionComboBoxUtils.installLocalDistributionInfoPathTooltip(sbtLauncherChooser);
     }
 
     private void addListenersToJrePathEditor() {
         Component editorComponent = jrePathEditor.getComponent().getEditor().getEditorComponent();
-        castSafely(editorComponent, JTextField.class).ifPresent(jTextField -> {
-            Document jTextFieldDocument = jTextField.getDocument();
+        if (editorComponent instanceof JTextField textField) {
+            Document jTextFieldDocument = textField.getDocument();
             jTextFieldDocument.addDocumentListener(new DocumentAdapter() {
                 @Override
                 protected void textChanged(@NotNull DocumentEvent e) {
                     jrePathEditor.getComponent().setToolTipText(getCustomVMPath());
                 }
             });
-            addDocumentFilterToJTextFieldDocument(jTextField);
-        });
-    }
 
-    private void installSbtLauncherChooserValidator() {
-        Optional.ofNullable(DialogWrapper.findInstanceFromFocus())
-                .map(DialogWrapper::getDisposable)
-                .ifPresent(disposable -> {
-                    ComponentValidator validator = new ComponentValidator(disposable);
-                    validator.installOn(sbtLauncherChooser);
-                    validator.enableValidation();
-                    sbtLauncherChooser.addItemListener(itemEvent -> {
-                        if (!ifSelectedSbtLauncherIsCorrect(itemEvent))
-                            validator.updateInfo(new ValidationInfo(SbtBundle.message("sbt.settings.sbt.launcher.error.jar.is.not.valid.file")).forComponent(sbtLauncherChooser));
-                        else validator.updateInfo(null);
-                    });
-                });
+            DistributionComboBoxUtils.setCaretToStartOnContentChange(textField);
+        }
     }
 
     public void createUIComponents() {
-        sbtLauncherChooser = new DistributionComboBox(myProject, new SbtLauncherFileChooserInfo());
+        sbtLauncherChooser = new DistributionComboBox(myProject, new SimpleFileChooserInfo());
         jrePathEditor = new JrePathEditor(DefaultJreSelector.projectSdk(myProject));
     }
 
@@ -164,18 +120,15 @@ public class SbtSettingsPane {
         return jrePathEditor.isAlternativeJreSelected();
     }
 
+    public String getLauncherPath() {
+        return DistributionComboBoxUtils.getLocalDistributionInfoPath(sbtLauncherChooser);
+    }
+
     public void setCustomLauncherEnabled(boolean enabled, String launcherPath) {
         DistributionInfo distribution = enabled
                 ? new LocalDistributionInfo(launcherPath)
                 : sbtLauncherBundledDistributionInfo;
         sbtLauncherChooser.setSelectedDistribution(distribution);
-    }
-
-    public String getLauncherPath() {
-        DistributionInfo selectedDistributionInfo = sbtLauncherChooser.getSelectedDistribution();
-        return castSafely(selectedDistributionInfo, LocalDistributionInfo.class)
-                .map(LocalDistributionInfo::getPath)
-                .orElse(null);
     }
 
     public String getCustomVMPath() {
@@ -354,44 +307,4 @@ public class SbtSettingsPane {
         return myContentPanel;
     }
 
-}
-
-class SbtLauncherFileChooserInfo implements FileChooserInfo {
-    @Nullable
-    @Override
-    public String getFileChooserTitle() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String getFileChooserDescription() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public FileChooserDescriptor getFileChooserDescriptor() {
-        return FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
-    }
-
-    @Nullable
-    @Override
-    public Function1<Macro, Boolean> getFileChooserMacroFilter() {
-        return FileChooserInfo.Companion.getDIRECTORY_PATH();
-    }
-}
-
-class SbtLauncherBundledDistributionInfo implements  DistributionInfo {
-    @NotNull
-    @Override
-    public String getName() {
-        return SbtBundle.message("sbt.settings.sbt.launcher.bundled");
-    }
-
-    @Nullable
-    @Override
-    public String getDescription() {
-        return null;
-    }
 }

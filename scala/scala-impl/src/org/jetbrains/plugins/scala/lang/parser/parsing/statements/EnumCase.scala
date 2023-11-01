@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TypeDefinitionParents
  */
 object EnumCase extends ParsingRule {
 
-  import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EnumCase => SingleCase, _}
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -41,7 +41,7 @@ object EnumCase extends ParsingRule {
 
             if (parseMultipleSingletonCases) {
               builder.mark().done(EXTENDS_BLOCK)
-              singleCaseMarker.done(SingleCase)
+              singleCaseMarker.done(EnumSingletonCase)
               builder.disableNewlines()
               while (builder.getTokenType == tCOMMA) {
                 builder.advanceLexer() // consume ,
@@ -49,9 +49,11 @@ object EnumCase extends ParsingRule {
               }
               builder.restoreNewlinesState()
             } else {
+              val previousOffset = builder.getCurrentOffset
               EnumCaseConstr()
+              val hasParameters = builder.getCurrentOffset == previousOffset
               parseParents()
-              singleCaseMarker.done(SingleCase)
+              singleCaseMarker.done(if (hasParameters) EnumSingletonCase else EnumClassCase)
             }
 
             marker.done(EnumCases)
@@ -72,7 +74,7 @@ object EnumCase extends ParsingRule {
         val marker = builder.mark()
         builder.advanceLexer() // Ate identifier
         builder.mark().done(EXTENDS_BLOCK)
-        marker.done(SingleCase)
+        marker.done(EnumSingletonCase)
         true
       case _ =>
         false

@@ -118,7 +118,7 @@ object SimpleExpr extends ParsingRule {
                 isTuple = true
                 builder.advanceLexer()
                 if (!Expr()) {
-                  builder error ErrMsg("wrong.expression")
+                  builder.wrongExpressionError()
                 }
               }
               if (builder.getTokenType == tCOMMA && !builder.consumeTrailingComma(tRPARENTHESIS)) {

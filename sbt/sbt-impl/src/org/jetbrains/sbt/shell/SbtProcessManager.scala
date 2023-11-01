@@ -86,30 +86,32 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
-  private def injectedPlugins(sbtMajorVersion: String): Seq[String] =
-    sbtStructurePlugin(sbtMajorVersion)
-
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
-  private def sbtStructurePlugin(sbtMajorVersion: String): Seq[String] = {
+  private def getInjectedPluginsCommands(
+    sbtBinVersion: Version,
+    sbtStructurePluginBinVersion: Version
+  ): Seq[String] = {
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
     val compilerIndicesEnabled = CompilerIndicesSettings(project).isBytecodeIndexingActive
-    val compilerIndicesPlugin  = compilerIndicesEnabled.seq {
+    val compilerIndicesPlugin = compilerIndicesEnabled.seq {
       val pluginVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
       s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
     }
 
-
-    sbtMajorVersion match {
+    sbtBinVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
-      case _ => Seq(
-        s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-        s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
-      ) ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
+      case _ =>
+        Seq(
+          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion", "$sbtStructurePluginBinVersion")""",
+          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
+        ) ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
     }
   }
+
+  private val IdeaRunIdVmOption = "idea.runid"
 
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
     log.debug("createShellProcessHandler")
@@ -146,7 +148,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
 
     val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
-    val addPluginSupported = addPluginCommandSupported(projectSbtVersion)
+    val addPluginCommandSupported = isAddPluginCommandSupported(projectSbtVersion)
+    log.debug(s"projectSbtVersion = $projectSbtVersion")
+    log.debug(s"autoPluginsSupported = $autoPluginsSupported")
+    log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
@@ -157,8 +162,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     vmParams.addAll(allOpts.asJava)
 
     // don't add runid when using addPluginSbtFile command
-    if (! addPluginSupported)
-      vmParams.add(s"-Didea.runid=$runid")
+    if (!addPluginCommandSupported)
+      vmParams.add(s"-D$IdeaRunIdVmOption=$runid")
 
     // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
     if(SystemInfo.isWindows)
@@ -168,28 +173,30 @@ final class SbtProcessManager(project: Project) extends Disposable {
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
     if (autoPluginsSupported) {
-      val sbtMajorVersion = binaryVersion(projectSbtVersion)
+      val sbtBinVersion = binaryVersion(projectSbtVersion)
+      val sbtStructurePluginBinVersion = structurePluginBinaryVersion(projectSbtVersion)
+      log.debug(s"sbtBinVersion = $sbtBinVersion")
+      log.debug(s"sbtBinVersion = $sbtStructurePluginBinVersion")
 
-      val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion, commandLine.getParametersList)
-      // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
-      globalPluginsDir.mkdirs()
-
-      val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
-
-      val settingsFile =
-        if (addPluginSupported) FileUtil.createTempFile("idea", Sbt.Extension, true)
-        else globalSettingsFile
+      val settingsFile: File =
+        getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, commandLine, sbtBinVersion)
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
-      val plugins = injectedPlugins(sbtMajorVersion.presentation)
-      injectSettings(runid, ! addPluginSupported, settingsFile, pluginResolverSetting +: plugins)
+      val injectPluginsSettings = getInjectedPluginsCommands(sbtBinVersion, sbtStructurePluginBinVersion)
+      val settingsAll = pluginResolverSetting +: injectPluginsSettings
+      injectSettings(
+        runid,
+        !addPluginCommandSupported,
+        settingsFile,
+        settingsAll
+      )
 
-      if (addPluginSupported) {
+      if (addPluginCommandSupported) {
         val settingsPath = settingsFile.getAbsolutePath
         commandLine.addParameter("early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")")
       }
 
-      val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
+      val compilerIndicesPluginLoaded = injectPluginsSettings.exists(_.contains("sbt-idea-compiler-indices"))
       val ideaPort = SbtCompilationSupervisorPort.port
       val ideaPortSetting = if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort ;"
 
@@ -210,6 +217,20 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
     (cpty, debugConnection)
   }
+
+  private def getOrCreateExtraSbtSettingsFile(
+    addPluginCommandSupported: Boolean,
+    commandLine: GeneralCommandLine,
+    sbtBinVersion: Version
+  ): File =
+    if (addPluginCommandSupported)
+      FileUtil.createTempFile("idea", Sbt.Extension, true)
+    else {
+      val globalPluginsDir = globalPluginsDirectory(sbtBinVersion, commandLine.getParametersList)
+      // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
+      globalPluginsDir.mkdirs()
+      new File(globalPluginsDir, "idea.sbt")
+    }
 
   private def getWorkingDirPath(project: Project): String = {
     //Fist try to calculate root path based on `getExternalRootProjectPath`
@@ -355,7 +376,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     // any idea-specific settings should be added conditional on sbt being started from idea
     val guardedSettings =
       if (guardSettings)
-        s"""if (java.lang.System.getProperty("idea.runid", "false") == "$runid") $settingsString else scala.collection.Seq.empty"""
+        s"""if (java.lang.System.getProperty("$IdeaRunIdVmOption", "false") == "$runid") $settingsString else scala.collection.Seq.empty"""
       else settingsString
 
     val content = header + "\n" + guardedSettings

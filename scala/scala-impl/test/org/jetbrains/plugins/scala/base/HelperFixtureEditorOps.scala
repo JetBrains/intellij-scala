@@ -12,12 +12,12 @@ trait HelperFixtureEditorOps {
 
   protected def getProject: Project
 
-  protected final def commitDocumentInEditor(): Unit = {
+  final def commitDocumentInEditor(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(getProject)
     documentManager.commitDocument(getFixture.getEditor.getDocument)
   }
 
-  protected def changePsiAt(offset: Int): Unit = {
+  final def changePsiAt(offset: Int): Unit = {
     val settings = ScalaApplicationSettings.getInstance()
     val oldAutoBraceSettings = settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
     settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false

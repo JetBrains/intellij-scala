@@ -13,6 +13,9 @@ import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage
 
 import scala.util.matching.Regex
 
+/**
+ * For worksheets see `org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor`
+ */
 final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
 
   /** @note for worksheet language substitutions see<br>

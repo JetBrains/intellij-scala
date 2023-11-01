@@ -8,7 +8,9 @@ import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert.fail
 
-class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjectHighlightingLocalProjectsTestBase {
+import java.lang
+
+class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProjectDependenciesDisabled extends SbtProjectHighlightingLocalProjectsTestBase {
 
   override def projectName = "sbt-crossproject-test-project-with-generated-sources"
 
@@ -18,6 +20,12 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjec
     reporter: HighlightingProgressReporter,
   ): Unit =
     doHighlightingForFile(virtualFile, psiFile, reporter)
+
+  override def importProject(skipIndexing: lang.Boolean): Unit = {
+    val projectSettings = getCurrentExternalProjectSettings
+    projectSettings.setInsertProjectTransitiveDependencies(false)
+    super.importProject(skipIndexing)
+  }
 
   //noinspection ScalaUnusedSymbol,TypeAnnotation
   def testProjectStructure(): Unit = {

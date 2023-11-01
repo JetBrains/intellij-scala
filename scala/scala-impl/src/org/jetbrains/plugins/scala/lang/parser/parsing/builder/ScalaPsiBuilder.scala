@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, IndentationWidth}
 import org.jetbrains.plugins.scala.project.ScalaFeatures
-import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 
 trait ScalaPsiBuilder extends PsiBuilder {
 
@@ -51,4 +51,11 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def pushIndentationWidth(width: IndentationWidth): Unit
 
   def popIndentationWidth(): IndentationWidth
+
+  /**
+   * Instead of using this method consider using more specific error when possible
+   */
+  final def wrongExpressionError(): Unit = {
+    error(ErrMsg("wrong.expression"))
+  }
 }

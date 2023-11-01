@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.{MarkersUtils, TypeAnnotationSettings}
 import org.junit.Assert.assertTrue
 
+import java.awt.datatransfer.StringSelection
 import scala.collection.mutable.ArrayBuffer
 
 abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
@@ -20,10 +23,8 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   def fromLangExtension: String = "scala"
 
-  //copy/paste action might involve collection of some information which requires type inference & resolve
-  //(for example see org.jetbrains.plugins.scala.lang.refactoring.Associations.collectAssociations)
-  //files from previous tests might affect this process, so we want to be clean
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _
@@ -74,6 +75,20 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     myFixture.checkResult(normalize(after), true)
   }
 
+  protected def doPasteTest(pastedText: String, to: String, after: String): Unit = {
+    val containsCaretOrSelection = to.contains(Caret) || to.contains(Start) && to.contains(End)
+    assertTrue("Content of target file doesn't contain caret marker or selection markers", containsCaretOrSelection)
+
+    val copyPasteManager = CopyPasteManager.getInstance
+    copyPasteManager.setContents(new StringSelection(pastedText))
+
+    val fileTo = myFixture.configureByText(s"to.scala", to.withNormalizedSeparator)
+    myASTHardRefs += fileTo.getNode
+    myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+
+    myFixture.checkResult(after.withNormalizedSeparator, true)
+  }
+
   /**
    * The test tests that with any existing selection in the editor,
    * when we paste some code the selected code should be removed and replaced with the pasted code.
@@ -89,10 +104,12 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
          |$End""".stripMargin,
       s"""$Caret$Start$tab$empty
          |  $End""".stripMargin,
-      s"""$Caret${Start}print("Existing code 1")$End""",
-      s"""$Caret$Start
-         |  print("Existing code 2")$tab$empty
-         | $End""".stripMargin,
+      //NOTE: after SCL-21664, assumptions mentioned in ScalaDoc of parent method is not the same
+      //Content after the caret can change the semantics of surrounding code
+//      s"""$Caret${Start}print("Existing code 1")$End""",
+//      s"""$Caret$Start
+//         |  print("Existing code 2")$tab$empty
+//         | $End""".stripMargin,
     )
 
     val uniqueToken = System.currentTimeMillis
@@ -100,11 +117,24 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
       val toModified = to.replaceAll(Caret, textWithSelection)
       val fromFileName = s"from-$uniqueToken-$index.$fromLangExtension"
       val toFileName = s"to-$uniqueToken-$index.scala"
-      doTest(from, toModified, after, fromFileName, toFileName)
+      try doTest(from, toModified, after, fromFileName, toFileName) catch {
+        case error: AssertionError =>
+          System.err.println(s"Selection $index: $textWithSelection")
+          throw error
+      }
     }
   }
 
   protected def doTestToEmptyFile(fromText: String, expectedText: String): Unit = {
     doTest(fromText, Caret, expectedText)
+  }
+
+  protected def doTestCutAndPasteDoesNotBreakTheCode(code: String): Unit = {
+    myFixture.configureByText("dummy.scala", code)
+    myFixture.performEditorAction(IdeActions.ACTION_CUT)
+    myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+
+    val (codeWithoutSelection, _) = MarkersUtils.extractMarkers(code, Seq((START, END)), Some(CARET))
+    myFixture.checkResult(codeWithoutSelection, true)
   }
 }

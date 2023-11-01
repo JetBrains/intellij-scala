@@ -44,7 +44,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ClassKeyword
 
-  override protected final def baseIcon: Icon =
+  override protected def baseIcon: Icon =
     if (this.hasAbstractModifier) Icons.ABSTRACT_CLASS
     else Icons.CLASS
 

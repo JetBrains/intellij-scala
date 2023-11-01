@@ -743,4 +743,33 @@ class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
 
     assertNoWarnings(text)
   }
+
+  def testInfixTypeInPattern(): Unit = assertMessages(
+    """
+      |type <>[A, B] = String
+      |
+      |"test" match {
+      |  case _: Int <> Byte => 3
+      |}
+      |
+      |val y@(_: Int <> Byte) = "test"
+      |""".stripMargin,
+    List(
+      Error("<>", "Cannot have infix type directly in typed pattern. Try to surround it with parenthesis."),
+      Error("<>", "Cannot have infix type directly in typed pattern. Try to surround it with parenthesis."),
+    )
+  )
+
+
+  def testInfixTypeInParenInPattern(): Unit = assertNoWarnings(
+    """
+      |type <>[A, B] = String
+      |
+      |"test" match {
+      |  case _: (Int <> Byte) => 3
+      |}
+      |val y@_: Int <> Byte = "test"
+      |val _: Int <> Byte = "test"
+      |""".stripMargin
+  )
 }

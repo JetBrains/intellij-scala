@@ -7,13 +7,15 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
+import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -45,6 +47,7 @@ object SbtUtil {
       ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id).asInstanceOf[SbtSettings]
 
   /** Directory for global sbt plugins given sbt version */
+  @VisibleForTesting
   def globalPluginsDirectory(sbtVersion: Version): File =
     getFileProperty(CommandLineOptions.globalPlugins).getOrElse {
       val base = globalBase(sbtVersion)
@@ -55,19 +58,22 @@ object SbtUtil {
     * otherwise calculate from sbt version.
     */
   def globalPluginsDirectory(sbtVersion: Version, parameters: ParametersList): File = {
+    val maybeCustomDir = customGlobalPluginsDirectory(parameters)
+    maybeCustomDir.getOrElse {
+      globalPluginsDirectory(sbtVersion)
+    }
+  }
+
+  private def customGlobalPluginsDirectory(parameters: ParametersList): Option[File] = {
     val customGlobalPlugins = Option(parameters.getPropertyValue(CommandLineOptions.globalPlugins)).map(new File(_))
     val customGlobalBase = Option(parameters.getPropertyValue(CommandLineOptions.globalBase)).map(new File(_))
     val pluginsUnderCustomGlobalBase = customGlobalBase.map(new File(_, "plugins"))
-
-    customGlobalPlugins
-      .orElse(pluginsUnderCustomGlobalBase)
-      .getOrElse(globalPluginsDirectory(sbtVersion))
+    customGlobalPlugins.orElse(pluginsUnderCustomGlobalBase)
   }
 
   /** Base directory for global sbt settings. */
   def globalBase(version: Version): File =
     getFileProperty(CommandLineOptions.globalBase).getOrElse(defaultVersionedGlobalBase(version))
-
 
   private def getFileProperty(name: String): Option[File] = Option(System.getProperty(name)) flatMap { path =>
     if (path.isEmpty) None else Some(new File(path))
@@ -77,7 +83,12 @@ object SbtUtil {
     defaultGlobalBase / binaryVersion(sbtVersion).presentation
   }
 
-  def binaryVersion(sbtVersion: Version): Version =
+  /**
+   * @return - 0.13 for all 0.13.x versions<br>
+   *         - 1.0 for all 1.x.y versions<br>
+   *         - 2.0 for all 2.x.y versions
+   */
+  def binaryVersion(sbtVersion: Version): Version = {
     // 1.0.0 milestones are regarded as not bincompat by sbt
     if ((sbtVersion ~= Version("1.0.0")) && sbtVersion.presentation.contains("-M"))
       sbtVersion
@@ -86,6 +97,15 @@ object SbtUtil {
       val major = sbtVersion.major(1).presentation
       Version(s"$major.0")
     } else sbtVersion.major(2)
+  }
+
+  def structurePluginBinaryVersion(sbtVersion: Version): Version =
+    if (sbtVersion >= Version("1.3.0"))
+      Version(s"1.3")
+    else if (sbtVersion.major(1) >= Version("1"))
+      Version(s"1.2")
+    else
+      sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)
@@ -160,6 +180,12 @@ object SbtUtil {
       Option(properties.getProperty(name))
     }
 
+  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
+    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
+    sbtProjectDataOpt.map(_.projectTransitiveDependenciesUsed)
+      .getOrElse(SbtProjectSettings.default.insertProjectTransitiveDependencies)
+  }
+
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
@@ -208,12 +234,14 @@ object SbtUtil {
   def getRepoDir: File = getDirInPlugin("repo")
 
   def getSbtStructureJar(sbtVersion: Version): Option[File] = {
-    val binVersion = binaryVersion(sbtVersion)
+    val binVersion = structurePluginBinaryVersion(sbtVersion)
     val structurePath =
       if (binVersion ~= Version("0.13"))
         Some(BuildInfo.sbtStructurePath_0_13)
-      else if (binVersion ~= Version("1.0"))
-        Some(BuildInfo.sbtStructurePath_1_0)
+      else if (binVersion ~= Version("1.3"))
+        Some(BuildInfo.sbtStructurePath_1_3)
+      else if (binVersion > Version("1.0"))
+        Some(BuildInfo.sbtStructurePath_1_2)
       else None
 
     structurePath.map { relativePath =>
@@ -242,6 +270,11 @@ object SbtUtil {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
     file << deep
+  }
+
+  private def getSbtProjectData(project: Project): Option[SbtProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key)
+    dataEither.toSeq.flatten.headOption
   }
 
   private def getDirInPlugin(dirName: String): File = {
@@ -275,7 +308,7 @@ object SbtUtil {
   def sbtVersionParam(sbtVersion: Version): String =
     s"-Dsbt.version=$sbtVersion"
 
-  def addPluginCommandSupported(sbtVersion: Version): Boolean =
+  def isAddPluginCommandSupported(sbtVersion: Version): Boolean =
     sbtVersion >= AddPluginCommandVersion_1 ||
       sbtVersion.inRange(AddPluginCommandVersion_013, Version("1.0.0"))
 

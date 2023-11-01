@@ -10,9 +10,13 @@ import org.junit.Assert.{assertEquals, assertTrue}
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
 
-  override protected def changePsiAt(offset: Int): Unit = {
-    retypeLineAt(offset)
-    super.changePsiAt(offset)
+  protected override def setUp(): Unit = {
+    super.setUp()
+    scalaCompletionTestFixture.setCustomBeforeCompletionListener(() => {
+      val offset = getEditor.getCaretModel.getOffset
+      retypeLineAt(offset)
+      scalaCompletionTestFixture.changePsiAt(offset)
+    })
   }
 
   /**
@@ -38,11 +42,11 @@ abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
 
       caretModel.moveToOffset(lineStart)
 
-      val completionHandler = createSynchronousCompletionHandler(autopopup = true)
+      val completionHandler = scalaCompletionTestFixture.createSynchronousCompletionHandler(autopopup = true)
 
       for (char <- lineStartText) {
         myFixture.`type`(char)
-        commitDocumentInEditor()
+        scalaCompletionTestFixture.commitDocumentInEditor()
 
         completionHandler.invokeCompletion(getProject, editor, 0)
       }

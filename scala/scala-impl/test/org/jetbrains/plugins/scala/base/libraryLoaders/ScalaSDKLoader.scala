@@ -106,7 +106,7 @@ case class ScalaSDKLoader(
 
     inWriteAction {
       val version = Artifact.ScalaCompiler.versionOf(compilerFile)
-      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty)
+      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty, None)
 
       val editor = new ExistingLibraryEditor(library, null)
       editor.setType(ScalaLibraryType())

@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package impl
+package org.jetbrains.plugins.scala.codeInsight.template.impl
 
-import com.intellij.codeInsight.template.{FileTypeBasedContextType, TemplateContextType}
-import com.intellij.psi._
+import com.intellij.codeInsight.template.{FileTypeBasedContextType, TemplateActionContext, TemplateContextType}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 final class ScalaFileTemplateContextType extends FileTypeBasedContextType(
   ScalaLanguage.INSTANCE.getDisplayName,
@@ -18,21 +16,25 @@ object ScalaFileTemplateContextType {
   private[impl] abstract class ElementContextType(@Nls presentableName: String)
     extends TemplateContextType(presentableName) {
 
-    protected def isInContext(offset: Int)
-                             (implicit file: ScalaFile): Boolean
+    protected def isInContextInScalaFile(context: TemplateActionContext)(implicit file: ScalaFile): Boolean
 
-    override final def isInContext(file: PsiFile, offset: Int): Boolean = file match {
-      case scalaFile: ScalaFile => isInContext(offset)(scalaFile)
-      case _ => false
-    }
+    override final def isInContext(context: TemplateActionContext): Boolean =
+      context.getFile match {
+        case scalaFile: ScalaFile =>
+          isInContextInScalaFile(context)(scalaFile)
+        case _ =>
+          false
+      }
   }
 
   //noinspection ConvertibleToMethodValue
-  private[impl] def isInContext[T <: ScalaPsiElement](offset: Int, clazz: Class[T])
-                                                     (predicate: T => Boolean = Function.const(true) _)
-                                                     (implicit file: ScalaFile): Boolean =
-    util.PsiTreeUtil.getParentOfType(file.findElementAt(offset), clazz) match {
-      case null => false
-      case parent => predicate(parent)
-    }
+  private[impl] def isInContext[T <: ScalaPsiElement](
+    context: TemplateActionContext,
+    clazz: Class[T]
+  )(
+    predicate: T => Boolean = (x: T) => true
+  )(implicit file: ScalaFile): Boolean = {
+    val parent = PsiTreeUtil.getParentOfType(file.findElementAt(context.getStartOffset), clazz)
+    parent != null &&  predicate(parent)
+  }
 }
