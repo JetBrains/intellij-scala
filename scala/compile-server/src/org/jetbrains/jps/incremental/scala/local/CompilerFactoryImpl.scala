@@ -175,8 +175,8 @@ object CompilerFactoryImpl {
         else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
         else compilerBridges.scala._2_13
 
-      val interfaceId = s"compiler-interface-${scalaVersion.presentation}-$javaClassVersion"
-      val targetJar = new File(home, interfaceId + ".jar")
+      val bridgeFileName = s"compiler-bridge-${scalaVersion.presentation}-$javaClassVersion"
+      val targetJar = new File(home, s"$bridgeFileName.jar")
 
       if (!targetJar.exists) {
         client.foreach(_.progress(CompileServerBundle.message("compiling.scalac.interface", scalaVersion)))
@@ -186,7 +186,7 @@ object CompilerFactoryImpl {
           Seq(sourceJar.toPath),
           targetJar.toPath,
           interfaceJars.map(_.toPath),
-          interfaceId,
+          id = bridgeFileName,
           raw,
           NullLogger
         )
