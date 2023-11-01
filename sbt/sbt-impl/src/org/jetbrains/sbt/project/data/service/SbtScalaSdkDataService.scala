@@ -3,8 +3,8 @@ package org.jetbrains.sbt.project.data.service
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project.LibraryExt
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
@@ -55,25 +55,25 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
   )(
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    val rootModel = modelsProvider.getModifiableRootModel(module)
-    val scalaSDKForSpecificVersion = modelsProvider.getModifiableProjectLibrariesModel
-      .getLibraries
-      .find { lib => lib.getName == s"sbt: scala-sdk-$compilerVersion" && lib.isScalaSdk }
-    scalaSDKForSpecificVersion match {
-      case Some(existingScalaSdkLibrary) =>
-        ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, existingScalaSdkLibrary, scalacClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
-        rootModel.addLibraryEntry(existingScalaSdkLibrary)
-      case None =>
-        val tableModel = modelsProvider.getModifiableProjectLibrariesModel
-        val scalaSdkLibrary = tableModel.createLibrary(s"sbt: scala-sdk-$compilerVersion")
-        ScalaSdkUtils.convertScalaLibraryToScalaSdk(
-          modelsProvider,
-          scalaSdkLibrary,
-          scalacClasspath,
-          scaladocExtraClasspath,
-          compilerBridgeBinaryJar
-        )
-        rootModel.addLibraryEntry(scalaSdkLibrary)
+    val scalaSDKLibraryName = s"sbt: scala-sdk-$compilerVersion"
+    val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries
+    val existingScalaSDKForSpecificVersion = libraries.find { lib =>
+      lib.getName == scalaSDKLibraryName && lib.isScalaSdk
     }
+    val scalaSdkLibrary = existingScalaSDKForSpecificVersion.getOrElse {
+      val tableModel = modelsProvider.getModifiableProjectLibrariesModel
+      tableModel.createLibrary(scalaSDKLibraryName)
+    }
+    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
+      modelsProvider,
+      scalaSdkLibrary,
+      scalaSdkLibrary.libraryVersion,
+      scalacClasspath,
+      scaladocExtraClasspath,
+      compilerBridgeBinaryJar
+    )
+
+    val rootModel = modelsProvider.getModifiableRootModel(module)
+    rootModel.addLibraryEntry(scalaSdkLibrary)
   }
 }

@@ -84,12 +84,12 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val scalaLibrariesInProject = modelsProvider.getAllLibraries.filter(_.hasRuntimeLibrary).toSet
     if (scalaLibrariesInProject.nonEmpty) {
       val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.libraryVersion.contains(compilerVersion))
-
       scalaLibraryWithSameVersion match {
         case Some(library) =>
           ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
             modelsProvider,
             library,
+            library.libraryVersion,
             compilerClasspath,
             scaladocExtraClasspath = Nil, // TODO SCL-17219
             None //TODO: support it for Gradle (or maybe just implement a generic resolver)

@@ -12,87 +12,17 @@ object ScalaSdkUtils {
   def ensureScalaLibraryIsConvertedToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,
     library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    compilerBridgeBinaryJar: Option[File],
-  ): Unit = {
-    if (!library.isScalaSdk) {
-      // library created but not yet marked as Scala SDK
-      ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
-    }
-    else {
-      ScalaSdkUtils.updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
-    }
-  }
-
-  def ensureScalaLibraryIsConvertedToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
     maybeVersion: Option[String],
-    compilerBridgeBinaryJar: Option[File],
-  ): Unit = {
-    if (!library.isScalaSdk) {
-      // library created but not yet marked as Scala SDK
-      convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion, compilerBridgeBinaryJar)
-    }
-    else {
-      updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, maybeVersion, compilerBridgeBinaryJar)
-    }
-  }
-
-  def convertScalaLibraryToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
-    compilerBridgeBinaryJar: Option[File]
-  ): Unit = {
-    convertScalaLibraryToScalaSdk(
-      modelsProvider,
-      library,
-      compilerClasspath,
-      scaladocExtraClasspath,
-      library.libraryVersion,
-      compilerBridgeBinaryJar
-    )
-  }
-
-  private def convertScalaLibraryToScalaSdk(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String],
-    compilerBridgeBinaryJar: Option[File]
-  ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
-    val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
-    model.setKind(ScalaLibraryType.Kind)
-    model.setProperties(properties)
-  }
-
-  private def updateScalaLibraryProperties(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    compilerBridgeBinaryJar: Option[File],
-  ): Unit = {
-    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion, compilerBridgeBinaryJar)
-  }
-
-  private def updateScalaLibraryProperties(
-    modelsProvider: IdeModifiableModelsProvider,
-    library: Library,
-    compilerClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File],
-    maybeVersion: Option[String],
     compilerBridgeBinaryJar: Option[File],
   ): Unit = {
     val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
-    val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
-    model.setProperties(properties)
+    val modifiableModel = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
+    if (!library.isScalaSdk) {
+      modifiableModel.setKind(ScalaLibraryType.Kind)
+    }
+    //NOTE: must be called after `setKind` because later resets the properties
+    modifiableModel.setProperties(properties)
   }
 }
