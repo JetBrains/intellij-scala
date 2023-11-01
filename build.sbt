@@ -436,12 +436,12 @@ lazy val repackagedZinc =
       packageAssembleLibraries := true,
       shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
       packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
-      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.zincInterface, Dependencies.sbtInterface),
+      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.compilerInterface, Dependencies.sbtInterface),
       // We package and ship these jars separately. They are also transitive dependencies of `zinc`.
       // These mappings ensure that the transitive dependencies are not packaged into the assembled
       // `incremental-compiler.jar`, which leads to a bloated classpath with repeated classes.
       packageLibraryMappings ++= Seq(
-        Dependencies.zincInterface -> None,
+        Dependencies.compilerInterface -> None,
         Dependencies.sbtInterface -> None
       )
     )

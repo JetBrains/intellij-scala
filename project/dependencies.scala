@@ -119,8 +119,7 @@ object Dependencies {
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.1"
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
-  /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
-  val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
+  val compilerInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
