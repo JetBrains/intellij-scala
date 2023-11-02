@@ -1,6 +1,6 @@
 object O {
   1 +
-  <begin>1<end>
+  <selection>1</selection>
 }
 ------
 object O {

@@ -1,7 +1,7 @@
 class A {
   1 match {
     case x =>
-      1 + <begin>1<end>
+      1 + <selection>1</selection>
   }
 }
 -------

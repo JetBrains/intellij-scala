@@ -2,12 +2,12 @@ object PatternMatchingMain {
 
   def main(args: Array[String]): Unit = {
 
-    <begin>0 match {
+    <selection>0 match {
       case 0 => "zero"
       case 1 => "one"
       case 2 => "two"
       case _ => "other"
-    }<end>
+    }</selection>
   }
 }
 ------

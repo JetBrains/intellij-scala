@@ -1,5 +1,5 @@
 object O {
-  def foo = println(<begin>42<end>)
+  def foo = println(<selection>42</selection>)
 }
 ------
 object O {

@@ -1,7 +1,8 @@
+//### replaceAll=true
 //I
 class A {
 
-  val a: <all>Int<end> = 45
+  val a: <selection>Int</selection> = 45
   class B {
     type I = Int
     val q: I = 45

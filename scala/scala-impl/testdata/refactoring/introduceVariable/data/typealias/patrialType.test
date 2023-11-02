@@ -1,6 +1,6 @@
 //Ints
 object My {
-  val t: <begin>List<end>[Int] = List(4)
+  val t: <selection>List</selection>[Int] = List(4)
 }
 -------------
 Expression or type element should be selected

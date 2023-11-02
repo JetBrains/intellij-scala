@@ -1,6 +1,6 @@
 // SCL-2091
 class A {
-  def foo = 1 + <begin>1<end>
+  def foo = 1 + <selection>1</selection>
 }
 -------
 // SCL-2091

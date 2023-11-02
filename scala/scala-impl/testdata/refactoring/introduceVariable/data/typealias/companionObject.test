@@ -1,6 +1,6 @@
-//name=D
+//### name=D, replaceInCompanionObject=true
 object My {
-  val t: <companion>Double<end> = 45.0
+  val t: <selection>Double</selection> = 45.0
 }
 
 class My {

@@ -1,6 +1,7 @@
+//### replaceAll=true
 object O {
   def foo() {
-    List(0).map(x => (<all>x + 1<end>) * (x + 1)).map(x => x + 1)
+    List(0).map(x => (<selection>x + 1</selection>) * (x + 1)).map(x => x + 1)
   }
 }
 ------

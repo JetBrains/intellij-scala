@@ -1,5 +1,5 @@
 //I
-val t:List[<begin>Int<end>] = List(45)
+val t:List[<selection>Int</selection>] = List(45)
 
 if ( {
   type I = Int

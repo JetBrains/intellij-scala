@@ -1,6 +1,6 @@
 class a {
   def foo(): Unit = {
-    <begin>123<end>
+    <selection>123</selection>
   }
 }
 ------

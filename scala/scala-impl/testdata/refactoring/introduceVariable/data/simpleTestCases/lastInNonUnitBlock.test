@@ -1,6 +1,6 @@
 class a {
   def foo(): Int = {
-    <begin>2<end>
+    <selection>2</selection>
   }
 }
 ------

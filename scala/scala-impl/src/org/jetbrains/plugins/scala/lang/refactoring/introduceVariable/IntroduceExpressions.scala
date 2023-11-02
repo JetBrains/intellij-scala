@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring._
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
@@ -105,16 +106,13 @@ trait IntroduceExpressions {
     SuggestedNames(expr, types, validator).names
   }
 
-  def runRefactoring(
+  private def runRefactoring(
     occurrences: OccurrencesInFile,
     expression: ScExpression,
-    varName: String,
-    varType: ScType,
-    replaceAllOccurrences: Boolean,
-    isVariable: Boolean
+    options: IntroduceVariableOptions
   )(implicit project: Project, editor: Editor): Unit = {
     executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
-      runRefactoringInside(occurrences, expression, varName, varType, replaceAllOccurrences, isVariable, fromDialogMode = true) // this for better debug
+      runRefactoringInside(occurrences, expression, options, fromDialogMode = true) // this for better debug
     }
     editor.getSelectionModel.removeSelection()
   }
@@ -129,7 +127,8 @@ trait IntroduceExpressions {
       executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
         val SuggestedNames(expression, types, names) = suggestedNames
         val reference: SmartPsiElementPointer[PsiElement] = inWriteAction {
-          runRefactoringInside(occurrences, expression, names.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)
+          val options = IntroduceVariableOptions(names.head, types.head, replaceAll, isVariable = false)
+          runRefactoringInside(occurrences, expression, options, fromDialogMode = false)
         }
         performInplaceRefactoring(reference.getElement, types.headOption, replaceAll, forceInferType(expression), names)
       }
@@ -157,12 +156,13 @@ trait IntroduceExpressions {
     val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names.toArray, expression)
 
     this.runWithDialogImpl(dialog, occurrences_) { dialog =>
-      runRefactoring(occurrences, suggestedNames.expression,
+      val options = IntroduceVariableOptions(
         varName = dialog.getEnteredName,
         varType = dialog.getSelectedType,
         replaceAllOccurrences = dialog.isReplaceAllOccurrences,
         isVariable = dialog.isDeclareVariable
       )
+      runRefactoring(occurrences, suggestedNames.expression, options)
     }
   }
 
@@ -171,19 +171,17 @@ trait IntroduceExpressions {
                               (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val SuggestedNames(_, types, names) = suggestedNames
 
-    val varName =
-      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedDefinitionNameDataKey)).getOrElse(names.head)
-    val replaceAllOccurrences =
-      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceAllOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
+    val testReplaceOptions = Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceTestOptions))
+    val varName = testReplaceOptions.flatMap(_.definitionName).getOrElse(names.head)
+    val replaceOptions: ReplaceOptions = testReplaceOptions.map(_.toProductionReplaceOptions).getOrElse(ReplaceOptions.DefaultInTests)
 
-    runRefactoring(
-      occurrences = occurrences,
-      expression = suggestedNames.expression,
+    val options = IntroduceVariableOptions(
       varName = varName,
       varType = types.head,
-      replaceAllOccurrences = replaceAllOccurrences,
+      replaceAllOccurrences = replaceOptions.replaceAllOccurrences,
       isVariable = false
     )
+    runRefactoring(occurrences, suggestedNames.expression, options)
   }
 }
 
@@ -245,18 +243,23 @@ object IntroduceExpressions {
 
   private def forceInferType(expression: ScExpression) = expression.isInstanceOf[ScFunctionExpr]
 
+  private case class IntroduceVariableOptions(
+    varName: String,
+    varType: ScType,
+    replaceAllOccurrences: Boolean,
+    isVariable: Boolean
+  )
+
   //returns smart pointer to ScDeclaredElementsHolder or ScForBinding
-  private def runRefactoringInside(occurrencesInFile: OccurrencesInFile,
-                                   expression: ScExpression,
-                                   varName: String,
-                                   varType: ScType,
-                                   replaceAllOccurrences: Boolean,
-                                   isVariable: Boolean,
-                                   fromDialogMode: Boolean)
-                                  (implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
+  private def runRefactoringInside(
+    occurrencesInFile: OccurrencesInFile,
+    expression: ScExpression,
+    options: IntroduceVariableOptions,
+    fromDialogMode: Boolean
+  )(implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
     val OccurrencesInFile(file, mainRange, occurrences_) = occurrencesInFile
 
-    val occurrences = if (replaceAllOccurrences) occurrences_ else Seq(mainRange)
+    val occurrences = if (options.replaceAllOccurrences) occurrences_ else Seq(mainRange)
     val mainOccurrence = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
 
     val copy = expressionToIntroduce(expression)
@@ -265,9 +268,9 @@ object IntroduceExpressions {
     def needsTypeAnnotation(element: PsiElement) =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(element, copy, forceType, fromDialogMode)
 
-    val maybeTypeText = Option(varType).map(_.canonicalCodeText)
+    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText)
 
-    runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, varName, isVariable, forceType) { element =>
+    runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, options.varName, options.isVariable, forceType) { element =>
       maybeTypeText
         .filter(_ => needsTypeAnnotation(element))
         .getOrElse("")

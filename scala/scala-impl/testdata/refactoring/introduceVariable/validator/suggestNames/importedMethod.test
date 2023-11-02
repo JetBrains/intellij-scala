@@ -7,7 +7,7 @@ class Bar
 object Bar {
   import Foo.bar
 
-  <begin>bar("baz")<end>.toString
+  <selection>bar("baz")</selection>.toString
 }
 -----
 bar1

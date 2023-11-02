@@ -2,8 +2,8 @@ class a {
   for {
     x <- Option(1)
     y <- Option(
-      <begin>"""one
-        |two""".stripMargin<end>
+      <selection>"""one
+        |two""".stripMargin</selection>
     )
   } yield x
 }

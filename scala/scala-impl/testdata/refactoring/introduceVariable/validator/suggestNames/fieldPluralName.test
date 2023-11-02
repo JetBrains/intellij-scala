@@ -3,7 +3,7 @@ case class Test(value: Int)
 object Main extends App {
   val tests: List[Test] = List(1, 2, 3, 4, 5).map(Test)
   val evenTests = tests.filter(_.value % 2 == 0)
-  val oddValues: List[Int] = <begin>tests.filter(_.value % 2 == 1)<end>.map(_.value)
+  val oddValues: List[Int] = <selection>tests.filter(_.value % 2 == 1)</selection>.map(_.value)
 }
 -----
 tests1

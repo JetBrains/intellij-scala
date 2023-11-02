@@ -1,4 +1,4 @@
-if (true) <begin>false<end>
+if (true) <selection>false</selection>
 ------
 if (true) {
   val value: Boolean = false

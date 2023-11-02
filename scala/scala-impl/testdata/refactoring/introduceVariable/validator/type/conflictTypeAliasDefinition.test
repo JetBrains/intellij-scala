@@ -1,7 +1,7 @@
 //T
 object My{
   type T = Int
-  val t:<begin>T<end> = 34
+  val t:<selection>T</selection> = 34
 }
 ------
 Introduced type alias conflicts with type name: T

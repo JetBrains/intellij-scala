@@ -4,9 +4,9 @@ class A {
     val condition2 = true
     val condition3 = true
 
-    if (<begin>condition1 &&
+    if (<selection>condition1 &&
       condition2 &&
-      condition3<end>) {}
+      condition3</selection>) {}
   }
 }
 -------

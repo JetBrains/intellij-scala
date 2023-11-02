@@ -6,9 +6,9 @@ class A {
 
     for {
       _ <- List(1, 2, 3)
-      if (<begin>condition1
+      if (<selection>condition1
         && condition2
-        && condition3<end>)
+        && condition3</selection>)
     } yield ???
   }
 }

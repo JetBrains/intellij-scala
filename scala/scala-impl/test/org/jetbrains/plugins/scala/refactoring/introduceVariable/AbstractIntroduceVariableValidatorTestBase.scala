@@ -1,89 +1,67 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.{Editor, SelectionModel}
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil.{findCommonParent, getParentOfType}
-import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
 import org.jetbrains.plugins.scala.lang.refactoring.util._
-import org.jetbrains.plugins.scala.util.TestUtils._
-
-import scala.annotation.nowarn
 
 abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
   extends ActionTestBase("/refactoring/introduceVariable/validator/" + kind) {
 
-  protected var myEditor: Editor = _
-  protected var fileEditorManager: FileEditorManager = _
-  protected var myFile: PsiFile = _
-
   import AbstractIntroduceVariableValidatorTestBase._
 
-  protected def removeAllMarker(text: String): String = {
-    val index = text.indexOf(ALL_MARKER)
-    myOffset = index - 1
-    text.substring(0, index) + text.substring(index + ALL_MARKER.length)
+  protected def language: Language = ScalaLanguage.INSTANCE
+
+  protected var myFixture: ScalaIntroduceVariableTestFixture = _
+
+  override protected def setUp(project: Project): Unit = {
+    super.setUp(project)
+    myFixture = new ScalaIntroduceVariableTestFixture(project, None, language = language)
+    myFixture.setUp()
   }
 
-  protected def fileExtension: String = "scala"
-
-  protected override def transform(testName: String,
-                                   fileText: String,
-                                   project: Project): String = {
-    var replaceAllOccurrences = false
-    var testFileText = fileText
-    var startOffset = testFileText.indexOf(BEGIN_MARKER)
-    if (startOffset < 0) {
-      startOffset = testFileText.indexOf(ALL_MARKER)
-      replaceAllOccurrences = true
-      testFileText = removeAllMarker(testFileText)
-    }
-    else {
-      replaceAllOccurrences = false
-      testFileText = removeBeginMarker(testFileText)
-    }
-    val endOffset = testFileText.indexOf(END_MARKER)
-    testFileText = removeEndMarker(testFileText)
-
-    val fileName = s"dummy.$fileExtension"
-
-    //noinspection ScalaDeprecation (It's ok to rely on auto-file type detection from file name in tests)
-    myFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, testFileText): @nowarn("cat=deprecation")
-    val virtualFile = myFile.getViewProvider.getVirtualFile
-
-    fileEditorManager = FileEditorManager.getInstance(project)
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, virtualFile, 0), false)
-    myEditor.getSelectionModel.setSelection(startOffset, endOffset)
-
-    try {
-      doTest(replaceAllOccurrences, testFileText, project)
-    } finally {
-      fileEditorManager.closeFile(virtualFile)
-      myEditor = null
-    }
+  override protected def tearDown(project: Project): Unit = {
+    myFixture.tearDown()
+    super.tearDown(project)
   }
 
-  protected def doTest(replaceAllOccurrences: Boolean, fileText: String,
-                       project: Project): String = {
-    val maybeValidator = getValidator(myFile)(project, myEditor)
-    maybeValidator.toSeq
-      .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
-      .map(_._2)
-      .toSet[String]
-      .mkString("\n")
+  protected override def transform(
+    testName: String,
+    testFileText: String,
+    project: Project
+  ): String = {
+    val (fileTextNew, options) = IntroduceVariableUtils.extractNameFromLeadingComment(testFileText)
+    myFixture.configureFromText(fileTextNew)
+
+    val replaceAllOccurrences = options.replaceAllOccurrences.getOrElse(ReplaceOptions.DefaultInTests.replaceAllOccurrences)
+
+    doTest(replaceAllOccurrences, fileTextNew, project)
+  }
+
+  protected def doTest(
+    replaceAllOccurrences: Boolean,
+    fileText: String,
+    project: Project
+  ): String = {
+    val maybeValidator = getValidator(myFixture.psiFile)(project, myFixture.editor)
+    val conflicts = maybeValidator.toSeq.flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
+    conflicts.map(_._2).toSet.mkString("\n")
   }
 
   protected def getName(fileText: String): String
 }
 
 object AbstractIntroduceVariableValidatorTestBase {
-  private val ALL_MARKER = "<all>"
 
   def getValidator(file: PsiFile)
                   (implicit project: Project, editor: Editor): Option[ScalaValidator] = {

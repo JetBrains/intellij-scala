@@ -1,8 +1,9 @@
+//### replaceAll=true
 class a {
   def foo() = {
     val inj = ""
     val y = s"test$inj test$inj"
-    <all>s"test$inj"<end>
+    <selection>s"test$inj"</selection>
   }
 }
 ------

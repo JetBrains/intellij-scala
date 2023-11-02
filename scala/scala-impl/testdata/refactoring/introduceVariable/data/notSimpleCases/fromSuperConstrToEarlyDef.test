@@ -1,6 +1,7 @@
+//### replaceAll=true
 class B(i: Int)
 
-class A(s: Seq[Int]) extends B(<all>s.size<end>) {
+class A(s: Seq[Int]) extends B(<selection>s.size</selection>) {
   s.size
 }
 ------

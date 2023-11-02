@@ -4,4 +4,4 @@ greetings("Name 2")<caret>
 ------
 def greetings(name: String): String = s"Hello, $name"
 greetings("Name 1")
-val str: String = greetings("Name 2")
+val value: String = greetings("Name 2")

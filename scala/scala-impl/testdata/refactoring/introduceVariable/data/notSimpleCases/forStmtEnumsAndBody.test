@@ -1,9 +1,10 @@
+//### replaceAll=true
 val list = List(1, 2)
 for {
   i <- list
   j <- list
   if i * j % 3 == 0
-} yield <all>i * j<end>
+} yield <selection>i * j</selection>
 ------
 val list = List(1, 2)
 for {

@@ -1,6 +1,6 @@
-//name=I
+//### name=I
 object My {
-  val t: <begin>Int<end> = 23
+  val t: <selection>Int</selection> = 23
 }
 -----------
 object My {

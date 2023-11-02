@@ -3,6 +3,19 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 object OccurrenceData {
+  case class ReplaceOptions(
+    replaceAllOccurrences: Boolean,
+    replaceOccurrencesInCompanionObjects: Boolean,
+    replaceOccurrencesInInheritors: Boolean,
+  )
+
+  object ReplaceOptions {
+    val DefaultInTests: ReplaceOptions = ReplaceOptions(
+      replaceAllOccurrences = false,
+      replaceOccurrencesInCompanionObjects = false,
+      replaceOccurrencesInInheritors = false
+    )
+  }
 
   def apply(
     typeElement: ScTypeElement,
@@ -27,26 +40,39 @@ object OccurrenceData {
     isReplaceOccurrenceInInheritors: Boolean,
     scopeItem: ScopeItem
   ): OccurrenceData = {
+    val options = ReplaceOptions(
+      replaceAllOccurrences = isReplaceAllUsual,
+      replaceOccurrencesInCompanionObjects = isReplaceOccurrenceInCompanionObject,
+      replaceOccurrencesInInheritors = isReplaceOccurrenceInInheritors
+    )
+    apply(typeElement, options, scopeItem)
+  }
+
+  def apply(
+    typeElement: ScTypeElement,
+    options: ReplaceOptions,
+    scopeItem: ScopeItem
+  ): OccurrenceData = {
     scopeItem match {
       case simpleScope: SimpleScopeItem =>
         new OccurrenceData(
           typeElement,
-          simpleScope.usualOccurrences,
-          isReplaceAllUsual,
-          simpleScope.occurrencesInCompanion,
-          isReplaceOccurrenceInCompanionObject,
-          simpleScope.occurrencesFromInheritors,
-          isReplaceOccurrenceInInheritors
+          usualOccurrence = simpleScope.usualOccurrences,
+          isReplaceAllUsual = options.replaceAllOccurrences,
+          companionObjOccurrence = simpleScope.occurrencesInCompanion,
+          isReplaceInCompanion = options.replaceOccurrencesInCompanionObjects,
+          extendedClassOccurrence = simpleScope.occurrencesFromInheritors,
+          isReplaceInExtendedClasses = options.replaceOccurrencesInInheritors
         )
       case packageScope: PackageScopeItem =>
         new OccurrenceData(
           typeElement,
-          packageScope.occurrences,
-          isReplaceAllUsual,
-          Array[ScTypeElement](),
-          isReplaceOccurrenceInCompanionObject,
-          Array[ScTypeElement](),
-          isReplaceOccurrenceInInheritors
+          usualOccurrence = packageScope.occurrences,
+          isReplaceAllUsual = options.replaceAllOccurrences,
+          companionObjOccurrence = Array[ScTypeElement](),
+          isReplaceInCompanion = options.replaceOccurrencesInCompanionObjects,
+          extendedClassOccurrence = Array[ScTypeElement](),
+          isReplaceInExtendedClasses = options.replaceOccurrencesInInheritors
         )
     }
   }

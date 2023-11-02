@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    <begin>x<end>("balletik")
+    <selection>x</selection>("balletik")
   }
   val x: (Any => Boolean) = _.isInstanceOf[String]
 }

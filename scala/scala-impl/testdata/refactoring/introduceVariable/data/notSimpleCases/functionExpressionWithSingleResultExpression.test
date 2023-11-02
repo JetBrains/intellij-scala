@@ -1,5 +1,5 @@
 class A {
-  (a: Any) => 1 + <begin>1<end>
+  (a: Any) => 1 + <selection>1</selection>
 }
 -------
 class A {

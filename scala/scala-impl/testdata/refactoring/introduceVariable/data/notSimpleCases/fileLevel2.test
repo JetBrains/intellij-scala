@@ -1,5 +1,5 @@
 val x: Int = 33
-<begin>x + 1<end> + 1
+<selection>x + 1</selection> + 1
 ------
 val x: Int = 33
 val value: Int = x + 1

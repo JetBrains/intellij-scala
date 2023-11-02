@@ -1,5 +1,6 @@
+//### replaceAll=true
 val x: Int => Int = { i =>
-  val c = 2 + <all>2<end>
+  val c = 2 + <selection>2</selection>
   i + c + 2
 }
 ------

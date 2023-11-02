@@ -1,5 +1,5 @@
 case class A(i: Int) {
-  val a = A(i = <begin>1<end>)
+  val a = A(i = <selection>1</selection>)
 }
 ------
 case class A(i: Int) {

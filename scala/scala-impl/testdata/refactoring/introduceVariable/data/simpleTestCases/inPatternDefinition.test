@@ -1,5 +1,5 @@
 class a {
-  val x = <begin>1<end>
+  val x = <selection>1</selection>
 }
 ------
 class a {

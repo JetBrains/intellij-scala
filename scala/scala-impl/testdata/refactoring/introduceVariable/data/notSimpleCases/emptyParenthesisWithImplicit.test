@@ -4,7 +4,7 @@ class a {
     def too(implicit i: Int) = 1
   }
   def bar(): Unit = {
-    <begin>tre.too<end>
+    <selection>tre.too</selection>
   }
 }
 ------

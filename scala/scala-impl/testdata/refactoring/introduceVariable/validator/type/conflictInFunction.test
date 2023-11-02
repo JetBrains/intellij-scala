@@ -1,6 +1,7 @@
+//### replaceAll=true
 //I
 object My{
-  val t: <all>Int<end> = 45
+  val t: <selection>Int</selection> = 45
   class A{
     val j:Int = 23
   }

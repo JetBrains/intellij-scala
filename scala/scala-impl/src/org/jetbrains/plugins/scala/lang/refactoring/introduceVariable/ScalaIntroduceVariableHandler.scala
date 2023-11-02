@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
 import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
@@ -104,7 +105,22 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 object ScalaIntroduceVariableHandler {
   val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
 
-  @TestOnly val ForcedDefinitionNameDataKey: DataKey[String] = DataKey.create("ForcedDefinitionNameDataKey")
-  @TestOnly val ForcedReplaceAllOccurrencesKey: DataKey[java.lang.Boolean] = DataKey.create("ForcedReplaceAllOccurrencesKey")
-  @TestOnly val ForcedReplaceCompanionObjOccurrencesKey: DataKey[java.lang.Boolean] = DataKey.create("ForcedReplaceCompanionObjOccurrencesKey")
+  @TestOnly
+  case class ReplaceTestOptions(
+    definitionName: Option[String] = None,
+    replaceAllOccurrences: Option[Boolean] = None,
+    replaceOccurrencesInCompanionObjects: Option[Boolean] = None,
+    replaceOccurrencesInInheritors: Option[Boolean] = None,
+  ) {
+    def toProductionReplaceOptions: ReplaceOptions = {
+      val default = ReplaceOptions.DefaultInTests
+      ReplaceOptions(
+        replaceAllOccurrences.getOrElse(default.replaceAllOccurrences),
+        replaceOccurrencesInCompanionObjects.getOrElse(ReplaceOptions.DefaultInTests.replaceOccurrencesInCompanionObjects),
+        replaceOccurrencesInInheritors.getOrElse(ReplaceOptions.DefaultInTests.replaceOccurrencesInInheritors)
+      )
+    }
+  }
+
+  @TestOnly val ForcedReplaceTestOptions: DataKey[ReplaceTestOptions] = DataKey.create("ForcedReplaceTestOptions")
 }
