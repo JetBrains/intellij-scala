@@ -138,6 +138,19 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
        """.stripMargin
     doTest(code)
   }
+
+  def testCaseClassOnClass(): Unit = doTestWithDifferentCarets(
+    s"""
+       |case class ${start}Blub$end(a: Int)
+       |
+       |val a = ${start}B${multiCaret(0)}l${multiCaret(1)}ub$end(42)
+       |val b = new ${start}Blub$end(43)
+       |val ${start}Bl${multiCaret(2)}ub$end(c) = a
+       |
+       |for (${start}Bl${multiCaret(3)}ub$end(d) <- Option(b)) {
+       |}
+       |""".stripMargin
+  )
 }
 
 

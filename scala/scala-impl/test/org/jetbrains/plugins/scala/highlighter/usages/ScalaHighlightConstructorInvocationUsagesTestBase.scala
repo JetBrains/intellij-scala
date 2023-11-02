@@ -14,7 +14,7 @@ abstract class ScalaHighlightConstructorInvocationUsagesTestBase
 
   protected def doTest(fileText: String): Unit = {
     val (fileTextWithoutMarkers, expectedRanges) = MarkersUtils.extractMarker(fileText, caretMarker = Some(CARET))
-    val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
+    val file = myFixture.configureByText(s"${fileText.hashCode}.scala", fileTextWithoutMarkers)
     val finalFileText = file.getText
 
     val editor = myFixture.getEditor
@@ -27,6 +27,28 @@ abstract class ScalaHighlightConstructorInvocationUsagesTestBase
     val actual = rangeSeqToComparableString(actualRanges, finalFileText)
 
     assertEquals(expected, actual)
+  }
+
+  protected def multiCaret(i: Int): String = s"$$multiCaret$i$$"
+  private val caretPattern = """\$multiCaret\d+\$""".r
+
+  protected def doTestWithDifferentCarets(fileText: String): Unit = {
+    val tests =
+      Iterator.from(0)
+        .takeWhile(i => fileText.contains(multiCaret(i)))
+        .map(i => fileText.replace(multiCaret(i), CARET))
+        .map(caretPattern.replaceAllIn(_, ""))
+        .toSeq
+
+    class InnerException(i: Int, e: Throwable) extends Exception(s"Test failed on caret $i", e)
+
+    for ((test, idx) <- tests.zipWithIndex) {
+      try {
+        doTest(test)
+      } catch {
+        case e: Throwable => throw new InnerException(idx, e)
+      }
+    }
   }
 
   private def rangeSeqToComparableString(ranges: Seq[TextRange], fileText: String): String =

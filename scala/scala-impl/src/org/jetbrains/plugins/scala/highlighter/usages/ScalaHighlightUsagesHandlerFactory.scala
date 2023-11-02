@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
-import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory.{ReferenceToCaseClassApplyOrUnapply, implicitHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScEnd, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
@@ -125,6 +125,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
           case ScConstructorInvocation.byReference(constr) => return new ScalaHighlightConstructorInvocationUsages(constr, file, editor)
           case ref@ScConstructorInvocation.byUniversalApply(_) => return new ScalaHighlightConstructorInvocationUsages(Option(ref), file, editor)
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
+          case ref@ReferenceToCaseClassApplyOrUnapply(cc) => return new ScalaHighlightCaseClassHandler(ref, cc, file, editor)
           case ref: ScReference => return implicitHighlighter(editor, file, ref)
           case _ =>
         }
@@ -139,15 +140,25 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
     }
     null
   }
-
-  private def implicitHighlighter[T: TargetKind](editor: Editor,
-                                                 file: PsiFile,
-                                                 data: T): ScalaHighlightImplicitUsagesHandler[T] =
-    if (implicitHighlightingEnabled.value) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
-    else null
-
 }
 
 object ScalaHighlightUsagesHandlerFactory {
   val implicitHighlightingEnabled: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(true)
+
+  private def implicitHighlighter[T: TargetKind](editor: Editor, file: PsiFile, data: T): ScalaHighlightImplicitUsagesHandler[T] =
+    if (implicitHighlightingEnabled.value) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
+    else null
+
+  private object ReferenceToCaseClassApplyOrUnapply {
+    def unapply(ref: ScReference): Option[ScClass] = {
+      ref
+        .bind()
+        .flatMap(_.parentElement)
+        .flatMap {
+          case obj: ScObject if obj.isSyntheticObject => obj.baseCompanion
+          case _ => None
+        }
+        .filterByType[ScClass]
+    }
+  }
 }
