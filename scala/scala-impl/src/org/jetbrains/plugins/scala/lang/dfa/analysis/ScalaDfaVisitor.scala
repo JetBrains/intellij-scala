@@ -8,13 +8,12 @@ import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-import java.util.EmptyStackException
 import scala.jdk.CollectionConverters._
 
 class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder, buildUnsupportedPsiElements: Boolean = true) extends ScalaElementVisitor {
@@ -40,7 +39,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder, buildUnsupport
     val interpreter = new StandardDataFlowInterpreter(flow, listener)
     if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
       val problemReporter = new ScalaDfaProblemReporter(problemsHolder)
-      problemReporter.reportProblems(listener)
+      problemReporter.reportProblems(listener.result)
     }
   }
 

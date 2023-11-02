@@ -1,17 +1,66 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.framework
 
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.dataFlow.jvm.problems.IndexOutOfBoundsProblem
 import com.intellij.codeInspection.dataFlow.lang.UnsatisfiedConditionProblem
 import com.intellij.codeInspection.dataFlow.value.DerivedVariableDescriptor
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
-sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem
+sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem {
+  def registerTo(holder: ProblemsHolder, occurrence: ProblemOccurrence): Unit
+}
 
-case class ScalaCollectionAccessProblem(lengthDescriptor: DerivedVariableDescriptor,
-                                        accessExpression: ScExpression,
-                                        exceptionName: String)
-  extends ScalaDfaProblem with IndexOutOfBoundsProblem {
+object ScalaDfaProblem {
+  trait WithKind extends ScalaDfaProblem {
+    def problemKind: ScalaDfaProblemKind[_]
+    def problemElement: ScExpression
+
+    override def registerTo(holder: ProblemsHolder, occurrence: ProblemOccurrence): Unit = {
+      @Nls
+      val message = occurrence match {
+        case ProblemOccurrence.Sometimes => problemKind.sometimesMessage
+        case ProblemOccurrence.Always => problemKind.alwaysMessage
+        case _ => return
+      }
+      holder.registerProblem(problemElement, message)
+    }
+  }
+}
+
+final case class ScalaCollectionAccessProblem(lengthDescriptor: DerivedVariableDescriptor,
+                                              override val problemElement: ScExpression,
+                                              override val problemKind: ScalaDfaProblemKind[ScalaCollectionAccessProblem])
+  extends ScalaDfaProblem with IndexOutOfBoundsProblem with ScalaDfaProblem.WithKind {
   override def getLengthDescriptor: DerivedVariableDescriptor = lengthDescriptor
 }
 
-case class ScalaNullAccessProblem(accessExpression: ScExpression) extends ScalaDfaProblem
+object ScalaCollectionAccessProblem {
+  trait Factory { this: ScalaDfaProblemKind[ScalaCollectionAccessProblem] =>
+    def create(problemElement: ScExpression, lengthDescriptor: DerivedVariableDescriptor): ScalaCollectionAccessProblem =
+      ScalaCollectionAccessProblem(lengthDescriptor, problemElement, this)
+  }
+  type ProblemWithFactory = ScalaDfaProblemKind[ScalaCollectionAccessProblem] with Factory
+
+  val indexOutOfBoundsProblem: ProblemWithFactory = new ScalaDfaProblemKind(ScalaInspectionBundle.message("invocation.index.out.of.bounds"))() with Factory
+  val noSuchElementProblem: ProblemWithFactory = new ScalaDfaProblemKind(ScalaInspectionBundle.message("invocation.no.such.element"))() with Factory
+}
+
+
+final case class ScalaNullAccessProblem(override val problemElement: ScExpression,
+                                        override val problemKind: ScalaDfaProblemKind[ScalaNullAccessProblem])
+  extends ScalaDfaProblem with ScalaDfaProblem.WithKind
+
+object ScalaNullAccessProblem {
+  trait Factory { this: ScalaDfaProblemKind[ScalaNullAccessProblem] =>
+    def create(problemElement: ScExpression): ScalaNullAccessProblem = ScalaNullAccessProblem(problemElement, this)
+  }
+  type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] with Factory
+
+  val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind("Could be null")( "Is always null") with Factory
+}
+
+class ScalaDfaProblemKind[+E <: ScalaDfaProblem.WithKind](@Nls val sometimesMessage: String)
+                                                         (@Nls val alwaysMessage: String = sometimesMessage)

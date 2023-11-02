@@ -4,40 +4,39 @@ import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, DfaListener, Unsati
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.util.ThreeState
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.DfaConstantValue
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeToReportedConstant
 
-import scala.collection.{MapView, mutable}
-
 class ScalaDfaListener extends DfaListener {
 
-  private val constantConditions = mutable.Map[ScalaDfaAnchor, DfaConstantValue]()
+  private var constantConditions = Map.empty[ScalaDfaAnchor, DfaConstantValue]
+  private var unsatisfiedConditions = Map.empty[ScalaDfaProblem, ProblemOccurrence]
 
-  private val unsatisfiedConditions = mutable.Map[ScalaDfaProblem, ThreeState]()
+  def result: ScalaDfaResult = new ScalaDfaResult(constantConditions, unsatisfiedConditions)
 
-  def collectConstantConditions: MapView[ScalaDfaAnchor, DfaConstantValue] = constantConditions.view
-
-  def collectUnsatisfiedConditions: MapView[ScalaDfaProblem, ThreeState] = unsatisfiedConditions.view
-
-  override def beforePush(args: Array[DfaValue], value: DfaValue, anchor: DfaAnchor, state: DfaMemoryState): Unit = anchor match {
-    case scalaAnchor: ScalaDfaAnchor => recordExpressionValue(scalaAnchor, state, value)
-    case _ =>
-  }
-
-  override def onCondition(unsatisfiedCondition: UnsatisfiedConditionProblem, value: DfaValue,
-                           failed: ThreeState, state: DfaMemoryState): Unit = unsatisfiedCondition match {
-    case scalaProblem: ScalaDfaProblem => unsatisfiedConditions.updateWith(scalaProblem) {
-      case Some(oldInfo) => Some(oldInfo.merge(failed))
-      case _ => Some(failed)
+  override def beforePush(args: Array[DfaValue], value: DfaValue, anchor: DfaAnchor, state: DfaMemoryState): Unit =
+    anchor match {
+      case scalaAnchor: ScalaDfaAnchor => recordExpressionValue(scalaAnchor, state, value)
+      case _ =>
     }
-    case _ =>
-  }
+
+  override def onCondition(unsatisfiedCondition: UnsatisfiedConditionProblem,
+                           value: DfaValue,
+                           failed: ThreeState,
+                           state: DfaMemoryState): Unit =
+    unsatisfiedCondition match {
+      case scalaProblem: ScalaDfaProblem =>
+        val prev = unsatisfiedConditions.getOrElse(scalaProblem, ProblemOccurrence.Unknown)
+        unsatisfiedConditions += scalaProblem -> prev.join(ProblemOccurrence.fromThreeState(failed))
+      case _ =>
+    }
 
   private def recordExpressionValue(anchor: ScalaDfaAnchor, state: DfaMemoryState, value: DfaValue): Unit = {
     val newValue = dfTypeToReportedConstant(state.getDfType(value))
-    constantConditions.updateWith(anchor) {
-      case Some(oldValue) if oldValue != newValue => Some(DfaConstantValue.Other)
-      case _ => Some(newValue)
-    }
+    constantConditions += anchor -> (constantConditions.get(anchor) match {
+      case Some(oldValue) if oldValue != newValue => DfaConstantValue.Other
+      case _ => newValue
+    })
   }
 }

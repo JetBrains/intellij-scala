@@ -55,12 +55,16 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
     flow*/
   }
 
-  def unsupported[R](element: ScalaPsiElement)(fallback: => R): R = {
+  def unsupported[R](exception: => Exception)(fallback: => R): R = {
     if (buildUnsupportedPsiElements) {
       fallback
     } else {
-      throw TransformationFailedException(element, "Currently unsupported element")
+      throw exception
     }
+  }
+
+  def unsupported[R](element: ScalaPsiElement)(fallback: => R): R = {
+    unsupported(TransformationFailedException(element, "Currently unsupported element"))(fallback)
   }
 
   def pushUnit(): StackValue = push(DfUnitType)
