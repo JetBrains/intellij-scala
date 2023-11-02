@@ -87,8 +87,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
-    presentation.setIcon(getPsiElement)
-
     val itemText =
       if (isRenamed.nonEmpty)
         s"$getLookupString <= ${getPsiElement.name}"
@@ -109,6 +107,8 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 
   override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = (element: LookupElement, presentation) => {
     element.renderElement(presentation)
+
+    presentation.setIcon(getPsiElement)
 
     val grayed = getPsiElement match {
       case _: PsiPackage | _: PsiClass => true
