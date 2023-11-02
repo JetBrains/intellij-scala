@@ -22,7 +22,10 @@ object ScalaDfaConstants {
   }
 
   final object Exceptions {
-    val ScalaMatchError = "scala.MatchError"
+    val ScalaMatchErrorName = "scala.MatchError"
+    val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
+    val NoSuchElementExceptionName = "java.util.NoSuchElementException"
+    val NullPointerExceptionName = "java.util.NullPointerException"
   }
 
   final object Packages {
@@ -42,9 +45,6 @@ object ScalaDfaConstants {
     val ScalaCollectionMutable = s"$ScalaCollection.mutable"
     val ScalaMath = "scala.math"
     val JavaLangMath = "java.lang.Math"
-    val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
-    val NoSuchElementExceptionName = "java.util.NoSuchElementException"
-    val NullPointerExceptionName = "java.util.NullPointerException"
     val Apply = "apply"
   }
 

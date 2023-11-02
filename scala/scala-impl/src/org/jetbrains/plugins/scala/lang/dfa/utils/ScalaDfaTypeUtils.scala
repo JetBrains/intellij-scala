@@ -80,18 +80,6 @@ object ScalaDfaTypeUtils {
     case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant: $value")
   }
 
-  @Nls
-  def exceptionNameToProblemMessage(exceptionName: String): String = {
-    val warningType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-    exceptionName match {
-      case IndexOutOfBoundsExceptionName =>
-        ScalaInspectionBundle.message("invocation.index.out.of.bounds", warningType)
-      case NoSuchElementExceptionName =>
-        ScalaInspectionBundle.message("invocation.no.such.element", warningType)
-      case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA exception: $exceptionName")
-    }
-  }
-
   //noinspection UnstableApiUsage
   def scTypeToDfType(scType: ScType): DfType = {
     val extractedClass = scType match {

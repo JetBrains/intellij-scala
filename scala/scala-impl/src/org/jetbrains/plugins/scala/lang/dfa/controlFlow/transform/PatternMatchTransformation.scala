@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
-import com.intellij.codeInspection.dataFlow.java.inst.BooleanBinaryInstruction
-import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaPsiElementDfaAnchor
@@ -35,7 +33,7 @@ trait PatternMatchTransformation { this: ScalaDfaControlFlowBuilder =>
       clauses match {
         case Seq() =>
           pop(testValue)
-          throws(ScalaDfaConstants.Exceptions.ScalaMatchError, anchor.orNull)
+          throws(ScalaDfaConstants.Exceptions.ScalaMatchErrorName, anchor.orNull)
           results += pushUnknownValue(rreq)
         case cc +: rest =>
           val (result, failLabel) = transformCaseClause(testValue, cc, rreq)
