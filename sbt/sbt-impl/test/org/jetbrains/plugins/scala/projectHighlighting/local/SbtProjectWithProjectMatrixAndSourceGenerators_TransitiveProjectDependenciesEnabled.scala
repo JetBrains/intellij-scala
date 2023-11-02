@@ -21,7 +21,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
 
   override def testHighlighting(): Unit = {
     super.testHighlighting()
-    super.setUp()
   }
 
   override protected def highlightSingleFile(
