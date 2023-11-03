@@ -18,6 +18,7 @@ import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -46,8 +47,6 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   import ScalaDebuggerTestCase.ScalaLineBreakpointTypeClassName
 
   private val Log = Logger.getInstance(getClass)
-
-  private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
   protected def testDataDirectoryName: String = "debugger"
 
@@ -126,18 +125,14 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
     super.setUp()
 
-    EdtTestUtil.runInEdtAndWait { () =>
-      compilerConfig.applyChange()
-    }
-
     LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
     compileProject()
   }
 
   override protected def tearDown(): Unit = {
     try {
+      CompileServerLauncher.stopServerAndWait()
       EdtTestUtil.runInEdtAndWait { () =>
-        compilerConfig.revertChange()
         disposeLibraries(getModule)
       }
     } finally {
