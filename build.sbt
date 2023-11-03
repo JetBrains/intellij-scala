@@ -306,15 +306,15 @@ lazy val scalacPatches: sbt.Project =
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
-      compilerShared % "test->test;compile->compile",
+      compilerShared,
       scalaApi,
       scalaLanguageUtils,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
       scalatestFinders,
-      runners % "test->test;compile->compile",
-      testRunners % "test->test;compile->compile",
+      runners,
+      testRunners
     )
     .settings(
       ideExcludedDirectories := Seq(
