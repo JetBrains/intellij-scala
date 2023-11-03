@@ -11,15 +11,14 @@ import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
-import scala.annotation.nowarn
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
-  def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
-                                libraryNodes: Seq[LibraryNode],
-                                moduleFilesDirectory: File
-                               ): Seq[ModuleNode] = {
-
+  def createSharedSourceModules(
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    libraryNodes: Seq[LibraryNode],
+    moduleFilesDirectory: File
+  ): Seq[ModuleNode] = {
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
@@ -81,7 +80,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
         //put source module to the same module group
-        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup): @nowarn("cat=deprecation") // TODO: SCL-21288
+        val reprProjectModuleGroupName = Option(reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName))
+        val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.data.getInternalName, reprProjectModuleGroupName)
+        moduleNode.setInternalName(moduleNameWithGroupName)
       }
 
       moduleNode
@@ -347,4 +348,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       result
     }
   }
+
+  protected def prependModuleNameWithGroupName(moduleName: String, group: Option[String]): String =
+    group
+      .filterNot(_.isBlank)
+      .map(groupName => if (groupName.endsWith(".")) groupName else s"$groupName.")
+      .map(_ + moduleName)
+      .getOrElse(moduleName)
 }
