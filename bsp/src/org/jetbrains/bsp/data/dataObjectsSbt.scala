@@ -6,6 +6,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.data.BspEntityData.datakey
 import org.jetbrains.sbt.project.data.MyURI
 
+import java.io.File
 import java.util
 
 /**
@@ -37,16 +38,22 @@ object SbtBuildModuleDataBsp {
 /**
  * Data describing a project which is part of an sbt build.
  *
- * @note for a SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtModuleData]]
+ * @note for a similar SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtModuleData]]
+ * @note read the difference between `buildModuleId` and `baseDirectory` in [[org.jetbrains.sbt.project.data.SbtModuleData]]
  */
 @SerialVersionUID(2)
 case class SbtModuleDataBsp @PropertyMapping(Array(
   "id",
-  "buildModuleId"
+  "buildModuleId",
+  "baseDirectory",
 ))(
   id: MyURI,
-  buildModuleId: MyURI
-) extends BspEntityData
+  buildModuleId: MyURI,
+  @Nullable baseDirectory: File,
+) extends BspEntityData {
+  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
+  def this() = this(null, null, null)
+}
 
 object SbtModuleDataBsp {
   val Key: Key[SbtModuleDataBsp] = datakey(classOf[SbtModuleDataBsp])
