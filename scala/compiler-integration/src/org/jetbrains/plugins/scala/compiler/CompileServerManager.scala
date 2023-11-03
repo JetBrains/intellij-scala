@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ShowSet
 import java.awt.Point
 import java.awt.event.MouseEvent
 import javax.swing.Icon
+import scala.concurrent.duration.Duration
 
 @Service(Array(Service.Level.PROJECT))
 final class CompileServerManager(project: Project) extends Disposable with CompileServerManager.ErrorListener {
@@ -166,7 +167,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
       e.getPresentation.setEnabled(launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      executeOnPooledThread(launcher.stop())
+      executeOnPooledThread(launcher.stopServerAndWaitFor(Duration.Zero))
   }
 
   private object Configure extends AnAction(CompilerIntegrationBundle.message("action.configure"), CompilerIntegrationBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {

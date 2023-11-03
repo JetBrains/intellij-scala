@@ -22,9 +22,14 @@ private final class ServerInstance(
 
   def pid: Long = watcher.pid
 
-  def destroyAndWait(timeoutMs: Long): Boolean = {
+  def destroyAndWait(): Boolean = {
     _stopped = true
-    watcher.destroyAndWait(timeoutMs)
+    watcher.destroyAndWait()
+  }
+
+  def destroyAndWaitFor(timeoutMs: Long): Boolean = {
+    _stopped = true
+    watcher.destroyAndWaitFor(timeoutMs)
   }
 
   def summary: String = {

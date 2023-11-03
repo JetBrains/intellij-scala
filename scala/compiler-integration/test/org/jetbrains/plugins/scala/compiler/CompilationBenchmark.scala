@@ -97,7 +97,7 @@ abstract class CompilationBenchmark
     settings.COMPILE_SERVER_JVM_PARAMETERS = jvmOptions
 
     ApplicationManager.getApplication.saveSettings()
-    CompileServerLauncher.stop(timeoutMs = 3000)
+    CompileServerLauncher.stopServerAndWait()
     CompileServerLauncher.ensureServerRunning(myProject)
 
     var resultTime: Double = Double.PositiveInfinity

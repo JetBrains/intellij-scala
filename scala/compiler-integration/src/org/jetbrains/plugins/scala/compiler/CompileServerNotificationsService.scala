@@ -61,7 +61,7 @@ final class CompileServerNotificationsService(project: Project) {
       }
       ApplicationManager.getApplication.saveSettings()
       executeOnPooledThread {
-        CompileServerLauncher.stop(timeoutMs = 3.seconds.toMillis)
+        CompileServerLauncher.stopServerAndWait()
         CompileServerLauncher.ensureServerRunning(project)
       }
     }

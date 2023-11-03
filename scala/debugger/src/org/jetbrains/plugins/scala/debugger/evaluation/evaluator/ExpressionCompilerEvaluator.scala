@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import java.io.IOException
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
+import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 
 private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiElement, position: SourcePosition) extends ExpressionEvaluator {
@@ -116,7 +117,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
     try thunk
     finally {
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED)
-        CompileServerLauncher.ensureServerNotRunning()
+        CompileServerLauncher.stopServerAndWaitFor(Duration.Zero)
     }
   }
 

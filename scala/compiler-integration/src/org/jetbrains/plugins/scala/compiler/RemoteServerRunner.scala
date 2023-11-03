@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 import java.nio.file.Path
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.util.control.NonFatal
 
 /**
@@ -77,7 +77,7 @@ final class RemoteServerRunner extends RemoteResourceOwner {
     override def stop(): Unit = {
       // TODO: SCL-17265 do not stop the whole server!
       // Investigate whether we can cancel single NGSession thread to stop worksheet execution
-      CompileServerLauncher.ensureServerNotRunning()
+      CompileServerLauncher.stopServerAndWaitFor(Duration.Zero)
     }
   }
 }
