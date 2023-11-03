@@ -7,6 +7,16 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import java.io.File
 
+/**
+ * @param _compilerClasspath       classpath required to instantiate a compiler
+ * @param _scaladocExtraClasspath  extra classpath which is only required to generate scaladoc.
+ *                                 It's not used during project compilation.
+ *                                 In practice it's empty for Scala 2 and not empty for Scala 3.
+ * @param _compilerBridgeBinaryJar optional compiler bridge jar.<br>
+ *                                 When it's None, a bundled bridge will be used (see `Scala/lib/jps` directory in Scala plugin distribution).<br>
+ *                                 Custom, non-bundled bridge is mostly required to be able to compile code
+ *                                 with RC/Nightly versions of new Scala 3.x compiler
+ */
 final class ScalaLibraryProperties private(
   private[this] var _languageLevel: ScalaLanguageLevel,
   private[this] var _compilerClasspath: Seq[File],
@@ -14,6 +24,13 @@ final class ScalaLibraryProperties private(
   private[this] var _compilerBridgeBinaryJar: Option[File]
 ) extends LibraryProperties[ScalaLibraryPropertiesState] {
   import ScalaLibraryProperties._
+
+  // Extra constructor added not to break compatibility with plugins using this class before version 2023.3
+  def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File], scaladocExtraClasspath: Seq[File]) =
+    this(languageLevel, compilerClasspath, scaladocExtraClasspath, _compilerBridgeBinaryJar = None)
+
+  def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]) =
+    this(languageLevel, compilerClasspath, scaladocExtraClasspath = Nil)
 
   def compilerBridgeBinaryJar: Option[File] = _compilerBridgeBinaryJar
   def compilerBridgeBinaryJar_=(value: Option[File]): Unit = _compilerBridgeBinaryJar = value
