@@ -490,7 +490,8 @@ lazy val testingSupport =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
-      structureView % "test->test;compile->compile"
+      structureView % "test->test;compile->compile",
+      debugger % "test->test;compile->compile" // these modules share some test setup code, which should be refactored
     )
     .settings(
       intellijPlugins += "JUnit".toPlugin

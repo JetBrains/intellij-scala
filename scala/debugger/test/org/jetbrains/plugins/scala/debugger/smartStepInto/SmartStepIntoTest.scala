@@ -190,7 +190,7 @@ class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
   }
 }
 
-abstract class SmartStepIntoTestBase extends ScalaDebuggerTestBase {
+abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Target(target: String)
 

@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package base
+package debugger
 
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
@@ -16,6 +16,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.junit.Assert.assertTrue
+import org.junit.experimental.categories.Category
 
 import java.io._
 import java.nio.charset.StandardCharsets
@@ -38,6 +40,7 @@ import scala.util.{Try, Using}
  * ATTENTION: when updating any paths which might be cached between builds
  * ensure to update org.jetbrains.scalateamcity.common.Caching fields
  */
+@Category(Array(classOf[DebuggerTests]))
 abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
 
   import ScalaDebuggerTestCase.ScalaLineBreakpointTypeClassName
