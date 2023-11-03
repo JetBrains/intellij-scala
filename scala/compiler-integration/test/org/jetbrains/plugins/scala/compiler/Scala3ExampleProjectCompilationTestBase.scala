@@ -54,7 +54,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
 
   override def tearDown(): Unit = try {
     compiler.tearDown()
-    ScalaCompilerTestBase.stopAndWait()
+    CompileServerLauncher.stopServerAndWait()
     val table = ProjectJdkTable.getInstance
     inWriteAction {
       table.getAllJdks.foreach(table.removeJdk)
