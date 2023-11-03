@@ -107,7 +107,7 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   }
 
   override def tearDown(): Unit = try {
-    CompileServerLauncher.ensureServerNotRunning()
+    CompileServerLauncher.stopServerAndWait()
     compiler.tearDown()
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true

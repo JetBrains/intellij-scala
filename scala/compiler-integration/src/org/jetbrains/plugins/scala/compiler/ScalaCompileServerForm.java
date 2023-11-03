@@ -19,7 +19,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.project.external.SdkUtils;
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
-import scala.Some$;
+import scala.Some;
+import scala.concurrent.duration.Duration;
 
 import javax.swing.*;
 import java.awt.*;
@@ -172,7 +173,7 @@ public class ScalaCompileServerForm implements Configurable {
         mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
         if (!mySettings.COMPILE_SERVER_ENABLED) {
             ApplicationManager.getApplication().executeOnPooledThread(() ->
-                    CompileServerLauncher.stop(0, Some$.MODULE$.apply("compile server disabled from settings"))
+                    CompileServerLauncher.stopServerAndWaitFor(Duration.Zero(), Some.apply("compile server disabled from settings"))
             );
         }
 

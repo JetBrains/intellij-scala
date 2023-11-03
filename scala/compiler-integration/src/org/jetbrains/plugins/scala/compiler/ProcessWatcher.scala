@@ -30,8 +30,13 @@ private final class ProcessWatcher(project: Project, process: Process, commandLi
 
   def pid: Long = process.pid()
 
+  def destroyAndWait(): Boolean = {
+    processHandler.destroyProcess()
+    processHandler.waitFor()
+  }
+
   //true if process exited before timeout
-  def destroyAndWait(ms: Long): Boolean = {
+  def destroyAndWaitFor(ms: Long): Boolean = {
     processHandler.destroyProcess()
     processHandler.waitFor(ms)
   }

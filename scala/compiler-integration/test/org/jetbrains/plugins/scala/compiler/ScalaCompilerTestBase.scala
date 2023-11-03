@@ -176,12 +176,12 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
 object ScalaCompilerTestBase {
 
-  import duration.{Duration, DurationInt}
+  import duration.{FiniteDuration, DurationInt}
 
   // TODO: review if needed?
-  def stopAndWait(timeout: Duration = 10.seconds): Unit = assertTrue(
+  def stopAndWait(timeout: FiniteDuration = 10.seconds): Unit = assertTrue(
     s"Compile server process have not terminated after $timeout",
-    CompileServerLauncher.stop(timeout.toMillis)
+    CompileServerLauncher.stopServerAndWaitFor(timeout)
   )
 
   private def markCompileServerThreadsLongRunning(): Unit = {
