@@ -19,7 +19,7 @@ import javax.swing.Icon
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-abstract class RendererTestBase extends ScalaDebuggerTestBase {
+abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
   protected def rendererTest(className: String = getTestName(false))(test: SuspendContextImpl => Unit): Unit = {
     createLocalProcess(className)

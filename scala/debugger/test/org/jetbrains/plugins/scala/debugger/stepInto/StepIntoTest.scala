@@ -92,7 +92,7 @@ class StepIntoTest_3 extends StepIntoTest_2_12 {
   }
 }
 
-abstract class StepIntoTestBase extends ScalaDebuggerTestBase {
+abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Breakpoint(file: String, method: String, line: Int)
 

@@ -97,7 +97,7 @@ class StepOverTest_3 extends StepOverTest_2_13 {
   }
 }
 
-abstract class StepOverTest extends ScalaDebuggerTestBase {
+abstract class StepOverTest extends ScalaDebuggerTestCase {
 
   private val expectedLineQueue: ConcurrentLinkedQueue[Int] = new ConcurrentLinkedQueue()
 

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
-abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestBase {
+abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
 
   private val onBreakpointActionsQueue: ConcurrentLinkedQueue[SuspendContextImpl => Unit] = new ConcurrentLinkedQueue()
 
