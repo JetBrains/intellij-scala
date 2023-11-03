@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
+import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -45,10 +45,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    */
   override def setUpProject(): Unit = {
     super.setUpProject()
-
-    if (useCompileServer && reuseCompileServerProcessBetweenTests) {
-      markCompileServerThreadsLongRunning()
-    }
 
     val revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
@@ -85,7 +81,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
     if (!reuseCompileServerProcessBetweenTests) {
-      ScalaCompilerTestBase.stopAndWait()
+      CompileServerLauncher.stopServerAndWait()
     } else {
       //  server will be stopped when Application shuts down (see ShutDownTracker in CompileServerLauncher)
     }
@@ -175,24 +171,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 }
 
 object ScalaCompilerTestBase {
-
-  import duration.{FiniteDuration, DurationInt}
-
-  // TODO: review if needed?
-  def stopAndWait(timeout: FiniteDuration = 10.seconds): Unit = assertTrue(
-    s"Compile server process have not terminated after $timeout",
-    CompileServerLauncher.stopServerAndWaitFor(timeout)
-  )
-
-  private def markCompileServerThreadsLongRunning(): Unit = {
-    //noinspection ApiStatus,UnstableApiUsage
-    ThreadLeakTracker.longRunningThreadCreated(
-      UnloadAwareDisposable.scalaPluginDisposable,
-      "scalaCompileServer",
-      "BaseDataReader: output stream of scalaCompileServer",
-      "BaseDataReader: error stream of scalaCompileServer"
-    )
-  }
 
   implicit class ListCompilerMessageExt(val messages: JList[CompilerMessage])
     extends AnyVal {

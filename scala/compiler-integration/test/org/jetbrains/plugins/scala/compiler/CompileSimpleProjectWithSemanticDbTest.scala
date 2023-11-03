@@ -119,7 +119,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
         compiler.rebuild().assertNoProblems()
       } finally {
         compiler.tearDown()
-        ScalaCompilerTestBase.stopAndWait()
+        CompileServerLauncher.stopServerAndWait()
 
         val table = ProjectJdkTable.getInstance
         inWriteAction {

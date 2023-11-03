@@ -44,7 +44,7 @@ abstract class CompilationBenchmark
 
   override def tearDown(): Unit = try {
     compiler.tearDown()
-    ScalaCompilerTestBase.stopAndWait()
+    CompileServerLauncher.stopServerAndWait()
     val table = ProjectJdkTable.getInstance
     inWriteAction {
       table.getAllJdks.foreach(table.removeJdk)
