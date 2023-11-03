@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection
 
 import com.intellij.codeInspection._
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

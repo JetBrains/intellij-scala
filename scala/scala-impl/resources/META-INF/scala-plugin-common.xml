@@ -913,6 +913,13 @@
                          id="CaseClassParam"
                          level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantClassParamClause.RedundantClassParamClauseInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.redundant.class.param.clause"
+                         groupPath="Scala" groupKey="group.general" shortName="RedundantClassParam"
+                         id="RedundantClassParam"
+                         level="WEAK WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.var.could.be.a.val"
