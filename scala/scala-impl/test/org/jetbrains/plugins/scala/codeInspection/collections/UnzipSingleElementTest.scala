@@ -65,4 +65,11 @@ class UnzipSingleElementTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
+  // SCL-21702
+  def testUnderscore(): Unit =
+    doTest(
+      s"Map[String, Seq[(String, String)]]().mapValues(_.${START}unzip._2$END.map(identity))",
+      "Map[String, Seq[(String, String)]]().mapValues(_.unzip._2.map(identity))",
+      "Map[String, Seq[(String, String)]]().mapValues(_.map(_._2).map(identity))",
+    )
 }

@@ -20,7 +20,7 @@ private object UnzipSingleElementInspection {
       // TODO infix notation?
       case `._1`(`.unzip`(q)) => (q, 1)
       case `._2`(`.unzip`(q)) => (q, 2)
-      case `._1`(`.unzip3`(q) ) => (q, 1)
+      case `._1`(`.unzip3`(q)) => (q, 1)
       case `._2`(`.unzip3`(q)) => (q, 2)
       case `._3`(`.unzip3`(q)) => (q, 3)
     }.map { case (q, index) =>
