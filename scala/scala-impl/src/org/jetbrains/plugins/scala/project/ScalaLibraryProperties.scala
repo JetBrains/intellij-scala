@@ -25,10 +25,13 @@ final class ScalaLibraryProperties private(
 ) extends LibraryProperties[ScalaLibraryPropertiesState] {
   import ScalaLibraryProperties._
 
-  // Extra constructor added not to break compatibility with plugins using this class before version 2023.3
+  @Deprecated(forRemoval = true)
+  @deprecated("Use ScalaLibraryProperties.apply")
   def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File], scaladocExtraClasspath: Seq[File]) =
     this(languageLevel, compilerClasspath, scaladocExtraClasspath, _compilerBridgeBinaryJar = None)
 
+  @Deprecated(forRemoval = true)
+  @deprecated("Use ScalaLibraryProperties.apply")
   def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]) =
     this(languageLevel, compilerClasspath, scaladocExtraClasspath = Nil)
 
@@ -87,6 +90,21 @@ object ScalaLibraryProperties {
 
   def apply(): ScalaLibraryProperties =
     apply(None, Seq.empty, Seq.empty, None)
+
+  // Extra constructor added not to break compatibility with plugins using this class before version 2023.3
+  def apply(
+    version: Option[String],
+    compilerClasspath: Seq[File],
+    scaladocExtraClasspath: Seq[File],
+  ): ScalaLibraryProperties = {
+    val languageLevel = version.flatMap(findByVersion).getOrElse(getDefault)
+    new ScalaLibraryProperties(
+      languageLevel,
+      compilerClasspath,
+      scaladocExtraClasspath,
+      _compilerBridgeBinaryJar = None
+    )
+  }
 
   def apply(
     version: Option[String],
