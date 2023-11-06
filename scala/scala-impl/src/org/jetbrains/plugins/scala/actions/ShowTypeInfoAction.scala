@@ -128,13 +128,8 @@ object ShowTypeInfoAction {
     //NOTE: type alias handled here, not inside `org.jetbrains.plugins.scala.extensions.PsiElementExt.ofNamedElement$extension`
     //because it's not directly clear how it will effect other usage places of ofNamedElement
     //(mainly org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler)
-    val scType: Option[ScType] = elem match {
-      case alias: ScTypeAliasDefinition =>
-        alias.aliasedType.toOption.map(subst)
-      case _ =>
-        elem.ofNamedElement(subst)
-    }
-    typeText(scType)
+    val scType = elem.ofNamedElement(subst)
+    scType.map(TypePresentation.withoutAliases)
   }
 
   private[this] def typeText(optType: Option[ScType])
