@@ -20,7 +20,7 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionT
   protected override def setUp(): Unit = {
     super.setUp()
 
-    deleteAllGlobalScratchFiles()
+    deleteAllGlobalScratchFiles(getProject)
   }
 
   protected def getInspectionTool: ScalaUnusedDeclarationInspection = {

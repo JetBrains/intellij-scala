@@ -12,6 +12,6 @@ abstract class ScalaAccessCanBePrivateInspectionTestBase extends ScalaInspection
   override def setUp(): Unit = {
     super.setUp()
 
-    deleteAllGlobalScratchFiles()
+    deleteAllGlobalScratchFiles(getProject)
   }
 }

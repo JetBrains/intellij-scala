@@ -12,6 +12,7 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
        |""".stripMargin
   )
 
+
   def test_plus(): Unit = doOperatorTest("+")
 
   def test_minus(): Unit = doOperatorTest("-")
