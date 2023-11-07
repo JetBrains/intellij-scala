@@ -13,7 +13,7 @@ class MainMethodLiveTemplateTest extends ScalaLiveTemplateTestBase {
     version == ScalaVersion.Latest.Scala_3
 
   private lazy val scalaCompletionFixture: ScalaCompletionTestFixture =
-    new ScalaCompletionTestFixture(1, new ScalaCodeInsightTestFixture(myFixture))
+    new ScalaCompletionTestFixture(new ScalaCodeInsightTestFixture(myFixture))
 
   override def setUp(): Unit = {
     super.setUp()
