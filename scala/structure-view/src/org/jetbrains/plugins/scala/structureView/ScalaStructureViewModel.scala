@@ -53,45 +53,48 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
 //  })
 
   override def getSorters: Array[Sorter] = {
-    val res = new Array[Sorter](2)
-    res(0) = new Sorter() {
-      override def isVisible: Boolean = true
+    val sorters = Array(
+      ScalaVisibilitySorter,
+      new Sorter() {
+        override def isVisible: Boolean = true
 
-      // TODO move to the implemenation of testing support
-      override def getComparator: Comparator[_] =
-        (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-          case (_: Test, _: Test) => 0
-          case (_, _: Test) => -1
-          case (_: Test, _) => 1
-          case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
+        // TODO move to the implementation of testing support
+        override def getComparator: Comparator[_] =
+          (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
+            case (_: Test, _: Test) => 0
+            case (_, _: Test) => -1
+            case (_: Test, _) => 1
+            case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
+          }
+
+        override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
+
+        override def getPresentation: ActionPresentation = {
+          val sortAlphabetically = PlatformEditorBundle.message("action.sort.alphabetically")
+          new ActionPresentationData(
+            sortAlphabetically,
+            sortAlphabetically,
+            AllIcons.ObjectBrowser.Sorted
+          )
         }
+      },
+      new Sorter() {
+        override def isVisible: Boolean = false
 
-      override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
+        override def getName: String = "ACTUAL_ORDER_SORTER"
 
-      override def getPresentation: ActionPresentation = {
-        val sortAlphabetically = PlatformEditorBundle.message("action.sort.alphabetically")
-        new ActionPresentationData(
-          sortAlphabetically,
-          sortAlphabetically,
-          AllIcons.ObjectBrowser.Sorted
-        )
+        override def getPresentation: ActionPresentation =
+          new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
+
+        override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
+          case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
+            e1.element.getTextOffset - e2.element.getTextOffset
+          case _ => 0
+        }
       }
-    }
-    res(1) = new Sorter() {
-      override def isVisible: Boolean = false
+    )
 
-      override def getName: String = "ACTUAL_ORDER_SORTER"
-
-      override def getPresentation: ActionPresentation =
-        new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
-
-      override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-        case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
-          e1.element.getTextOffset - e2.element.getTextOffset
-        case _ => 0
-      }
-    }
-    res
+    sorters
   }
 
   override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = (
