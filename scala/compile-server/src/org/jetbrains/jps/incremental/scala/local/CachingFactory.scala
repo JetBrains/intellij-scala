@@ -13,13 +13,13 @@ class CachingFactory(delegate: CompilerFactory, compilersLimit: Int, scalacLimit
   private val scalacCache = new Cache[(SbtData, Option[CompilerJars]), Option[AnalyzingCompiler]](scalacLimit)
 
   override def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
-    compilerCache.getOrUpdate(compilerData) {
+    compilerCache.getOrUpdate(compilerData) { () =>
       delegate.createCompiler(compilerData, client, fileToStore)
     }
   }
 
   override def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
-    scalacCache.getOrUpdate((sbtData, compilerJars)) {
+    scalacCache.getOrUpdate((sbtData, compilerJars)) { () =>
       delegate.getScalac(sbtData, compilerJars, client)
     }
   }

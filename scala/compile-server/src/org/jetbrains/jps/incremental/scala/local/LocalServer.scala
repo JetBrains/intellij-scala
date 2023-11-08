@@ -34,9 +34,8 @@ final class LocalServer extends Server {
     client: Client
   ): ExitCode = {
     val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
-    val compiler = try lock.synchronized {
-      val compilerFactory = compilerFactoryFrom(sbtData, compilerData, client)
-
+    val compiler = try {
+      val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
       collectingSourcesClient.progress(CompileServerBundle.message("instantiating.compiler"))
       val fileToStore: File => AnalysisStore = (AnalysisStoreFactory.createAnalysisStore _).compose(_.toPath)
       compilerFactory.createCompiler(compilerData, collectingSourcesClient, fileToStore)
