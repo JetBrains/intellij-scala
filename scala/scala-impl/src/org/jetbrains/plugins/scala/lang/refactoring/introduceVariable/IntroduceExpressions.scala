@@ -71,9 +71,7 @@ trait IntroduceExpressions {
         return
       }
 
-      val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
-        getOccurrenceRanges(expr, _)
-      }
+      val occurrences = getOccurenceRangesInFile(file, startOffset, expr)
 
       val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
@@ -99,12 +97,15 @@ trait IntroduceExpressions {
   def suggestedNamesForExpression(file: PsiFile, startOffset: Int, endOffset: Int)
                                  (implicit project: Project, editor: Editor): ArraySeq[String] = {
     val Some((expr, types)) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset)
-    val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
-      getOccurrenceRanges(expr, _)
-    }
+    val occurrences = getOccurenceRangesInFile(file, startOffset, expr)
     val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
     SuggestedNames(expr, types, validator).names
+  }
+
+  private def getOccurenceRangesInFile(file: PsiFile, startOffset: Int, expr: ScExpression): Seq[TextRange] = {
+    val encloser = fileEncloser(file, startOffset)
+    encloser.map(getOccurrenceRanges(expr, _)).getOrElse(Nil)
   }
 
   private def runRefactoring(
@@ -203,7 +204,7 @@ object IntroduceExpressions {
       Some(names.expression, names.types, names.names)
   }
 
-  case class OccurrencesInFile(file: PsiFile, mainRange: TextRange, occurrences: Seq[TextRange])
+  private case class OccurrencesInFile(file: PsiFile, mainRange: TextRange, occurrences: Seq[TextRange])
 
   private def performInplaceRefactoring(newDeclaration: PsiElement,
                                         maybeType: Option[ScType],
@@ -232,8 +233,8 @@ object IntroduceExpressions {
       if (isInplaceAvailable(editor)) {
         editor.getDocument.commit(project)
 
-        new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
-          .performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
+        val introducer = new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
+        introducer.performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
       }
     }
   }
@@ -277,7 +278,7 @@ object IntroduceExpressions {
   private[this] def runRefactoringInside(file: PsiFile,
                                          expression: ScExpression,
                                          occurrences: Seq[TextRange],
-                                         mainOccurence: Int,
+                                         mainOccurenceIndex: Int,
                                          varName: String,
                                          isVariable: Boolean,
                                          forceType: Boolean)
@@ -330,7 +331,8 @@ object IntroduceExpressions {
 
     val nextParentInFile = nextParent(commonParent, file)
 
-    editor.getCaretModel.moveToOffset(replacedOccurrences(mainOccurence).getEndOffset)
+    val mainOccurence = replacedOccurrences(mainOccurenceIndex)
+    editor.getCaretModel.moveToOffset(mainOccurence.getEndOffset)
 
     // wrap expression in parentheses to avoid parsing errors (SCL-20916)
     val parenthesisedExpr = wrapInParentheses(expression)
@@ -433,7 +435,8 @@ object IntroduceExpressions {
     document.replaceString(startOffset, range.getEndOffset, text)
     document.commit(project)
 
-    editor.getCaretModel.moveToOffset(startOffset + text.length)
+    val newCaretOffset = startOffset + text.length
+    editor.getCaretModel.moveToOffset(newCaretOffset)
   }
 
   private[this] def isIntroduceForBinding(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
