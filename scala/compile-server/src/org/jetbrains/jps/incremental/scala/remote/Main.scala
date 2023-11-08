@@ -9,14 +9,14 @@ import org.jetbrains.jps.incremental.scala.local.{Cache, LocalServer}
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, ExpressionEvaluationArguments}
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, ExpressionEvaluationArguments}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io._
 import java.lang.reflect.Method
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Timer, TimerTask}
 import scala.annotation.unused
@@ -191,6 +191,8 @@ object Main {
       command match {
         case CompileServerCommand.Compile(arguments) =>
           compileLogic(arguments, client)
+        case CompileServerCommand.ComputeStamps(arguments) =>
+          computeStampsLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           Jps.compileJpsLogic(compileJps, client, scalaCompileServerSystemDir)
         case CompileServerCommand.EvaluateExpression(args) =>
@@ -213,6 +215,11 @@ object Main {
         worksheetServer.loadAndRun(wa, args, client)
       case _ =>
     }
+  }
+
+  private def computeStampsLogic(args: ComputeStampsArguments, client: Client): Unit = {
+    val ComputeStampsArguments(outputFiles, analysisFile) = args
+    server.computeStamps(outputFiles, analysisFile, client)
   }
 
   private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)

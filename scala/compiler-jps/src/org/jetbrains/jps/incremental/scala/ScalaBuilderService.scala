@@ -1,11 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 
-import _root_.java.{util => jutil}
-
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
+
+import _root_.java.{util => jutil}
 
 class ScalaBuilderService extends BuilderService {
   ResourcesBuilder.registerEnabler(module => {
@@ -20,6 +20,7 @@ class ScalaBuilderService extends BuilderService {
       new IdeaIncrementalBuilder(BuilderCategory.SOURCE_PROCESSOR),
       new IdeaIncrementalBuilder(BuilderCategory.OVERWRITING_TRANSLATOR),
       new SbtBuilder,
-      new ScalaCompilerReferenceIndexBuilder
+      new ScalaCompilerReferenceIndexBuilder,
+      new ScalaClassPostProcessorBuilder()
     )
 }

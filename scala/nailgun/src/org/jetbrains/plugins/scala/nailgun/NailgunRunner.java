@@ -33,6 +33,7 @@ public class NailgunRunner {
   /** NOTE: set of commands should be equal to the commands from {@link org.jetbrains.jps.incremental.scala.remote.CommandIds} */
   private static final String[] COMMANDS = {
           "compile",
+          "compute-stamps",
           "compile-jps",
           "evaluate-expression",
           "get-metrics"

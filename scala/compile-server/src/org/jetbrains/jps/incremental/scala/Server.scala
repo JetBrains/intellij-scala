@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 
 import java.net.{InetAddress, SocketException, SocketTimeoutException, UnknownHostException}
+import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 trait Server {
@@ -13,6 +14,8 @@ trait Server {
     compilationData: CompilationData,
     client: Client
   ): Either[Server.ServerError, ExitCode]
+
+  def computeStamps(outputFiles: Seq[Path], analysisFile: Path, client: Client): Either[Server.ServerError, ExitCode]
 }
 
 object Server {
