@@ -1140,6 +1140,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  i
            |  setX(Int): Unit
            |  getX
+           |  setJ(Int): Unit
+           |  getJ: Int
            |  setY(Int): Unit
            |  getY
            |  setI(Int): Unit
@@ -1189,19 +1191,60 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
             |  equals(Object): Boolean
             |  toString: String
             |""".stripMargin +
+          // protected
+          """  setJ(Int): Unit
+            |  getJ: Int
+            |""".stripMargin +
           // derived protected
           """  h(): Unit
             |  getZ: Int
             |  clone(): Object
             |  finalize(): Unit
             |""".stripMargin +
-          // derived private
-          """  setZ(Int): Unit
-            |""".stripMargin +
           // private
           """  x
             |  i
+            |""".stripMargin +
+          // derived private
+          """  setZ(Int): Unit
             |""".stripMargin
+      )
+    }
+  }
+
+  def testHideNonPublic(): Unit = {
+    myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
+    configureFromFileText(DerivedClass)
+
+    myFixture.testStructureView { svc =>
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
+      svc.setActionActive("ALPHA_SORTER_IGNORING_TEST_NODES", true)
+      svc.setActionActive(ScalaPublicElementsFilter.ID, true)
+
+      val tree = svc.getTree
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  equals(Object): Boolean
+           |  f(): Unit
+           |  g(): Unit
+           |  getClass(): Class[_]
+           |  getI
+           |  getX
+           |  getY
+           |  hashCode(): Int
+           |  notify(): Unit
+           |  notifyAll(): Unit
+           |  setI(Int): Unit
+           |  setX(Int): Unit
+           |  setY(Int): Unit
+           |  toString: String
+           |  wait(): Unit
+           |  wait(Long): Unit
+           |  wait(Long, Int): Unit
+           |""".stripMargin
       )
     }
   }
@@ -1241,6 +1284,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       |  private val i = 0
       |  def setX(x: Int): Unit = {}
       |  def getX = 0
+      |  protected def setJ(j: Int): Unit = {}
+      |  protected def getJ: Int = 0
       |  def setY(x: Int): Unit = {}
       |  def getY = 0
       |  def setI(i: Int): Unit = {}
