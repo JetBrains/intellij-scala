@@ -16,6 +16,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -229,11 +230,7 @@ object IntroduceExpressions {
       editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 
       if (isInplaceAvailable(editor)) {
-        (editor.getDocument, PsiDocumentManager.getInstance(project)) match {
-          case (document, manager) =>
-            manager.commitDocument(document)
-            manager.doPostponedOperationsAndUnblockDocument(document)
-        }
+        editor.getDocument.commit(project)
 
         new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
           .performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
@@ -434,7 +431,7 @@ object IntroduceExpressions {
 
     val document = editor.getDocument
     document.replaceString(startOffset, range.getEndOffset, text)
-    PsiDocumentManager.getInstance(project).commitDocument(document)
+    document.commit(project)
 
     editor.getCaretModel.moveToOffset(startOffset + text.length)
   }

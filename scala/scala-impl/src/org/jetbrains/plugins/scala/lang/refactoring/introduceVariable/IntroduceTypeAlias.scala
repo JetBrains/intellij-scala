@@ -17,6 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfT
 import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -120,11 +121,7 @@ trait IntroduceTypeAlias {
               editor.getSelectionModel.removeSelection()
 
               if (isInplaceAvailable(editor)) {
-                (editor.getDocument, PsiDocumentManager.getInstance(project)) match {
-                  case (document, manager) =>
-                    manager.commitDocument(document)
-                    manager.doPostponedOperationsAndUnblockDocument(document)
-                }
+                editor.getDocument.commit(project)
 
                 maybeTypeAlias.foreach { typeAlias =>
                   editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).addScopeElement(scopeItem)
