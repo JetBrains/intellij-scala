@@ -27,8 +27,9 @@ class ScalaDfaListener extends DfaListener {
                            state: DfaMemoryState): Unit =
     unsatisfiedCondition match {
       case scalaProblem: ScalaDfaProblem =>
+        val problemOccurrence = scalaProblem.problemOccurrenceWith(failed, value, state)
         val prev = unsatisfiedConditions.getOrElse(scalaProblem, ProblemOccurrence.Unknown)
-        unsatisfiedConditions += scalaProblem -> prev.join(ProblemOccurrence.fromThreeState(failed))
+        unsatisfiedConditions += scalaProblem -> prev.join(problemOccurrence)
       case _ =>
     }
 

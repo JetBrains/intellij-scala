@@ -12,15 +12,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
-  def reportProblems(result: ScalaDfaResult): Unit = {
+  def reportConstantConditions(result: ScalaDfaResult): Unit =
     result.collectConstantConditions
+      .iterator
       .filter { case (_, value) => value != DfaConstantValue.Other }
       .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
 
-    result.collectUnsatisfiedConditions
-      .filter { case (_, occurrence) => occurrence.shouldReport }
-      .foreach { case (problem, occurrence) => problem.registerTo(problemsHolder, occurrence) }
+  def reportUnsatisfiedConditionProblems(result: ScalaDfaResult, shouldReport: ScalaDfaProblem => Boolean = _ => true): Unit = {
+    for {
+      (problem, occurrence) <- result.collectUnsatisfiedConditions.iterator
+      if occurrence.shouldReport && shouldReport(problem)
+    } problem.registerTo(problemsHolder, occurrence)
   }
+
+  def reportEverything(result: ScalaDfaResult): Unit = {
+    reportConstantConditions(result)
+    reportUnsatisfiedConditionProblems(result)
+  }
+
 
   private def reportConstantCondition(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
     anchor match {

@@ -1,15 +1,20 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.framework
 
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.dataFlow.DfaNullability
 import com.intellij.codeInspection.dataFlow.jvm.problems.IndexOutOfBoundsProblem
 import com.intellij.codeInspection.dataFlow.lang.UnsatisfiedConditionProblem
-import com.intellij.codeInspection.dataFlow.value.DerivedVariableDescriptor
+import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
+import com.intellij.codeInspection.dataFlow.value.{DerivedVariableDescriptor, DfaValue}
+import com.intellij.util.ThreeState
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem {
+  def problemOccurrenceWith(failed: ThreeState, value: DfaValue, state: DfaMemoryState): ProblemOccurrence =
+    ProblemOccurrence.fromThreeState(failed)
   def registerTo(holder: ProblemsHolder, occurrence: ProblemOccurrence): Unit
 }
 
@@ -52,6 +57,18 @@ object ScalaCollectionAccessProblem {
 final case class ScalaNullAccessProblem(override val problemElement: ScExpression,
                                         override val problemKind: ScalaDfaProblemKind[ScalaNullAccessProblem])
   extends ScalaDfaProblem with ScalaDfaProblem.WithKind
+{
+  override def problemOccurrenceWith(failed: ThreeState, value: DfaValue, state: DfaMemoryState): ProblemOccurrence =
+    failed match {
+      case ThreeState.UNSURE =>
+        DfaNullability.fromDfType(state.getDfType(value)) match {
+          case DfaNullability.NULL => ProblemOccurrence.Always
+          case DfaNullability.NULLABLE => ProblemOccurrence.Sometimes
+          case _ => ProblemOccurrence.AssumeNot
+        }
+      case failed => ProblemOccurrence.fromThreeState(failed)
+    }
+}
 
 object ScalaNullAccessProblem {
   trait Factory { this: ScalaDfaProblemKind[ScalaNullAccessProblem] =>

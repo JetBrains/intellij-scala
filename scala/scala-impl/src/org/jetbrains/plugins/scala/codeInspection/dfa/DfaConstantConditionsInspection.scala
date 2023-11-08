@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaVisitor
 final class DfaConstantConditionsInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    new ScalaDfaVisitor(holder)
+    ScalaDfaVisitor.reportingConstantConditionsTo(holder)
   }
 }

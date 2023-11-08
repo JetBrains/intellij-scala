@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang
 
+import org.jetbrains.plugins.scala.lang.dfa.analysis.{DfaManager, ScalaDfaVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+
 package object dfa {
 
   object Messages {
@@ -7,8 +10,6 @@ package object dfa {
     val ConditionAlwaysFalse = "Condition is always false"
     val ExpressionAlwaysZero = "Expression always evaluates to 0"
     val ExpressionAlwaysNull = "Expression always evaluates to null"
-    val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
-    val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
   }
 
   def commonCodeTemplate(returnType: String)(body: String): String =
@@ -47,4 +48,11 @@ package object dfa {
        |  }
        |}
        |""".stripMargin
+
+  implicit final class ScalaDfaVisitorExt(private val visitor: ScalaDfaVisitor) extends AnyVal {
+    def withBuildingUnsupportedPsiElements: ScalaDfaVisitor = new ScalaDfaVisitor(visitor.resultF) {
+      override def visitFunctionDefinition(function: ScFunctionDefinition): Unit =
+        DfaManager.computeDfaResultFor(function, buildUnsupportedPsiElements = true).foreach(resultF)
+    }
+  }
 }
