@@ -42,7 +42,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
 
   override def changedBinaries(previousAnalysis: CompileAnalysis): Option[Set[VirtualFileRef]] = Some(Set.empty)
 
-  override def removedProducts(previousAnalysis: CompileAnalysis): Option[Set[VirtualFileRef]] = Some(Set.empty)
+  override def removedProducts(previousAnalysis: CompileAnalysis): Option[Set[VirtualFileRef]] = None
 
   override def shouldDoIncrementalCompilation(changedClasses: Set[String], analysis: CompileAnalysis): Boolean = {
     if (compilationData.zincData.isCompile){

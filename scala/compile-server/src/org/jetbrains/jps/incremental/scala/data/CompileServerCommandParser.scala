@@ -1,9 +1,8 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
-import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
+import org.jetbrains.plugins.scala.compiler.data.{ComputeStampsArguments, ExpressionEvaluationArguments}
 
-import scala.concurrent.duration.DurationLong
 import scala.util.Try
 
 trait CompileServerCommandParser {
@@ -20,6 +19,13 @@ object CompileServerCommandParser
         ArgumentsParser.parse(args) match {
           case Right(arguments) => CompileServerCommand.Compile(arguments)
           case Left(t) => throw t
+        }
+      case CommandIds.ComputeStamps =>
+        ComputeStampsArguments.parse(args) match {
+          case Some(arguments) =>
+            CompileServerCommand.ComputeStamps(arguments)
+          case None =>
+            throwIllegalArgs(commandId, args)
         }
       case CommandIds.CompileJps =>
         args match {

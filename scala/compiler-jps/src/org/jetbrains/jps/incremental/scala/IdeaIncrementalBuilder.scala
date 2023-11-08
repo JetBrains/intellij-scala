@@ -6,6 +6,7 @@ import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.data.CompilationDataFactory
 import org.jetbrains.jps.incremental.{java => _, scala => _, _}
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
 
@@ -78,7 +79,10 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 
     ScalaBuilder.compile(context, chunk, sources, Seq.empty, modules, client) match {
+      case Left(CompilationDataFactory.NoCompilationData) =>
+        JpsExitCode.NOTHING_DONE
       case Left(error) =>
+        //noinspection ReferencePassedToNls
         client.error(error)
         JpsExitCode.ABORT
       case _ if client.hasReportedErrors || client.isCanceled => JpsExitCode.ABORT

@@ -25,6 +25,10 @@ object CompilationDataFactory
 
   private val compilationStamp = System.nanoTime()
 
+  // This is an escape hatch from the current Either[String, CompilationData] API, for a recoverable error.
+  // The factory needs to be refactored in the future.
+  private[scala] final val NoCompilationData = "No compilation data. Skip target."
+
   override def from(sources: Seq[File],
                     allSources: Seq[File],
                     context: CompileContext,
@@ -46,14 +50,7 @@ object CompilationDataFactory
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.getOrElse(output, {
-        val message =
-          s"""Unknown build target output directory: $output
-             |Current outputs:
-             |${outputToCacheMap.keys.mkString("\n")}
-           """.stripMargin
-        throw new RuntimeException(message)
-      })
+      val cacheFile = outputToCacheMap.getOrElse(output, return Left(NoCompilationData))
 
       val classpathSet = classpath.toSet
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpathSet.contains(p._1))

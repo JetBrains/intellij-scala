@@ -30,6 +30,8 @@ case class ExpressionEvaluationArguments(
 }
 
 object ExpressionEvaluationArguments {
+  import Extractors.{stringToPath, stringToPaths}
+
   def parse(strings: Seq[String]): Option[ExpressionEvaluationArguments] = strings match {
     case Seq(
       stringToPath(outDir),
@@ -43,13 +45,6 @@ object ExpressionEvaluationArguments {
     ) =>
       Some(ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName))
     case _ => None
-  }
-
-  private val stringToPath: Extractor[String, Path] = Paths.get(_)
-
-  private val stringToPaths: Extractor[String, Seq[Path]] = { paths =>
-    if (paths.isEmpty) Seq.empty
-    else paths.split(SerializationUtils.Delimiter).map(stringToPath).toSeq
   }
 
   private val stringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence(_)

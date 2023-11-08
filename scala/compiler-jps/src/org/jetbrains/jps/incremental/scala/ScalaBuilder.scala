@@ -4,17 +4,17 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
 
 import java.io._
 import java.net.InetAddress
-import java.util.ServiceLoader
+import java.nio.file.Path
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 
@@ -41,7 +41,7 @@ object ScalaBuilder {
 
     for {
       sbtData         <-  sbtData
-      dataFactory     = dataFactoryOf(context)
+      dataFactory     = DataFactoryService.instance(context)
       compilerData    <- dataFactory.getCompilerDataFactory.from(context, chunk)
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     } yield {
@@ -52,7 +52,6 @@ object ScalaBuilder {
       //  do any compilation in parallel with local compilation
       def fallbackToLocalServer(reasonMessage: String, e: Exception): ExitCode = {
         context.putUserData(DisableScalaCompileServerForContextKey, true)
-        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
         val message = reasonMessage + s" [${chunk.getPresentableShortName}]\n" + JpsBundle.message("trying.to.compile.without.it")
         client.warning(message)
         Log.warn(message, e)
@@ -60,7 +59,7 @@ object ScalaBuilder {
         localServer.doCompile(sbtData, compilerData, compilationData, client)
       }
 
-      val server = getServer(context, compilerData.compilerJars.exists(_.hasScala3))
+      val server = getServer(context)
       server.compile(sbtData, compilerData, compilationData, client) match {
         case Left(error) =>
           import ScalaCompileServerJpsMessages._
@@ -84,13 +83,40 @@ object ScalaBuilder {
     }
   }
 
-  private def dataFactoryOf(context: CompileContext): DataFactoryService = {
-    val df = ServiceLoader.load(classOf[DataFactoryService])
-    val registeredDataFactories = df.iterator().asScala.toList
-    Log.info(s"Registered factories of ${classOf[DataFactoryService].getName}: $registeredDataFactories")
-    val firstEnabledDataFactory = registeredDataFactories.find(_.isEnabled(context.getProjectDescriptor.getProject))
-    Log.info(s"First enabled factory (if any): $firstEnabledDataFactory")
-    firstEnabledDataFactory.getOrElse(DefaultDataFactoryService)
+  def computeStamps(context: CompileContext, chunk: ModuleChunk, outputFiles: Seq[Path], analysisFile: Path, client: Client): ExitCode = {
+
+    // TODO: ensure Scala Compile server is stopped in order it doesn't eventually
+    //  do any compilation in parallel with local compilation
+    def fallbackToLocalServer(reasonMessage: String, e: Exception): ExitCode = {
+      context.putUserData(DisableScalaCompileServerForContextKey, true)
+      val message = reasonMessage + s" [${chunk.getPresentableShortName}]\n" + JpsBundle.message("trying.to.compute.zinc.stamps.without.it")
+      client.warning(message)
+      Log.warn(message, e)
+
+      localServer.computeStamps(outputFiles, analysisFile, client).value
+    }
+
+    val server = getServer(context)
+    server.computeStamps(outputFiles, analysisFile, client) match {
+      case Left(error) =>
+        import ScalaCompileServerJpsMessages._
+        import ServerError._
+        error match {
+          case SocketConnectTimeout(address, port, timeout, cause) =>
+            fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port, reason = Some(socketConnectTimeout(timeout))), cause)
+          case ConnectionError(address, port, cause) =>
+            fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port, reason = Option(cause.getMessage).filter(_.trim.nonEmpty)), cause)
+          case UnknownHost(address, cause) =>
+            val message = unknownHostErrorMessage(address)
+            client.error(message)
+            Log.error(message, cause)
+            ExitCode.Abort
+          case MissingScalaCompileServerSystemDirectory(cause) =>
+            fallbackToLocalServer(missingScalaCompileServerSystemDir(), cause)
+        }
+
+      case Right(code) => code
+    }
   }
 
   def hasBuildModules(chunk: ModuleChunk): Boolean = {
@@ -139,7 +165,7 @@ object ScalaBuilder {
     }
   }
 
-  private def getServer(implicit context: CompileContext, moduleHasScala3: Boolean): Server = {
+  private def getServer(implicit context: CompileContext): Server = {
     val useRemoteServer = isCompileServerEnabled &&
       !CompileServerProperties.isMyselfScalaCompileServer &&
       !context.getUserData(DisableScalaCompileServerForContextKey)
