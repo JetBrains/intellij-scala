@@ -105,7 +105,7 @@ object CompilerFactoryImpl {
   private var classLoadersMap = Map[Seq[File], ClassLoader]()
 
   private def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
-    scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))
+    scalaInstanceCache.getOrUpdate(jars)(() => createScalaInstance(jars))
 
   private def createScalaInstance(jars: CompilerJars) = {
     def createClassLoader(paths: Seq[File]) = {
