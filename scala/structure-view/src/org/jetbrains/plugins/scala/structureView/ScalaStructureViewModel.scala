@@ -52,6 +52,14 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
 //    override def isReverted: Boolean = false
 //  })
 
+  override def getFilters: Array[Filter] = {
+    val filters = Array[Filter](
+      ScalaPublicElementsFilter
+    )
+
+    filters
+  }
+
   override def getSorters: Array[Sorter] = {
     val sorters = Array(
       ScalaVisibilitySorter,

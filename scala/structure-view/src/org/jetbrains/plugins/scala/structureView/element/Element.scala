@@ -28,8 +28,8 @@ object Element {
     case packaging: ScPackaging       => packaging.getChildren.flatMap(Element.forPsi(_)).toSeq
     case parameter: ScClassParameter  => Seq(new ValOrVarParameter(parameter, inherited))
     case function: ScFunction         => Seq(new Function(function, inherited))
-    case variable: ScValue            => variable.declaredElements.map(new Value(_, inherited))
-    case variable: ScVariable         => variable.declaredElements.map(new Variable(_, inherited))
+    case variable: ScValue            => variable.declaredElements.map(new Value(_, variable, inherited))
+    case variable: ScVariable         => variable.declaredElements.map(new Variable(_, variable, inherited))
     case alias: ScTypeAlias           => Seq(new TypeAlias(alias, inherited))
     case block: ScBlockExpr           => Seq(new Block(block))
     case extension: ScExtension       => Seq(new Extension(extension))
