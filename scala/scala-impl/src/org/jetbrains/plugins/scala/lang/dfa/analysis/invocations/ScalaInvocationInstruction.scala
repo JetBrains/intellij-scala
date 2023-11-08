@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations
 
+import com.intellij.codeInspection.dataFlow.DfaNullability
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
 import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, ExpressionPushingInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
+import com.intellij.util.ThreeState
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
@@ -41,6 +43,21 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
   override def accept(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState): Array[DfaInstructionState] = {
     implicit val factory: DfaValueFactory = interpreter.getFactory
     val argumentValues = collectArgumentValuesFromStack(stateBefore)
+
+    for {
+      thisArgument <- invocationInfo.thisArgument
+      content <- thisArgument.content
+      thisValue <- argumentValues.get(thisArgument)
+    } {
+      val nullability = DfaNullability.fromDfType(stateBefore.getDfType(thisValue))
+      val failed = nullability match {
+        case DfaNullability.NOT_NULL => ThreeState.NO
+        case DfaNullability.NULL => ThreeState.YES
+        case _ => ThreeState.UNSURE
+      }
+      val problem = ScalaNullAccessProblem.npeOnInvocation.create(content)
+      interpreter.getListener.onCondition(problem, thisValue, failed, stateBefore)
+    }
 
     val finder = MethodEffectFinder(invocationInfo)
     val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)

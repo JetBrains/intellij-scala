@@ -25,7 +25,10 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
 
     val inspectionManager = InspectionManager.getInstance(getProject)
     val mockProblemsHolder = new MockProblemsHolder(actualFile, inspectionManager)
-    val dfaVisitor = new ScalaDfaVisitor(mockProblemsHolder, buildUnsupportedPsiElements)
+    var dfaVisitor = ScalaDfaVisitor.reportingEverythingTo(mockProblemsHolder)
+    if (buildUnsupportedPsiElements) {
+      dfaVisitor = dfaVisitor.withBuildingUnsupportedPsiElements
+    }
 
     actualFile.accept(new ScalaRecursiveElementVisitor {
       override def visitScalaElement(element: ScalaPsiElement): Unit = {
