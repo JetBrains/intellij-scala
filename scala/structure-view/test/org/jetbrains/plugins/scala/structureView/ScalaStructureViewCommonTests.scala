@@ -4,6 +4,8 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.{IconManager, PlatformIcons}
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
 
@@ -1120,4 +1122,129 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
     })
   }
+
+  def testOrderingByVisibility(): Unit = {
+    myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
+    configureFromFileText(DerivedClass)
+
+    myFixture.testStructureView { svc =>
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  f(): Unit
+           |  g(): Unit
+           |  x
+           |  i
+           |  setX(Int): Unit
+           |  getX
+           |  setY(Int): Unit
+           |  getY
+           |  setI(Int): Unit
+           |  getI
+           |""".stripMargin +
+          // derived
+          """  getClass(): Class[_]
+            |  wait(Long, Int): Unit
+            |  wait(Long): Unit
+            |  wait(): Unit
+            |  notifyAll(): Unit
+            |  h(): Unit
+            |  setZ(Int): Unit
+            |  notify(): Unit
+            |  getZ: Int
+            |  hashCode(): Int
+            |  equals(Object): Boolean
+            |  clone(): Object
+            |  toString: String
+            |  finalize(): Unit
+            |""".stripMargin
+      )
+
+      PlatformTestUtil.expandAll(svc.getTree)
+      svc.setActionActive(ScalaVisibilitySorter.ID, true)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  f(): Unit
+           |  g(): Unit
+           |  setX(Int): Unit
+           |  getX
+           |  setY(Int): Unit
+           |  getY
+           |  setI(Int): Unit
+           |  getI
+           |""".stripMargin +
+          // derived public
+          """  getClass(): Class[_]
+            |  wait(Long, Int): Unit
+            |  wait(Long): Unit
+            |  wait(): Unit
+            |  notifyAll(): Unit
+            |  notify(): Unit
+            |  hashCode(): Int
+            |  equals(Object): Boolean
+            |  toString: String
+            |""".stripMargin +
+          // derived protected
+          """  h(): Unit
+            |  getZ: Int
+            |  clone(): Object
+            |  finalize(): Unit
+            |""".stripMargin +
+          // derived private
+          """  setZ(Int): Unit
+            |""".stripMargin +
+          // private
+          """  x
+            |  i
+            |""".stripMargin
+      )
+    }
+  }
+
+  @Language("Scala")
+  private val BaseInterfaceAndClass =
+    """
+      |package tests
+      |
+      |trait Interface {
+      |  def g(): Unit
+      |  protected def h(): Unit = {}
+      |  def setI(i: Int): Unit
+      |  def getI: Int
+      |}
+      |
+      |class Base {
+      |  def f(): Unit = {}
+      |  def toString: String = null
+      |  private[tests] def setZ(z: Int): Unit = {}
+      |  def g(): Unit = {}
+      |  protected def getZ: Int = 0
+      |  def setX(x: Int): Unit = {}
+      |  def getX: Int = 0
+      |}
+      |""".stripMargin
+
+  @Language("Scala")
+  private val DerivedClass =
+    """
+      |package tests
+      |
+      |class Derived extends Base with Interface {
+      |  def f(): Unit = {}
+      |  def g(): Unit = {}
+      |  private[this] val x = 0
+      |  private val i = 0
+      |  def setX(x: Int): Unit = {}
+      |  def getX = 0
+      |  def setY(x: Int): Unit = {}
+      |  def getY = 0
+      |  def setI(i: Int): Unit = {}
+      |  def getI = 0
+      |}
+      |""".stripMargin
 }

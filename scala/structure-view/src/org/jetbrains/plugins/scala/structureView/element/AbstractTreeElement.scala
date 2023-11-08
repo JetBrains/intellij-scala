@@ -11,7 +11,8 @@ abstract class AbstractTreeElement[T <: PsiElement](
   override val inherited: Boolean = false
 ) extends Element
   with AbstractNavigatable
-  with AbstractItemPresentation {
+  with AbstractItemPresentation
+  with AbstractAccessLevelProvider {
 
   override def getPresentation: ItemPresentation = this
 
