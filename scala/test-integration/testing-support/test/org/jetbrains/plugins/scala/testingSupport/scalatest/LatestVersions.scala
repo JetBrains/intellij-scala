@@ -16,39 +16,42 @@ object ScalaTestLatestVersions {
   val Scalatest_3_2 = "3.2.16"
 }
 
-trait WithScalaTest_2_2 extends ScalaSdkOwner {
+//extra intermediate trait to group all scala-test related inheritors of ScalaSdkOwner in type hierarchy view
+trait WithScalaTest_X extends ScalaSdkOwner
+
+trait WithScalaTest_2_2 extends WithScalaTest_X {
   abstract override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
     IvyManagedLoader(("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_2_2).transitive())
   )
 }
 
-trait WithScalaTest_3_0 extends ScalaSdkOwner {
+trait WithScalaTest_3_0 extends WithScalaTest_X {
   abstract override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
     IvyManagedLoader(("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_3_0).transitive())
   )
 }
 
-trait WithScalaTest_3_1 extends ScalaSdkOwner {
+trait WithScalaTest_3_1 extends WithScalaTest_X {
   abstract override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
     IvyManagedLoader(("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_3_1).transitive())
   )
 }
 
-trait WithScalaTest_3_2 extends ScalaSdkOwner with ScalaTestApiSymbols.SinceScalatest_3_2 {
+trait WithScalaTest_3_2 extends WithScalaTest_X with ScalaTestApiSymbols.SinceScalatest_3_2 {
   abstract override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
     IvyManagedLoader(("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_3_2).transitive())
   )
 }
 
-trait WithScala_2_11 extends ScalaSdkOwner {
+trait WithScala_2_11 extends WithScalaTest_X {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
-trait WithScala_2_12 extends ScalaSdkOwner {
+trait WithScala_2_12 extends WithScalaTest_X {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
-trait WithScala_2_13 extends ScalaSdkOwner {
+trait WithScala_2_13 extends WithScalaTest_X {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
-trait WithScala_3 extends ScalaSdkOwner {
+trait WithScala_3 extends WithScalaTest_X {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 }
