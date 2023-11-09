@@ -109,4 +109,60 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |9: RETURN
       |""".stripMargin
   }
+
+  def testNullEquality(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
+    """
+      |val x: AnyRef = null
+      |x == null
+      |null == x
+      |
+      |x eq null
+      |null eq x
+      |
+      |x != null
+      |null != x
+      |
+      |x ne null
+      |null ne x
+      |""".stripMargin
+  })(
+    """
+      |0: PUSH_VAL null
+      |1: ASSIGN_TO x
+      |2: POP
+      |3: PUSH x
+      |4: PUSH_VAL null
+      |5: BOOLEAN_OP ==
+      |6: POP
+      |7: PUSH_VAL null
+      |8: PUSH x
+      |9: BOOLEAN_OP ==
+      |10: POP
+      |11: PUSH x
+      |12: PUSH_VAL null
+      |13: BOOLEAN_OP ==
+      |14: POP
+      |15: PUSH_VAL null
+      |16: PUSH x
+      |17: BOOLEAN_OP ==
+      |18: POP
+      |19: PUSH x
+      |20: PUSH_VAL null
+      |21: BOOLEAN_OP !=
+      |22: POP
+      |23: PUSH_VAL null
+      |24: PUSH x
+      |25: BOOLEAN_OP !=
+      |26: POP
+      |27: PUSH x
+      |28: PUSH_VAL null
+      |29: BOOLEAN_OP !=
+      |30: POP
+      |31: PUSH_VAL null
+      |32: PUSH x
+      |33: BOOLEAN_OP !=
+      |34: POP
+      |35: FINISH BlockExpression
+      |36: RETURN
+      |""".stripMargin)
 }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType, unknownDfaValue}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, unknownDfaValue}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
@@ -64,7 +64,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
                                     argumentValues: Map[Argument, DfaValue], qualifier: Option[ScalaDfaVariableDescriptor])
                                    (implicit factory: DfaValueFactory): MethodEffect = {
     val returnType = invocationInfo.invokedElement
-      .map(element => scTypeToDfType(element.returnType))
+      .map(element => element.returnInfo.toDfaType)
       .getOrElse(DfType.TOP)
 
     val classesEnhancement = findSpecialSupportForClasses(invocationInfo, argumentValues) match {

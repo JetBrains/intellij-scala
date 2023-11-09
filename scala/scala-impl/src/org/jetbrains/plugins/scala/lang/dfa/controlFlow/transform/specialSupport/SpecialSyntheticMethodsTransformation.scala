@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.ScalaBoolean
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.{LogicalOperation, NumericPrimitives}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.{LogicalOperation, NumericPrimitives, ScalaRelationType}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScNullLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -91,12 +92,29 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
                                      invocationInfo: InvocationInfo): StackValue = {
 
     val operation = RelationalBinary(function.name)
-    val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
+    val isEqualityCheck = operation match {
+      case ScalaRelationType.Java(operation)  => operation == RelationType.EQ || operation == RelationType.NE
+      case ScalaRelationType.InstNe | ScalaRelationType.InstEq => true
+    }
     val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-    val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent)
+    val (left, right, successful) = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = isEqualityCheck)
 
     if (successful) {
-      binaryBoolOp(left, right, operation, forceEqualityByContent, invocationInfo.anchor)
+      binaryBoolOp(left, right, operation.toJava, forceEqualityByContent = isEqualityCheck, invocationInfo.anchor)
+    } else if (isEqualityCheck) {
+      transformEquality(operation, left, right, leftArg, rightArg, invocationInfo)
+    } else {
+      buildUnknownCall(ResultReq.Required, Seq(left, right))
+    }
+  }
+
+  private[SpecialSyntheticMethodsTransformation]
+  def transformEquality(op: ScalaRelationType, left: StackValue, right: StackValue, leftArg: Argument, rightArg: Argument, invocationInfo: InvocationInfo): StackValue = {
+    def isNullArg(arg: Argument): Boolean =
+      arg.content.exists(_.is[ScNullLiteral])
+
+    if (isNullArg(leftArg) || isNullArg(rightArg)) {
+      binaryBoolOp(left, right, op.toJava, forceEqualityByContent = false,invocationInfo.anchor)
     } else {
       buildUnknownCall(ResultReq.Required, Seq(left, right))
     }
@@ -168,7 +186,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
 
   private def verifyBooleanArgumentType(expression: Option[ScExpression]): Boolean = expression
     .map(resolveExpressionType)
-    .map(scTypeToDfType)
+    .map(scTypeToDfType(_))
     .exists(_.is[DfBooleanType])
 }
 
