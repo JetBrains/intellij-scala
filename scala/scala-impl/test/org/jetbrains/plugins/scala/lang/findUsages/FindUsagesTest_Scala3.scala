@@ -48,8 +48,8 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
 
   def testUniversalApplySyntax_ClassWithMultipleConstructors(): Unit = doTest(
     s"""class ${CARET}MyClassWithMultipleConstructors(p: String) {
-       |  def this() = this("42")
-       |  def this(i: Int) = this(i.toString)
+       |  def this() = ${start}this$end("42")
+       |  def this(i: Int) = ${start}this$end(i.toString)
        |}
        |
        |new ${start}MyClassWithMultipleConstructors$end()
@@ -63,8 +63,8 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
 
   def testUniversalApplySyntax_ClassWithMultipleConstructorsAndApplyMethodsInCompanion(): Unit = doTest(
     s"""class ${CARET}MyClassWithMultipleConstructorsAndApplyMethodsInCompanion(p: String) {
-       |  def this() = this("42")
-       |  def this(i: Int) = this(i.toString)
+       |  def this() = ${start}this$end("42")
+       |  def this(i: Int) = ${start}this$end(i.toString)
        |}
        |object MyClassWithMultipleConstructorsAndApplyMethodsInCompanion {
        |  def apply(i: Int, s: String): ${start}MyClassWithMultipleConstructorsAndApplyMethodsInCompanion$end = ???
@@ -86,7 +86,7 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
 
   def testClassWithMultipleConstructors_FindFromDefinition_UniversalApplySyntax(): Unit = doTest(
     s"""class ${CARET}MyClass(s: String) {
-       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Int) = ${start}this$end(x.toString)
        |  def this(x: Short) = this(x.toInt)
        |}
        |${start}MyClass$end("test1")

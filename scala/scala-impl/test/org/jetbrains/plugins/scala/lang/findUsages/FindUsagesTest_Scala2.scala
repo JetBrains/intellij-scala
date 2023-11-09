@@ -96,7 +96,7 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
 
   def testClassWithMultipleConstructors_FindFromDefinition(): Unit = doTest(
     s"""class ${CARET}MyClass(s: String) {
-       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Int) = ${start}this$end(x.toString)
        |  def this(x: Short) = this(x.toInt)
        |}
        |new ${start}MyClass$end("test1")

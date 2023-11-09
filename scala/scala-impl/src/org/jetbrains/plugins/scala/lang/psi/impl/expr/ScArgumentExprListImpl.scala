@@ -63,6 +63,10 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         constrInvocation.matchedParameters.filter {
           case (e, _) => this.isAncestorOf(e)
         }
+      case selfInvocation: ScSelfInvocation =>
+        selfInvocation.matchedParameters.filter {
+          case (e, _) => this.isAncestorOf(e)
+        }
       case _ => Seq.empty
     }
 

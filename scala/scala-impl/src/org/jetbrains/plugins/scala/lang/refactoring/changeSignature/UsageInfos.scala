@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -72,9 +71,8 @@ private[changeSignature] case class OverriderClassParamUsageInfo(override val na
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
 private[changeSignature] trait MethodUsageInfo {
-  def expr: ScExpression
   def argsInfo: OldArgsInfo
-  def ref: ScReference
+  def ref: PsiReference
   def method: PsiNamedElement = ref.resolve() match {
     case e: PsiNamedElement => e
     case _ => throw new IllegalArgumentException("Found reference does not resolve")
@@ -83,10 +81,6 @@ private[changeSignature] trait MethodUsageInfo {
 
 private[changeSignature] case class MethodCallUsageInfo(override val ref: ScReferenceExpression, call: ScMethodCall)
         extends UsageInfo(call) with MethodUsageInfo {
-
-  private val resolveResult = Option(ref).flatMap(_.bind())
-  val substitutor: Option[ScSubstitutor] = resolveResult.map(_.substitutor)
-  override val expr: ScExpression = call
   override val argsInfo: OldArgsInfo = OldArgsInfo(allArgs(call), method)
 
   private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
@@ -99,21 +93,18 @@ private[changeSignature] case class MethodCallUsageInfo(override val ref: ScRefe
 
 private[changeSignature] case class RefExpressionUsage(refExpr: ScReferenceExpression)
         extends UsageInfo(refExpr: PsiReference) with MethodUsageInfo {
-  override val expr: ScExpression = refExpr
   override val ref: ScReference = refExpr
   override val argsInfo: OldArgsInfo = OldArgsInfo(Seq.empty, method)
 }
 
 private[changeSignature] case class InfixExprUsageInfo(infix: ScInfixExpr)
         extends UsageInfo(infix) with MethodUsageInfo {
-  override val expr: ScExpression = infix
   override val ref: ScReference = infix.operation
   override val argsInfo: OldArgsInfo = OldArgsInfo(infix.argumentExpressions, method)
 }
 
 private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
         extends UsageInfo(postfix) with MethodUsageInfo {
-  override val expr: ScExpression = postfix
   override val ref: ScReference = postfix.operation
   override val argsInfo: OldArgsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
@@ -121,13 +112,13 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
 private[changeSignature] case class ConstructorUsageInfo(override val ref: ScReference, constrInvocation: ScConstructorInvocation)
         extends UsageInfo(constrInvocation) with MethodUsageInfo {
 
-  private val resolveResult = Option(ref).flatMap(_.bind())
-  val substitutor: Option[ScSubstitutor] = resolveResult.map(_.substitutor)
-  override val expr: ScExpression = {
-    val newText = s"new ${constrInvocation.getText}"
-    createExpressionFromText(newText, constrInvocation)(constrInvocation.getManager)
-  }
   override val argsInfo: OldArgsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
+}
+
+private[changeSignature] case class SelfInvocationConstructorUsageInfo(override val ref: ScSelfInvocation)
+  extends UsageInfo(ref: PsiReference) with MethodUsageInfo {
+
+  override def argsInfo: OldArgsInfo = OldArgsInfo(ref.arguments.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
@@ -139,7 +130,7 @@ private[changeSignature] object isAnonFunUsage {
       case ChildOf(mc: MethodInvocation) if mc.argumentExpressions.exists(ScUnderScoreSectionUtil.isUnderscore) => Some(AnonFunUsageInfo(mc, ref))
       case ChildOf(und: ScUnderscoreSection) => Some(AnonFunUsageInfo(und, ref))
       case ResolvesTo(m: PsiMethod) & ChildOf(elem)
-        if m.getParameterList.getParametersCount > 0 && !elem.isInstanceOf[MethodInvocation] =>
+        if m.getParameterList.getParametersCount > 0 && !elem.is[MethodInvocation] =>
         Some(AnonFunUsageInfo(ref, ref))
       case _ => None
     }
