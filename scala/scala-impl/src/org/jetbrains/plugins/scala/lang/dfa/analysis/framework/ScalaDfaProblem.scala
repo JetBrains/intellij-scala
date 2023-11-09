@@ -8,6 +8,7 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.{DerivedVariableDescriptor, DfaValue}
 import com.intellij.util.ThreeState
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -76,7 +77,7 @@ object ScalaNullAccessProblem {
   }
   type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] with Factory
 
-  val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind("Could be null")( "Is always null") with Factory
+  val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("method.invocation.might.produce.nullpointerexception"))( ScalaBundle.message("method.invocation.will.produce.nullpointerexception")) with Factory
 }
 
 class ScalaDfaProblemKind[+E <: ScalaDfaProblem.WithKind](@Nls val sometimesMessage: String)

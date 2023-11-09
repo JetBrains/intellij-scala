@@ -67,14 +67,17 @@ object ScalaDfaConstants {
       "%" -> LongRangeBinOp.MOD
     )
 
-    val RelationalBinary: Map[String, RelationType] = Map(
+    val RelationalBinary: Map[String, ScalaRelationType] = (Map(
       "<" -> RelationType.LT,
       "<=" -> RelationType.LE,
       ">" -> RelationType.GT,
       ">=" -> RelationType.GE,
       "==" -> RelationType.EQ,
       "!=" -> RelationType.NE
-    )
+    ).view.mapValues(ScalaRelationType.Java).iterator ++ Iterator(
+      "eq" -> ScalaRelationType.InstEq,
+      "ne" -> ScalaRelationType.InstNe,
+    )).toMap
 
     val LogicalBinary: Map[String, LogicalOperation] = Map(
       "&&" -> LogicalOperation.And,
@@ -89,5 +92,20 @@ object ScalaDfaConstants {
     val LogicalUnary: Map[String, LogicalOperation] = Map(
       "unary_!" -> LogicalOperation.Not
     )
+  }
+
+  sealed abstract class ScalaRelationType {
+    def toJava: RelationType
+  }
+  object ScalaRelationType {
+    case object InstEq extends ScalaRelationType {
+      override def toJava: RelationType = RelationType.EQ
+    }
+    case object InstNe extends ScalaRelationType {
+      override def toJava: RelationType = RelationType.NE
+    }
+    case class Java(relationType: RelationType) extends ScalaRelationType {
+      override def toJava: RelationType = relationType
+    }
   }
 }

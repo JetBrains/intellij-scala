@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa.utils
 
+import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.ProperArgument
+import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -49,7 +51,7 @@ object ScalaDfaTypeUtils {
     case boolean: ScBooleanLiteral => DfTypes.booleanValue(boolean.getValue)
     case char: ScCharLiteral => DfTypes.intValue(char.getValue.toInt)
     case string: ScStringLiteral =>
-      string.`type`() match {
+      string.getNonValueType() match {
         case Right(ty) => DfTypes.constant(string.getValue, scTypeToDfType(ty))
         case Left(_) => DfType.TOP
       }
@@ -81,7 +83,7 @@ object ScalaDfaTypeUtils {
   }
 
   //noinspection UnstableApiUsage
-  def scTypeToDfType(scType: ScType): DfType = {
+  def scTypeToDfType(scType: ScType, nullability: Nullability = Nullability.UNKNOWN): DfType = {
     val extractedClass = scType match {
       case literalType: ScLiteralType => literalType.wideType.extractClass
       case _ => scType.extractClass
@@ -94,6 +96,7 @@ object ScalaDfaTypeUtils {
       case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
       case Some(psiClass) =>
         psiClass.qualifiedName match {
+          case "scala.Unit" => DfUnitType
           case "scala.Int" => DfTypes.INT
           case "scala.Long" => DfTypes.LONG
           case "scala.Float" => DfTypes.FLOAT
@@ -102,7 +105,8 @@ object ScalaDfaTypeUtils {
           case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
           case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
           case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
-          case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
+          //case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
+          case _ => DfTypes.typedObject(scType.toPsiType, nullability)
         }
       case _ => DfType.TOP
     }

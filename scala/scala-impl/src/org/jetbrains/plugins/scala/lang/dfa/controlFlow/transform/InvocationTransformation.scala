@@ -76,19 +76,16 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
     )
   }
 
-  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo]): Option[StackValue] = {
-    if (invocationsInfo.size > 1) {
-      None
-    } else {
-      val invocationInfo = invocationsInfo.head
-
-      invocationInfo.invokedElement match {
-        case Some(InvokedElement(psiElement)) => psiElement match {
-          case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo)
+  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo]): Option[StackValue] =
+    invocationsInfo match {
+      case Seq(invocationInfo) =>
+        invocationInfo.invokedElement match {
+          case Some(InvokedElement(psiElement)) => psiElement match {
+            case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo)
+            case _ => None
+          }
           case _ => None
         }
-        case _ => None
-      }
+      case _ => None
     }
-  }
 }

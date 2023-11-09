@@ -1,7 +1,12 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
-import com.intellij.psi.{PsiElement, PsiMember, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
+import com.intellij.codeInsight.Nullability
+import com.intellij.codeInspection.dataFlow.DfaPsiUtil
+import com.intellij.codeInspection.dataFlow.types.DfType
+import com.intellij.psi.{PsiElement, PsiMember, PsiMethod, PsiModifierListOwner, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvokedElement.ValueInfo
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -29,10 +34,16 @@ case class InvokedElement(psiElement: PsiElement) {
     case _ => None
   }
 
-  def returnType: ScType = psiElement match {
+  lazy val returnType: ScType = psiElement match {
     case synthetic: ScSyntheticFunction => synthetic.retType
     case function: ScFunction => function.returnType.getOrAny
+    case javaFun: PsiMethod => javaFun.getReturnType.toScType()(psiElement)
     case _ => Any(psiElement.getProject)
+  }
+
+  lazy val returnInfo: ValueInfo = {
+    val nullability = DfaPsiUtil.getElementNullability(returnType.toPsiType, psiElement.asOptionOf[PsiModifierListOwner].orNull)
+    ValueInfo(returnType, nullability)
   }
 }
 
@@ -40,5 +51,9 @@ object InvokedElement {
 
   def fromTarget(target: Option[ScalaResolveResult], problems: Seq[ApplicabilityProblem]): Option[InvokedElement] = {
     if (problems.isEmpty) target.map(_.element).map(InvokedElement(_)) else None
+  }
+
+  case class ValueInfo(scType: ScType, nullability: Nullability) {
+    def toDfaType: DfType = scTypeToDfType(scType, nullability)
   }
 }
