@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInsight
 package hints
 
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
 trait ScalaHintsSettings {
   def showMethodResultType: Boolean
   def showMemberVariableType: Boolean
@@ -34,11 +36,12 @@ object ScalaHintsSettings {
 
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
+    private val applicationSettings = ScalaApplicationSettings.getInstance
 
-    override def showMethodResultType: Boolean = xRayMode || settings.showFunctionReturnType
-    override def showMemberVariableType: Boolean = xRayMode || settings.showPropertyType
-    override def showLocalVariableType: Boolean = xRayMode || settings.showLocalVariableType
-    override def showMethodChainInlayHints: Boolean = xRayMode || settings.showMethodChainInlayHints
+    override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showFunctionReturnType
+    override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showPropertyType
+    override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showLocalVariableType
+    override def showMethodChainInlayHints: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS) || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains
     override def presentationLength: Int = settings.presentationLength

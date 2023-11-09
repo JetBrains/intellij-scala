@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 
@@ -41,7 +42,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- hintFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element), settings)
-      } yield info) ++ (if (ScalaHintsSettings.xRayMode) collectXRayHints(editor, root) else Seq.empty)
+      } yield info) ++ (if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
 
