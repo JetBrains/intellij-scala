@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListe
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable.{getInstance => EditorSettingsExternalizable}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -55,7 +54,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
     private var firstKeyPressTime = 0L
 
-    override def keyPressed(e: KeyEvent): Unit = if (Registry.is("scala.xray.mode")) {
+    override def keyPressed(e: KeyEvent): Unit = if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD || ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
       if (e.getKeyCode == ModifierKey) {
         if (System.currentTimeMillis() - firstKeyPressTime < ScalaApplicationSettings.XRAY_DOUBLE_PRESS_INTERVAL) {
           firstKeyPressTime = 0
