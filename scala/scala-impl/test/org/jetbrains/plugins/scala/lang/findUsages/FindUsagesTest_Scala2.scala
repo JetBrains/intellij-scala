@@ -96,7 +96,7 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
 
   def testClassWithMultipleConstructors_FindFromDefinition(): Unit = doTest(
     s"""class ${CARET}MyClass(s: String) {
-       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Int) = ${start}this$end(x.toString)
        |  def this(x: Short) = this(x.toInt)
        |}
        |new ${start}MyClass$end("test1")
@@ -249,5 +249,25 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |  base.${start}bar$end
        |  child.${start}bar$end
        |}""".stripMargin
+  )
+
+  def testFindUsagesOnConstructorInvocation(): Unit = doTest(
+    s"""
+       |class Color(x: Int, foo: String) {
+       |  def this(x: Int, y: Int) = ${start}this$end(x, "")
+       |
+       |  new ${start}Co${CARET}lor$end(123, "foo")
+       |}
+       |""".stripMargin
+  )
+
+  def testFindUsagesOnSelfInvocation(): Unit = doTest(
+    s"""
+       |class Color(x: Int, foo: String) {
+       |  def this(x: Int, y: Int) = ${start}th${CARET}is$end(x, "")
+       |
+       |  new ${start}Color$end(123, "foo")
+       |}
+       |""".stripMargin
   )
 }

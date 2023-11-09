@@ -224,6 +224,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   protected def handleUsageArguments(change: ChangeInfo, usage: UsageInfo): Unit = {
     usage match {
       case c: ConstructorUsageInfo => handleConstructorUsageArguments(change, c)
+      case c: SelfInvocationConstructorUsageInfo => handleSelfInvocationConstructorUsageArguments(change, c)
       case m: MethodCallUsageInfo => handleMethodCallUsagesArguments(change, m)
       case r: RefExpressionUsage => handleRefUsageArguments(change, r)
       case i: InfixExprUsageInfo => handleInfixUsage(change, i)
@@ -265,6 +266,14 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     val newConstr = createConstructorFromText(text, constr.getContext, constr)
 
     constr.replace(newConstr)
+  }
+
+  def handleSelfInvocationConstructorUsageArguments(change: ChangeInfo, usage: SelfInvocationConstructorUsageInfo): Unit = {
+    val invocation = usage.ref
+    val text = "this" + argsText(change, usage)
+    val newInvocation = createSelfInvocationFromText(text, invocation.getContext, invocation)
+
+    invocation.replace(newInvocation)
   }
 
   protected def handleRefUsageArguments(change: ChangeInfo, usage: RefExpressionUsage): Unit = {

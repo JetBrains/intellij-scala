@@ -128,4 +128,13 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     )
     doTest(null, "CClass", null, params)
   }
+
+  def testSelfInvocation(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(
+      Seq(parameterInfo(name = "d", oldIdx = -1, tpe = Double, defVal = "1.23")),
+      Seq(parameterInfo(name = "foo", oldIdx = 1, tpe = Boolean), parameterInfo(name = "x", oldIdx = 0, tpe = Int)),
+    )
+    doTest(newName = "Color", newParams = params, newVisibility = null, newReturnType = null)
+  }
 }

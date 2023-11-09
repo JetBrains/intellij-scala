@@ -462,6 +462,13 @@ object ScalaPsiElementFactory {
         }
     }
 
+  def createSelfInvocationFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScSelfInvocation =
+    createElementWithContext[ScSelfInvocation](text, context, child) { implicit builder =>
+      builder.withDisabledNewlines {
+        expressions.SelfInvocation()
+      }
+    }
+
   def createParamClausesWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child)(params.ParamClauses()(_))
 

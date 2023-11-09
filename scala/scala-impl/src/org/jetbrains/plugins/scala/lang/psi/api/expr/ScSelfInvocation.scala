@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -22,6 +22,8 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference with Constructo
   def multiType(i: Int): Array[TypeResult]
 
   def thisElement: PsiElement = getFirstChild
+
+  override def getReference: PsiReference = this
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSelfInvocation(this)
