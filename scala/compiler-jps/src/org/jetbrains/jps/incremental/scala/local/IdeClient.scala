@@ -64,7 +64,6 @@ abstract class IdeClient(compilerName: String,
   }
 
   override def compilationStart(): Unit = {
-    context.processMessage(new ProgressMessage(JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName)))
     context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
   }
 

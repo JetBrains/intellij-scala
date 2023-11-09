@@ -3,12 +3,11 @@ package local
 
 import java.io.{File, IOException}
 import java.util.Collections
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
 import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
@@ -38,6 +37,11 @@ class IdeClientIdea(compilerName: String,
       name = name
     )
     compilationResults = compilationResult +: compilationResults
+  }
+
+  override def compilationStart(): Unit = {
+    context.processMessage(new ProgressMessage(JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName)))
+    super.compilationStart()
   }
 
   override def compilationEnd(sources: Predef.Set[File]): Unit = {
