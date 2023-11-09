@@ -1,20 +1,22 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings.{getInstance => DaemonCodeAnalyzerSettings}
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
-import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable.{getInstance => EditorSettingsExternalizable}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter}
 import javax.swing.Timer
 
 class ScalaEditorFactoryListener extends EditorFactoryListener {
-  private val longDelay = new Timer(1000, _ => xRayMode = true)
-  private val shortDelay = new Timer(50, _ => xRayMode = true)
+  private val longDelay = new Timer(ScalaApplicationSettings.XRAY_PRESS_AND_HOLD_DURATION, _ => xRayMode = true)
+  private val shortDelay = new Timer(ScalaApplicationSettings.XRAY_DOUBLE_PRESS_HOLD_DURATION, _ => xRayMode = true)
 
   locally {
     longDelay.setRepeats(false)
@@ -55,15 +57,22 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
     override def keyPressed(e: KeyEvent): Unit = if (Registry.is("scala.xray.mode")) {
       if (e.getKeyCode == ModifierKey) {
-        if (System.currentTimeMillis() - firstKeyPressTime < 500) {
+        if (System.currentTimeMillis() - firstKeyPressTime < ScalaApplicationSettings.XRAY_DOUBLE_PRESS_INTERVAL) {
           firstKeyPressTime = 0
           keyPressEvent = e
           longDelay.stop()
-          shortDelay.start()
+          if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD) {
+            shortDelay.setInitialDelay(ScalaApplicationSettings.XRAY_DOUBLE_PRESS_HOLD_DURATION)
+            shortDelay.start()
+          }
         } else {
           firstKeyPressTime = System.currentTimeMillis()
           mouseHasMoved = false
-          //longDelay.start()
+          keyPressEvent = e
+          if (ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
+            longDelay.setInitialDelay(ScalaApplicationSettings.XRAY_PRESS_AND_HOLD_DURATION)
+            longDelay.start()
+          }
         }
       } else {
         longDelay.stop()
@@ -96,12 +105,21 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     ScalaHintsSettings.xRayMode = enabled
 
     if (enabled) {
-      indentGuidesShownSetting = EditorSettingsExternalizable.getInstance.isIndentGuidesShown
-      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(true)
+      if (ScalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES) {
+        indentGuidesShownSetting = EditorSettingsExternalizable.isIndentGuidesShown
+        EditorSettingsExternalizable.setIndentGuidesShown(true)
+      }
 
-      showImplicitHintsSetting = ImplicitHints.enabled
-      ImplicitHints.enabled = true
-      ImplicitHints.updateInAllEditors()
+      if (ScalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS) {
+        showMethodSeparatorsSetting = DaemonCodeAnalyzerSettings.SHOW_METHOD_SEPARATORS
+        DaemonCodeAnalyzerSettings.SHOW_METHOD_SEPARATORS = true
+      }
+
+      if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
+        showImplicitHintsSetting = ImplicitHints.enabled
+        ImplicitHints.enabled = true
+        ImplicitHints.updateInAllEditors()
+      }
 
       keyPressEvent.getSource match {
         case component: EditorComponentImpl =>
@@ -111,14 +129,24 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         case _ =>
       }
     } else {
-      EditorSettingsExternalizable.getInstance.setIndentGuidesShown(indentGuidesShownSetting)
+      if (ScalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES) {
+        EditorSettingsExternalizable.setIndentGuidesShown(indentGuidesShownSetting)
+      }
 
-      ImplicitHints.enabled = showImplicitHintsSetting
-      ImplicitHints.updateInAllEditors()
+      if (ScalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS) {
+        DaemonCodeAnalyzerSettings.SHOW_METHOD_SEPARATORS = showMethodSeparatorsSetting
+      }
+
+      if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
+        ImplicitHints.enabled = showImplicitHintsSetting
+        ImplicitHints.updateInAllEditors()
+      }
     }
   }
 
   private var indentGuidesShownSetting: Boolean = _
 
   private var showImplicitHintsSetting: Boolean = _
+
+  private var showMethodSeparatorsSetting: Boolean = _
 }
