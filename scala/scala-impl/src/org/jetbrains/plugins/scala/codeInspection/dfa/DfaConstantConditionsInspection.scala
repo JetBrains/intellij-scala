@@ -4,9 +4,9 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaVisitor
 
-final class DfaConstantConditionsInspection extends LocalInspectionTool {
+  final class DfaConstantConditionsInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    ScalaDfaVisitor.reportingConstantConditionsTo(holder)
+    override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
+      ScalaDfaVisitor.reportingConstantConditionsTo(holder)
+    }
   }
-}
