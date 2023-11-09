@@ -1484,7 +1484,12 @@
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaConstantConditions"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNpeOnInvocationInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.dataflow.analysis.npe.on.invocation"
+                         groupPath="Scala" groupKey="group.dataflow.analysis"
+                         shortName="DfaNpeOnInvocation"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- Collection inspections -->
         <!-- Size -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"

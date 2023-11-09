@@ -19,4 +19,9 @@ object ScalaDfaVisitor {
   val reportingEverythingTo: ProblemsHolder => ScalaDfaVisitor = reportingTo(_.reportEverything)
   val reportingConstantConditionsTo: ProblemsHolder => ScalaDfaVisitor = reportingTo(_.reportConstantConditions)
   val reportingAllUnsatisfiedConditionsTo: ProblemsHolder => ScalaDfaVisitor = reportingTo(r => r.reportUnsatisfiedConditionProblems(_))
+  def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[_]): ProblemsHolder => ScalaDfaVisitor =
+    reportingTo(r => r.reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => p.problemKind == kind
+      case _ => false
+    }))
 }
