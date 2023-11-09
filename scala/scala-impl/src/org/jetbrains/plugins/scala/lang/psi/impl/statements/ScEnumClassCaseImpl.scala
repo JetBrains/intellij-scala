@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumClassCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -25,13 +27,25 @@ final class ScEnumClassCaseImpl(
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenTypes.kCASE
 
+  private def enumTypeParameters: Seq[ScTypeParam] =
+    enumParent.typeParametersClause.map(_.typeParameters).getOrElse(Seq.empty)
+
   def physicalTypeParameters: Seq[ScTypeParam] = super.typeParameters
 
   override def typeParameters: Seq[ScTypeParam] =
-    if (super.typeParameters.isEmpty)
-      enumParent.typeParametersClause.map(_.typeParameters).getOrElse(Seq.empty)
+    if (enumTypeParameters.nonEmpty && physicalTypeParameters.isEmpty && (extendsBlock.templateParents.isEmpty || mentionsEnumTypeParameters))
+      enumTypeParameters
     else
-      super.typeParameters
+      physicalTypeParameters
+
+  private def mentionsEnumTypeParameters: Boolean = {
+    val tps = enumTypeParameters
+
+    (constructor.map(_.parameterList) ++ extendsBlock.templateParents).flatMap(_.elements).exists {
+      case ScSimpleTypeElement(r) if r.qualifier.isEmpty => tps.exists(_.name == r.refName)
+      case _ => false
+    }
+  }
 
   override def superTypes: List[ScType] =
     if (extendsBlock.templateParents.nonEmpty) super.superTypes
