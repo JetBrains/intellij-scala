@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
 import com.intellij.openapi.util.Key
 import com.intellij.util.PairConsumer
 import org.jdom.Element
+import org.jetbrains.idea.maven.buildtool.MavenLogEventHandler
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
@@ -172,7 +173,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
 
       def resolveArtifact(info: MavenArtifactInfo): util.List[MavenArtifact] = {
         val request = new MavenArtifactResolutionRequest(info, repositories)
-        embedder.resolveArtifacts(util.List.of(request), null, null, null)
+        embedder.resolveArtifacts(util.List.of(request), null, MavenLogEventHandler.INSTANCE)
       }
 
       def resolveJar(id: MavenId): MavenArtifact = {
