@@ -234,13 +234,13 @@ private object ImplicitHintsPass {
     owner:  ImplicitArgumentsOwner
   ): Seq[Hint] = {
     val hintPrefix =
-      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion))
+      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = menu.ImplicitConversion)
 
     val hintSuffix = Hint(
       Text(")") +: collapsedPresentationOf(conversion.implicitParameters, Option(owner)),
       e,
       suffix = true,
-      menu = Some(menu.ImplicitArguments)
+      menu = menu.ImplicitArguments
     )
 
     Seq(hintPrefix, hintSuffix)
@@ -248,12 +248,12 @@ private object ImplicitHintsPass {
 
   private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    val hint = Hint(presentationOf(arguments, Option(owner)), e, suffix = true, menu = Some(menu.ImplicitArguments))
+    val hint = Hint(presentationOf(arguments, Option(owner)), e, suffix = true, menu = menu.ImplicitArguments)
     Seq(hint)
   }
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] = {
-    val hint = Hint(Seq(Text(".explicitly")), args, suffix = false, menu = Some(menu.ExplicitArguments))
+    val hint = Hint(Seq(Text(".explicitly")), args, suffix = false, menu = menu.ExplicitArguments)
     Seq(hint)
   }
 

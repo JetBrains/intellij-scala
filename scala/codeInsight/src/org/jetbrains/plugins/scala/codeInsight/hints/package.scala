@@ -4,6 +4,7 @@ package codeInsight
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 package object hints {
-  private[hints] val typeHintsMenu: Option[Name] = Some("TypeHintsMenu")
+  private[hints] val typeHintsMenu: MenuProvider = MenuProvider("TypeHintsMenu")
 
   private[hints] object ReferenceName {
 

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.{Document, Editor, InlayModel}
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import com.intellij.util.ui.JBUI
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass.{hasObviousReturnType, isFollowedByLineEnd, isUnqualifiedReference, removeLastIfHasTypeMismatch}
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, isTypeObvious, textPartsOf, typeHintsMenu}
@@ -130,7 +131,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       // so we create normal inline elements here
       // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
-      generateInlineHints(hintTemplates, inlayModel)
+      generateInlineHintsForUnitTestMode(hintTemplates, inlayModel)
     } else if (settings.alignMethodChainInlayHints) {
       generateAlignedHints(hintTemplates, document, charWidth, inlayModel)
     } else {
@@ -165,9 +166,9 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     withoutObvious
   }
 
-  private def generateInlineHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
+  private def generateInlineHintsForUnitTestMode(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
     for (hints <- hintTemplates; hint <- hints) {
-      inlayModel.addInlineElement(hint.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+      inlayModel.addInlineElement(hint.endOffset, false, new TextPartsHintRenderer(hint.textParts, MenuProvider.NoMenu))
     }
 
   private def generateAlignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], document: Document, charWidth: Int, inlayModel: InlayModel): Unit =

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.ide.ui.AntialiasingType
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -8,6 +9,7 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.Key
 import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.{GraphicsUtil, JBUI}
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -17,12 +19,14 @@ import java.awt._
 //TODO: why it's in "implicits" package?
 // It's also used in methodChains, rangeHints
 // We should move it to a proper package
-class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
+class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
   extends HintRendererProxy(parts.map(_.string).mkString) {
 
   private val originalParts = parts
 
-  protected override def getContextMenuGroupId0(editor: Editor): String = menu.orNull
+  protected override def getContextMenuGroupId0(editor: Editor): String = menuProvider.groupIdOrNull
+
+  protected override def getContextMenuGroup0(editor: Editor): ActionGroup = menuProvider.actionGroupOrNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
