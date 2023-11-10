@@ -41,7 +41,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
 
   override def getComponent: JComponent = generalSettingsPanel.getPanel
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("type.hints.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
 
   override def getMainCheckBoxLabel: String = getName
 
@@ -123,7 +123,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     override def id: String = "Scala.ScalaTypeHintsSettingsModel.showMethodResultType"
     override def loadSetting(): Boolean = insightSettings.showFunctionReturnType
     override def saveSetting(value: Boolean): Unit = insightSettings.showFunctionReturnType = value
-    override def description: String = null
+    override def description: String = ScalaCodeInsightBundle.message("method.results.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
     override def preview: String = getPreviewText
   }
 
@@ -132,7 +132,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     override def id: String = "Scala.ScalaTypeHintsSettingsModel.showLocalVariableType"
     override def loadSetting(): Boolean = insightSettings.showLocalVariableType
     override def saveSetting(value: Boolean): Unit = insightSettings.showLocalVariableType = value
-    override def description: String = null
+    override def description: String = ScalaCodeInsightBundle.message("local.variables.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
     override def preview: String = getPreviewText
   }
 
@@ -141,7 +141,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     override def id: String = "Scala.ScalaTypeHintsSettingsModel.showMemberVariableType"
     override def loadSetting(): Boolean = insightSettings.showPropertyType
     override def saveSetting(value: Boolean): Unit = insightSettings.showPropertyType = value
-    override def description: String = null
+    override def description: String = ScalaCodeInsightBundle.message("member.variables.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
     override def preview: String = getPreviewText
   }
 }
