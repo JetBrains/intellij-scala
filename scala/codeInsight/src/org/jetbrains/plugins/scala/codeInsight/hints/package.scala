@@ -8,7 +8,6 @@ import com.intellij.openapi.options.ex.Settings
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
-import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
@@ -20,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import scala.reflect.ClassTag
 
 package object hints {
-  private[hints] val typeHintsMenu: MenuProvider = MenuProvider("TypeHintsMenu")
-
   private[hints] object ReferenceName {
 
     def unapply(expression: ScExpression): Option[(String, Seq[ScExpression])] = expression match {
@@ -30,7 +27,7 @@ package object hints {
           maybeExpression.collect {
             case reference: ScReferenceExpression => reference
           }
-        }.map(_.refName -> arguments.toSeq)
+        }.map(_.refName -> arguments)
       case _ => None
     }
   }
