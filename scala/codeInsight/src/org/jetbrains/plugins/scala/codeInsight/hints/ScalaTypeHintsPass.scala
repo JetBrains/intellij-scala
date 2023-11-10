@@ -2,10 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
+import com.intellij.codeInsight.hints.ParameterHintsPassFactory.forceHintsUpdateOnNextPass
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -37,11 +43,11 @@ private[codeInsight] trait ScalaTypeHintsPass {
       (for {
         element <- root.elements
         definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
-        (tpe, body) <- typeAndBodyOf(definition)
+        (tpe, body, menu) <- typeAndBodyOf(definition)
         if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
-        info <- hintFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element), settings)
+        info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, TypePresentationContext(element), settings)
       } yield info) ++ (if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
@@ -70,23 +76,51 @@ private[codeInsight] trait ScalaTypeHintsPass {
 }
 
 private object ScalaTypeHintsPass {
-  private def typeAndBodyOf(definition: Definition)(implicit settings: ScalaHintsSettings): Option[(ScType, ScExpression)] = for {
+  private val localVariableTypeContextMenu = disableTypeHintsContextMenu(ScalaCodeInsightBundle.message("disable.type.hints.for.local.variables"), _.showLocalVariableType = false)
+  private val memberVariableTypeContextMenu = disableTypeHintsContextMenu(ScalaCodeInsightBundle.message("disable.type.hints.for.member.variables"), _.showPropertyType = false)
+  private val methodResultTypeContextMenu = disableTypeHintsContextMenu(ScalaCodeInsightBundle.message("disable.type.hints.for.method.results"), _.showFunctionReturnType = false)
+
+  private def disableTypeHintsContextMenu(@Nls disableText: String, setSettings: ScalaCodeInsightSettings => Unit): MenuProvider = {
+    val actionGroup = new ActionGroup() {
+      override def getChildren(e: AnActionEvent): Array[AnAction] = Array(
+        new AnAction(disableText) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            setSettings(ScalaCodeInsightSettings.getInstance())
+            forceHintsUpdateOnNextPass()
+            TypeMismatchHints.refreshIn(e.getProject)
+          }
+        },
+        new AnAction(ScalaCodeInsightBundle.message("configure.type.hints")) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            ScalaTypeHintsSettingsModel.navigateTo(e.getProject)
+          }
+        }
+      )
+    }
+
+    MenuProvider(actionGroup)
+  }
+
+  private def typeAndBodyOf(definition: Definition)(implicit settings: ScalaHintsSettings): Option[(ScType, ScExpression, MenuProvider)] = for {
     body <- definition.bodyCandidate
-    tpe <- definition match {
+    (tpe, menu) <- definition match {
       case ValueDefinition(value) => typeOf(value)
       case VariableDefinition(variable) => typeOf(variable)
       case FunctionDefinition(function) => typeOf(function)
       case _ => None
     }
-  } yield (tpe, body)
+  } yield (tpe, body, menu)
 
-  private[this] def typeOf(member: ScValueOrVariable)(implicit settings: ScalaHintsSettings): Option[ScType] = {
-    val flag = if (member.isLocal) settings.showLocalVariableType else settings.showMemberVariableType
-    if (flag) member.`type`().toOption else None
+  private[this] def typeOf(member: ScValueOrVariable)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] = {
+    for {
+      menu <- if (member.isLocal) settings.showLocalVariableType.option(localVariableTypeContextMenu)
+              else settings.showMemberVariableType.option(memberVariableTypeContextMenu)
+      ty <- member.`type`().toOption
+    } yield (ty, menu)
   }
 
-  private[this] def typeOf(member: ScFunction)(implicit settings: ScalaHintsSettings): Option[ScType] =
-    if (settings.showMethodResultType) member.returnType.toOption else None
+  private[this] def typeOf(member: ScFunction)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] =
+    if (settings.showMethodResultType) member.returnType.toOption.map(_ -> methodResultTypeContextMenu) else None
 
   private def adjacentDefinitionsHaveCustomIndent(definition: PsiElement): Boolean =
     (adjacentDefinitionsFrom(definition.prevSiblings) ++ adjacentDefinitionsFrom(definition.nextSiblings))
@@ -99,7 +133,7 @@ private object ScalaTypeHintsPass {
       Definition(definition)
   }
 
-  private def hintFor(definition: Definition, returnType: ScType)
+  private def hintFor(definition: Definition, returnType: ScType, menu: MenuProvider)
                      (implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings): Option[Hint] =
     for {
       anchor <- definition.parameterList
@@ -108,5 +142,5 @@ private object ScalaTypeHintsPass {
         case _ => Seq.empty
       }
       text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength) ++ suffix)
-    } yield Hint(text, anchor, suffix = true, menu = typeHintsMenu, relatesToPrecedingElement = true)
+    } yield Hint(text, anchor, suffix = true, menu, relatesToPrecedingElement = true)
 }

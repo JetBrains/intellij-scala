@@ -1,16 +1,23 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
+import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurable, InlaySettingsConfigurableKt}
+import com.intellij.ide.DataManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.options.ex.Settings
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import scala.reflect.ClassTag
 
 package object hints {
   private[hints] val typeHintsMenu: MenuProvider = MenuProvider("TypeHintsMenu")
@@ -185,4 +192,32 @@ package object hints {
       knownThing,
       typeFirstLetterCase,
     ).foldRight(equal)(_(_))
+
+
+  def navigateToInlaySettings[S <: InlayProviderSettingsModel: ClassTag](project: Project): Unit = {
+    DataManager.getInstance().getDataContextFromFocusAsync
+      .`then` { context =>
+        // First try to navigate currently open settings to the type hint settings
+        NullSafe(Settings.KEY.getData(context))
+          .map { settings =>
+            val configurable = settings.find("inlay.hints")
+            // Should not throw, but if it does, let exception analyzer know
+            val inlayConfigurable = configurable.asInstanceOf[InlaySettingsConfigurable]
+            inlayConfigurable.selectModel(ScalaLanguage.INSTANCE, _.is[S])
+            settings.select(configurable)
+            true
+          }
+          .orNull
+      }
+      .onProcessed { res =>
+        if (res == null) {
+          // if that doesn't work, instead open new settings window
+          InlaySettingsConfigurableKt.showInlaySettings(
+            project,
+            ScalaLanguage.INSTANCE,
+            _.is[S]
+          )
+        }
+      }
+  }
 }
