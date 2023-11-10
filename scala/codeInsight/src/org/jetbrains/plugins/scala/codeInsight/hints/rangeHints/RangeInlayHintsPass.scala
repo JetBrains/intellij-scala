@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
 import com.intellij.codeInsight.hints.presentation.{PresentationFactory, RecursivelyUpdatingRootPresentation}
 import com.intellij.codeInsight.hints.{HorizontalConstrainedPresentation, HorizontalConstraints}
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, InlayModel}
 import com.intellij.openapi.project.Project
@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsConfigurable}
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPartsHintRenderer}
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
@@ -178,7 +178,9 @@ object RangeInlayHintsPass {
           override def actionPerformed(e: AnActionEvent): Unit = {
             navigate(e.getProject)
           }
-        }
+        },
+        Separator.getInstance,
+        ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
       )
     }
 
