@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, ToggleAction}
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, ToggleAction}
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-import org.jetbrains.plugins.scala.extensions._
 
 object ScalaTypeHintsConfigurable {
 
@@ -30,6 +28,8 @@ object ScalaTypeHintsConfigurable {
       setter.set(value)
       forceHintsUpdateOnNextPass()
     }
+
+    override def getActionUpdateThread = ActionUpdateThread.BGT
   }
 
 
@@ -41,54 +41,52 @@ object ScalaTypeHintsConfigurable {
   )
 
   class ToggleRangeHintsForToAndUntilAction extends ToggleTypeAction(
-    ScalaCodeInsightBundle.message("range.hints.for.to.and.until"),
+    ScalaCodeInsightBundle.message("range.hints.for.to.and.until.action.text"),
     ScalaCodeInsightBundle.message("show.range.hints.for.to.and.until"),
     ScalaCodeInsightSettings.showRangeHintsForToAndUntilGetter(),
     ScalaCodeInsightSettings.showRangeHintsForToAndUntilSetter()
   )
 
   class ToggleRangeExclusiveHintAction extends ToggleTypeAction(
-    ScalaCodeInsightBundle.message("range.exclusive.hint"),
+    ScalaCodeInsightBundle.message("show.exclusive.range.hint.action.text"),
     ScalaCodeInsightBundle.message("show.exclusive.range.hint"),
     ScalaCodeInsightSettings.showExclusiveRangeHintDefaultGetter(),
     ScalaCodeInsightSettings.showExclusiveRangeHintDefaultSetter()
   )
 
-  /*
+  class ToggleTypeHintsAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("type.hints.action.text"),
+    ScalaCodeInsightBundle.message("type.hints.action.description"),
+    () => {
+      ScalaCodeInsightSettings.showMethodResultTypeGetter().get() &&
+        ScalaCodeInsightSettings.showMemberVariableTypeGetter().get() &&
+        ScalaCodeInsightSettings.showLocalVariableTypeGetter().get()
+    },
+    (b) => {
+      ScalaCodeInsightSettings.showMethodResultTypeSetter().set(b)
+      ScalaCodeInsightSettings.showMemberVariableSetter().set(b)
+      ScalaCodeInsightSettings.showLocalVariableTypeSetter().set(b)
+    },
+  )
+
   class ToggleMethodResultTypeAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("show.method.result.action.text"),
+    ScalaCodeInsightBundle.message("show.method.result.action.description"),
     ScalaCodeInsightSettings.showMethodResultTypeGetter,
-    ScalaCodeInsightSettings.showMethodResultTypeSetter
+    ScalaCodeInsightSettings.showMethodResultTypeSetter,
   )
 
   class ToggleMemberVariableTypeAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("show.member.variable.action.text"),
+    ScalaCodeInsightBundle.message("show.member.variable.action.description"),
     ScalaCodeInsightSettings.showMemberVariableTypeGetter,
-    ScalaCodeInsightSettings.showMemberVariableSetter
+    ScalaCodeInsightSettings.showMemberVariableSetter,
   )
 
   class ToggleLocalVariableTypeAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("show.local.variable.action.text"),
+    ScalaCodeInsightBundle.message("show.local.variable.action.description"),
     ScalaCodeInsightSettings.showLocalVariableTypeGetter,
-    ScalaCodeInsightSettings.showLocalVariableTypeSetter
+    ScalaCodeInsightSettings.showLocalVariableTypeSetter,
   )
-  class ToggleObviousTypeAction extends ToggleTypeAction(
-    ScalaCodeInsightSettings.showObviousTypeGetter,
-    ScalaCodeInsightSettings.showObviousTypeSetter
-  )
-
-  class ToggleAlignMethodChainInlayHintsAction extends ToggleTypeAction(
-    ScalaCodeInsightSettings.alignMethodChainInlayHintsGetter(),
-    ScalaCodeInsightSettings.alignMethodChainInlayHintsSetter()
-  )
-  */
-  class ConfigureTypeHintActions extends AnAction(
-    ScalaCodeInsightBundle.message("configure.type.hints.text"),
-    ScalaCodeInsightBundle.message("configure.type.hints.description"),
-    null
-  ) {
-    override def actionPerformed(e: AnActionEvent): Unit = {
-      def defaultProject = ProjectManager.getInstance().getDefaultProject
-      val project = e.getProject.nullSafe.getOrElse(defaultProject)
-
-      ScalaTypeHintsSettingsModel.navigateTo(project)
-    }
-  }
 }

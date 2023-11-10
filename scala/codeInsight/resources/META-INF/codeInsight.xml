@@ -344,6 +344,17 @@
 
         <action id="Scala.XRayMode" text="X-Ray Mode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction" />
 
+        <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
+        <action id="Scala.ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction" />
+        <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
+        <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />
+        <action id="Scala.ToggleRangeExclusiveHintAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeExclusiveHintAction" />
+
+        <action id="Scala.ToggleMethodResultTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodResultTypeAction" />
+        <action id="Scala.ToggleMemberVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMemberVariableTypeAction" />
+        <action id="Scala.ToggleLocalVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleLocalVariableTypeAction" />
+
+
         <group id="ScalaGenerateGroup">
             <separator/>
             <action id="Scala.GenerateEquals" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction" />
@@ -353,14 +364,6 @@
             <add-to-group group-id="GenerateGroup"/>
         </group>
 
-        <group id="TypeHintsMenu">
-            <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
-            <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
-            <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />
-            <action id="Scala.ToggleRangeExclusiveHintAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeExclusiveHintAction" />
-            <separator />
-            <action id="Scala.ConfigureTypeHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ConfigureTypeHintActions"/>
-        </group>
         <group id="ImplicitConversionMenu">
             <action id="MakeExplicit" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"/>
             <separator/>
