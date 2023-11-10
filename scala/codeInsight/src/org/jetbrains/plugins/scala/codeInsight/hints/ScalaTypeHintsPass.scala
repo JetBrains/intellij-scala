@@ -3,7 +3,7 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.ParameterHintsPassFactory.forceHintsUpdateOnNextPass
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
@@ -94,7 +94,9 @@ private object ScalaTypeHintsPass {
           override def actionPerformed(e: AnActionEvent): Unit = {
             ScalaTypeHintsSettingsModel.navigateTo(e.getProject)
           }
-        }
+        },
+        Separator.getInstance,
+        ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
       )
     }
 
