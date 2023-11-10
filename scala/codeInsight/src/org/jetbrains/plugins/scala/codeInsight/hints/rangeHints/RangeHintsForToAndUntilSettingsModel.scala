@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, navigateToInlaySettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -90,4 +90,8 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
+}
+
+object RangeHintsForToAndUntilSettingsModel {
+  def navigateTo(project: Project): Unit = navigateToInlaySettings[RangeHintsForToAndUntilSettingsModel](project)
 }
