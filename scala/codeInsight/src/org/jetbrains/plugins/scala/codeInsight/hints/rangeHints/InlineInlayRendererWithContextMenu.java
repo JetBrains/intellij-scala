@@ -4,17 +4,20 @@ import com.intellij.codeInsight.hints.HorizontalConstrainedPresentation;
 import com.intellij.codeInsight.hints.HorizontalConstraints;
 import com.intellij.codeInsight.hints.LinearOrderInlayRenderer;
 import com.intellij.codeInsight.hints.presentation.InlayPresentation;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.editor.Inlay;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.annotator.hints.Hint;
 
 import java.util.Collections;
 
 // TODO: Maybe we should have another design for the context menu of our inlay hints.
 //       For example like in kotlin where there is a disable menu-entry to disable the clicked hint
 public class InlineInlayRendererWithContextMenu extends LinearOrderInlayRenderer<HorizontalConstraints> {
-    private String contextMenu;
+    private Hint.MenuProvider contextMenu;
 
-    public InlineInlayRendererWithContextMenu(HorizontalConstrainedPresentation<InlayPresentation> presentation, String contextMenu) {
+    public InlineInlayRendererWithContextMenu(HorizontalConstrainedPresentation<InlayPresentation> presentation, Hint.MenuProvider contextMenu) {
         super(
                 Collections.singletonList(presentation),
                 x -> x.get(0).getRoot(),
@@ -35,6 +38,11 @@ public class InlineInlayRendererWithContextMenu extends LinearOrderInlayRenderer
 
     @Override
     public String getContextMenuGroupId(Inlay inlay) {
-        return contextMenu;
+        return contextMenu.groupIdOrNull();
+    }
+
+    @Override
+    public @Nullable ActionGroup getContextMenuGroup(@NotNull Inlay inlay) {
+        return contextMenu.actionGroupOrNull();
     }
 }

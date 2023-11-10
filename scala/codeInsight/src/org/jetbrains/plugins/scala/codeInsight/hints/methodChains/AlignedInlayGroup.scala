@@ -9,7 +9,6 @@ import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup.{AlignedInlayRenderer, AlignmentLine, ScalaMethodChainDisposableKey}
-import org.jetbrains.plugins.scala.codeInsight.hints.typeHintsMenu
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 
@@ -113,7 +112,7 @@ private object AlignedInlayGroup {
   private case class Cached(lineEndX: Int, margin: Int)
 
   private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text], recalculateGroupsOffsets: Editor => Unit)
-    extends TextPartsHintRenderer(textParts, typeHintsMenu) {
+    extends TextPartsHintRenderer(textParts, ScalaMethodChainInlayHintsPass.methodChainContextMenu) {
 
     private var cached: Cached = Cached(lineEndX = 0, margin = 0)
 

@@ -11,7 +11,7 @@ import com.intellij.ui.components.labels.LinkLabel
 
 import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsSettingsModel}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsSettingsModel, navigateToInlaySettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -149,4 +149,8 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
+}
+
+object ScalaMethodChainInlayHintsSettingsModel {
+  def navigateTo(project: Project): Unit = navigateToInlaySettings[ScalaMethodChainInlayHintsSettingsModel](project)
 }

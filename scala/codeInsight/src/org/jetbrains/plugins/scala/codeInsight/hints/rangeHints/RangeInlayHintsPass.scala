@@ -2,14 +2,19 @@ package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
 import com.intellij.codeInsight.hints.presentation.{PresentationFactory, RecursivelyUpdatingRootPresentation}
 import com.intellij.codeInsight.hints.{HorizontalConstrainedPresentation, HorizontalConstraints}
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, InlayModel}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass._
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, typeHintsMenu}
-import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
+import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPartsHintRenderer}
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -48,7 +53,7 @@ trait RangeInlayHintsPass {
           if settings.showRangeHintsForToAndUntil =>
           hintsFor(editor, qual.endOffset, args.headOption.fold(ref.endOffset)(_.startOffset), ref, args)
         case call@ScMethodCall(ref, args) if settings.showExclusiveRangeHint && isRangeApply(ref, call.target, args) =>
-          Seq(HintTemplate(ref.endOffset, new TextPartsHintRenderer(Seq(Text(".exclusive")), typeHintsMenu)))
+          Seq(HintTemplate(ref.endOffset, new TextPartsHintRenderer(Seq(Text(".exclusive")), rangeForExclusiveRange)))
         case _ =>
           Seq.empty
       }
@@ -117,8 +122,8 @@ trait RangeInlayHintsPass {
       .asScala
       .filter(ScalaRangeInlayHintKey.isIn)
       .foreach(Disposer.dispose)
-    collectedHints.foreach { tmpl =>
 
+    collectedHints.foreach { tmpl =>
       inlayModel
         .addInlineElement(tmpl.offset, tmpl.renderer)
         .putUserData(ScalaRangeInlayHintKey, true)
@@ -143,7 +148,7 @@ object RangeInlayHintsPass {
       new RecursivelyUpdatingRootPresentation(presentation),
       new HorizontalConstraints(0, relatesToPreceding, false),
     )
-    new InlineInlayRendererWithContextMenu(rootPresentation, typeHintsMenu.orNull)
+    new InlineInlayRendererWithContextMenu(rootPresentation, rangeHintsForToAndUntilContextMenu)
   }
 
 
@@ -153,5 +158,30 @@ object RangeInlayHintsPass {
       case ScTuple(args) => Some(args)
       case _ => Some(Seq(e))
     }
+  }
+
+  private val rangeHintsForToAndUntilContextMenu =
+    createContextMenu(ScalaCodeInsightBundle.message("disable.range.hints.for.to.and.until"), _.showRangeHintsForToAndUntil = false, RangeHintsForToAndUntilSettingsModel.navigateTo)
+  private val rangeForExclusiveRange =
+    createContextMenu(ScalaCodeInsightBundle.message("disable.hints.for.exclusive.ranges"), _.showExclusiveRangeHint = false, ExclusiveRangeHintSettingsModel.navigateTo)
+
+  private def createContextMenu(@Nls disableText: String, setSettings: ScalaCodeInsightSettings => Unit, navigate: Project => Unit): MenuProvider = {
+    val actionGroup = new ActionGroup() {
+      override def getChildren(e: AnActionEvent): Array[AnAction] = Array(
+        new AnAction(disableText) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            setSettings(ScalaCodeInsightSettings.getInstance())
+            ImplicitHints.updateInAllEditors()
+          }
+        },
+        new AnAction(ScalaCodeInsightBundle.message("configure.range.hints")) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            navigate(e.getProject)
+          }
+        }
+      )
+    }
+
+    MenuProvider(actionGroup)
   }
 }

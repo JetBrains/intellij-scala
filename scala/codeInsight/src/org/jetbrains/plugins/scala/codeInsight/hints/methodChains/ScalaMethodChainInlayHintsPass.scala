@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.{Document, Editor, InlayModel}
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import com.intellij.util.ui.JBUI
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
-import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass.{hasObviousReturnType, isFollowedByLineEnd, isUnqualifiedReference, removeLastIfHasTypeMismatch}
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, isTypeObvious, textPartsOf, typeHintsMenu}
-import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass.{hasObviousReturnType, isFollowedByLineEnd, isUnqualifiedReference, methodChainContextMenu, removeLastIfHasTypeMismatch}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, isTypeObvious, textPartsOf}
+import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPartsHintRenderer}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt, PsiFileExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
@@ -130,7 +133,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       // so we create normal inline elements here
       // this is ok to test the recognition of method chain inlay hints
       // there is no need to unit test the other alternatives because they need ui tests anyway
-      generateInlineHints(hintTemplates, inlayModel)
+      generateInlineHintsForUnitTestMode(hintTemplates, inlayModel)
     } else if (settings.alignMethodChainInlayHints) {
       generateAlignedHints(hintTemplates, document, charWidth, inlayModel)
     } else {
@@ -165,9 +168,9 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     withoutObvious
   }
 
-  private def generateInlineHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
+  private def generateInlineHintsForUnitTestMode(hintTemplates: Seq[Seq[AlignedHintTemplate]], inlayModel: InlayModel): Unit =
     for (hints <- hintTemplates; hint <- hints) {
-      inlayModel.addInlineElement(hint.endOffset, false, new TextPartsHintRenderer(hint.textParts, None))
+      inlayModel.addInlineElement(hint.endOffset, false, new TextPartsHintRenderer(hint.textParts, MenuProvider.NoMenu))
     }
 
   private def generateAlignedHints(hintTemplates: Seq[Seq[AlignedHintTemplate]], document: Document, charWidth: Int, inlayModel: InlayModel): Unit =
@@ -178,7 +181,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       val inlay = inlayModel.addAfterLineEndElement(
         hint.endOffset,
         NonSoftWrappingInlayProperties,
-        new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
+        new TextPartsHintRenderer(hint.textParts, methodChainContextMenu) {
           override protected def getMargin(editor: Editor): Insets = JBUI.insetsLeft(charWidth)
         }
       )
@@ -314,5 +317,25 @@ private object ScalaMethodChainInlayHintsPass {
     case ref: ScReferenceExpression => !ref.isQualified
     case ScParenthesisedExpr(inner) => isUnqualifiedReference(inner)
     case _ => false
+  }
+
+  private[methodChains] val methodChainContextMenu: MenuProvider = {
+    val actionGroup = new ActionGroup() {
+      override def getChildren(e: AnActionEvent): Array[AnAction] = Array(
+        new AnAction(ScalaCodeInsightBundle.message("disable.hints.for.method.chains")) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            ScalaCodeInsightSettings.getInstance().showMethodChainInlayHints = false
+            ImplicitHints.updateInAllEditors()
+          }
+        },
+        new AnAction(ScalaCodeInsightBundle.message("configure.method.chain.hints")) {
+          override def actionPerformed(e: AnActionEvent): Unit = {
+            ScalaMethodChainInlayHintsSettingsModel.navigateTo(e.getProject)
+          }
+        }
+      )
+    }
+
+    MenuProvider(actionGroup)
   }
 }

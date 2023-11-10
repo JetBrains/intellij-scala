@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsModel
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.util
 import javax.swing.JComponent
@@ -27,7 +26,6 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
   "Scala.ScalaTypeHintsSettingsModel",
   ScalaLanguage.INSTANCE
 )  {
-  private lazy val projectSettings = ScalaProjectSettings.getInstance(project)
   private lazy val insightSettings = ScalaCodeInsightSettings.getInstance()
 
   override def getName: String = "Type Hints"
@@ -105,18 +103,9 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     ScalaLanguage.INSTANCE
 
   private val cases =
-    Seq(TypeMismatchHintsCase, ShowMethodResultTypeCase, ShowLocalVariableTypeCase, ShowMemberVariableTypeCase)
+    Seq(ShowMethodResultTypeCase, ShowLocalVariableTypeCase, ShowMemberVariableTypeCase)
       .map(c => c.configCase -> c)
       .toMap
-
-
-  private lazy val TypeMismatchHintsCase = new Case {
-    override def name: String = ScalaCodeInsightBundle.message("type.mismatch.hints")
-    override def id: String = "Scala.TypeMismatchHintsSettingsModel"
-    override def loadSetting(): Boolean = projectSettings.isTypeMismatchHints
-    override def saveSetting(value: Boolean): Unit = projectSettings.setTypeMismatchHints(value)
-    override def description: String = ScalaCodeInsightBundle.message("show.type.mismatch.hints")
-  }
 
   private lazy val ShowMethodResultTypeCase = new Case {
     override def name: String = ScalaCodeInsightBundle.message("method.results")
@@ -175,30 +164,5 @@ object ScalaTypeHintsSettingsModel {
     )
   }
 
-  def navigateTo(project: Project): Unit = {
-    DataManager.getInstance().getDataContextFromFocusAsync
-      .`then` { context =>
-        // First try to navigate currently open settings to the type hint settings
-        NullSafe(Settings.KEY.getData(context))
-          .map { settings =>
-            val configurable = settings.find("inlay.hints")
-            // Should not throw, but if it does, let exception analyzer know
-            val inlayConfigurable = configurable.asInstanceOf[InlaySettingsConfigurable]
-            inlayConfigurable.selectModel(ScalaLanguage.INSTANCE, _.is[ScalaTypeHintsSettingsModel])
-            settings.select(configurable)
-            true
-          }
-          .orNull
-      }
-      .onProcessed { res =>
-        if (res == null) {
-          // if that doesn't work, instead open new settings window
-          InlaySettingsConfigurableKt.showInlaySettings(
-            project,
-            ScalaLanguage.INSTANCE,
-            _.is[ScalaTypeHintsSettingsModel]
-          )
-        }
-      }
-  }
+  def navigateTo(project: Project): Unit = navigateToInlaySettings[ScalaTypeHintsSettingsModel](project)
 }
