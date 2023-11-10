@@ -81,7 +81,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
   override def reset(): Unit =
     settings.reset()
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("range.exclusive.hint.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
+  override def getDescription: String = ScalaCodeInsightBundle.message("range.exclusive.hint.description", ScalaCodeInsightBundle.message("xray.mode.tip", ScalaHintsSettings.xRayModeShortcut))
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

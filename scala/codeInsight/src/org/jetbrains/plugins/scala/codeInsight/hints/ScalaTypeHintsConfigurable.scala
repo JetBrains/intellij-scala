@@ -72,8 +72,9 @@ object ScalaTypeHintsConfigurable {
   /**
    * A no-op action to provide a tip.
    */
-  class XRayModeTipAction extends AnAction(ScalaCodeInsightBundle.message("xray.mode.tip.context.menu")) {
+  class XRayModeTipAction extends AnAction {
     override def update(e: AnActionEvent): Unit = {
+      e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.tip.context.menu", ScalaHintsSettings.xRayModeShortcut))
       e.getPresentation.setEnabled(false)
     }
 
