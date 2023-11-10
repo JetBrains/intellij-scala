@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits;
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.Inlay;
 import com.intellij.openapi.editor.markup.TextAttributes;
@@ -33,11 +34,21 @@ abstract class HintRendererProxy extends HintRenderer {
         paint0(inlay.getEditor(), g, r, textAttributes);
     }
 
+    @Nullable
     protected abstract String getContextMenuGroupId0(@NotNull Editor editor);
 
     @Nullable
     @Override
     final public String getContextMenuGroupId(@NotNull Inlay inlay) {
         return getContextMenuGroupId0(inlay.getEditor());
+    }
+
+    @Nullable
+    protected abstract ActionGroup getContextMenuGroup0(@NotNull Editor editor);
+
+    @Nullable
+    @Override
+    final public ActionGroup getContextMenuGroup(@NotNull Inlay inlay) {
+        return getContextMenuGroup0(inlay.getEditor());
     }
 }

@@ -143,7 +143,7 @@ object RangeInlayHintsPass {
       new RecursivelyUpdatingRootPresentation(presentation),
       new HorizontalConstraints(0, relatesToPreceding, false),
     )
-    new InlineInlayRendererWithContextMenu(rootPresentation, typeHintsMenu.orNull)
+    new InlineInlayRendererWithContextMenu(rootPresentation, typeHintsMenu)
   }
 
 

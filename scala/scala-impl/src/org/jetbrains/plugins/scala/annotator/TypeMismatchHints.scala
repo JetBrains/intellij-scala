@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.Format.{InnerParentheses, OuterParentheses, Plain}
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
+import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
@@ -60,7 +61,7 @@ object TypeMismatchHints {
         .map(e => 0.max(e.getText.takeWhile(_ != '\n').length - (if (isWhitespaceRequiredBeforeNextElement) 1 else 0)))
         .getOrElse(0)
 
-    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = Some("TypeHintsMenu"))
+    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = MenuProvider("TypeHintsMenu"))
 
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }
