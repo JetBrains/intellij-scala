@@ -304,4 +304,27 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
 
     "OtherScope.MyFoodEnum"
   )
+
+  def testInsideExport(): Unit = doTest(
+    fileText =
+      s"""
+         |object Module:
+         |  object Blub:
+         |    def foo = 42
+         |
+         |object Test:
+         |  export ${CARET}Blub.foo
+         |""".stripMargin,
+    """
+      |import Module.Blub
+      |
+      |object Module:
+      |  object Blub:
+      |    def foo = 42
+      |
+      |object Test:
+      |  export Blub.foo
+      |""".stripMargin,
+    "Module.Blub"
+  )
 }

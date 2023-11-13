@@ -7,8 +7,7 @@ import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
-import org.jetbrains.plugins.scala.caches.cachedWithRecursionGuard
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
@@ -127,6 +126,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
      */
     def bindImportReference(elementToImport: ElementToImport): Boolean = {
       val importExpr = ScalaPsiUtil.getParentOfTypeInsideImport(this, classOf[ScImportExpr], strict = true)
+      val isImport = null != ScalaPsiUtil.getParentOfTypeInsideImport(importExpr, classOf[ScImportStmt], strict = true)
       val importSelector = ScalaPsiUtil.getParentOfTypeInsideImport(this, classOf[ScImportSelector], strict = true)
 
       def bindImportSelectorOrExpression(aliasName: Option[String], importExpressionOrSelectorToDelete: PsiElement): Unit = {
@@ -135,7 +135,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         importsHolder.bindImportSelectorOrExpression(importExpr, importExpressionOrSelectorToDelete, importPath)
       }
 
-      if (importSelector != null) {
+      if (!isImport) {
+        // it's probably an export statement
+        false
+      }
+      else if (importSelector != null) {
         bindImportSelectorOrExpression(importSelector.aliasName, importSelector)
         true
       }
