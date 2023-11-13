@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -20,7 +21,8 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
   }
 
   private var replacementText: String = ""
-  private var hint: String = ""
+  @Nls
+  private var hint: String = NlsString.force("")
 
   def highlightFrom(expr: ScExpression): SimplificationBuilder = {
     this.rangeInParent = rightRangeInParent(expr, exprToReplace)
