@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScParameterOwner}
@@ -49,7 +48,7 @@ object InvocationChainExtractor {
     val allArgExpressions = call.argumentExpressions +: restArgs.map(_._1.argumentExpressions)
 
     val sortedMatchedParameters = buildAllArguments(allMatchedArgs, allArgExpressions, call, isTupled)
-    val thisArgument = Argument.fromExpression(call.thisExpr, ThisArgument, PassByValue)
+    val thisArgument = Argument.thisArg(call.thisExpr)
     val argumentsListsWithThis = insertThisArgToArgList(call, sortedMatchedParameters.head, thisArgument) +:
       sortedMatchedParameters.tail
 

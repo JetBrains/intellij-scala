@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.utils
 
 import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
+import com.intellij.codeInspection.dataFlow.{DfaPsiUtil, Mutability}
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, S
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -179,4 +180,7 @@ object ScalaDfaTypeUtils {
       case _ => None
     }
   }
+
+  def nullability(param: Parameter): Nullability =
+    DfaPsiUtil.getElementNullability(param.paramType.toPsiType, param.psiParam.orNull)
 }

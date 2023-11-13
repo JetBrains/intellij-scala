@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{ArgumentCountLimit, buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
@@ -52,6 +52,8 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
   val paramToProperArgMapping: List[Option[Int]] = generateParamToArgMapping(invokedElement, properArguments)
 
   val anchor: ScalaStatementAnchor = ScalaStatementAnchor(place)
+
+  val calledElementIsInProject: Boolean = invokedElement.map(_.psiElement).exists(e => e.getManager.isInProject(e))
 }
 
 object InvocationInfo {
@@ -66,7 +68,7 @@ object InvocationInfo {
       val target = invocation.target
       val isTupled = target.exists(_.tuplingUsed)
 
-      val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
+      val thisArgument = Argument.thisArg(invocation.thisExpr)
       val properArguments = buildAllArguments(List(invocation.matchedParameters),
         List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
       val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
@@ -78,7 +80,7 @@ object InvocationInfo {
   def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
     val target = referenceExpression.bind()
 
-    val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
+    val thisArgument = Argument.thisArg(referenceExpression.qualifier)
     val properArguments = buildAllArguments(List(referenceExpression.matchedParameters), List(),
       referenceExpression, isTupled = false).headOption.getOrElse(Nil)
 
@@ -92,7 +94,7 @@ object InvocationInfo {
         val target = constructorInvocation.reference.flatMap(_.bind())
         val isTupled = target.exists(_.tuplingUsed)
 
-        val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
+        val thisArgument = Argument.thisArg(expression = None)
         val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
           constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
         val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
