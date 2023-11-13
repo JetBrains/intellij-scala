@@ -362,7 +362,9 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     oldImportExprOrSelectorToDelete: PsiElement,
     newImportPath: ImportPath,
   ): Unit = {
-    val importStmt = importExpr.getParent.asInstanceOf[ScImportStmt]
+    // This method must not be called with an ScImportExpr that is inside an ScExportStmt
+    assert(importExpr.getParent.is[ScImportStmt])
+    val importStmt = importExpr.getParent.asInstanceOf[ScImportOrExportStmt]
 
     val scalaFile = this.getContainingFile match {
       case file: ScalaFile =>
