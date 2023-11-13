@@ -8,6 +8,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
+import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaVisibilitySorter}
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
