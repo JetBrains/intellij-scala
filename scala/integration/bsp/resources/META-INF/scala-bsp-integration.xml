@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <bspProjectOpenProcessorExtension
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspProjectOpenProcessor"/>
+    </extensions>
+</idea-plugin>
