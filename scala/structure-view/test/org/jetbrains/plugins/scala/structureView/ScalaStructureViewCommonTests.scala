@@ -8,6 +8,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
+import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaVisibilitySorter}
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
 
@@ -1218,7 +1219,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
 
     myFixture.testStructureView { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
-      svc.setActionActive("ALPHA_SORTER_IGNORING_TEST_NODES", true)
+      svc.setActionActive(ScalaAlphaSorter.ID, true)
       svc.setActionActive(ScalaPublicElementsFilter.ID, true)
 
       val tree = svc.getTree
