@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings.{getInstance => DaemonCodeAnalyzerSettings}
+import com.intellij.codeInsight.hints.ParameterHintsPassFactory
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
@@ -139,6 +140,14 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         ImplicitHints.enabled = showImplicitHintsSetting
         ImplicitHints.updateInAllEditors()
+      }
+    }
+
+    if (ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS) {
+      keyPressEvent.getSource match {
+        case component: EditorComponentImpl =>
+          ParameterHintsPassFactory.forceHintsUpdateOnNextPass(component.getEditor)
+        case _ =>
       }
     }
   }
