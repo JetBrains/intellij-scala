@@ -30,7 +30,7 @@ final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
   @Nls
   override protected def presentableName: String = ScalaBundle.message("reformat.on.compile.task.presentable.name")
 
-  override protected def shouldMeasure: Boolean = codeStyleSettings.REFORMAT_ON_COMPILE
+  override protected def shouldLogToBuildOutput: Boolean = codeStyleSettings.REFORMAT_ON_COMPILE
 
   private def codeStyleSettings: ScalaCodeStyleSettings =
     CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
