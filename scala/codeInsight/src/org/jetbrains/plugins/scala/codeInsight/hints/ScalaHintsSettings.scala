@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight
 package hints
 
+import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 trait ScalaHintsSettings {
@@ -19,6 +20,13 @@ trait ScalaHintsSettings {
 
 object ScalaHintsSettings {
   var xRayMode = false
+
+  def xRayModeShortcut: String = {
+    val key = if (SystemInfo.isMac) "Cmd" else "Ctrl"
+    if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD) s"double-press and hold $key"
+    else if (ScalaApplicationSettings.getInstance.XRAY_PRESS_AND_HOLD) s"press and hold $key"
+    else "enable Settings | Languages | Scala | X-Ray Mode"
+  }
 
   class Defaults extends ScalaHintsSettings {
     override def showMethodResultType: Boolean = ScalaCodeInsightSettings.SHOW_METHOD_RESULT_TYPE_DEFAULT

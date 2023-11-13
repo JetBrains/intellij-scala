@@ -343,6 +343,7 @@
         </action>
 
         <action id="Scala.XRayMode" text="X-Ray Mode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction" />
+        <action id="Scala.XRayModeTip" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$XRayModeTipAction"/>
 
         <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
         <action id="Scala.ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction" />
@@ -369,6 +370,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
 
         <group id="ImplicitArgumentsMenu">
@@ -376,6 +379,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
 
         <group id="ExplicitArgumentsMenu">
@@ -383,6 +388,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
     </actions>
 </idea-plugin>

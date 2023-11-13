@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, ToggleAction}
+import com.intellij.openapi.actionSystem.{AnAction, ActionUpdateThread, AnActionEvent, ToggleAction}
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -68,6 +68,22 @@ object ScalaTypeHintsConfigurable {
       ScalaCodeInsightSettings.showLocalVariableTypeSetter().set(b)
     },
   )
+
+  /**
+   * A no-op action to provide a tip.
+   */
+  class XRayModeTipAction extends AnAction {
+    override def update(e: AnActionEvent): Unit = {
+      e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.tip.context.menu", ScalaHintsSettings.xRayModeShortcut))
+      e.getPresentation.setEnabled(false)
+    }
+
+    override def actionPerformed(e: AnActionEvent): Unit = ()
+  }
+
+  object XRayModeTipAction {
+    final val Id = "Scala.XRayModeTip"
+  }
 
   class ToggleMethodResultTypeAction extends ToggleTypeAction(
     ScalaCodeInsightBundle.message("show.method.result.action.text"),
