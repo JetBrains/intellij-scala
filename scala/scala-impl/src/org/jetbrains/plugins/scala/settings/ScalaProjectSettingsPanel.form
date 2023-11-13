@@ -280,7 +280,7 @@
               </component>
             </children>
           </grid>
-          <grid id="ad46a" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="ad46a" layout-manager="GridLayoutManager" row-count="11" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="12" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="X-Ray Mode"/>
@@ -303,7 +303,7 @@
               </hspacer>
               <vspacer id="be1b1">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <grid id="62720" layout-manager="GridBagLayout">
@@ -355,7 +355,7 @@
               </component>
               <component id="5a0d8" class="javax.swing.JCheckBox" binding="myShowMethodChainHintsCheckbox">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="&amp;Method chain hints"/>
@@ -363,7 +363,7 @@
               </component>
               <component id="5bce5" class="javax.swing.JCheckBox" binding="myShowIndentGuidesCheckbox">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Indent &amp;guides"/>
@@ -371,7 +371,7 @@
               </component>
               <component id="a7dac" class="javax.swing.JCheckBox" binding="myShowMethodSeparatorsCheckbox">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Method &amp;separators"/>
@@ -379,7 +379,7 @@
               </component>
               <component id="d0841" class="javax.swing.JCheckBox" binding="myShowImplicitHintsCheckbox">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="&amp;Implicit hints"/>
@@ -387,7 +387,7 @@
               </component>
               <component id="1b140" class="javax.swing.JCheckBox" binding="myShowTypeHintsCheckbox">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="&amp;Type hints"/>
@@ -453,6 +453,14 @@
                   </component>
                 </children>
               </grid>
+              <component id="4f330" class="javax.swing.JCheckBox" binding="myShowParameterHintsCheckbox">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&amp;Parameter hints"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="2fa9e" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

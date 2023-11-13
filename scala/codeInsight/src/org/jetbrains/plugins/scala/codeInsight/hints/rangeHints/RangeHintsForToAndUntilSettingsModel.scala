@@ -83,7 +83,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
   override def reset(): Unit =
     settings.reset()
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
+  override def getDescription: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until.description", ScalaCodeInsightBundle.message("xray.mode.tip", ScalaHintsSettings.xRayModeShortcut))
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

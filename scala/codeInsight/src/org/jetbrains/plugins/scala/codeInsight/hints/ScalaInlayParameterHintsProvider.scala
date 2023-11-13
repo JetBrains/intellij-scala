@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package hints
-
-import java.{util => ju}
+package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.codeInsight.hints
+import com.intellij.codeInsight.hints.HintUtilsKt
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
@@ -15,7 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
@@ -24,7 +25,12 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
   import CommonNames.GetSet
   import ScalaInlayParameterHintsProvider._
 
+  override def canShowHintsWhenDisabled: Boolean = true
+
   override def getParameterHints(element: PsiElement): ju.List[hints.InlayInfo] = {
+    if (!(HintUtilsKt.isParameterHintsEnabledForLanguage(ScalaLanguage.INSTANCE) ||
+      ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS)) return ju.Collections.emptyList
+
     val matchedParameters = (element match {
       case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
       case call: ScMethodCall => call.matchedParameters
