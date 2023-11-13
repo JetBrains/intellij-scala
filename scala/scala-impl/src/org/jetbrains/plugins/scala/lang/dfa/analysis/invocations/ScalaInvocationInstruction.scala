@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations
 
+import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.dataFlow.DfaNullability
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ThisArgument}
 
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
@@ -43,21 +44,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
   override def accept(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState): Array[DfaInstructionState] = {
     implicit val factory: DfaValueFactory = interpreter.getFactory
     val argumentValues = collectArgumentValuesFromStack(stateBefore)
-
-    for {
-      thisArgument <- invocationInfo.thisArgument
-      content <- thisArgument.content
-      thisValue <- argumentValues.get(thisArgument)
-    } {
-      val nullability = DfaNullability.fromDfType(stateBefore.getDfType(thisValue))
-      val failed = nullability match {
-        case DfaNullability.NOT_NULL => ThreeState.NO
-        case DfaNullability.NULL => ThreeState.YES
-        case _ => ThreeState.UNSURE
-      }
-      val problem = ScalaNullAccessProblem.npeOnInvocation.create(content)
-      interpreter.getListener.onCondition(problem, thisValue, failed, stateBefore)
-    }
+    checkArgumentsNullability(argumentValues, interpreter, stateBefore)
 
     val finder = MethodEffectFinder(invocationInfo)
     val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
@@ -77,6 +64,28 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
 
     returnFromInvocation(improvedMethodEffect, stateBefore, interpreter)
   }
+
+  private def checkArgumentsNullability(arguments: Map[Argument, DfaValue],
+                                        interpreter: DataFlowInterpreter,
+                                        stateBefore: DfaMemoryState): Unit =
+    for {
+      (argument, value) <- arguments
+      if argument.nullability == Nullability.NOT_NULL ||
+        argument.nullability == Nullability.UNKNOWN && invocationInfo.calledElementIsInProject
+      expr <- argument.content
+    } {
+      val nullability = DfaNullability.fromDfType(stateBefore.getDfType(value))
+      val failed = nullability match {
+        case DfaNullability.NOT_NULL => ThreeState.NO
+        case DfaNullability.NULL => ThreeState.YES
+        case _ => ThreeState.UNSURE
+      }
+      val problem =
+        if (argument.kind == ThisArgument) ScalaNullAccessProblem.npeOnInvocation.create(expr)
+        else if (argument.nullability == Nullability.UNKNOWN) ScalaNullAccessProblem.nullableToUnannotatedParam.create(expr)
+        else ScalaNullAccessProblem.nullableToNotNullParam.create(expr)
+      interpreter.getListener.onCondition(problem, value, failed, stateBefore)
+    }
 
   private def returnFromInvocation(methodEffect: MethodEffect, stateBefore: DfaMemoryState,
                                    interpreter: DataFlowInterpreter): Array[DfaInstructionState] = {

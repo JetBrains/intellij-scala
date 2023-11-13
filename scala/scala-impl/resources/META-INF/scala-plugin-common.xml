@@ -1490,6 +1490,18 @@
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaNpeOnInvocation"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNullableToNotNullParamInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.dataflow.analysis.nullable.to.notnull"
+                         groupPath="Scala" groupKey="group.dataflow.analysis"
+                         shortName="DfaNullableToNotNullParam"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNullableToUnannotatedParamInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.dataflow.analysis.nullable.to.unannotated"
+                         groupPath="Scala" groupKey="group.dataflow.analysis"
+                         shortName="DfaNullableToUnannotatedParam"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- Collection inspections -->
         <!-- Size -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"

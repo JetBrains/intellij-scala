@@ -78,6 +78,10 @@ object ScalaNullAccessProblem {
   type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] with Factory
 
   val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("method.invocation.might.produce.nullpointerexception"))( ScalaBundle.message("method.invocation.will.produce.nullpointerexception")) with Factory
+  val nullableToNotNullParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.notnull.param.sometimes.message"))(ScalaBundle.message("nullable.to.notnull.param.always.message")) with Factory
+  val nullableToUnannotatedParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.unannotated.param.sometimes.message"))(ScalaBundle.message("nullable.to.unannotated.param.always.message")) with Factory
+
+  val allProblems: Set[ScalaDfaProblemKind[_]] = Set(npeOnInvocation, nullableToNotNullParam, nullableToUnannotatedParam)
 }
 
 class ScalaDfaProblemKind[+E <: ScalaDfaProblem.WithKind](@Nls val sometimesMessage: String)

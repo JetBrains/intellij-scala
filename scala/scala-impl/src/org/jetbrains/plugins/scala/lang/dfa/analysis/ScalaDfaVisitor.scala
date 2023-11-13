@@ -24,4 +24,9 @@ object ScalaDfaVisitor {
       case p: ScalaDfaProblem.WithKind => p.problemKind == kind
       case _ => false
     }))
+  def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[_]]): ProblemsHolder => ScalaDfaVisitor =
+    reportingTo(r => r.reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => kind.contains(p.problemKind)
+      case _ => false
+    }))
 }
