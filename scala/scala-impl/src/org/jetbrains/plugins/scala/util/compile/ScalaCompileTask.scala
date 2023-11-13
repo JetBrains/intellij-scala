@@ -10,7 +10,9 @@ import scala.concurrent.duration._
 trait ScalaCompileTask extends CompileTask {
   final override def execute(context: CompileContext): Boolean = {
     if (shouldLogToBuildOutput)
-      runAndLogExecutionTime(context)
+      logExecutionTime(context) {
+        run(context)
+      }
     else
       run(context)
   }
@@ -26,12 +28,12 @@ trait ScalaCompileTask extends CompileTask {
    */
   protected def shouldLogToBuildOutput: Boolean = ApplicationManager.getApplication.isInternal
 
-  private def runAndLogExecutionTime(context: CompileContext): Boolean = {
+  private def logExecutionTime(context: CompileContext)(body: => Boolean): Boolean = {
     val start = System.nanoTime()
     try {
       @Nls val message = ScalaBundle.message("scala.compile.task.measure.start", presentableName)
       context.addMessage(CompilerMessageCategory.STATISTICS, message, null, -1, -1)
-      run(context)
+      body
     } finally {
       val end = System.nanoTime()
       val millis = (end - start).nanos.toMillis.millis
