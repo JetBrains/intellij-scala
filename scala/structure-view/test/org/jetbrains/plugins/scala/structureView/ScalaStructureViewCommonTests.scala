@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
+import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaVisibilitySorter}
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
@@ -1155,18 +1156,19 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |""".stripMargin
     configureFromFileText(derivedClass)
 
-    val inheritedFromObject =
+    def inheritedFromObject(indent: Int = 3) =
       """clone(): Object
-        |   equals(Object): Boolean
-        |   finalize(): Unit
-        |   getClass(): Class[_]
-        |   hashCode(): Int
-        |   notify(): Unit
-        |   notifyAll(): Unit
-        |   toString(): String
-        |   wait(): Unit
-        |   wait(Long): Unit
-        |   wait(Long, Int): Unit""".stripMargin
+        |""".stripMargin +
+      """equals(Object): Boolean
+        |finalize(): Unit
+        |getClass(): Class[_]
+        |hashCode(): Int
+        |notify(): Unit
+        |notifyAll(): Unit
+        |toString(): String
+        |wait(): Unit
+        |wait(Long): Unit
+        |wait(Long, Int): Unit""".stripMargin.linesIterator.map(" " * indent + _).mkString(System.lineSeparator())
 
     myFixture.testStructureView { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
@@ -1182,11 +1184,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  getClass(): Class[_]
            |  hashCode(): Int
            |  -InnerClass
-           |   $inheritedFromObject
+           |   ${inheritedFromObject()}
            |  -InnerObject
-           |   $inheritedFromObject
+           |   ${inheritedFromObject()}
            |  -InnerTrait
-           |   $inheritedFromObject
+           |   ${inheritedFromObject()}
            |  IntAlias
            |  ListAlias
            |  m1(): Unit
@@ -1202,6 +1204,36 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  wait(): Unit
            |  wait(Long): Unit
            |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+
+      svc.setActionActive(ScalaSuperTypesGrouper.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  -Base
+           |   IntAlias
+           |   ListAlias
+           |   m1(): Unit
+           |   m2(Int)(?=> String): Unit
+           |   param1: Int
+           |   param2: String
+           |   v1: Int
+           |   v2
+           |   v3
+           |  -InnerClass
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -InnerObject
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -InnerTrait
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -Object
+           |   ${inheritedFromObject()}
            |""".stripMargin
       )
     }
@@ -1260,6 +1292,34 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  wait(): Unit
            |  wait(Long): Unit
            |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+
+      svc.setActionActive(ScalaSuperTypesGrouper.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  -Base
+           |   InnerClass
+           |   InnerStaticClass
+           |   m1(): Unit
+           |   m2(String): Int
+           |   v1: int = 1
+           |   v2: boolean = true
+           |  -Object
+           |   clone(): Object
+           |   equals(Object): Boolean
+           |   finalize(): Unit
+           |   getClass(): Class[_]
+           |   hashCode(): Int
+           |   notify(): Unit
+           |   notifyAll(): Unit
+           |   toString(): String
+           |   wait(): Unit
+           |   wait(Long): Unit
+           |   wait(Long, Int): Unit
            |""".stripMargin
       )
     }

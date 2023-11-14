@@ -32,7 +32,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
   private def nodesOf(element: PsiElement): util.Collection[TreeElement] = {
     element match {
       case clazz: ScTemplateDefinition =>
-        val children = new util.ArrayList[TreeElement]()
+        val children = new util.LinkedHashSet[TreeElement]()
         try {
           if (!clazz.isValid) return children
           for (sign <- clazz.allSignatures) {

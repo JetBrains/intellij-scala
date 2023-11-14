@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
+import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.ScalaAlphaSorter
 
 class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
@@ -391,6 +392,27 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
            |  wait(): Unit
            |  wait(Long): Unit
            |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+
+      svc.setActionActive(ScalaSuperTypesGrouper.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  -Object
+           |   clone(): Object
+           |   equals(Object): Boolean
+           |   finalize(): Unit
+           |   getClass(): Class[_]
+           |   hashCode(): Int
+           |   notify(): Unit
+           |   notifyAll(): Unit
+           |   toString(): String
+           |   wait(): Unit
+           |   wait(Long): Unit
+           |   wait(Long, Int): Unit
            |""".stripMargin
       )
     }
