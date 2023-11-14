@@ -121,13 +121,12 @@ final class SbtShellCommunication(project: Project) {
     */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     if (communicationActive.tryAcquire(5, TimeUnit.SECONDS)) {
-      val sbtShellReadyListener = new SbtShellReadyListener(
+      val releaseCommandQueueListener = new SbtShellReadyListener(
+        "release command queue",
         whenReady = shellQueueReady.release(),
-        whenWorking = ()
+        whenWorking = (),
       )
-
-      handler.addProcessListener(sbtShellReadyListener)
-
+      handler.addProcessListener(releaseCommandQueueListener)
       startQueueProcessing(handler)
     }
   }
@@ -208,11 +207,15 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */
-class SbtShellReadyListener(
+private[shell] class SbtShellReadyListener(
+  debugName: String,
   whenReady: => Unit,
-  whenWorking: => Unit
+  whenWorking: => Unit,
 ) extends LineListener {
+
   private var readyState: Boolean = false
+
+  override def toString: String = s"${super.toString} ($debugName)"
 
   override def onLine(line: String): Unit = {
     val sbtReady: Boolean = promptReady(line) || (readyState && debuggerMessage(line))
