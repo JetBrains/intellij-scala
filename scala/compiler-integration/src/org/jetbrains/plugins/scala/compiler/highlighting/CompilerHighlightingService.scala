@@ -275,6 +275,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       val request = priorityQueue.pollFirst()
       if (request eq null) return
       if (isReadyForExecution(request)) {
+        // The request with the highest priority is ready for execution. We need to also remove all requests from the
+        // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
+        // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
+        // source file, as less important requests for unrelated files are still useful and should be executed.
         priorityQueue.tailSet(request).forEach { r =>
           // remove less important compilation requests for the same file
           if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
