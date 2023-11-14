@@ -63,36 +63,41 @@ final class SbtShellCommunication(project: Project) {
         // queue ready signal is given by initCommunication.stateChanger
         shellQueueReady.drainPermits()
         while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
-          nextQueuedCommand(1.second)
+          processNextQueuedCommand(1.second)
         }
         communicationActive.release()
       }
     })
   }
 
-  private def nextQueuedCommand(timeout: Duration): Unit = {
+  private def processNextQueuedCommand(timeout: Duration): Unit = {
     // TODO exception handling
     val acquired = shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)
     if (acquired) {
       val next = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
-        val (cmd, listener) = next
-
-        listener.started()
-
-        val handler = process.acquireShellProcessHandler()
-        handler.addProcessListener(listener)
-
-        process.usingWriter { shell =>
-          shell.println(cmd)
-          shell.flush()
-        }
-        listener.future.onComplete { _ =>
-          handler.removeProcessListener(listener)
-        }
+        //NOTE: shellQueueReady is released in `SbtShellReadyListener` created in `initCommunication`
+        processCommand(next)
       } else {
         shellQueueReady.release()
       }
+    }
+  }
+
+  private def processCommand(commandAndListener: (String, CommandListener[_])): Unit = {
+    val (cmd, listener) = commandAndListener
+
+    listener.started()
+
+    val handler = process.acquireShellProcessHandler()
+    handler.addProcessListener(listener)
+
+    process.usingWriter { shell =>
+      shell.println(cmd)
+      shell.flush()
+    }
+    listener.future.onComplete { _ =>
+      handler.removeProcessListener(listener)
     }
   }
 
@@ -103,14 +108,13 @@ final class SbtShellCommunication(project: Project) {
     * to manually trigger it if a fully background process is desired
     */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
-
     if (communicationActive.tryAcquire(5, TimeUnit.SECONDS)) {
-      val stateChanger = new SbtShellReadyListener(
+      val sbtShellReadyListener = new SbtShellReadyListener(
         whenReady = shellQueueReady.release(),
         whenWorking = ()
       )
 
-      handler.addProcessListener(stateChanger)
+      handler.addProcessListener(sbtShellReadyListener)
 
       startQueueProcessing(handler)
     }
