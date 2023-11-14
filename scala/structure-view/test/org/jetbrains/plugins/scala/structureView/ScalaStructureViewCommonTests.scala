@@ -1125,6 +1125,69 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     })
   }
 
+  def testInheritedMembers(): Unit = {
+    @Language("Scala")
+    val baseClass =
+      """package tests
+        |
+        |class Base(val param1: Int, var param2: String) {
+        |  class InnerClass
+        |  object InnerObject
+        |  trait InnerTrait
+        |
+        |  def m1(): Unit = {}
+        |  def m2(i: Int)(implicit s: String): Unit = ()
+        |
+        |  val v1: Int = 1
+        |  var (v2, v3) = (true, "v3")
+        |
+        |  type IntAlias = Int
+        |  type ListAlias[T] = List[T]
+        |}
+        |""".stripMargin
+    myFixture.addFileToProject("tests/Base.scala", baseClass)
+
+    @Language("Scala")
+    val derivedClass =
+      """package tests
+        |
+        |class Derived extends Base(0, "")
+        |""".stripMargin
+    configureFromFileText(derivedClass)
+
+    myFixture.testStructureView { svc =>
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
+      svc.setActionActive(ScalaAlphaSorter.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  clone(): Object
+           |  equals(Object): Boolean
+           |  finalize(): Unit
+           |  getClass(): Class[_]
+           |  hashCode(): Int
+           |  IntAlias
+           |  ListAlias
+           |  m1(): Unit
+           |  m2(Int)(?=> String): Unit
+           |  notify(): Unit
+           |  notifyAll(): Unit
+           |  param1: Int
+           |  param2: String
+           |  toString(): String
+           |  v1: Int
+           |  v2
+           |  v3
+           |  wait(): Unit
+           |  wait(Long): Unit
+           |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+    }
+  }
+
   def testOrderingByVisibility(): Unit = {
     myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
     configureFromFileText(DerivedClass)

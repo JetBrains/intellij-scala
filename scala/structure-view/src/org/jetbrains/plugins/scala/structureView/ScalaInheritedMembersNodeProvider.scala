@@ -10,7 +10,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
@@ -47,17 +47,19 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                   case parameter: ScClassParameter if parameter.isClassMember && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
                     children.addAll(Element.forPsi(parameter, inherited = true).asJava)
                   case named: ScNamedElement => named.nameContext match {
-                    case x: ScValue if x.containingClass != clazz => children.addAll(Element.forPsi(named, inherited = true).asJava)
-                    case x: ScVariable if x.containingClass != clazz => children.addAll(Element.forPsi(named, inherited = true).asJava)
+                    case variable: ScValueOrVariable if variable.containingClass != clazz =>
+                      children.addAll(Element.forPsi(variable, inherited = true).asJava)
                     case _ =>
                   }
                   case _ =>
                 }
             }
           }
-          clazz.allTypeSignatures.map(_.namedElement).collect {
+
+          clazz.allTypeSignatures.map(_.namedElement).foreach {
             case alias: ScTypeAlias if alias.containingClass != clazz =>
               children.addAll(Element.forPsi(alias, inherited = true).asJava)
+            case _ =>
           }
 
           children
