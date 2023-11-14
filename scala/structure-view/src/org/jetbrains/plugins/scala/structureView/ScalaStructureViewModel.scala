@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.structureView
 
-import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree.*
-import com.intellij.openapi.editor.PlatformEditorBundle
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -14,10 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
-import org.jetbrains.plugins.scala.structureView.element.{Element, Test}
+import org.jetbrains.plugins.scala.structureView.element.Element
+import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
+import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
+import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaByPositionSorter, ScalaVisibilitySorter}
 
 import java.util
-import java.util.Comparator
 import scala.jdk.CollectionConverters.*
 
 class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
@@ -60,46 +60,19 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
     filters
   }
 
+  override def getGroupers: Array[Grouper] = {
+    val groupers = Array[Grouper](
+      ScalaSuperTypesGrouper
+    )
+
+    groupers
+  }
+
   override def getSorters: Array[Sorter] = {
     val sorters = Array(
       ScalaVisibilitySorter,
-      new Sorter() {
-        override def isVisible: Boolean = true
-
-        // TODO move to the implementation of testing support
-        override def getComparator: Comparator[_] =
-          (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-            case (_: Test, _: Test) => 0
-            case (_, _: Test) => -1
-            case (_: Test, _) => 1
-            case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
-          }
-
-        override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
-
-        override def getPresentation: ActionPresentation = {
-          val sortAlphabetically = PlatformEditorBundle.message("action.sort.alphabetically")
-          new ActionPresentationData(
-            sortAlphabetically,
-            sortAlphabetically,
-            AllIcons.ObjectBrowser.Sorted
-          )
-        }
-      },
-      new Sorter() {
-        override def isVisible: Boolean = false
-
-        override def getName: String = "ACTUAL_ORDER_SORTER"
-
-        override def getPresentation: ActionPresentation =
-          new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
-
-        override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-          case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
-            e1.element.getTextOffset - e2.element.getTextOffset
-          case _ => 0
-        }
-      }
+      ScalaAlphaSorter,
+      ScalaByPositionSorter,
     )
 
     sorters

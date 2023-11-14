@@ -251,6 +251,16 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |}""".stripMargin
   )
 
+  def testFindUsagesOnPrimaryConstructor(): Unit = doTest(
+    s"""
+       |class Col${CARET}or(x: Int, foo: String) {
+       |  def this(x: Int, y: Int) = ${start}this$end(x, "")
+       |
+       |  new ${start}Color$end(123, "foo")
+       |}
+       |""".stripMargin
+  )
+
   def testFindUsagesOnConstructorInvocation(): Unit = doTest(
     s"""
        |class Color(x: Int, foo: String) {

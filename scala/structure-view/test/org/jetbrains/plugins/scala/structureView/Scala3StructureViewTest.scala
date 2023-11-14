@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.structureView
 
-import com.intellij.lang.Language
+import com.intellij.testFramework.PlatformTestUtil
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
+import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
+import org.jetbrains.plugins.scala.structureView.sorter.ScalaAlphaSorter
 
 class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
 
-  override protected def scalaLanguage: Language = Scala3Language.INSTANCE
+  override protected def scalaLanguage: com.intellij.lang.Language = Scala3Language.INSTANCE
 
   override protected def check(@org.intellij.lang.annotations.Language("Scala 3") code: String, nodes: Node*): Unit =
     super.check(code, nodes: _*)
@@ -340,4 +344,77 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       ),
     )
   )
+
+  def testInheritedMembersScala3(): Unit = {
+    @Language("Scala 3")
+    val baseClass =
+      """package tests
+        |
+        |class Base:
+        |  enum InnerEnum:
+        |    case A
+        |    case B, C
+        |
+        |  given g1: Int = 1
+        |  given g2: AutoCloseable with
+        |    override def close(): Unit = {}
+        |
+        |  extension (s: String)
+        |    def scream: String = s.toUpperCase
+        |end Base
+        |""".stripMargin
+    myFixture.addFileToProject("tests/Base.scala", baseClass)
+
+    @Language("Scala 3")
+    val derivedClass =
+      """package tests
+        |
+        |class Derived extends Base
+        |""".stripMargin
+    configureFromFileText(derivedClass)
+
+    myFixture.testStructureView { svc =>
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
+      svc.setActionActive(ScalaAlphaSorter.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  clone(): Object
+           |  equals(Object): Boolean
+           |  finalize(): Unit
+           |  getClass(): Class[_]
+           |  hashCode(): Int
+           |  notify(): Unit
+           |  notifyAll(): Unit
+           |  toString(): String
+           |  wait(): Unit
+           |  wait(Long): Unit
+           |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+
+      svc.setActionActive(ScalaSuperTypesGrouper.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  -Object
+           |   clone(): Object
+           |   equals(Object): Boolean
+           |   finalize(): Unit
+           |   getClass(): Class[_]
+           |   hashCode(): Int
+           |   notify(): Unit
+           |   notifyAll(): Unit
+           |   toString(): String
+           |   wait(): Unit
+           |   wait(Long): Unit
+           |   wait(Long, Int): Unit
+           |""".stripMargin
+      )
+    }
+  }
 }

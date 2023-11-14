@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.structureView
+package org.jetbrains.plugins.scala.structureView.sorter
 
 import com.intellij.ide.structureView.impl.java.VisibilitySorter
 import org.jetbrains.annotations.NonNls
