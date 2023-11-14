@@ -1188,6 +1188,62 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     }
   }
 
+  def testInheritedMembersFromJava(): Unit = {
+    @Language("java")
+    val baseClass =
+      """package tests;
+        |
+        |class Base {
+        |  class InnerClass {}
+        |  static class InnerStaticClass {}
+        |
+        |  void m1() {}
+        |  int m2(String s) { return s.length(); }
+        |  static void m3(boolean b) {}
+        |
+        |  final int v1 = 1;
+        |  boolean v2 = true;
+        |  static String v3 = "v3";
+        |}
+        |""".stripMargin
+    myFixture.addFileToProject("tests/Base.java", baseClass)
+
+    @Language("Scala")
+    val derivedClass =
+      """package tests
+        |
+        |class Derived extends Base
+        |""".stripMargin
+    configureFromFileText(derivedClass)
+
+    myFixture.testStructureView { svc =>
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
+      svc.setActionActive(ScalaAlphaSorter.ID, true)
+      PlatformTestUtil.expandAll(svc.getTree)
+      PlatformTestUtil.assertTreeEqual(svc.getTree,
+        s"""
+           |-${getFile.name}
+           | -Derived
+           |  clone(): Object
+           |  equals(Object): Boolean
+           |  finalize(): Unit
+           |  getClass(): Class[_]
+           |  hashCode(): Int
+           |  m1(): Unit
+           |  m2(String): Int
+           |  notify(): Unit
+           |  notifyAll(): Unit
+           |  toString(): String
+           |  v1: int = 1
+           |  v2: boolean = true
+           |  wait(): Unit
+           |  wait(Long): Unit
+           |  wait(Long, Int): Unit
+           |""".stripMargin
+      )
+    }
+  }
+
   def testOrderingByVisibility(): Unit = {
     myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
     configureFromFileText(DerivedClass)
