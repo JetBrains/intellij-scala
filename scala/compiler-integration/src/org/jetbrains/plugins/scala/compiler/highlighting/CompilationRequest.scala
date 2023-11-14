@@ -52,6 +52,11 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
+    /**
+     * Incremental compilation is not triggered by typing, instead, it is triggered by actions such as switching files,
+     * triggering refactorings, etc. For this purpose, there is no need for a delay in these cases, since incremental
+     * compilation is used to reconcile the compiler based highlighting state for the project.
+     */
     override val compilationDelay: FiniteDuration = Duration.Zero
   }
 
