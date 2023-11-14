@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.structureView.element.AbstractItemPresentatio
 
 import javax.swing.Icon
 
-abstract class ValOrVar(element: ScNamedElement, parent: ScValueOrVariable, inherited: Boolean)
+abstract class ValOrVar(element: ScNamedElement, private[element] val parent: ScValueOrVariable, inherited: Boolean)
   extends AbstractTreeElementDelegatingChildrenToPsi(element, inherited)
     with InheritedLocationStringItemPresentation {
 

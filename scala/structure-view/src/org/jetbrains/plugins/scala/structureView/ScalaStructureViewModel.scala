@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.structureView.element.Element
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
+import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaByPositionSorter, ScalaVisibilitySorter}
 
 import java.util
@@ -57,6 +58,14 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
     )
 
     filters
+  }
+
+  override def getGroupers: Array[Grouper] = {
+    val groupers = Array[Grouper](
+      ScalaSuperTypesGrouper
+    )
+
+    groupers
   }
 
   override def getSorters: Array[Sorter] = {
