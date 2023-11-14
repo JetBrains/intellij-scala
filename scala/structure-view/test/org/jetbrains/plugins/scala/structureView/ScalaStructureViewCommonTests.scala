@@ -1155,6 +1155,19 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |""".stripMargin
     configureFromFileText(derivedClass)
 
+    val inheritedFromObject =
+      """clone(): Object
+        |   equals(Object): Boolean
+        |   finalize(): Unit
+        |   getClass(): Class[_]
+        |   hashCode(): Int
+        |   notify(): Unit
+        |   notifyAll(): Unit
+        |   toString(): String
+        |   wait(): Unit
+        |   wait(Long): Unit
+        |   wait(Long, Int): Unit""".stripMargin
+
     myFixture.testStructureView { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       svc.setActionActive(ScalaAlphaSorter.ID, true)
@@ -1168,6 +1181,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  finalize(): Unit
            |  getClass(): Class[_]
            |  hashCode(): Int
+           |  -InnerClass
+           |   $inheritedFromObject
+           |  -InnerObject
+           |   $inheritedFromObject
+           |  -InnerTrait
+           |   $inheritedFromObject
            |  IntAlias
            |  ListAlias
            |  m1(): Unit
@@ -1229,6 +1248,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  finalize(): Unit
            |  getClass(): Class[_]
            |  hashCode(): Int
+           |  InnerClass
+           |  InnerStaticClass
            |  m1(): Unit
            |  m2(String): Int
            |  notify(): Unit

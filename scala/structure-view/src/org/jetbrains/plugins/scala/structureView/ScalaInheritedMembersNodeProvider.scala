@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.StructureViewBundle
-import com.intellij.ide.structureView.impl.java.PsiFieldTreeElement
+import com.intellij.ide.structureView.impl.java.{JavaClassTreeElement, PsiFieldTreeElement}
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.structureView.element.Element
 
@@ -62,6 +63,14 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           clazz.allTypeSignatures.map(_.namedElement).foreach {
             case alias: ScTypeAlias if alias.containingClass != clazz =>
               children.addAll(Element.forPsi(alias, inherited = true).asJava)
+            case _ =>
+          }
+
+          clazz.getAllInnerClasses.foreach {
+            case td: ScTypeDefinition if td.containingClass != clazz =>
+              children.addAll(Element.forPsi(td, inherited = true).asJava)
+            case psiClass if psiClass.getLanguage.is(JavaLanguage.INSTANCE) && psiClass.containingClass != clazz =>
+              children.add(new JavaClassTreeElement(psiClass, true))
             case _ =>
           }
 
