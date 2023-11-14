@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
+import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ProcessTerminated, ShellEvent, TaskComplete, TaskStart}
 
 import java.util.regex.{Matcher, Pattern}
 
@@ -29,6 +29,7 @@ class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
   override def processEvent(se: ShellEvent): Unit = se match {
     case TaskStart =>
     case TaskComplete =>
+    case ProcessTerminated => throw new Exception("sbt process terminated")
     case ErrorWaitForInput => throw new Exception("error running sbt")
     case SbtShellCommunication.Output(output) =>
       import TestRunnerUtil._

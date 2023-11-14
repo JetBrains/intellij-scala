@@ -102,9 +102,9 @@ class SbtStructureDump {
         setCommands,
         s"""apply -cp "${normalizePath(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks"""
       ) :++
-      (if (preferScala2) Seq("preferScala2") else Seq.empty) :+
-      s"*/*:dumpStructure"
-    ).mkString(";", ";", "")
+        (if (preferScala2) Seq("preferScala2") else Seq.empty) :+
+        s"*/*:dumpStructure"
+      ).mkString(";", ";", "")
 
 
     runSbt(
@@ -197,8 +197,8 @@ class SbtStructureDump {
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
         allOpts ++
-      List("-jar", normalizePath(sbtLauncher)) ++
-      allSbtLauncherArgs// :+ "--debug"
+        List("-jar", normalizePath(sbtLauncher)) ++
+        allSbtLauncherArgs// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -381,22 +381,31 @@ object SbtStructureDump {
     } else messages
   }
 
-  private def shellMessageAggregator(dumpTaskId: EventId,
-                                     shell: SbtShellCommunication,
-                                     reporter: BuildReporter,
-                                   ): EventAggregator[BuildMessages] = {
-    case (messages, TaskStart) =>
+  private def shellMessageAggregator(
+    dumpTaskId: EventId,
+    shell: SbtShellCommunication,
+    reporter: BuildReporter,
+  ): EventAggregator[BuildMessages] = (messages, event) => event match {
+    case TaskStart =>
       reporter.startTask(dumpTaskId, None, SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"))
       messages
 
-    case (messages, TaskComplete) =>
+    case TaskComplete =>
       reporter.finishTask(dumpTaskId, SbtBundle.message("sbt.project.structure.extracted"), new SuccessResultImpl())
       val messagesUpdated =
         if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
         else messages
       messagesUpdated
 
-    case (messages, ErrorWaitForInput) =>
+    case ProcessTerminated =>
+      //TODO: it seems like in practice "process terminated" is not used at all
+      // we need to refactor the reporter API to not demand it
+      reporter.finishTask(dumpTaskId, "process terminated", new SuccessResultImpl())
+      messages
+        .addError("process terminated")
+        .status(BuildMessages.Canceled)
+
+    case ErrorWaitForInput =>
       val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
       val ex = new ExternalSystemException(msg)
 
@@ -407,7 +416,7 @@ object SbtStructureDump {
 
       messages.addError(msg)
 
-    case (messages, Output(raw)) =>
+    case Output(raw) =>
       val text = raw.trim
 
       val newMessages =
