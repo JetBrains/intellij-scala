@@ -52,6 +52,11 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
+    /**
+     * Incremental compilation is not triggered by typing, instead, it is triggered by actions such as switching files,
+     * triggering refactorings, etc. For this purpose, there is no need for a delay in these cases, since incremental
+     * compilation is used to reconcile the compiler based highlighting state for the project.
+     */
     override val compilationDelay: FiniteDuration = Duration.Zero
   }
 
@@ -67,6 +72,21 @@ private object CompilationRequest {
     override val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
   }
 
+  /**
+   * Used for determining the order of compilation requests in a priority queue. Compilation requests with higher
+   * importance should be processed before compilation requests with lower importance. For example, incremental
+   * compilation requests have higher priority compared to document compilation requests, since document compilation
+   * depends on successful incremental compilation.
+   *
+   * There is a second part to this process. After a compilation request has been processed, requests that would
+   * be subsumed by this request are removed from the priority queue. For example, when an incremental compilation
+   * request is processed, there is no need to also run a document compilation request for the same file, since that
+   * file will already be compiled by the incremental compilation request.
+   *
+   * @note Two compilation requests are first compared by their priority field. If the priorities are the same, they are
+   *       then ordered by their deadlines. If it happens that the deadlines match, ties are broken by the path of the
+   *       file they are scheduled for.
+   */
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
     if (x.priority != y.priority)
       implicitly[Ordering[Int]].compare(x.priority, y.priority)
