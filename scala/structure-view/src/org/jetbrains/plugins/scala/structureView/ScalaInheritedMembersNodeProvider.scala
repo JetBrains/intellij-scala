@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.StructureViewBundle
+import com.intellij.ide.structureView.impl.java.PsiFieldTreeElement
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -51,6 +52,8 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                       children.addAll(Element.forPsi(variable, inherited = true).asJava)
                     case _ =>
                   }
+                  case field: PsiField if field.containingClass != clazz =>
+                    children.add(PsiFieldTreeElement(field, true))
                   case _ =>
                 }
             }
