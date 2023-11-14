@@ -171,13 +171,12 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     collector.compilationStarted()
 
     // TODO build events instead of indicator
-    val resultAggregator: (BuildMessages, ShellEvent) => BuildMessages = { (messages,event) =>
-
+    val resultAggregator: (BuildMessages, ShellEvent) => BuildMessages = { (messages, event) =>
       event match {
         case TaskStart =>
           // handled for main task
           messages
-        case TaskComplete =>
+        case TaskComplete | ProcessTerminated =>
           // handled for main task
           messages
         case ErrorWaitForInput =>

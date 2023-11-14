@@ -57,15 +57,27 @@ final class SbtShellCommunication(project: Project) {
 
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
-
     PooledThreadExecutor.INSTANCE.submit(new Runnable {
-      override def run(): Unit = {
+      override def run(): Unit = try {
         // queue ready signal is given by initCommunication.stateChanger
         shellQueueReady.drainPermits()
         while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
           processNextQueuedCommand(1.second)
         }
+
+        //process terminated, notify remaining commands in the queue
+        //otherwise, there might be some stuck processes
+        commands.forEach { case (command, listener) =>
+          Log.warn(s"Sbt shell is terminated, skipping command: $command")
+          listener.processTerminated()
+        }
+        commands.clear()
+
         communicationActive.release()
+      } catch {
+        case ex: Throwable =>
+          Log.error(new RuntimeException("Unexpected exception during commands queue processing", ex))
+          throw ex
       }
     })
   }
@@ -122,11 +134,14 @@ final class SbtShellCommunication(project: Project) {
 }
 
 object SbtShellCommunication {
+  protected val Log: Logger = Logger.getInstance(getClass)
+
   def forProject(project: Project): SbtShellCommunication = project.getService(classOf[SbtShellCommunication])
 
   sealed trait ShellEvent
   case object TaskStart extends ShellEvent
   case object TaskComplete extends ShellEvent
+  case object ProcessTerminated extends ShellEvent
   case object ErrorWaitForInput extends ShellEvent
   case class Output(line: String) extends ShellEvent
 
@@ -137,9 +152,14 @@ object SbtShellCommunication {
   type EventAggregator[A] = (A, ShellEvent) => A
 
   /** Aggregates the output of a shell task. */
-  val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
-    case TaskStart | TaskComplete | ErrorWaitForInput => builder
-    case Output(text) => builder.append("\n").append(text)
+  private val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
+    case TaskStart |
+         TaskComplete |
+         ProcessTerminated |
+         ErrorWaitForInput =>
+      builder
+    case Output(text) =>
+      builder.append("\n").append(text)
   }
 
   /** Convenience aggregator wrapper that is executed for the side effects.
@@ -163,24 +183,24 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
     aggregate(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
-    // TODO separate event type for completion by termination?
-    aggregate(TaskComplete)
+    processTerminated()
+  }
+
+  def processTerminated(): Unit = {
+    aggregate(ProcessTerminated)
     promise.complete(Try(a))
   }
 
-  override def onLine(text: String): Unit = {
-
+  override def onLine(text: String): Unit =
     if (!promise.isCompleted && promptReady(text)) {
       aggregate(TaskComplete)
       promise.complete(Success(a))
-    } else if (promptError(text)) {
-      aggregate(ErrorWaitForInput)
-    } else {
-      aggregate(Output(text))
     }
-  }
+    else if (promptError(text))
+      aggregate(ErrorWaitForInput)
+    else
+      aggregate(Output(text))
 }
-
 
 /**
   * Monitor sbt prompt status, do something when state changes.
