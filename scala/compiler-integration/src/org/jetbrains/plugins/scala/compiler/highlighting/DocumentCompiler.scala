@@ -79,16 +79,9 @@ private final class DocumentCompiler(project: Project) extends Disposable {
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
 
     override protected def scalaParameters: Seq[String] = {
-      def containsUnusedImports(scalacOptions: Seq[String]): Boolean = {
-        val unusedCategories = scalacOptions.collect {
-          case s"-Wunused:$rest" => rest.split(",")
-        }.flatten.toSet
-        unusedCategories.contains("all") || unusedCategories.contains("imports")
-      }
-
-      val scalacOptions = super.scalaParameters
+      val scalacOptions = CompilerOptions.scalacOptions(module)
       if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
-        if (containsUnusedImports(scalacOptions)) scalacOptions
+        if (CompilerOptions.containsUnusedImports(scalacOptions)) scalacOptions
         else scalacOptions :+ "-Wunused:imports"
       }
       else scalacOptions

@@ -197,8 +197,6 @@ private final class ExternalHighlightersService(project: Project) { self =>
 
   @RequiresReadLock
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
-    val message = highlighting.message
-
     //NOTE: in case there is no location in the file, do not ignore/loose messages
     //instead report them in the beginning of the file
     val range = highlighting.rangeInfo.getOrElse {
@@ -210,13 +208,13 @@ private final class ExternalHighlightersService(project: Project) { self =>
     for {
       highlightRange <- calculateRangeToHighlight(range, document, psiFile)
     } yield {
-      val description = message.trim.stripSuffix(lineText(message))
+      val description = CompilerMessages.description(highlighting.message)
 
       def standardBuilder =
         highlightInfoBuilder(highlighting.highlightType, highlightRange, description)
 
       val highlightInfo =
-        if (description.trim.equalsIgnoreCase("unused import")) {
+        if (CompilerMessages.isUnusedImport(description)) {
           val leaf = psiFile.findElementAt(highlightRange.getStartOffset)
           val unusedImportRange = unusedImportElementRange(leaf)
           if (unusedImportRange != null) {
@@ -286,12 +284,6 @@ private final class ExternalHighlightersService(project: Project) { self =>
     val cl = column - 1
     if (ln >= 0 && ln < document.getLineCount && cl >= 0) Some(document.getLineStartOffset(ln) + cl)
     else None
-  }
-
-  private def lineText(messageText: String): String = {
-    val trimmed = messageText.trim
-    val lastLineSeparator = trimmed.lastIndexOf('\n')
-    if (lastLineSeparator > 0) trimmed.substring(lastLineSeparator).trim else ""
   }
 
   @RequiresReadLock
