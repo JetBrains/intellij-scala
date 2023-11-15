@@ -12,7 +12,6 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.util.TestUtils
 //noinspection ApiStatus
-import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -21,14 +20,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, UnloadAwareDisposable}
+import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.junit.Assert
 import org.junit.Assert._
 
 import java.io.File
 import java.util.{List => JList}
 import scala.collection.mutable
-import scala.concurrent.duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
@@ -81,7 +80,10 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
     if (!reuseCompileServerProcessBetweenTests) {
-      CompileServerLauncher.stopServerAndWait()
+      compileServerShutdownTimeout match {
+        case _: Duration.Infinite => CompileServerLauncher.stopServerAndWait()
+        case duration: FiniteDuration => CompileServerLauncher.stopServerAndWaitFor(duration)
+      }
     } else {
       //  server will be stopped when Application shuts down (see ShutDownTracker in CompileServerLauncher)
     }
@@ -125,6 +127,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   // (review extended classes and set to "false" where needed)
   protected def useCompileServer: Boolean = false
   protected def reuseCompileServerProcessBetweenTests: Boolean = false
+  protected def compileServerShutdownTimeout: Duration = Duration.Inf
 
   protected def compiler: CompilerTester = compilerTester
 
