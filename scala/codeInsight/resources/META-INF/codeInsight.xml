@@ -345,7 +345,6 @@
         <action id="Scala.XRayMode" text="X-Ray Mode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction" />
         <action id="Scala.XRayModeTip" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$XRayModeTipAction"/>
 
-        <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
         <action id="Scala.ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction" />
         <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
         <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />
