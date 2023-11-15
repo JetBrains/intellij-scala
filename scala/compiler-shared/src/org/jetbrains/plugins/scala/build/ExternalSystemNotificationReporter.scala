@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
+
 import java.io.File
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -23,11 +25,14 @@ class ExternalSystemNotificationReporter(workingDir: String,
   private val viewManager: Option[SyncViewManager] =
     Option(taskId.findProject()).map(_.getService(classOf[SyncViewManager]))
 
+  private var isFinished: Boolean = false
+
   override def start(): Unit = {
     notifications.onStart(taskId, workingDir)
   }
 
   override def finish(messages: BuildMessages): Unit = {
+    isFinished = true
     if (messages.status == BuildMessages.OK && messages.errors.isEmpty) {
       notifications.onEnd(taskId)
       notifications.onSuccess(taskId)
@@ -49,11 +54,13 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
+    isFinished = true
     notifications.onFailure(taskId, throwableToException(err))
     notifications.onEnd(taskId)
   }
 
   override def finishCanceled(): Unit = {
+    isFinished = true
     val time = System.currentTimeMillis()
     descriptors.foreach { case (id, _) =>
       val result = new com.intellij.build.events.impl.SkippedResultImpl
@@ -85,13 +92,18 @@ class ExternalSystemNotificationReporter(workingDir: String,
     log(message, isStdOut = false)
 
   private def log(message: String, isStdOut: Boolean): Unit = synchronized {
-    //NOTE: new lines are also added in BspSession.BspProcessMessageHandler.call
-    val messageWithNewLine = if (message.endsWith("\n")) message else message + "\n"
-    notifications.onTaskOutput(taskId, messageWithNewLine, isStdOut)
+    if (!isFinished) {
+      //NOTE: new lines are also added in BspSession.BspProcessMessageHandler.call
+      val messageWithNewLine = if (message.endsWith("\n")) message else message + "\n"
+      notifications.onTaskOutput(taskId, messageWithNewLine, isStdOut)
+    } else {
+      //NOTE: it might be not valid to log output when the task is already finished
+      //(see comments of https://youtrack.jetbrains.com/issue/SCL-21794/Reload-ALL-BSP-projects-action-is-disabled)
+      Log.warn(s"Skipping output for a finished task (taskId: $taskId, stdout: $isStdOut): ${message.trim}")
+    }
   }
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
-
     val taskDescriptor = descriptors.getOrElseUpdate(
       eventId,
       TaskDescriptor(
@@ -108,7 +120,6 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
-
     descriptors.get(eventId).foreach { taskDescriptor =>
       val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
         eventId.id, taskDescriptor.parent.map(_.id).orNull, taskDescriptor.descriptor, total, progress, unit
@@ -119,7 +130,6 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def finishTask(eventId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
-
     descriptors
       .remove(eventId)
       .foreach { taskDescriptor =>
@@ -151,6 +161,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
 }
 
 object ExternalSystemNotificationReporter {
+  private val Log = Logger.getInstance(this.getClass)
+
   private case class TaskDescriptor(descriptor: TaskOperationDescriptor, parent: Option[EventId])
 
   private def throwableToException(throwable: Throwable) = throwable match {

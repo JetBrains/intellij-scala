@@ -114,6 +114,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
 
     new SbtShellReadyListener(
+      "prompt changer",
       whenReady = if (!isUnitTestMode) {
         consoleView.setPrompt(">")
         scrollToEnd()
