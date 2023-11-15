@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.project.maven
 
-import com.intellij.build.events.BuildEvent
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -9,7 +8,6 @@ import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
 import com.intellij.openapi.util.Key
 import com.intellij.util.PairConsumer
 import org.jdom.Element
-import org.jetbrains.idea.maven.buildtool.MavenLogEventHandler
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
@@ -24,6 +22,7 @@ import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import java.io.File
 import java.util
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -153,7 +152,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
         val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"
         val exception = new IllegalArgumentException(msg)
         val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
-        console.addException(exception, (_: Any, _: BuildEvent) => ())
+        console.addException(exception)
     }
   }
 
@@ -173,7 +172,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
 
       def resolveArtifact(info: MavenArtifactInfo): util.List[MavenArtifact] = {
         val request = new MavenArtifactResolutionRequest(info, repositories)
-        embedder.resolveArtifacts(util.List.of(request), null, MavenLogEventHandler.INSTANCE)
+        embedder.resolveArtifacts(util.List.of(request), null, null, null): @nowarn("cat=deprecation") // deprecated to be replaced with a suspend fun
       }
 
       def resolveJar(id: MavenId): MavenArtifact = {
