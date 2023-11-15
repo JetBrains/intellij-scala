@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.progress.ProgressManager
@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlighti
 
 import java.util.Collections
 import java.util.concurrent.{Callable, ConcurrentLinkedQueue}
+import java.util.function.Consumer
 import scala.jdk.CollectionConverters._
 
 @Service(Array(Service.Level.PROJECT))
@@ -57,15 +58,22 @@ private final class ExternalHighlightersService(project: Project) { self =>
       }
     }
 
+    // Show red squiggly lines for errors in Project View.
+    informWolf(state)
+
+    // State necessary for cancelling every promise that will be fired for each open editor that needs to have
+    // highlighting information applied.
+    val executionState = new ExecutionState()
+
     val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
-    for {
+    val promises = for {
       editor <- EditorFactory.getInstance().getAllEditors if !project.isDisposed
       editorProject <- Option(editor.getProject) if editorProject == project
       document = editor.getDocument
       virtualFile <- document.virtualFile if filteredVirtualFiles.contains(virtualFile)
       psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
       if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-    } {
+    } yield {
       val externalHighlights = state.externalHighlightings(virtualFile)
 
       val executionState = new ExecutionState()
@@ -73,39 +81,35 @@ private final class ExternalHighlightersService(project: Project) { self =>
       val readActionCallable: Callable[Either["Cancelled", Set[HighlightInfo]]] =
         () => calculateHighlightInfos(externalHighlights, document, psiFile, executionState)
 
-      val promise =
-        ReadAction
-          .nonBlocking(readActionCallable)
-          .expireWhen(() => executionState.obsolete || project.isDisposed)
-          .submit(BackgroundExecutorService.instance(project).executor)
-          .onSuccess {
-            case Left("Cancelled") => ()
-            case Right(highlightInfos) =>
-              if (!executionState.obsolete && !project.isDisposed) {
-                // If the results are still valid, they will be applied to the editor.
-                // CancellablePromise#onSuccess is used on purpose, and not NonBlockingAction#finishOnUiThread,
-                // otherwise, the success callback would have been called on the UI thread, and we need it to
-                // be executed on a background thread, otherwise informWolf will throw exceptions.
-                val collection = highlightInfos.asJavaCollection
-                invokeLater {
-                  UpdateHighlightersUtil.setHighlightersToEditor(
-                    project,
-                    document, 0, document.getTextLength,
-                    collection,
-                    editor.getColorsScheme,
-                    ScalaCompilerPassId
-                  )
-                }
-                informWolf(state)
-              }
-              queue.remove(executionState)
+      val applyHighlightingInfo: Consumer[Either["Cancelled", Set[HighlightInfo]]] = {
+        case Left("Cancelled") => ()
+        case Right(highlightInfos) =>
+          if (!executionState.obsolete && !project.isDisposed) {
+            // If the results are still valid, they will be applied to the editor.
+            val collection = highlightInfos.asJavaCollection
+            UpdateHighlightersUtil.setHighlightersToEditor(
+              project,
+              document, 0, document.getTextLength,
+              collection,
+              editor.getColorsScheme,
+              ScalaCompilerPassId
+            )
           }
+          queue.remove(executionState)
+      }
 
-      queue.add(() => {
-        promise.cancel()
-        executionState.obsolete = true
-      })
+      ReadAction
+        .nonBlocking(readActionCallable)
+        .expireWhen(() => executionState.obsolete || project.isDisposed)
+        .finishOnUiThread(ModalityState.defaultModalityState(), applyHighlightingInfo)
+        .submit(BackgroundExecutorService.instance(project).executor)
     }
+
+    queue.add(() => {
+      // When cancelled, cancel all scheduled promises and mark the highlighting as obsolete.
+      promises.foreach(_.cancel())
+      executionState.obsolete = true
+    })
   }
 
   def eraseAllHighlightings(): Unit = {
