@@ -143,7 +143,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       }
     }
 
-    if (ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS) {
+    if (ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS || ScalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS) {
       keyPressEvent.getSource match {
         case component: EditorComponentImpl =>
           ParameterHintsPassFactory.forceHintsUpdateOnNextPass(component.getEditor)

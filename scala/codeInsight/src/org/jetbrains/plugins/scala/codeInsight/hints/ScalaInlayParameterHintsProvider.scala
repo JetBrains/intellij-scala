@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -28,8 +29,12 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
   override def canShowHintsWhenDisabled: Boolean = true
 
   override def getParameterHints(element: PsiElement): ju.List[hints.InlayInfo] = {
-    if (!(HintUtilsKt.isParameterHintsEnabledForLanguage(ScalaLanguage.INSTANCE) ||
-      ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS)) return ju.Collections.emptyList
+    val showParameterHints = HintUtilsKt.isParameterHintsEnabledForLanguage(ScalaLanguage.INSTANCE) ||
+      ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS
+
+    val showArgumentHints = ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS
+
+    if (!(showParameterHints || showArgumentHints)) return ju.Collections.emptyList
 
     val matchedParameters = (element match {
       case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
@@ -40,11 +45,8 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
       case (argument, _) => element.isAncestorOf(argument)
     }
 
-    matchedParameters match {
-      case Seq() => ju.Collections.emptyList()
-      case _ =>
-        parameterHints(matchedParameters).asJava
-    }
+    ((if (showParameterHints) parameterHints(matchedParameters) else Seq.empty) ++
+      (if (showArgumentHints) argumentHints(matchedParameters) ++ referenceHints(element) else Seq.empty)).asJava
   }
 
   override def getHintInfo(element: PsiElement): hints.HintInfo = element match {
@@ -84,6 +86,21 @@ object ScalaInlayParameterHintsProvider {
 
     def apply(id: String, @Nls nameBody: String): hints.Option =
       new hints.Option(id, () => s"<html><body>$nameBody</body></html>", false)
+  }
+
+  private def argumentHints(matchedParameters: Seq[(ScExpression, Parameter)]) = matchedParameters.collect {
+    case (argument, parameter) if parameter.isByName =>
+      if (argument.is[ScBlockExpr])
+        new hints.InlayInfo(" () =>", argument.getTextOffset + 1, false, false, true)
+      else
+        new hints.InlayInfo("() => ", argument.getTextOffset, false, false, false)
+  }
+
+  private def referenceHints(e: PsiElement) = e match {
+    case ResolvesTo(parameter: ScParameter) if parameter.isCallByNameParameter =>
+      Seq(new hints.InlayInfo("()", e.getTextOffset + e.getTextLength, false, false, true))
+    case _ =>
+      Seq.empty
   }
 
   private def parameterHints(matchedParameters: Seq[(ScExpression, Parameter)]) = {
