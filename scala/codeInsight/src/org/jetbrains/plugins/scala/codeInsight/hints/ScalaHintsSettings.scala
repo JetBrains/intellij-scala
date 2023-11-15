@@ -5,6 +5,7 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 trait ScalaHintsSettings {
+  def showParameters: Boolean
   def showMethodResultType: Boolean
   def showMemberVariableType: Boolean
   def showLocalVariableType: Boolean
@@ -29,6 +30,7 @@ object ScalaHintsSettings {
   }
 
   class Defaults extends ScalaHintsSettings {
+    override def showParameters: Boolean = ScalaCodeInsightSettings.SHOW_PARAMETER_NAMES_DEFAULT
     override def showMethodResultType: Boolean = ScalaCodeInsightSettings.SHOW_METHOD_RESULT_TYPE_DEFAULT
     override def showMemberVariableType: Boolean = ScalaCodeInsightSettings.SHOW_MEMBER_VARIABLE_TYPE_DEFAULT
     override def showLocalVariableType: Boolean = ScalaCodeInsightSettings.SHOW_LOCAL_VARIABLE_TYPE_DEFAULT
@@ -46,6 +48,7 @@ object ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
     private val applicationSettings = ScalaApplicationSettings.getInstance
 
+    override def showParameters: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_PARAMETER_HINTS) || settings.showParameterNames
     override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showFunctionReturnType
     override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showPropertyType
     override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showLocalVariableType

@@ -85,6 +85,13 @@ object ScalaTypeHintsConfigurable {
     final val Id = "Scala.XRayModeTip"
   }
 
+  class ToggleParameterHintsAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("parameter.name.hints.action.text"),
+    ScalaCodeInsightBundle.message("parameter.name.hints.action.description"),
+    ScalaCodeInsightSettings.showParameterNamesGetter(),
+    ScalaCodeInsightSettings.showParameterNamesSetter()
+  )
+
   class ToggleMethodResultTypeAction extends ToggleTypeAction(
     ScalaCodeInsightBundle.message("show.method.result.action.text"),
     ScalaCodeInsightBundle.message("show.method.result.action.description"),
