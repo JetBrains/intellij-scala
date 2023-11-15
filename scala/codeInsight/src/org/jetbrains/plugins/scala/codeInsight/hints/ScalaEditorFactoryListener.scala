@@ -56,7 +56,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     private var firstKeyPressTime = 0L
 
     override def keyPressed(e: KeyEvent): Unit = if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD || ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
-      if (e.getKeyCode == ModifierKey) {
+      if (e.getKeyCode == ModifierKey && keyPressEvent == null) {
         if (System.currentTimeMillis() - firstKeyPressTime < ScalaApplicationSettings.XRAY_DOUBLE_PRESS_INTERVAL) {
           firstKeyPressTime = 0
           keyPressEvent = e
@@ -75,6 +75,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
           }
         }
       } else {
+        xRayMode = false
         longDelay.stop()
         shortDelay.stop()
       }
