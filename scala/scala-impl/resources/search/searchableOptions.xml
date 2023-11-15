@@ -37,10 +37,6 @@
     <option name="youtrack" path="ActionManager" hit="Collect Scala Plugin and IntelliJ IDEA versions to quickly paste them to YouTrack" />
     <option name="companion" path="ActionManager" hit="Companion object" />
     <option name="object" path="ActionManager" hit="Companion object" />
-    <option name="configure" path="ActionManager" hit="Configure type hints" />
-    <option name="hints" path="ActionManager" hit="Configure type hints" />
-    <option name="type" path="ActionManager" hit="Configure type hints" />
-    <option name="configure" path="ActionManager" hit="Configure..." />
     <option name="convert" path="ActionManager" hit="Convert Java to Scala" />
     <option name="java" path="ActionManager" hit="Convert Java to Scala" />
     <option name="scala" path="ActionManager" hit="Convert Java to Scala" />
@@ -157,9 +153,6 @@
     <option name="explicit" path="ActionManager" hit="Make implicit conversion explicit" />
     <option name="implicit" path="ActionManager" hit="Make implicit conversion explicit" />
     <option name="make" path="ActionManager" hit="Make implicit conversion explicit" />
-    <option name="chain" path="ActionManager" hit="Method chain hints" />
-    <option name="hints" path="ActionManager" hit="Method chain hints" />
-    <option name="method" path="ActionManager" hit="Method chain hints" />
     <option name="in" path="ActionManager" hit="New line in REPL" />
     <option name="line" path="ActionManager" hit="New line in REPL" />
     <option name="new" path="ActionManager" hit="New line in REPL" />
@@ -170,15 +163,6 @@
     <option name="getter" path="ActionManager" hit="Property (getter and setter)" />
     <option name="property" path="ActionManager" hit="Property (getter and setter)" />
     <option name="setter" path="ActionManager" hit="Property (getter and setter)" />
-    <option name="and" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="for" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="hints" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="range" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="to" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="until" path="ActionManager" hit="Range Hints for 'to' and 'until'" />
-    <option name="exclusive" path="ActionManager" hit="Range.exclusive hint" />
-    <option name="hint" path="ActionManager" hit="Range.exclusive hint" />
-    <option name="range" path="ActionManager" hit="Range.exclusive hint" />
     <option name="arguments" path="ActionManager" hit="Remove explicit arguments" />
     <option name="explicit" path="ActionManager" hit="Remove explicit arguments" />
     <option name="remove" path="ActionManager" hit="Remove explicit arguments" />
@@ -214,6 +198,46 @@
     <option name="scala" path="ActionManager" hit="Scala REPL..." />
     <option name="scala" path="ActionManager" hit="Scala Worksheet" />
     <option name="worksheet" path="ActionManager" hit="Scala Worksheet" />
+    <option name="exclusive" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="for" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="hints" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="range" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="scala" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="show" path="ActionManager" hit="Scala: Show hints for Range.exclusive" />
+    <option name="for" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="hints" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="inlay" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="scala" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="show" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="types" path="ActionManager" hit="Scala: Show inlay hints for types" />
+    <option name="local" path="ActionManager" hit="Scala: Show local variable type" />
+    <option name="scala" path="ActionManager" hit="Scala: Show local variable type" />
+    <option name="show" path="ActionManager" hit="Scala: Show local variable type" />
+    <option name="type" path="ActionManager" hit="Scala: Show local variable type" />
+    <option name="variable" path="ActionManager" hit="Scala: Show local variable type" />
+    <option name="member" path="ActionManager" hit="Scala: Show member variable type" />
+    <option name="scala" path="ActionManager" hit="Scala: Show member variable type" />
+    <option name="show" path="ActionManager" hit="Scala: Show member variable type" />
+    <option name="type" path="ActionManager" hit="Scala: Show member variable type" />
+    <option name="variable" path="ActionManager" hit="Scala: Show member variable type" />
+    <option name="chain" path="ActionManager" hit="Scala: Show method chain hints" />
+    <option name="hints" path="ActionManager" hit="Scala: Show method chain hints" />
+    <option name="method" path="ActionManager" hit="Scala: Show method chain hints" />
+    <option name="scala" path="ActionManager" hit="Scala: Show method chain hints" />
+    <option name="show" path="ActionManager" hit="Scala: Show method chain hints" />
+    <option name="method" path="ActionManager" hit="Scala: Show method result type" />
+    <option name="result" path="ActionManager" hit="Scala: Show method result type" />
+    <option name="scala" path="ActionManager" hit="Scala: Show method result type" />
+    <option name="show" path="ActionManager" hit="Scala: Show method result type" />
+    <option name="type" path="ActionManager" hit="Scala: Show method result type" />
+    <option name="and" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="for" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="hints" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="range" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="scala" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="show" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="to" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
+    <option name="until" path="ActionManager" hit="Scala: Show range hints for 'to' and 'until'" />
     <option name="repl" path="ActionManager" hit="Send Selection To Scala REPL" />
     <option name="scala" path="ActionManager" hit="Send Selection To Scala REPL" />
     <option name="selection" path="ActionManager" hit="Send Selection To Scala REPL" />
@@ -227,13 +251,6 @@
     <option name="hints" path="ActionManager" hit="Show Implicit Hints" />
     <option name="implicit" path="ActionManager" hit="Show Implicit Hints" />
     <option name="show" path="ActionManager" hit="Show Implicit Hints" />
-    <option name="and" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="for" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="hints" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="range" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="show" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="to" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
-    <option name="until" path="ActionManager" hit="Show Range Hints for 'to' and 'until'" />
     <option name="result" path="ActionManager" hit="Show Result" />
     <option name="show" path="ActionManager" hit="Show Result" />
     <option name="compiler" path="ActionManager" hit="Show Scala Compiler Trees" />
@@ -245,10 +262,10 @@
     <option name="type" path="ActionManager" hit="Show Type Info" />
     <option name="show" path="ActionManager" hit="Show Value" />
     <option name="value" path="ActionManager" hit="Show Value" />
-    <option name="exclusive" path="ActionManager" hit="Show exclusive Range hint" />
-    <option name="hint" path="ActionManager" hit="Show exclusive Range hint" />
-    <option name="range" path="ActionManager" hit="Show exclusive Range hint" />
-    <option name="show" path="ActionManager" hit="Show exclusive Range hint" />
+    <option name="exclusive" path="ActionManager" hit="Show exclusive range hints" />
+    <option name="hints" path="ActionManager" hit="Show exclusive range hints" />
+    <option name="range" path="ActionManager" hit="Show exclusive range hints" />
+    <option name="show" path="ActionManager" hit="Show exclusive range hints" />
     <option name="arguments" path="ActionManager" hit="Show implicit arguments" />
     <option name="implicit" path="ActionManager" hit="Show implicit arguments" />
     <option name="show" path="ActionManager" hit="Show implicit arguments" />
@@ -264,6 +281,29 @@
     <option name="in" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
     <option name="inlay" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
     <option name="show" path="ActionManager" hit="Show implicit conversions / arguments as inlay hints in editor" />
+    <option name="local" path="ActionManager" hit="Show local variable type" />
+    <option name="show" path="ActionManager" hit="Show local variable type" />
+    <option name="type" path="ActionManager" hit="Show local variable type" />
+    <option name="variable" path="ActionManager" hit="Show local variable type" />
+    <option name="member" path="ActionManager" hit="Show member variable type" />
+    <option name="show" path="ActionManager" hit="Show member variable type" />
+    <option name="type" path="ActionManager" hit="Show member variable type" />
+    <option name="variable" path="ActionManager" hit="Show member variable type" />
+    <option name="chain" path="ActionManager" hit="Show method chain hints" />
+    <option name="hints" path="ActionManager" hit="Show method chain hints" />
+    <option name="method" path="ActionManager" hit="Show method chain hints" />
+    <option name="show" path="ActionManager" hit="Show method chain hints" />
+    <option name="method" path="ActionManager" hit="Show method result type" />
+    <option name="result" path="ActionManager" hit="Show method result type" />
+    <option name="show" path="ActionManager" hit="Show method result type" />
+    <option name="type" path="ActionManager" hit="Show method result type" />
+    <option name="and" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="for" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="hints" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="range" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="show" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="to" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
+    <option name="until" path="ActionManager" hit="Show range hints for 'to' and 'until'" />
     <option name="in" path="ActionManager" hit="Show setting in sbt shell" />
     <option name="sbt" path="ActionManager" hit="Show setting in sbt shell" />
     <option name="setting" path="ActionManager" hit="Show setting in sbt shell" />
@@ -279,19 +319,19 @@
     <option name="highlighting" path="ActionManager" hit="Toggle Type Aware Highlighting" />
     <option name="toggle" path="ActionManager" hit="Toggle Type Aware Highlighting" />
     <option name="type" path="ActionManager" hit="Toggle Type Aware Highlighting" />
-    <option name="chain" path="ActionManager" hit="Toggle method chain hints" />
-    <option name="hints" path="ActionManager" hit="Toggle method chain hints" />
-    <option name="method" path="ActionManager" hit="Toggle method chain hints" />
-    <option name="toggle" path="ActionManager" hit="Toggle method chain hints" />
-    <option name="hints" path="ActionManager" hit="Toggle type mismatch hints" />
-    <option name="mismatch" path="ActionManager" hit="Toggle type mismatch hints" />
-    <option name="toggle" path="ActionManager" hit="Toggle type mismatch hints" />
-    <option name="type" path="ActionManager" hit="Toggle type mismatch hints" />
+    <option name="and" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="for" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="hints" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="inlay" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="local" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="member" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="method" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="result" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="toggles" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="types" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
+    <option name="variables" path="ActionManager" hit="Toggles inlay hints for member variables, local variables and method result types" />
     <option name="info" path="ActionManager" hit="Type Info" />
     <option name="type" path="ActionManager" hit="Type Info" />
-    <option name="hints" path="ActionManager" hit="Type mismatch hints" />
-    <option name="mismatch" path="ActionManager" hit="Type mismatch hints" />
-    <option name="type" path="ActionManager" hit="Type mismatch hints" />
     <option name="compiler" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
     <option name="error" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
     <option name="for" path="ActionManager" hit="Use compiler for error highlighting in Scala" />
@@ -338,6 +378,8 @@
     <option name="up" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
     <option name="use" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
     <option name="will" path="ActionManager" hit="Use error messages directly from the compiler instead of the built-in highlighter. This will result in error highlighting that is more precise, but may show up more slowly and inspections and quickfixes may not be available." />
+    <option name="mode" path="ActionManager" hit="X-Ray Mode" />
+    <option name="x-ray" path="ActionManager" hit="X-Ray Mode" />
     <option name="and" path="ActionManager" hit="equals() and hashCode()" />
     <option name="equals" path="ActionManager" hit="equals() and hashCode()" />
     <option name="hashcode" path="ActionManager" hit="equals() and hashCode()" />
@@ -394,7 +436,27 @@
     <option name="wrap" hit="Wrap single expression body with closing brace after typing '{'" />
   </configurable>
   <configurable id="reference.settingsdialog.IDE.editor.colors.Scala" configurable_name="Scala">
+    <option name="background" hit="Background" />
+    <option name="bold" hit="Bold" />
+    <option name="bold" hit="Bold Underscored" />
+    <option name="underscored" hit="Bold Underscored" />
+    <option name="bordered" hit="Bordered" />
+    <option name="dotted" hit="Dotted Line" />
+    <option name="line" hit="Dotted Line" />
+    <option name="effects" hit="Effects" />
+    <option name="error" hit="Error stripe mark" />
+    <option name="mark" hit="Error stripe mark" />
+    <option name="stripe" hit="Error stripe mark" />
+    <option name="font" hit="Font" />
+    <option name="foreground" hit="Foreground" />
+    <option name="from" hit="Inherit values from:" />
+    <option name="inherit" hit="Inherit values from:" />
+    <option name="values" hit="Inherit values from:" />
+    <option name="italic" hit="Italic" />
     <option name="scala" hit="Scala" />
+    <option name="strikeout" hit="Strikeout" />
+    <option name="underscored" hit="Underscored" />
+    <option name="underwaved" hit="Underwaved" />
     <option name="abstract" hit="Abstract class" />
     <option name="class" hit="Abstract class" />
     <option name="annotation" hit="Annotation attribute name" />
@@ -1640,6 +1702,8 @@
     <option name="use" hit="Use line comment" />
   </configurable>
   <configurable id="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable" configurable_name="Scala">
+    <option name="activate" path="X-Ray Mode" hit="Activate on:" />
+    <option name="on" path="X-Ray Mode" hit="Activate on:" />
     <option name="add" path="Editor" hit="Add override keyword to method implementation" />
     <option name="implementation" path="Editor" hit="Add override keyword to method implementation" />
     <option name="keyword" path="Editor" hit="Add override keyword to method implementation" />
@@ -1759,6 +1823,9 @@
     <option name="show" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
     <option name="t" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
     <option name="to" path="Editor" hit="Don't show dialog on paste and automatically convert to Scala code" />
+    <option name="ctrl" path="X-Ray Mode" hit="Double-press Ctrl within" />
+    <option name="double-press" path="X-Ray Mode" hit="Double-press Ctrl within" />
+    <option name="within" path="X-Ray Mode" hit="Double-press Ctrl within" />
     <option name="access" path="Updates" hit="Early Access Program" />
     <option name="early" path="Updates" hit="Early Access Program" />
     <option name="program" path="Updates" hit="Early Access Program" />
@@ -1798,6 +1865,8 @@
     <option name="nodes" path="Project View" hit="Highlight nodes with errors" />
     <option name="with" path="Project View" hit="Highlight nodes with errors" />
     <option name="highlighting" path="Editor" hit="Highlighting" />
+    <option name="hints" path="X-Ray Mode" hit="Implicit hints" />
+    <option name="implicit" path="X-Ray Mode" hit="Implicit hints" />
     <option name="-1" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
     <option name="depth" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
     <option name="for" path="Performance" hit="Implicit parameters search depth (-1 for none):" />
@@ -1810,6 +1879,8 @@
     <option name="include" path="Editor" hit="Include block expressions" />
     <option name="include" path="Editor" hit="Include literals" />
     <option name="literals" path="Editor" hit="Include literals" />
+    <option name="guides" path="X-Ray Mode" hit="Indent guides" />
+    <option name="indent" path="X-Ray Mode" hit="Indent guides" />
     <option name="a" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
     <option name="folder" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
     <option name="from" path="Base Packages" hit="Inherit from Package Prefix of a Source Folder" />
@@ -1834,6 +1905,11 @@
     <option name="mode" path="Performance" hit="Local ivy2 cache indexing mode" />
     <option name="manual" path="Performance" hit="Manual" />
     <option name="metadata" path="Performance" hit="Metadata" />
+    <option name="chain" path="X-Ray Mode" hit="Method chain hints" />
+    <option name="hints" path="X-Ray Mode" hit="Method chain hints" />
+    <option name="method" path="X-Ray Mode" hit="Method chain hints" />
+    <option name="method" path="X-Ray Mode" hit="Method separators" />
+    <option name="separators" path="X-Ray Mode" hit="Method separators" />
     <option name="misc" path="Misc" hit="Misc" />
     <option name="builds" path="Updates" hit="Nightly Builds" />
     <option name="nightly" path="Updates" hit="Nightly Builds" />
@@ -1843,7 +1919,16 @@
     <option name="cutoff" path="Worksheet" hit="Output cutoff limit:" />
     <option name="limit" path="Worksheet" hit="Output cutoff limit:" />
     <option name="output" path="Worksheet" hit="Output cutoff limit:" />
+    <option name="hints" path="X-Ray Mode" hit="Parameter hints" />
+    <option name="parameter" path="X-Ray Mode" hit="Parameter hints" />
     <option name="performance" path="Performance" hit="Performance" />
+    <option name="and" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="at" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="ctrl" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="for" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="hold" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="least" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
+    <option name="press" path="X-Ray Mode" hit="Press and hold Ctrl for at least" />
     <option name="project" path="Project View" hit="Project View" />
     <option name="view" path="Project View" hit="Project View" />
     <option name="compiler" path="Worksheet" hit="Run worksheet in the compiler process (Plain mode only)" />
@@ -1879,6 +1964,17 @@
     <option name="implicit" path="Editor" hit="Show hints if no implicit arguments found" />
     <option name="no" path="Editor" hit="Show hints if no implicit arguments found" />
     <option name="show" path="Editor" hit="Show hints if no implicit arguments found" />
+    <option name="code" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="hints" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="instead" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="mismatch" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="of" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="on" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="show" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="the" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="type" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="underlining" path="Editor" hit="Show hints on type mismatch instead of underlining the code" />
+    <option name="show" path="X-Ray Mode" hit="Show:" />
     <option name="releases" path="Updates" hit="Stable Releases" />
     <option name="stable" path="Updates" hit="Stable Releases" />
     <option name="back" path="Misc" hit="Support back references in shared sources (experimental)" />
@@ -1907,6 +2003,8 @@
     <option name="method" path="Performance" hit="Trim method bodies expanded by scala.meta" />
     <option name="scala" path="Performance" hit="Trim method bodies expanded by scala.meta" />
     <option name="trim" path="Performance" hit="Trim method bodies expanded by scala.meta" />
+    <option name="hints" path="X-Ray Mode" hit="Type hints" />
+    <option name="type" path="X-Ray Mode" hit="Type hints" />
     <option name="channel" path="Updates" hit="Update channel:" />
     <option name="update" path="Updates" hit="Update channel:" />
     <option name="updates" path="Updates" hit="Updates" />
@@ -1931,6 +2029,8 @@
     <option name="the" path="Editor" hit="Use text ranges reported by the Scala compiler" />
     <option name="use" path="Editor" hit="Use text ranges reported by the Scala compiler" />
     <option name="worksheet" path="Worksheet" hit="Worksheet" />
+    <option name="mode" path="X-Ray Mode" hit="X-Ray Mode" />
+    <option name="x-ray" path="X-Ray Mode" hit="X-Ray Mode" />
     <option name="a" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
     <option name="access" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
     <option name="always" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
@@ -1948,6 +2048,13 @@
     <option name="you" path="Updates" hit="You can always select &quot;Stable Release&quot; or &quot;Early Access Program&quot; to revert to a more stable build." />
     <option name="lines" path="Worksheet" hit="lines" />
     <option name="milliseconds" path="Worksheet" hit="milliseconds" />
+    <option name="ms" path="X-Ray Mode" hit="ms." />
+    <option name="and" path="X-Ray Mode" hit="ms. and hold for at least" />
+    <option name="at" path="X-Ray Mode" hit="ms. and hold for at least" />
+    <option name="for" path="X-Ray Mode" hit="ms. and hold for at least" />
+    <option name="hold" path="X-Ray Mode" hit="ms. and hold for at least" />
+    <option name="least" path="X-Ray Mode" hit="ms. and hold for at least" />
+    <option name="ms" path="X-Ray Mode" hit="ms. and hold for at least" />
   </configurable>
   <configurable id="scala.compiler" configurable_name="Scala Compiler">
     <option name="additional" hit="Additional compiler options:" />
