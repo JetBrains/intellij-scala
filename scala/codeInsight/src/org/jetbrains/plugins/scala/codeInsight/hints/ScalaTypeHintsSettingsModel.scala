@@ -103,7 +103,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     ScalaLanguage.INSTANCE
 
   private val cases =
-    Seq(ShowMethodResultTypeCase, ShowLocalVariableTypeCase, ShowMemberVariableTypeCase)
+    Seq(ShowMemberVariableTypeCase, ShowLocalVariableTypeCase, ShowMethodResultTypeCase)
       .map(c => c.configCase -> c)
       .toMap
 
