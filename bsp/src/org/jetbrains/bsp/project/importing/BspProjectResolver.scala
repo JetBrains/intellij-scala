@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project.importing
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.events.impl.SuccessResultImpl
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
@@ -139,7 +140,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] =
           communication.run(requests(workspace)(_, _,reporter), BuildMessages.empty, notifications, reporter.log)
 
-        waitForProjectCancelable(projectJob) match {
+        val value = waitForProjectCancelable(projectJob)
+        value match {
           case Success((data, _)) =>
             reporter.finish(messages)
             data
@@ -147,6 +149,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             reporter.finishCanceled()
             throw BspErrorMessage(BspBundle.message("bsp.resolver.refresh.canceled"))
           case Failure(Bsp4JJobFailure(err, messages: BuildMessages)) =>
+            if (err == BspTaskCancelled) {
+              Log.error("BspTaskCancelled should not be wrapped in Bsp4JJobFailure")
+            }
             val newLine = System.lineSeparator()
             val joinedMessage = err.getMessage + newLine + newLine + messages.messages.mkString(newLine)
             val ansiColorCodePattern = "\\u001B?\\[[0-9;]+m".r
@@ -270,6 +275,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 }
 
 object BspProjectResolver {
+  private val Log = Logger.getInstance(this.getClass)
 
   private sealed abstract class ImportState
   private case object Inactive extends ImportState
