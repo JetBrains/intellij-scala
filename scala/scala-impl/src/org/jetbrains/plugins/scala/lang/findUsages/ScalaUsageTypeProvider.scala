@@ -183,7 +183,12 @@ object ScalaUsageTypeProvider {
       case Some(newTd: ScNewTemplateDefinition) if newTd.firstConstructorInvocation.contains(constructorInvocation) =>
         if (newTd.extendsBlock.isAnonymousClass) CLASS_ANONYMOUS_NEW_OPERATOR else CLASS_NEW_OPERATOR
       case _ =>
-        CLASS_EXTENDS_IMPLEMENTS_LIST
+        constructorInvocation.getParent match {
+          case _: ScAnnotationExpr =>
+            ANNOTATION
+          case _ =>
+            CLASS_EXTENDS_IMPLEMENTS_LIST
+        }
     }
   }
 
@@ -202,7 +207,6 @@ object ScalaUsageTypeProvider {
       case typeElement: ScTypeElement => typeUsageType(typeElement)
       case _: ScInterpolatedExpressionPrefix => PrefixInterpolatedString
       case expression: ScReferenceExpression => referenceExpressionUsageType(expression).orNull
-      case expression: ScAnnotationExpr if existsAppropriate(expression.constructorInvocation.reference) => ANNOTATION
       case reference: ScThisReference if existsAppropriate(reference.reference) => ThisReference
       case _: ScAccessModifier => AccessModifier
       case packaging: ScPackaging if existsAppropriate(packaging.reference) => PackageClause
