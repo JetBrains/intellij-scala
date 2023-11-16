@@ -6,7 +6,7 @@ import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, EditorFactory}
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor, FileEditorManager}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
@@ -86,20 +86,18 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = executeOnBackgroundThreadInNotDisposed(project) {
-    if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      val virtualFile = editor.getFile
-      if ((virtualFile ne null) && virtualFile.isValid) { //file could be deleted (this code is called in background activity)
-        val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
-        if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
-          val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
-          if (document ne null) {
-            val debugReason = s"selected editor changed: ${virtualFile.getName}"
-            if (psiFile.isScalaWorksheet)
-              doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
-            else
-              doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
-          }
+  private[highlighting] def triggerOnSelectedEditorChange(virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
+    //file could be deleted (this code is called in background activity)
+    if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) && virtualFile.isValid) {
+      val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
+      if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+        val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
+        if (document ne null) {
+          val debugReason = s"selected editor changed: ${virtualFile.getName}"
+          if (psiFile.isScalaWorksheet)
+            doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+          else
+            doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
         }
       }
     }
