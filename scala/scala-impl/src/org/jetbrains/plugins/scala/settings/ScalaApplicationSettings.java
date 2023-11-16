@@ -89,10 +89,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   // X-Ray Mode
   public boolean XRAY_DOUBLE_PRESS_AND_HOLD = true;
-  public int XRAY_DOUBLE_PRESS_INTERVAL = 500;
-  public int XRAY_DOUBLE_PRESS_HOLD_DURATION = 100;
   public boolean XRAY_PRESS_AND_HOLD = false;
-  public int XRAY_PRESS_AND_HOLD_DURATION = 1000;
   public boolean XRAY_SHOW_PARAMETER_HINTS = true;
   public boolean XRAY_SHOW_ARGUMENT_HINTS = true;
   public boolean XRAY_SHOW_TYPE_HINTS = true;
