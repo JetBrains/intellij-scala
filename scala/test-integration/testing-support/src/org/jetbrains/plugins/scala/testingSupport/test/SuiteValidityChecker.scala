@@ -9,12 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 import scala.collection.immutable
 
-@ApiStatus.Internal
 trait SuiteValidityChecker {
   def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean
 }
 
-@ApiStatus.Internal
 class SuiteValidityCheckerBase extends SuiteValidityChecker {
 
   override def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = inReadAction {
