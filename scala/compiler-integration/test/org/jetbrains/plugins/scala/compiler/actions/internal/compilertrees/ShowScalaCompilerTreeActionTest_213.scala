@@ -12,13 +12,15 @@ import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.Compi
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog
 import org.junit.ComparisonFailure
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Await, Promise}
 
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {
   val WaitForCompileServerTimeout = 30.seconds
 
   override protected def useCompileServer: Boolean = true
+
+  override protected def compileServerShutdownTimeout: FiniteDuration = WaitForCompileServerTimeout
 
   protected def testCompilerPhasesAndTreesAreParsedAndDisplayed(
     fileName: String,
