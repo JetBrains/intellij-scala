@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedT
 
 import javax.swing.JComponent
 
-@ApiStatus.Internal
 class ScalaTestFrameworkConsoleProperties(
   configuration: AbstractTestRunConfiguration,
   testFrameworkName: String,
