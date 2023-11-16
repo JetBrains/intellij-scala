@@ -7,6 +7,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.util.messages.MessageBusConnection
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
@@ -52,23 +54,26 @@ class XRayModeTip extends StartupActivity.DumbAware {
 
   private def suggestXRayMode(): Unit = {
     val notification = ScalaNotificationGroups.scalaFeaturesAdvertiser.createNotification(
-      "Use X-Ray mode to show implicit hints on demand",
+      ScalaCodeInsightBundle.message("xray.mode.tip.title"),
       ScalaHintsSettings.xRayModeShortcut.capitalize,
       NotificationType.INFORMATION)
 
-    notification.addAction(new AnAction("Got It") {
+    notification.addAction(new AnAction(ScalaCodeInsightBundle.message("xray.mode.tip.action.got.it")) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         disable()
         notification.hideBalloon()
       }
     })
 
-    notification.addAction(new AnAction("Configure...") {
+    notification.addAction(new AnAction(ScalaCodeInsightBundle.message("xray.mode.tip.action.configure")) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         disable()
         notification.hideBalloon()
 
-        ShowSettingsUtilImplExt.showSettingsDialog(e.getProject, classOf[ScalaProjectSettingsConfigurable], "X-Ray Mode")
+        ShowSettingsUtilImplExt.showSettingsDialog(
+          e.getProject,
+          classOf[ScalaProjectSettingsConfigurable],
+          ScalaBundle.message("scala.project.settings.form.tabs.xray.mode"))
       }
     })
 
