@@ -12,6 +12,6 @@ private final class TriggerCompilerHighlightingOnEditorSelectionChangedListener(
   override def selectionChanged(event: FileEditorManagerEvent): Unit = {
     val triggerService = TriggerCompilerHighlightingService.get(project)
     event.getOldFile.nullSafe.foreach(triggerService.disableDocumentCompiler)
-    event.getNewEditor.nullSafe.foreach(triggerService.triggerOnSelectedEditorChange)
+    event.getNewFile.nullSafe.foreach(triggerService.triggerOnSelectedEditorChange)
   }
 }
