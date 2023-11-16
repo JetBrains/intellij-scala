@@ -72,6 +72,9 @@
         <registryKey key="BSP.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
 
+        <registryKey key="bsp.plugin.integration" defaultValue="false" restartRequired="true"
+                     description="Enable a dependency on intellij-bsp"/>
+
         <notificationGroup id="BSP" displayType="BALLOON" bundle="messages.ScalaBspBundle" key="scala.notification.group.id.bsp"/>
 
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.bsp.codeInspection.BspScalaCliInspectionSuppressor"/>
