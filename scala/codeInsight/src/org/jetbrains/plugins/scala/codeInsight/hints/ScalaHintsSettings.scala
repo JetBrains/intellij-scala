@@ -49,9 +49,9 @@ object ScalaHintsSettings {
     private val applicationSettings = ScalaApplicationSettings.getInstance
 
     override def showParameters: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_PARAMETER_HINTS) || settings.showParameterNames
-    override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showFunctionReturnType
-    override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showPropertyType
-    override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showLocalVariableType
+    override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS) || settings.showFunctionReturnType
+    override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS) || settings.showPropertyType
+    override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS) || settings.showLocalVariableType
     override def showMethodChainInlayHints: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS) || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains

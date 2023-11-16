@@ -15,8 +15,12 @@ import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent, MouseEven
 import javax.swing.Timer
 
 class ScalaEditorFactoryListener extends EditorFactoryListener {
-  private val longDelay = new Timer(ScalaApplicationSettings.XRAY_PRESS_AND_HOLD_DURATION, _ => xRayMode = true)
-  private val shortDelay = new Timer(ScalaApplicationSettings.XRAY_DOUBLE_PRESS_HOLD_DURATION, _ => xRayMode = true)
+  private final val DoublePressInterval = 500
+  private final val DoublePressHoldDuration = 100
+  private final val PressAndHoldDuration = 1000
+
+  private val longDelay = new Timer(PressAndHoldDuration, _ => xRayMode = true)
+  private val shortDelay = new Timer(DoublePressHoldDuration, _ => xRayMode = true)
 
   locally {
     longDelay.setRepeats(false)
@@ -57,12 +61,12 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
     override def keyPressed(e: KeyEvent): Unit = if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD || ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
       if (e.getKeyCode == ModifierKey && keyPressEvent == null) {
-        if (System.currentTimeMillis() - firstKeyPressTime < ScalaApplicationSettings.XRAY_DOUBLE_PRESS_INTERVAL) {
+        if (System.currentTimeMillis() - firstKeyPressTime < DoublePressInterval) {
           firstKeyPressTime = 0
           keyPressEvent = e
           longDelay.stop()
           if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD) {
-            shortDelay.setInitialDelay(ScalaApplicationSettings.XRAY_DOUBLE_PRESS_HOLD_DURATION)
+            shortDelay.setInitialDelay(DoublePressHoldDuration)
             shortDelay.start()
           }
         } else {
@@ -70,7 +74,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
           mouseHasMoved = false
           keyPressEvent = e
           if (ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
-            longDelay.setInitialDelay(ScalaApplicationSettings.XRAY_PRESS_AND_HOLD_DURATION)
+            longDelay.setInitialDelay(PressAndHoldDuration)
             longDelay.start()
           }
         }
@@ -119,7 +123,6 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         showImplicitHintsSetting = ImplicitHints.enabled
         ImplicitHints.enabled = true
-        ImplicitHints.updateInAllEditors()
       }
 
       keyPressEvent.getSource match {
@@ -140,7 +143,6 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         ImplicitHints.enabled = showImplicitHintsSetting
-        ImplicitHints.updateInAllEditors()
       }
     }
 
@@ -151,6 +153,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         case _ =>
       }
     }
+
+    ImplicitHints.updateInAllEditors()
   }
 
   private var indentGuidesShownSetting: Boolean = _

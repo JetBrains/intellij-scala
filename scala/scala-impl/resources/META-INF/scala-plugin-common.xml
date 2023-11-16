@@ -194,7 +194,7 @@
         <notificationGroup id="scala.plugin.verifier" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.verifier"/>
         <notificationGroup id="scala.plugin.updater" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.updater"/>
         <notificationGroup id="scala3.disclaimer" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scala3.disclaimer"/>
-        <notificationGroup id="scala.features.advertiser" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.features.advertiser"/>
+        <notificationGroup id="scala.features.advertiser" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.features.advertiser"/>
         <!-- scalafmt notification groups -->
         <notificationGroup id="scalafmt" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt"/>
         <notificationGroup id="scalafmt.fatal.errors" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt.fatal.errors"/>
