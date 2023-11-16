@@ -86,14 +86,14 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[highlighting] def triggerOnSelectedEditorChange(virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
+  private[highlighting] def triggerOnEditorFocus(virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
     //file could be deleted (this code is called in background activity)
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) && virtualFile.isValid) {
       val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
       if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
         val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
         if (document ne null) {
-          val debugReason = s"selected editor changed: ${virtualFile.getName}"
+          val debugReason = s"focused editor changed: ${virtualFile.getName}"
           if (psiFile.isScalaWorksheet)
             doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
           else

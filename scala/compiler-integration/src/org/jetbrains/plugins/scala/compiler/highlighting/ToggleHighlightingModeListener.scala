@@ -51,7 +51,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
             executeOnBackgroundThreadInNotDisposed(project) {
               Option(FileEditorManager.getInstance(project).getSelectedEditor)
                 .flatMap(editor => Option(editor.getFile))
-                .foreach(TriggerCompilerHighlightingService.get(project).triggerOnSelectedEditorChange)
+                .foreach(TriggerCompilerHighlightingService.get(project).triggerOnEditorFocus)
             }
           }
         }
