@@ -104,6 +104,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean XRAY_SHOW_INDENT_GUIDES = true;
   public boolean XRAY_SHOW_METHOD_SEPARATORS = false;
 
+  public boolean SUGGEST_XRAY_MODE = true;
+
   @TestOnly
   public transient boolean PRECISE_TEXT = false;
 
