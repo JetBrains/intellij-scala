@@ -14,6 +14,7 @@ class ScalaInlayHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =
     if (language == ScalaLanguage.INSTANCE) {
       ju.Arrays.asList(
+        new ScalaParameterHintsSettingsModel(project),
         new ScalaTypeHintsSettingsModel(project),
         new ScalaMethodChainInlayHintsSettingsModel(project),
         new RangeHintsForToAndUntilSettingsModel(project),
