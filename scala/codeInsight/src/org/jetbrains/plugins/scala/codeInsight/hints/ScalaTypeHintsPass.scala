@@ -36,7 +36,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
       file.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
     }
     if (editor.isOneLineMode ||
-      !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType) ||
+      !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType || ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) ||
       (compilerErrorsEnabled && !ScalaHintsSettings.xRayMode)) {
       Seq.empty
     } else {
@@ -48,7 +48,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, TypePresentationContext(element), settings)
-      } yield info) ++ (if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) collectXRayHints(editor, root) else Seq.empty)
+      } yield info) ++ (if (ScalaHintsSettings.xRayMode) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
 
@@ -58,11 +58,11 @@ private[codeInsight] trait ScalaTypeHintsPass {
   }
 
   private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings): Seq[Hint] = e match {
-    case e: ScParameter if e.typeElement.isEmpty =>
+    case e: ScParameter if e.typeElement.isEmpty && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScParameterClause] && e.getParent.getFirstChild.elementType != ScalaTokenTypes.tLPARENTHESIS)
-    case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] =>
+    case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScReferenceExpression, ScInfixExpr])
-    case _: ScReferencePattern | _: ScWildcardPattern if !e.getParent.is[ScPatternList, ScTypedPatternLike] =>
+    case _: ScReferencePattern | _: ScWildcardPattern if !e.getParent.is[ScPatternList, ScTypedPatternLike] && ScalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS =>
       hints(e, t, inParentheses = false)
     case _ => Seq.empty
   }

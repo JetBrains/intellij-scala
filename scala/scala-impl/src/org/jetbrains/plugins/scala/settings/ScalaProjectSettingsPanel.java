@@ -130,6 +130,12 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox myShowParameterHintsCheckbox;
     private JCheckBox myShowArgumentHintsCheckbox;
     private JCheckBox myShowTypeHintsCheckbox;
+    private JCheckBox myShowMethodResultsCheckbox;
+    private JCheckBox myShowMemberVariablesCheckbox;
+    private JCheckBox myShowLocalVariablesCheckbox;
+    private JCheckBox myShowLambdaParametersCheckbox;
+    private JCheckBox myShowLambdaPlaceholdersCheckbox;
+    private JCheckBox myShowVariablePatternsCheckbox;
     private JCheckBox myShowMethodChainHintsCheckbox;
     private JCheckBox myShowImplicitHintsCheckbox;
     private JCheckBox myShowIndentGuidesCheckbox;
@@ -284,9 +290,23 @@ public class ScalaProjectSettingsPanel {
             myPressAndHoldCheckbox.setText(myPressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
         }
 
+        myShowTypeHintsCheckbox.addItemListener(e -> updateTypeHintCheckboxes());
+
         setSettings();
+        updateTypeHintCheckboxes();
 
         initSelectedTab();
+    }
+
+    private void updateTypeHintCheckboxes() {
+        boolean b = myShowTypeHintsCheckbox.isSelected();
+        myShowMemberVariablesCheckbox.setEnabled(b);
+        myShowLocalVariablesCheckbox.setEnabled(b);
+        myShowMethodResultsCheckbox.setEnabled(b);
+        myShowMethodResultsCheckbox.setEnabled(b);
+        myShowLambdaParametersCheckbox.setEnabled(b);
+        myShowLambdaPlaceholdersCheckbox.setEnabled(b);
+        myShowVariablePatternsCheckbox.setEnabled(b);
     }
 
     private static SpinnerNumberModel spinnerModel(Integer min, Integer max, Integer stepSize) {
@@ -401,6 +421,12 @@ public class ScalaProjectSettingsPanel {
         scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS = myShowParameterHintsCheckbox.isSelected();
         scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS = myShowArgumentHintsCheckbox.isSelected();
         scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS = myShowTypeHintsCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS = myShowMemberVariablesCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS = myShowLocalVariablesCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS = myShowMethodResultsCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS = myShowLambdaParametersCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS = myShowLambdaPlaceholdersCheckbox.isSelected();
+        scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS = myShowVariablePatternsCheckbox.isSelected();
         scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS = myShowMethodChainHintsCheckbox.isSelected();
         scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS = myShowImplicitHintsCheckbox.isSelected();
         scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES = myShowIndentGuidesCheckbox.isSelected();
@@ -520,6 +546,12 @@ public class ScalaProjectSettingsPanel {
         if (scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS != myShowParameterHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS != myShowArgumentHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS != myShowTypeHintsCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS != myShowMemberVariablesCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS != myShowLocalVariablesCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS != myShowMethodResultsCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS != myShowLambdaParametersCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS != myShowLambdaPlaceholdersCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS != myShowVariablePatternsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS != myShowMethodChainHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS != myShowImplicitHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES != myShowIndentGuidesCheckbox.isSelected()) return true;
@@ -626,6 +658,12 @@ public class ScalaProjectSettingsPanel {
         myShowParameterHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS);
         myShowArgumentHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS);
         myShowTypeHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS);
+        myShowMemberVariablesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS);
+        myShowLocalVariablesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS);
+        myShowMethodResultsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS);
+        myShowLambdaParametersCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS);
+        myShowLambdaPlaceholdersCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS);
+        myShowVariablePatternsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS);
         myShowMethodChainHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS);
         myShowImplicitHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS);
         myShowIndentGuidesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES);
@@ -795,7 +833,7 @@ public class ScalaProjectSettingsPanel {
         this.$$$loadButtonText$$$(showTypeMismatchHintsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.mismatch.hints"));
         panel1.add(showTypeMismatchHintsCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(12, 2, new Insets(12, 9, 0, 0), -1, -1));
+        panel6.setLayout(new GridLayoutManager(18, 2, new Insets(12, 9, 0, 0), -1, -1));
         tabbedPane.addTab("X-Ray Mode", panel6);
         final JLabel label3 = new JLabel();
         label3.setText("Activate on:");
@@ -803,14 +841,12 @@ public class ScalaProjectSettingsPanel {
         final Spacer spacer2 = new Spacer();
         panel6.add(spacer2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel6.add(spacer3, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel6.add(spacer3, new GridConstraints(17, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
         panel7.setLayout(new GridBagLayout());
         panel6.add(panel7, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         myPressAndHoldCheckbox = new JCheckBox();
         myPressAndHoldCheckbox.setText("Press and hold Ctrl for at least");
-        myPressAndHoldCheckbox.setMnemonic('P');
-        myPressAndHoldCheckbox.setDisplayedMnemonicIndex(0);
         GridBagConstraints gbc;
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -844,36 +880,24 @@ public class ScalaProjectSettingsPanel {
         panel6.add(label5, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myShowMethodChainHintsCheckbox = new JCheckBox();
         myShowMethodChainHintsCheckbox.setText("Method chain hints");
-        myShowMethodChainHintsCheckbox.setMnemonic('M');
-        myShowMethodChainHintsCheckbox.setDisplayedMnemonicIndex(0);
-        panel6.add(myShowMethodChainHintsCheckbox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel6.add(myShowMethodChainHintsCheckbox, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShowIndentGuidesCheckbox = new JCheckBox();
         myShowIndentGuidesCheckbox.setText("Indent guides");
-        myShowIndentGuidesCheckbox.setMnemonic('G');
-        myShowIndentGuidesCheckbox.setDisplayedMnemonicIndex(7);
-        panel6.add(myShowIndentGuidesCheckbox, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel6.add(myShowIndentGuidesCheckbox, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShowMethodSeparatorsCheckbox = new JCheckBox();
         myShowMethodSeparatorsCheckbox.setText("Method separators");
-        myShowMethodSeparatorsCheckbox.setMnemonic('S');
-        myShowMethodSeparatorsCheckbox.setDisplayedMnemonicIndex(7);
-        panel6.add(myShowMethodSeparatorsCheckbox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel6.add(myShowMethodSeparatorsCheckbox, new GridConstraints(16, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShowImplicitHintsCheckbox = new JCheckBox();
         myShowImplicitHintsCheckbox.setText("Implicit hints");
-        myShowImplicitHintsCheckbox.setMnemonic('I');
-        myShowImplicitHintsCheckbox.setDisplayedMnemonicIndex(0);
-        panel6.add(myShowImplicitHintsCheckbox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel6.add(myShowImplicitHintsCheckbox, new GridConstraints(14, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShowTypeHintsCheckbox = new JCheckBox();
-        myShowTypeHintsCheckbox.setText("Type hints");
-        myShowTypeHintsCheckbox.setMnemonic('T');
-        myShowTypeHintsCheckbox.setDisplayedMnemonicIndex(0);
+        myShowTypeHintsCheckbox.setText("Type hints for:");
         panel6.add(myShowTypeHintsCheckbox, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final JPanel panel8 = new JPanel();
         panel8.setLayout(new GridBagLayout());
         panel6.add(panel8, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         myDoublePressAndHoldCheckbox = new JCheckBox();
         myDoublePressAndHoldCheckbox.setText("Double-press Ctrl within");
-        myDoublePressAndHoldCheckbox.setMnemonic('D');
-        myDoublePressAndHoldCheckbox.setDisplayedMnemonicIndex(0);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -922,15 +946,29 @@ public class ScalaProjectSettingsPanel {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         panel8.add(label7, gbc);
+        myShowMethodResultsCheckbox = new JCheckBox();
+        myShowMethodResultsCheckbox.setText("Method results");
+        panel6.add(myShowMethodResultsCheckbox, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
+        myShowMemberVariablesCheckbox = new JCheckBox();
+        myShowMemberVariablesCheckbox.setText("Member variables");
+        panel6.add(myShowMemberVariablesCheckbox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
+        myShowLocalVariablesCheckbox = new JCheckBox();
+        myShowLocalVariablesCheckbox.setText("Local variables");
+        panel6.add(myShowLocalVariablesCheckbox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
+        myShowLambdaParametersCheckbox = new JCheckBox();
+        myShowLambdaParametersCheckbox.setText("Lambda parameters");
+        panel6.add(myShowLambdaParametersCheckbox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
+        myShowLambdaPlaceholdersCheckbox = new JCheckBox();
+        myShowLambdaPlaceholdersCheckbox.setText("Lambda placeholders");
+        panel6.add(myShowLambdaPlaceholdersCheckbox, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
+        myShowVariablePatternsCheckbox = new JCheckBox();
+        myShowVariablePatternsCheckbox.setText("Variable patterns");
+        panel6.add(myShowVariablePatternsCheckbox, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
         myShowParameterHintsCheckbox = new JCheckBox();
         myShowParameterHintsCheckbox.setText("Parameter name hints");
-        myShowParameterHintsCheckbox.setMnemonic('P');
-        myShowParameterHintsCheckbox.setDisplayedMnemonicIndex(0);
         panel6.add(myShowParameterHintsCheckbox, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShowArgumentHintsCheckbox = new JCheckBox();
         myShowArgumentHintsCheckbox.setText("By-name argument hints");
-        myShowArgumentHintsCheckbox.setMnemonic('B');
-        myShowArgumentHintsCheckbox.setDisplayedMnemonicIndex(0);
         panel6.add(myShowArgumentHintsCheckbox, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final JPanel panel9 = new JPanel();
         panel9.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));

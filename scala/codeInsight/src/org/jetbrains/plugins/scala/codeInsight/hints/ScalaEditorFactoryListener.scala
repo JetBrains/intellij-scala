@@ -119,7 +119,6 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         showImplicitHintsSetting = ImplicitHints.enabled
         ImplicitHints.enabled = true
-        ImplicitHints.updateInAllEditors()
       }
 
       keyPressEvent.getSource match {
@@ -140,7 +139,6 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         ImplicitHints.enabled = showImplicitHintsSetting
-        ImplicitHints.updateInAllEditors()
       }
     }
 
@@ -151,6 +149,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         case _ =>
       }
     }
+
+    ImplicitHints.updateInAllEditors()
   }
 
   private var indentGuidesShownSetting: Boolean = _
