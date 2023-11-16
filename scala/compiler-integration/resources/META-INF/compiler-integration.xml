@@ -85,8 +85,6 @@
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.UpdateCompilerGeneratedStateListener"/>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.highlighting.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
