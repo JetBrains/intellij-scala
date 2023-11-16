@@ -32,7 +32,6 @@ import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
-@ApiStatus.Internal
 abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,
