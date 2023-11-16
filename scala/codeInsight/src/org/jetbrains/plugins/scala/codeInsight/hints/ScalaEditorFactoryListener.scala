@@ -60,22 +60,24 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     private var firstKeyPressTime = 0L
 
     override def keyPressed(e: KeyEvent): Unit = if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD || ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
-      if (e.getKeyCode == ModifierKey && keyPressEvent == null) {
-        if (System.currentTimeMillis() - firstKeyPressTime < DoublePressInterval) {
-          firstKeyPressTime = 0
-          keyPressEvent = e
-          longDelay.stop()
-          if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD) {
-            shortDelay.setInitialDelay(DoublePressHoldDuration)
-            shortDelay.start()
-          }
-        } else {
-          firstKeyPressTime = System.currentTimeMillis()
-          mouseHasMoved = false
-          keyPressEvent = e
-          if (ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
-            longDelay.setInitialDelay(PressAndHoldDuration)
-            longDelay.start()
+      if (e.getKeyCode == ModifierKey) {
+        if (keyPressEvent == null) {
+          if (System.currentTimeMillis() - firstKeyPressTime < DoublePressInterval) {
+            firstKeyPressTime = 0
+            keyPressEvent = e
+            longDelay.stop()
+            if (ScalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD) {
+              shortDelay.setInitialDelay(DoublePressHoldDuration)
+              shortDelay.start()
+            }
+          } else {
+            firstKeyPressTime = System.currentTimeMillis()
+            mouseHasMoved = false
+            keyPressEvent = e
+            if (ScalaApplicationSettings.XRAY_PRESS_AND_HOLD) {
+              longDelay.setInitialDelay(PressAndHoldDuration)
+              longDelay.start()
+            }
           }
         }
       } else {
