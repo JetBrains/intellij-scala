@@ -12,7 +12,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
 trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
-  def transformExpression(expr: ScExpression, rreq: ResultReq): rreq.Result = transformImplicitConversion(expr, rreq) {
+  def transformExpression(expr: ScExpression, rreq: ResultReq): rreq.Result = {
+    lazy val from = expr.getNonValueType().toOption
+    lazy val to = expr.`type`().toOption
+
+    val result: rreq.Result = expr.implicitElement() match {
+      case Some(element) =>
+        val afterConversion = transformImplicitConversionInvocation(element, expr)
+        rreq.result(afterConversion)
+      case None =>
+        transformExpressionBeforeConversion(expr, rreq)
+    }
+
+    rreq.map(result) { value =>
+      convertPrimitiveIfNeeded(value, from, to)
+    }
+  }
+
+  def transformExpressionBeforeConversion(expr: ScExpression, rreq: ResultReq): rreq.Result =
     expr match {
       case someExpression if isUnsupportedPureExpressionType(someExpression) => pushUnknownValue(rreq)
       case someExpression if isUnsupportedImpureExpressionType(someExpression) => buildUnknownCall(rreq)
@@ -36,10 +53,14 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       case _: ScTemplateDefinition => pushUnknownValue(rreq)
       case _ => throw TransformationFailedException(expr, "Unsupported expression.")
     }
-  }
 
   def transformExpression(element: Option[ScExpression], rreq: ResultReq): rreq.Result = element match {
     case Some(element) => transformExpression(element, rreq)
+    case None => pushUnknownValue(rreq)
+  }
+
+  def transformExpressionBeforeConversion(element: Option[ScExpression], rreq: ResultReq): rreq.Result = element match {
+    case Some(element) => transformExpressionBeforeConversion(element, rreq)
     case None => pushUnknownValue(rreq)
   }
 
@@ -54,15 +75,6 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
     expression.bind().map(_.element).exists(_.is[PsiMethod])
   }
-
-  private def transformImplicitConversion(expr: ScExpression, rreq: ResultReq)(value: rreq.Result): rreq.Result =
-    rreq.map(value) { value =>
-      // todo: implicit conversions
-      val from = expr.getNonValueType().toOption
-      val to = expr.`type`().toOption
-
-      convertPrimitiveIfNeeded(value, from, to)
-    }
 
   private def transformBlock(block: ScBlock, rreq: ResultReq): rreq.Result = {
     val statements = block.statements

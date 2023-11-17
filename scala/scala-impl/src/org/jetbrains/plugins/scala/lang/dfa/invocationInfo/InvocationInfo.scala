@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{ProperArgument, ThisArgument}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{ArgumentCountLimit, buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * An abstraction to represent all possible Scala invocations in a standardized, convenient, syntax-agnostic way.
@@ -38,6 +40,9 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
    */
   val properArguments: List[List[Argument]] = argListsInEvaluationOrder.map(_.filter(_.kind.is[ProperArgument]))
 
+  def argumentExpressionsInEvaluationOrder: List[Option[ScExpression]] =
+    argListsInEvaluationOrder.flatMap(_.iterator.filter(_.passingMechanism == PassByValue).map(_.content))
+
   /**
    * If ```paramToProperArgMapping(paramIndex) == argIndex```, then the returned mapping maps
    * the parameter on position ```paramIndex``` in order in the function's parameter sequence
@@ -53,7 +58,8 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
 
   val anchor: ScalaStatementAnchor = ScalaStatementAnchor(place)
 
-  val calledElementIsInProject: Boolean = invokedElement.map(_.psiElement).exists(e => e.getManager.isInProject(e))
+  val calledElementIsInProject: Boolean =
+    invokedElement.map(_.psiElement).exists(e => e.getManager.isInProject(e.getContext.nullSafe.getOrElse(e)))
 }
 
 object InvocationInfo {
@@ -104,4 +110,16 @@ object InvocationInfo {
 
     invocationInfo.getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
   }
+
+  def tryFromImplicitConversion(fun: ScFunction, expr: ScExpression): Option[InvocationInfo] =
+    for {
+      firstClause <- fun.paramClauses.clauses.headOption
+      if !firstClause.isImplicit
+      params = firstClause.parameters
+      if params.size == 1
+      param <- params.headOption
+    } yield {
+      val arg = Argument.fromArgParamMapping((expr, Parameter(param)))
+      InvocationInfo(Some(InvokedElement(fun)), List(List(arg)), place = expr)
+    }
 }

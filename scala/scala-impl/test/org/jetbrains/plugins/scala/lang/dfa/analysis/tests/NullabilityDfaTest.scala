@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem.npeOnInvocation
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem.{npeOnInvocation, nullableToUnannotatedParam}
 
 class NullabilityDfaTest extends ScalaDfaTestBase {
 
@@ -63,5 +63,33 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |""".stripMargin
   })(
     "x" -> npeOnInvocation.sometimesMessage
+  )
+
+  def test_implicit_class(): Unit = test(codeFromMethodBody() {
+    """
+      |implicit class TestClass(val x: String) {
+      |  def blub(): Unit = ()
+      |}
+      |
+      |val x: String = null
+      |x.blub()
+      |""".stripMargin
+  })(
+    "x" -> nullableToUnannotatedParam.alwaysMessage
+  )
+
+  def test_implicit_conversion(): Unit = test(codeFromMethodBody() {
+    """
+      |class TestClass(val x: String) {
+      |  def blub(): Unit = ()
+      |}
+      |
+      |implicit def toTestClass(x: String): TestClass = new TestClass(x)
+      |
+      |val x: String = null
+      |x.blub()
+      |""".stripMargin
+  })(
+    "x" -> nullableToUnannotatedParam.alwaysMessage
   )
 }
