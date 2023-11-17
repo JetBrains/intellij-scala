@@ -142,6 +142,14 @@ trait SimpleType {
         }
       case ScalaTokenType.SpliceStart =>
         SplicedType()
+      case ScalaTokenTypes.tLBRACE if builder.isScala3 =>
+        // in scala 2 refinement is handled in CompoundType
+        val compoundMarker = builder.mark()
+        if (Refinement()) {
+          compoundMarker.done(ScalaElementType.COMPOUND_TYPE)
+        } else {
+          compoundMarker.drop()
+        }
       case _ =>
         return rollbackCase(simpleMarker)
     }
