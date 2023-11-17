@@ -108,6 +108,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
         buffer -= res.get
         buffer ++= javaObject
       case Some(_) => //do nothing
+      case _ if isInPackageObject =>
+        buffer += Any
       case _ =>
         buffer ++= javaObject
     }
@@ -235,6 +237,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def isInEnumCase: Boolean = getParentByStub match {
     case _: ScEnumCase       => true
     case _                   => false
+  }
+
+  private def isInPackageObject: Boolean = getParentByStub match {
+    case o: ScObject => o.isPackageObject
+    case _           => false
   }
 
   private def templateBodies = templateBody.toSeq
