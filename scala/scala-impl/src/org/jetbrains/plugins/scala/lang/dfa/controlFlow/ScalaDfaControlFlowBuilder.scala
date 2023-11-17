@@ -4,6 +4,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, DfaVariableValue}
+import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
@@ -25,6 +26,7 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
     with specialSupport.CollectionAccessAssertionUtils
     with specialSupport.SpecialSyntheticMethodsTransformation
 {
+  private[controlFlow] val log = Logger.getInstance(getClass)
   private[controlFlow] implicit val rreqBuilderContext: ResultReq.BuilderContext = new ResultReq.BuilderContext(this)
 
   /**
@@ -55,8 +57,9 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
     flow*/
   }
 
-  def unsupported[R](exception: => Exception)(fallback: => R): R = {
+  def unsupported[R](exception: Exception)(fallback: => R): R = {
     if (buildUnsupportedPsiElements) {
+      log.error(exception)
       fallback
     } else {
       throw exception
