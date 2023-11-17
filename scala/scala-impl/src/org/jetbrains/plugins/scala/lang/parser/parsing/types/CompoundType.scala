@@ -16,7 +16,8 @@ object CompoundType extends Type {
   override def apply(star: Boolean, isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val compoundMarker = builder.mark()
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE =>
+      case ScalaTokenTypes.tLBRACE if !builder.isScala3 =>
+        // in scala 3 this is handled in simple type
         if (Refinement()) {
           compoundMarker.done(ScalaElementType.COMPOUND_TYPE)
           true
