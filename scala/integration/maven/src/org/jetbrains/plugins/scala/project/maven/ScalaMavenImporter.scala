@@ -119,22 +119,32 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     val scalaLibraryToMarkAsSdk: Option[(Library, Version)] = {
       val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.toString)
       val moduleModel = modelsProvider.getModifiableRootModel(module)
-      val compileTimeDependencies = moduleModel.getOrderEntries.toSeq
-        .filterByType[LibraryOrderEntry]
-        .filter(_.getScope == DependencyScope.COMPILE)
 
-      val libraries = compileTimeDependencies.map(_.getLibrary).filter(_ != null)
+      val libraryEntriesGroupedByScope: Seq[(DependencyScope, Seq[LibraryOrderEntry])] =
+        moduleModel.getOrderEntries.toSeq
+          .filterByType[LibraryOrderEntry]
+          .groupBy(_.getScope).toSeq
+          //first prioritise "Compile" then "Test" (see SCL-21701 with comments)
+          .sortBy(_._1)
 
-      val scalaLibrariesWithVersions: Seq[(Library, Version)] = libraries.flatMap { lib =>
-        if (lib.getName.contains(expectedLibraryName))
-          lib.libraryVersion.map(v => (lib, Version(v)))
-        else
-          None
+      def selectScalaLibrary(libraryEntries: Seq[LibraryOrderEntry]): Option[(Library, Version)] = {
+        val libraries = libraryEntries.map(_.getLibrary).filter(_ != null)
+
+        val scalaLibrariesWithVersions: Seq[(Library, Version)] = libraries.flatMap { lib =>
+          if (lib.getName.contains(expectedLibraryName))
+            lib.libraryVersion.map(v => (lib, Version(v)))
+          else
+            None
+        }
+
+        val compilerMajorVersion = compilerVersion.major(2)
+        val librariesWithSameMajorVersion = scalaLibrariesWithVersions.filter(_._2.major(2) == compilerMajorVersion)
+        librariesWithSameMajorVersion.maxByOption(_._2)
       }
 
-      val compilerMajorVersion = compilerVersion.major(2)
-      val librariesWithSameMajorVersion = scalaLibrariesWithVersions.filter(_._2.major(2) == compilerMajorVersion)
-      librariesWithSameMajorVersion.maxByOption(_._2)
+      libraryEntriesGroupedByScope.iterator
+        .flatMap { case _ -> entries =>  selectScalaLibrary(entries) }
+        .nextOption()
     }
 
     scalaLibraryToMarkAsSdk match {
