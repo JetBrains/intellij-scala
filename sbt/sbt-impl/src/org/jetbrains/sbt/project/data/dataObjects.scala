@@ -36,7 +36,7 @@ abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem
 
 object SbtEntityData {
   def datakey[T](clazz: Class[T],
-                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
+                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 2
                 ): Key[T] = new Key(clazz.getName, weight)
 }
 

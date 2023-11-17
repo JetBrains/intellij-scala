@@ -32,17 +32,17 @@ object BspExternalSystemUtil {
   private val EmptyURI = new URI("")
 
   private def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleDataBsp] = {
-    val moduleDataSeq = getModuleData(project, moduleId, SbtModuleDataBsp.Key)
+    val moduleDataSeq = getBspModuleData(project, moduleId, SbtModuleDataBsp.Key)
     moduleDataSeq.find(_.id.uri != EmptyURI)
   }
 
   private def getSbtBuildModuleDataBsp(project: Project, moduleId: String): Option[SbtBuildModuleDataBsp] = {
-    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleDataBsp.Key)
+    val moduleDataSeq = getBspModuleData(project, moduleId, SbtBuildModuleDataBsp.Key)
     moduleDataSeq.find(_.id.uri != EmptyURI)
   }
 
-  private def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, key)
+  private def getBspModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
+    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, None, key)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects
