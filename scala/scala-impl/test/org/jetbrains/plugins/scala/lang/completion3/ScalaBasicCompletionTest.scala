@@ -1,12 +1,19 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction, invokeAndWait}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{CommonClassNames, JavaPsiFacade}
+import junit.framework.AssertionFailedError
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes}
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
 
@@ -1492,6 +1499,70 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
      """.stripMargin,
     item = "Foo"
   )
+
+  private def getSyntheticClassMethodNames(stdType: StdType): Iterable[String] = {
+    val syntheticClass = stdType.syntheticClass match {
+      case Some(cls: ScSyntheticClass) => cls
+      case _                           => throw new AssertionFailedError(s"No synthetic class for ${stdType.fullName} found")
+    }
+
+    syntheticClass.syntheticMethods.keySet().asScala
+  }
+
+  private def checkNoCompletion(fileText: String, items: Iterable[String]): Unit =
+    items.foreach { item =>
+      try checkNoBasicCompletion(
+        fileText = fileText,
+        item = item
+      ) catch {
+        case e: AssertionError => throw new AssertionError(s"Failed assertion for item: $item", e)
+      }
+    }
+
+  def testNoObjectMethodsOnPackageObject(): Unit = {
+    val fileText =
+      s"""package object foo {}
+         |
+         |import foo.$CARET
+         |""".stripMargin
+
+    val objectClass = JavaPsiFacade.getInstance(getProject)
+      .findClass(CommonClassNames.JAVA_LANG_OBJECT, GlobalSearchScope.allScope(getProject))
+    assertNotNull("No PsiClass for java.lang.Object found", objectClass)
+
+    val objectMethods = objectClass.getMethods
+      .filterNot(_.isConstructor)
+      .map(_.name)
+      .distinct
+
+    checkNoCompletion(fileText, objectMethods)
+  }
+
+  def testNoAnyRefMethodsOnPackageObject(): Unit = {
+    val fileText =
+      s"""package object foo {}
+         |
+         |import foo.$CARET
+         |""".stripMargin
+
+    val stdTypes = StdTypes.instance(getProject)
+    val anyRefMethods = getSyntheticClassMethodNames(stdTypes.AnyRef)
+
+    checkNoCompletion(fileText, anyRefMethods)
+  }
+
+  def testNoAnyMethodsOnPackageObject(): Unit = {
+    val fileText =
+      s"""package object foo {}
+         |
+         |import foo.$CARET
+         |""".stripMargin
+
+    val stdTypes = StdTypes.instance(getProject)
+    val anyMethods = getSyntheticClassMethodNames(stdTypes.Any)
+
+    checkNoCompletion(fileText, anyMethods)
+  }
 
   def testPredefinedConversion(): Unit = doCompletionTest(
     fileText = s""""1".he$CARET""",

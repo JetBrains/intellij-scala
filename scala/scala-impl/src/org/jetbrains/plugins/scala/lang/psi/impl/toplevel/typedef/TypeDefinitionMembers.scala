@@ -183,8 +183,13 @@ object TypeDefinitionMembers {
     if (!processDeclsResult)
       return false
 
-    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
-      return false
+    processor match {
+      case _: CompletionProcessor if isPackageObject =>
+        // do not suggest Any/AnyRef methods during completion of package object's members
+      case _ =>
+        if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
+          return false
+    }
 
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state)))
       return false
