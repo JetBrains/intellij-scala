@@ -15,14 +15,17 @@ import java.io.File
 import java.net.URI
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
+
+  type ModuleDataNodeType = Node[_<:ModuleData]
+
   def createSharedSourceModules(
-    projectToModuleNode: Map[sbtStructure.ProjectData, Node[_ <: ModuleData]],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
     shouldGroupModulesFromSameBuild: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
-  ): Seq[Node[_ <: ModuleData]] = {
+  ): Seq[ModuleDataNodeType] = {
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
@@ -41,8 +44,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   protected def createModuleDependencies(
     projectDependencies: Seq[ProjectDependencyData],
-    allModules: Seq[Node[_ <: ModuleData]],
-    moduleNode: Node[_ <: ModuleData],
+    allModules: Seq[ModuleDataNodeType],
+    moduleNode: ModuleDataNodeType,
     insertProjectTransitiveDependencies: Boolean
   ): Unit = {
     projectDependencies.foreach { dependencyId =>
@@ -60,13 +63,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   private def createSourceModuleNodesAndDependencies(
     rootGroup: RootGroup,
-    projectToModuleNode: Map[sbtStructure.ProjectData, Node[_ <: ModuleData]],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
     shouldGroupModulesFromSameBuild: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
-  ): Node[_ <: ModuleData] = {
+  ): ModuleDataNodeType = {
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
@@ -139,8 +142,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   private def findRootNodeForProjectData(
     representativeProject: ProjectData,
     buildProjectsGroups: Seq[BuildProjectsGroup],
-    projectToModuleNode: Map[sbtStructure.ProjectData, Node[_ <: ModuleData]]
-  ): Option[Node[_<:ModuleData]] = {
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType]
+  ): Option[ModuleDataNodeType] = {
     val rootProjectDataOpt = buildProjectsGroups
       .find(_.projects.contains(representativeProject))
       .map(_.rootProject)
@@ -152,9 +155,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
    * but in all modules which depend on modules that have shared resources
    */
   private def getAllModulesThatRequireSharedSourcesModule(
-    projectToModuleNode: Map[sbtStructure.ProjectData, Node[_ <: ModuleData]],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     sharedSourcesProjects: Seq[ProjectData]
-  ): Seq[(Node[_ <: ModuleData], DependencyScope)] = {
+  ): Seq[(ModuleDataNodeType, DependencyScope)] = {
     projectToModuleNode
       .filterNot { case (project, _) => sharedSourcesProjects.contains(project) }
       .flatMap { case (project, moduleNode) =>
@@ -198,7 +201,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     group: RootGroup,
     moduleFilesDirectory: File,
     shouldGroupModulesFromSameBuild: Boolean
-  ): (Node[_ <: ModuleData], ContentRootNode) = {
+  ): (ModuleDataNodeType, ContentRootNode) = {
     val groupBase = group.base
     val moduleNode = createModuleNode(
       SharedSourcesModuleType.instance.getId,
@@ -270,7 +273,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   //target directory are expected by jps compiler:
   //if they are missing all sources are marked dirty and there is no incremental compilation
-  private def setupOutputDirectories(moduleNode: Node[_ <: ModuleData], contentRootNode: ContentRootNode): Unit = {
+  private def setupOutputDirectories(moduleNode: ModuleDataNodeType, contentRootNode: ContentRootNode): Unit = {
     moduleNode.setInheritProjectCompileOutputPath(false)
 
     val contentRoot = contentRootNode.data.getRootPath
