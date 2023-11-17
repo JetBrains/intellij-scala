@@ -4,6 +4,7 @@ package project.data
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import java.net.URI
 
@@ -38,6 +39,16 @@ object ModuleNode {
       case Some(uri) => f"$projectId [$uri]"
       case None => projectId
     }
+}
+
+class NestedModuleNode(override val data: SbtNestedModuleData)
+  extends Node[SbtNestedModuleData] {
+
+  def this(typeId: String, projectId: String, externalName: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
+    this(SbtNestedModuleData(projectId, externalName, moduleFileDirectoryPath, externalConfigPath, typeId))
+  }
+
+  override protected def key: Key[SbtNestedModuleData] = Sbt.sbtNestedModuleDataKey
 }
 
 class LibraryNode(override val data: LibraryData)

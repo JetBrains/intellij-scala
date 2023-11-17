@@ -1,10 +1,12 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
-import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
+import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor, ModuleNode}
+import com.intellij.util.SmartList
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
@@ -13,7 +15,7 @@ import scala.jdk.CollectionConverters._
 
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key)
+  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, Sbt.sbtNestedModuleDataKey)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -25,6 +27,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     val taskNodes = dataNodes.get(SbtTaskData.Key).asScala
     val settingNodes = dataNodes.get(SbtSettingData.Key).asScala
     val commandNodes = dataNodes.get(SbtCommandData.Key).asScala
+    val sbtNestedModuleNodes = dataNodes.get(Sbt.sbtNestedModuleDataKey).asScala
 
     val taskViewNodes = taskNodes.map { dataNode =>
       val typedNode = dataNode.asInstanceOf[DataNode[SbtTaskData]]
@@ -48,7 +51,13 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     val commandsNode = new SbtCommandsGroupNode(externalProjectsView)
     commandsNode.addAll(commandViewNodes.asJavaCollection)
 
-    List[ExternalSystemNode[_]](settingsNode, tasksNode, commandsNode).asJava
+    val nestedModuleNodes = sbtNestedModuleNodes.map { node =>
+      val moduleDataNode = node.asInstanceOf[DataNode[ModuleData]]
+      new ModuleNode(externalProjectsView, moduleDataNode, null, false)
+    }.toSeq
+
+    val allNodes = Seq(settingsNode, tasksNode, commandsNode) ++ nestedModuleNodes
+    new SmartList[ExternalSystemNode[_]](allNodes: _*)
   }
 }
 
