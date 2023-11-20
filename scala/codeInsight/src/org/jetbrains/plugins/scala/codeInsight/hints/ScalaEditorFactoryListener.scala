@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings.{getInstance => DaemonCodeAnalyzerSettings}
 import com.intellij.codeInsight.hints.ParameterHintsPassFactory
 import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable.{getInstance => EditorSettingsExternalizable}
@@ -157,6 +158,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
 
     ImplicitHints.updateInAllEditors()
+
+    ActionToolbarImpl.updateAllToolbarsImmediately(true)
   }
 
   private var indentGuidesShownSetting: Boolean = _
