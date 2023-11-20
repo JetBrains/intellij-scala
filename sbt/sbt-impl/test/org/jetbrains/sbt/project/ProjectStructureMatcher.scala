@@ -271,8 +271,8 @@ trait ProjectStructureMatcher {
     val actualLibrary = actualLibrary0.asInstanceOf[LibraryEx]
     expectedLibrary.foreach0(scalaSdkSettings) {
       case None =>
-        assertFalse(s"Scala library shouldn't be marked as Scala SDK: ${actualLibrary.getName}", actualLibrary.isScalaSdk)
-        assertFalse(s"Scala library shouldn't contain Scala SDK properties ${actualLibrary.getName}", actualLibrary.getProperties.isInstanceOf[ScalaLibraryProperties])
+        assertFalse(s"Scala library should NOT be marked as Scala SDK: ${actualLibrary.getName}", actualLibrary.isScalaSdk)
+        assertFalse(s"Scala library should NOT contain Scala SDK properties ${actualLibrary.getName}", actualLibrary.getProperties.isInstanceOf[ScalaLibraryProperties])
       case Some(expectedScalaSdk) =>
         assertTrue(s"Scala library should be marked as Scala SDK: ${actualLibrary.getName}", actualLibrary.isScalaSdk)
         val sdkProperties = actualLibrary.properties
