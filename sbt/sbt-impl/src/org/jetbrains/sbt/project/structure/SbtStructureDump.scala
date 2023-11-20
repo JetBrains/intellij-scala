@@ -193,9 +193,11 @@ class SbtStructureDump {
     val processCommandsRaw =
       List(
         normalizePath(vmExecutable),
-        "-Djline.terminal=jline.UnsupportedTerminal",
-        "-Dsbt.log.noformat=true",
-        "-Dfile.encoding=UTF-8") ++
+        //"-Djline.terminal=jline.UnsupportedTerminal",
+        "-Djline.terminal=jline.UnixTerminal",
+        //"-Dsbt.log.noformat=true",
+        "-Dfile.encoding=UTF-8"
+      ) ++
         allOpts ++
         List("-jar", normalizePath(sbtLauncher)) ++
         allSbtLauncherArgs// :+ "--debug"

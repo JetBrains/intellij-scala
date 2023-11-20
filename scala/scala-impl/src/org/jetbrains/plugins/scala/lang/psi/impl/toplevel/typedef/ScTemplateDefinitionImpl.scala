@@ -350,16 +350,14 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
                     else                                       false
                   }
 
-                val magicCondition1 = isUnderExtendsBlock ||
+                if (isUnderExtendsBlock ||
                   ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
                   !isContextAncestor(this, place, true) ||
                   //This is a workaround for referencing type definition member from a link in the ScalaDoc of that type definition:
                   ///** [[Example.myMethod]] */class Example { def myMethod: Int = 42 }
                   //The issue is that ScalaDoc element is attached to the definition
                   //so `isContextAncestor(this, place, true)` returns true and magicCondition1 becomes false
-                  place.isInstanceOf[ScDocResolvableCodeReference]
-
-                if (magicCondition1) {
+                  place.isInstanceOf[ScDocResolvableCodeReference]) {
                   this match {
                     case t: ScTypeDefinition =>
                       selfTypeElement match {
