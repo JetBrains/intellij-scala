@@ -125,7 +125,16 @@ object ProjectStructureDsl {
 
   implicit def library2libraryDependency(library: library): dependency[library] =
     new dependency(library)
+
   implicit def libraries2libraryDependencies(libraries: Seq[library]): Seq[dependency[library]] =
     libraries.map(library2libraryDependency)
+
+  def library2libraryDependency(library: library, scope: Option[DependencyScope]): dependency[library] =
+    new dependency(library)  {
+      scope.foreach(ProjectStructureDsl.scope := _)
+    }
+
+  def libraries2libraryDependencies(libraries: Seq[library], scope: Option[DependencyScope]): Seq[dependency[library]] =
+    libraries.map(library2libraryDependency(_, scope))
 }
 
