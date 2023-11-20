@@ -321,6 +321,8 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$ConfigureShortcuts"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeTip"/>
+
+        <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">
