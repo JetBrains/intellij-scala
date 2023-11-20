@@ -51,6 +51,10 @@ object Common {
     (Compile / scalacOptions) := globalScalacOptions,
     (Compile / unmanagedSourceDirectories) := Seq(baseDirectory.value / "src"),
     (Test / unmanagedSourceDirectories) := Seq(baseDirectory.value / "test"),
+    //NOTE: this almost duplicates the logic from sbt-idea-plugin (see org.jetbrains.sbtidea.Init)
+    //but it uses `:=` instead of `+=` to remove standard resource directories, which intersect with source directories
+    (Compile / unmanagedResourceDirectories) := Seq(baseDirectory.value / "resources"),
+    (Test / unmanagedResourceDirectories) := Seq(baseDirectory.value / "testResources"),
     updateOptions := updateOptions.value.withCachedResolution(true),
   )
 
