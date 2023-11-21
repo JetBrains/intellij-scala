@@ -34,7 +34,10 @@ class XRayModeTip extends StartupActivity.DumbAware {
           if (isAction("Scala.XRayMode", action)) {
             disable()
           }
-          else if (isAction("Scala.ShowImplicitConversions", action) || isAction("Scala.ShowImplicitArguments", action) || isAction("Scala.ShowImplicits", action)) {
+          else if (
+            isAction("Scala.TypeInfo", action) ||
+            isAction("Scala.ShowImplicitConversions", action) || isAction("Scala.ShowImplicitArguments", action) || isAction("Scala.ShowImplicits", action)) {
+
             suggestXRayMode()
             disable()
           }
