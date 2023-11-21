@@ -42,8 +42,8 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
 
         if (SystemInfo.isMac) {
           addMouseListener(new MouseAdapter() {
-            override def mouseClicked(e: MouseEvent): Unit = if (e.getButton == MouseEvent.BUTTON1) {
-              click() // Enable Cmd + Click
+            override def mouseClicked(e: MouseEvent): Unit = if (e.getButton == MouseEvent.BUTTON1 && e.isMetaDown) {
+              click()
               e.consume()
             }
           })
