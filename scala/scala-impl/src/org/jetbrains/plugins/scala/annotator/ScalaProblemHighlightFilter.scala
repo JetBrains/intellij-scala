@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.sbt.language.SbtFile
 
@@ -30,7 +30,7 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   private def isSpecialFile(file: ScalaFile): Boolean =
     file.isWorksheetFile ||
       ScratchUtil.isScratch(file.getVirtualFile) ||
-      ScalaConsoleInfo.isConsole(file)
+      ScalaLanguageConsoleUtils.isConsole(file)
 
   //file may be both source and library source
   private def isLibraryAndNotSource(file: PsiFile): Boolean = {

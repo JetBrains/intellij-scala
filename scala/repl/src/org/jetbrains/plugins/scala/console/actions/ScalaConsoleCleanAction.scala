@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.console.actions
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.{EditorAction, EditorWriteActionHandler}
 import com.intellij.openapi.editor.{Caret, Editor}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaReplBundle}
 
 class ScalaConsoleCleanAction extends EditorAction(new EditorWriteActionHandler(false) {
 
@@ -19,7 +18,7 @@ class ScalaConsoleCleanAction extends EditorAction(new EditorWriteActionHandler(
 }) {
   locally {
     val presentation = getTemplatePresentation
-    presentation.setText(ScalaBundle.message("clean.scala.repl.content.menu.action.text"))
-    presentation.setDescription(ScalaBundle.message("clean.scala.repl.content.menu.action.description"))
+    presentation.setText(ScalaReplBundle.message("clean.scala.repl.content.menu.action.text"))
+    presentation.setDescription(ScalaReplBundle.message("clean.scala.repl.content.menu.action.description"))
   }
 }

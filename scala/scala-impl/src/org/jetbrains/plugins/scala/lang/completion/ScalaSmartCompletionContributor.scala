@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.NotImplementedError
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
@@ -782,8 +783,7 @@ object ScalaSmartCompletionContributor {
         (name, (_, actualName)) <- abstractNames
       } template.addVariable(name, actualName, actualName, false)
 
-      document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(editor, template)
+      TemplateUtils.startTemplateAtElement(editor, template, commonParent)
     }
   }
 

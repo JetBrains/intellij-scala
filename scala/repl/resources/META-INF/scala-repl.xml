@@ -1,0 +1,37 @@
+<!--suppress PluginXmlValidity -->
+<idea-plugin>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
+        <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
+    </extensions>
+
+    <actions>
+        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction">
+            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
+        </action>
+        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction">
+            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift X"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift X" remove="true"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift X"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift X" remove="true"/>
+        </action>
+        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
+        </action>
+        <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
+        </action>
+        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
+        </action>
+    </actions>
+</idea-plugin>

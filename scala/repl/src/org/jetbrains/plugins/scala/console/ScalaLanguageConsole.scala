@@ -13,20 +13,18 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.{Gray, JBColor, SideBorder}
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole._
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole.*
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.awt.Font
 import scala.collection.mutable
@@ -92,9 +90,9 @@ class ScalaLanguageConsole(module: Module, language: Language)
   }
 
   private def stateFor(text: String, contentType: ConsoleViewContentType): ConsoleState = {
-    import ConsoleState._
-    import ConsoleViewContentType._
-    import ScalaLanguageConsole._
+    import ConsoleState.*
+    import ConsoleViewContentType.*
+    import ScalaLanguageConsole.*
     if (state == Terminated)
       return state
 
@@ -140,7 +138,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
     }
 
   private def updatePrompt(): Unit = {
-    import ConsoleState._
+    import ConsoleState.*
     val prompt = state match {
       case Ready             => ScalaPromptIdleText
       case InputIsInProgress => ScalaPromptInputInProgressText
@@ -276,9 +274,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
 object ScalaLanguageConsole {
   private val Log = Logger.getInstance(classOf[ScalaLanguageConsole])
 
-  private[console] val ScalaConsoleTitle: String = ScalaBundle.message("scala.console.config.display.name")
-
-  def isScalaConsoleFile(file: PsiFile): Boolean = file.name == ScalaConsoleTitle
+  private[console] val ScalaConsoleTitle: String = ScalaReplBundle.message("scala.console.config.display.name")
 
   private object ScalaConsoleRootType extends ConsoleRootType("scala", ScalaConsoleTitle)
 
@@ -322,14 +318,8 @@ object ScalaLanguageConsole {
     object Terminated extends ConsoleState
   }
 
-  val ScalaConsoleFileMarkerKey: Key[Unit] = Key.create("ScalaConsoleFileMarkerKey")
-
   private class Helper(project: Project, title: String, language: Language)
     extends LanguageConsoleImpl.Helper(project, new LightVirtualFile(title, language, "")) {
-
-    locally {
-      this.virtualFile.putUserData(ScalaConsoleFileMarkerKey, ())
-    }
 
     /** HACK: we want the caret to be right after `scala>` prompt, but we actually have two separate editors:<br>
      * 1) view editor which we can't edit, it is in view-mode (this.getEditor)<br>
@@ -355,7 +345,7 @@ object ScalaLanguageConsole {
       val executeCommandAction = ActionManager.getInstance.getAction(ScalaConsoleExecuteAction.ActionId)
       val executeCommandActionShortcutText = KeymapUtil.getFirstKeyboardShortcutText(executeCommandAction)
 
-      editor.setPlaceholder(ScalaBundle.message("scala.language.console.placeholder.command.to.execute", executeCommandActionShortcutText))
+      editor.setPlaceholder(ScalaReplBundle.message("scala.language.console.placeholder.command.to.execute", executeCommandActionShortcutText))
       editor.setShowPlaceholderWhenFocused(true)
     }
   }

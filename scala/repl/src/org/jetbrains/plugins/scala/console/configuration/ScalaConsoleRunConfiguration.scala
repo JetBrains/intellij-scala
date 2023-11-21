@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.console.configuration
 
-import com.intellij.execution._
-import com.intellij.execution.configurations._
+import com.intellij.execution.*
+import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
@@ -12,16 +12,16 @@ import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nls}
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.Scala2_13_2
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaReplBundle}
+import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
 import java.io.File
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
@@ -64,7 +64,7 @@ class ScalaConsoleRunConfiguration(
 
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
 
-  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException(ScalaBundle.message("scala.console.config.module.is.not.specified")))
+  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException(ScalaReplBundle.message("scala.console.config.module.is.not.specified")))
 
   override def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
@@ -100,6 +100,9 @@ class ScalaConsoleRunConfiguration(
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
     new ScalaCommandLineState(env)
+
+  //overriding the method as a workaround for https://github.com/lampepfl/dotty/issues/19007
+  override def clone(): ModuleBasedConfiguration[_ <: RunConfigurationModule, _] = super.clone()
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
     getModule match {

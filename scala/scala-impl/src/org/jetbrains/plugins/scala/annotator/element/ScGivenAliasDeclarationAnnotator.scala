@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TemplateUtils}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ChooseValueExpression
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition}
@@ -53,10 +53,7 @@ private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declarati
   protected def runTemplate(builder: TemplateBuilderImpl, context: PsiElement)
                            (implicit editor: Editor, project: Project): Unit = {
     val template = builder.buildTemplate()
-    val range = context.getTextRange
-    editor.getCaretModel.moveToOffset(range.getStartOffset)
-    editor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-    TemplateManager.getInstance(project).startTemplate(editor, template)
+    TemplateUtils.startTemplateAtElement(editor, template, context)
   }
 }
 

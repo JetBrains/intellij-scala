@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
 import com.intellij.codeInsight.navigation.{PsiTargetNavigator, TargetPresentationProvider}
-import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl, TemplateManager}
+import com.intellij.codeInsight.template.{Template, TemplateBuilder, TemplateBuilderImpl}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -12,8 +12,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -44,12 +44,14 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   override protected def invokeInner(project: Project, editor: Editor, file: PsiFile): Unit = {
     inWriteAction {
       ref.qualifier match {
-        case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
-        case Some(ResolvesTo(pack: PsiPackage)) => createClassInPackage(pack)
+        case Some(InstanceOfClass(typeDef: ScTypeDefinition)) =>
+          createInnerClassIn(typeDef)(editor)
+        case Some(ResolvesTo(pack: PsiPackage)) =>
+          createClassInPackage(pack)(editor)
         case None =>
           val fileOption = if (file == null || file.getContainingDirectory == null) None else Some(file)
           val possibleSiblings = fileOption ++: getPossibleSiblingsInThisFile(ref)
-          createClassWithLevelChoosing(editor, possibleSiblings)
+          createClassWithLevelChoosing(possibleSiblings)(editor)
         case _ =>
       }
     }
@@ -86,7 +88,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     val text = s"${kind.keyword} $name"
     val file = createScalaFileFromText(text, ref)
     val definition = PsiTreeUtil.findChildOfType(file, classOf[ScTypeDefinition])
-    afterCreationWork(definition)
+    //afterCreationWork(definition, editor)
     val fileType = ScalaFileType.INSTANCE
     new IntentionPreviewInfo.CustomDiff(fileType, name + fileType.getExtensionWithDot, "", file.getText)
   }
@@ -94,7 +96,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   @inline private def inCopy[E <: PsiElement](element: E, file: PsiFile): E =
     PsiTreeUtil.findSameElementInCopy(element, file)
 
-  private def createClassInPackage(psiPackage: PsiPackage): Unit = {
+  private def createClassInPackage(psiPackage: PsiPackage)(editor: Editor): Unit = {
     val directory = psiPackage.getDirectories.filter(_.isWritable) match {
       case Array(dir) => dir
       case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.name}`")
@@ -103,16 +105,16 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
           .orElse(dirs.find(ScalaPsiUtil.getModule(_) == ScalaPsiUtil.getModule(ref)))
         currentDir.getOrElse(dirs(0))
     }
-    createClassInDirectory(directory)
+    createClassInDirectory(directory)(editor)
   }
 
-  private def createInnerClassIn(target: ScTemplateDefinition): Unit = {
+  private def createInnerClassIn(target: ScTemplateDefinition)(editor: Editor): Unit = {
     val extBlock = target.extendsBlock
     val targetBody = extBlock.getOrCreateTemplateBody
-    createClassIn(targetBody, Some(targetBody.getLastChild))
+    createClassIn(targetBody, Some(targetBody.getLastChild))(editor)
   }
 
-  private def createClassIn(parent: PsiElement, anchorAfter: Option[PsiElement]): Unit = {
+  private def createClassIn(parent: PsiElement, anchorAfter: Option[PsiElement])(editor: Editor): Unit = {
     try {
       if (!IntentionPreviewUtils.prepareElementForWrite(parent)) return
 
@@ -121,7 +123,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       val anchor = anchorAfter.orNull
       parent.addBefore(createNewLine()(parent.getManager), anchor)
       val result = parent.addBefore(newTd, anchor)
-      afterCreationWork(result.asInstanceOf[ScTypeDefinition])
+      afterCreationWork(result.asInstanceOf[ScTypeDefinition])(editor)
     }
     catch {
       case e: IncorrectOperationException =>
@@ -129,20 +131,20 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     }
   }
 
-  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit =
+  private def createClassWithLevelChoosing(siblings: Seq[PsiElement])(editor: Editor): Unit =
     siblings match {
       case Seq() =>
-      case Seq(elem) => createClassAtLevel(elem)
+      case Seq(elem) => createClassAtLevel(elem)(editor)
       case _ =>
         val selection = siblings.head
         if (isUnitTestMode || IntentionPreviewUtils.isIntentionPreviewActive) {
           val sibling = siblings.find(!_.is[PsiFile])
             .getOrElse(siblings.head)
-          createClassAtLevel(sibling)
+          createClassAtLevel(sibling)(editor)
         } else {
           val title = ScalaBundle.message("choose.level.popup.title")
           val processor: PsiElementProcessor[PsiElement] = { elem =>
-            inWriteCommandAction(createClassAtLevel(elem))(elem.getProject)
+            inWriteCommandAction(createClassAtLevel(elem)(editor))(elem.getProject)
             false
           }
           val renderer: TargetPresentationProvider[PsiElement] = { element =>
@@ -166,32 +168,32 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
         }
     }
 
-  private def createClassAtLevel(sibling: PsiElement): Unit = {
+  private def createClassAtLevel(sibling: PsiElement)(editor: Editor): Unit = {
     sibling match {
-      case file: PsiFile => createClassInDirectory(file.getContainingDirectory)
-      case td: ScTypeDefinition if td.isTopLevel => createClassIn(td.getParent, None)
+      case file: PsiFile => createClassInDirectory(file.getContainingDirectory)(editor)
+      case td: ScTypeDefinition if td.isTopLevel => createClassIn(td.getParent, None)(editor)
       case _ childOf (tb: ScTemplateBody) =>
-        createInnerClassIn(PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition]))
+        createInnerClassIn(PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition]))(editor)
       case _ =>
     }
   }
 
-  private def createClassInDirectory(directory: PsiDirectory): Unit = {
+  private def createClassInDirectory(directory: PsiDirectory)(editor: Editor): Unit = {
     val clazz = ScalaDirectoryService.createClassFromTemplate(directory, name, kind.templateName, askToDefineVariables = false)
-    afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])
+    afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])(editor)
   }
 
-  protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
+  protected def afterCreationWork(clazz: ScTypeDefinition)(editor: Editor): Unit = {
     addGenericParams(clazz)
     addClassParams(clazz)
     ScalaPsiUtil.adjustTypes(clazz)
     if (!IntentionPreviewUtils.isIntentionPreviewActive)
-      runTemplate(clazz)
+      runTemplate(clazz)(editor)
   }
 
   protected def addMoreElementsToTemplate(builder: TemplateBuilder, clazz: ScTypeDefinition): Unit = {}
 
-  private def runTemplate(clazz: ScTypeDefinition): Unit = {
+  private def runTemplate(clazz: ScTypeDefinition)(editor: Editor): Unit = {
     val builder = new TemplateBuilderImpl(clazz)
 
     addTypeParametersToTemplate(clazz, builder)
@@ -204,18 +206,8 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
     CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(clazz)
 
-    val template = builder.buildTemplate()
-    val targetFile = clazz.getContainingFile
-    val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(targetFile)
-
-    if (!isScalaConsole) {
-      val newEditor = positionCursor(clazz.nameId)
-      if (template.getSegmentsCount != 0) {
-        val range = clazz.getTextRange
-        newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-        TemplateManager.getInstance(clazz.getProject).startTemplate(newEditor, template)
-      }
-    }
+    val template: Template = builder.buildTemplate()
+    TemplateUtils.positionCursorAndStartTemplate(clazz, template, editor)
   }
 
   private def addGenericParams(clazz: ScTypeDefinition): Unit = ref.getParent.getParent match {
@@ -274,9 +266,9 @@ class CreateCaseClassQuickFix(ref: ScReference)
   override val getText: String = ScalaBundle.message("create.case.class.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.case.class")
 
-  override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
+  override protected def afterCreationWork(clazz: ScTypeDefinition)(editor: Editor): Unit = {
     clazz.setModifierProperty("case")
-    super.afterCreationWork(clazz)
+    super.afterCreationWork(clazz)(editor)
   }
 }
 
@@ -286,13 +278,13 @@ final class CreateAnnotationClassQuickFix(ref: ScReference)
   override val getText: String = ScalaBundle.message("create.annotation.class.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.annotation.class")
 
-  override protected def afterCreationWork(td: ScTypeDefinition): Unit = {
+  override protected def afterCreationWork(td: ScTypeDefinition)(editor: Editor): Unit = {
     createTypeElementFromText("scala.annotation.StaticAnnotation", td) match {
       case ScSimpleTypeElement(ScReference(staticAnnotation: ScTypeDefinition)) =>
         org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil.addExtendsTo(td, staticAnnotation)
       case _ =>
     }
 
-    super.afterCreationWork(td)
+    super.afterCreationWork(td)(editor)
   }
 }

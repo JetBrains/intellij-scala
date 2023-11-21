@@ -5,16 +5,15 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
-import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction._
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction.*
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaReplBundle}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 
 import java.io.{IOException, OutputStream}
 
 class ScalaConsoleExecuteAction extends AnAction(
-  ScalaBundle.message("execute.scala.repl.statement.menu.action.text"),
-  ScalaBundle.message("execute.scala.repl.statement.menu.action.description"),
+  ScalaReplBundle.message("execute.scala.repl.statement.menu.action.text"),
+  ScalaReplBundle.message("execute.scala.repl.statement.menu.action.description"),
   /* icon = */ null
 ) with DumbAware {
 

@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
-import com.intellij.codeInsight.template.TemplateBuilder
+import com.intellij.codeInsight.template.{Template, TemplateBuilder, TemplateManager}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
@@ -122,13 +123,6 @@ object CreateFromUsageUtil {
         args.foreach(te => builder.replaceElement(te, te.getText))
       case _ =>
     }
-  }
-
-  def positionCursor(element: PsiElement): Editor = {
-    val offset = element.getTextRange.getEndOffset
-    val project = element.getProject
-    val descriptor = new OpenFileDescriptor(project, element.getContainingFile.getVirtualFile, offset)
-    FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
   def unapplyMethodText(pattern: ScPattern): String = {

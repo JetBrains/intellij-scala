@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
-import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
+import com.intellij.codeInsight.template.TemplateBuilderImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -102,7 +101,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         }
 
         if (!IntentionPreviewUtils.isIntentionPreviewActive)
-          buildAndRunTemplate(entity, entityType)(project, file)
+          buildAndRunTemplate(entity, entityType)(editor)
       }
     }
   }
@@ -115,7 +114,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
   protected def withRef(newRef: ScReferenceExpression): CreateEntityQuickFix
 
   private def buildAndRunTemplate(entity: PsiElement, entityType: Option[String])
-                                 (project: Project, file: PsiFile): Unit = {
+                                 (originalEditor: Editor): Unit = {
     val builder = new TemplateBuilderImpl(entity)
 
     for (aType <- entityType;
@@ -130,14 +129,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
     val template = builder.buildTemplate()
-
-    val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(file)
-    if (!isScalaConsole) {
-      val newEditor = positionCursor(entity.getLastChild)
-      val range = entity.getTextRange
-      newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(newEditor, template)
-    }
+    TemplateUtils.positionCursorAndStartTemplate(entity, template, originalEditor)
   }
 
   private def materializeSyntheticObject(obj: ScObject): ScObject = {

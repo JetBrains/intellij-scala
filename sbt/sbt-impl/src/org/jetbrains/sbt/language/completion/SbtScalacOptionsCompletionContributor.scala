@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, PsiElementPatternExt, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -165,10 +166,7 @@ object SbtScalacOptionsCompletionContributor {
       replaceRange(builder, offsetBeforeClosingQuote)
 
       val template = builder.buildTemplate()
-      context.getDocument.replaceString(templateContainerElement.startOffset, templateContainerElement.endOffset, "")
-      context.getEditor.getCaretModel.moveToOffset(templateContainerElement.startOffset)
-
-      TemplateManager.getInstance(context.getProject).startTemplate(context.getEditor, template)
+      TemplateUtils.startTemplateAtElement(context.getEditor, template, templateContainerElement)
     }
   }
 
