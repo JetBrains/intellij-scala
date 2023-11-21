@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
@@ -91,16 +92,16 @@ object ScalaInlayParameterHintsPass {
       case (_, parameter) => parameter.isRepeated
     }
 
-    (regular ++ varargs.headOption).collect {
-      case (argument, parameter) if isNameable(argument) => (argument, parameter.name)
-    }.filter {
+    (regular ++ varargs.headOption).filter {
+      case (argument, _) if !isNameable(argument) => false
       case (_: ScUnderscoreSection, _) => false
-      case (_, name) if name.length <= 1 => false
+      case (_, parameter) if parameter.name.length <= 1 => false
       case (argument, _) => isUnclear(argument)
       case _ => true
     }.map {
-      case (argument, name) =>
-        Hint(Seq(Text(s"$name ${ScalaTokenTypes.tASSIGN} ")), argument, suffix = false, menu = menu)
+      case (argument, parameter) =>
+        val tooltip = parameter.psiParam.map(p => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(p, p))
+        Hint(Seq(Text(parameter.name, tooltip = tooltip, navigatable = parameter.psiParam), Text(s" ${ScalaTokenTypes.tASSIGN} ")), argument, suffix = false, menu = menu)
     }
   }
 
