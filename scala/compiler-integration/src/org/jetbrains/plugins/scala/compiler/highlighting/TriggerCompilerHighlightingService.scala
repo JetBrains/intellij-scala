@@ -69,7 +69,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   )
 
   private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
-    if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+    //file could be deleted (this code is called in background activity)
+    if (isHighlightingEnabled && virtualFile.isValid && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
       val debugReason = s"file content changed: ${psiFile.name}"
       val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
       if (document ne null) {
