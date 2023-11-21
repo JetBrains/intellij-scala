@@ -755,11 +755,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.storePaths(ExternalSystemSourceType.SOURCE, unmanagedDirectories(productionSources))
     result.storePaths(ExternalSystemSourceType.SOURCE_GENERATED, managedDirectories(productionSources))
-    result.storePaths(ExternalSystemSourceType.RESOURCE, allDirectories(productionResources))
+    result.storePaths(ExternalSystemSourceType.RESOURCE, unmanagedDirectories(productionResources))
+    result.storePaths(ExternalSystemSourceType.RESOURCE_GENERATED, managedDirectories(productionResources))
 
     result.storePaths(ExternalSystemSourceType.TEST, unmanagedDirectories(testSources))
     result.storePaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
-    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, allDirectories(testResources))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, unmanagedDirectories(testResources))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE_GENERATED, managedDirectories(testResources))
 
     val excludedDirs = getExcludedDirs(project)
     excludedDirs.foreach { path =>
@@ -768,9 +770,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result
   }
-
-  private def allDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
-    dirs.map(_.file.canonicalPath)
 
   private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
     dirs.filter(_.managed).map(_.file.canonicalPath)
