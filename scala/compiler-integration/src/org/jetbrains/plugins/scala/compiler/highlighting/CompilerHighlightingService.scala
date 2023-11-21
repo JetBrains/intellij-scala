@@ -306,7 +306,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
             execute(request)
 
           case RequestState.NotReady =>
-            priorityQueue.add(request)
+            val delayed = request.delayed
+            priorityQueue.add(delayed)
 
           case RequestState.Expired =>
         }
