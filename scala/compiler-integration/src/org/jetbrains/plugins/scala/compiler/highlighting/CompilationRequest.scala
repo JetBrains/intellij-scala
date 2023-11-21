@@ -16,13 +16,15 @@ private sealed trait CompilationRequest {
   val document: Document
   val debugReason: String
 
-  val compilationDelay: FiniteDuration
+  final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
 
   private val timestamp: Long = System.nanoTime()
 
-  private def deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
+  private val deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
 
   def remaining: FiniteDuration = deadline.timeLeft
+
+  def delayed: CompilationRequest
 }
 
 private object CompilationRequest {
@@ -38,8 +40,7 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
-    override val compilationDelay: FiniteDuration =
-      if (isFirstTimeHighlighting) Duration.Zero else ScalaHighlightingMode.compilationDelay
+    override def delayed: WorksheetRequest = this.copy()
   }
 
   final case class IncrementalRequest(
@@ -52,12 +53,7 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
-    /**
-     * Incremental compilation is not triggered by typing, instead, it is triggered by actions such as switching files,
-     * triggering refactorings, etc. For this purpose, there is no need for a delay in these cases, since incremental
-     * compilation is used to reconcile the compiler based highlighting state for the project.
-     */
-    override val compilationDelay: FiniteDuration = Duration.Zero
+    override def delayed: IncrementalRequest = this.copy()
   }
 
   final case class DocumentRequest(
@@ -69,7 +65,7 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 2
 
-    override val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
+    override def delayed: DocumentRequest = this.copy()
   }
 
   /**
