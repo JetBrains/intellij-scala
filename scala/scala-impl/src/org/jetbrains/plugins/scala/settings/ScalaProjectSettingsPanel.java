@@ -317,8 +317,12 @@ public class ScalaProjectSettingsPanel {
         return ScalaFileType.INSTANCE;
     }
 
+    public void selectXRayModeTab() {
+        wrappedTabbedPane.setSelectedTitle(ScalaBundle.message("scala.project.settings.form.tabs.xray.mode"));
+    }
+
     public void selectUpdatesTab() {
-        wrappedTabbedPane.setSelectedIndex(6);
+        wrappedTabbedPane.setSelectedTitle(ScalaBundle.message("scala.project.settings.form.tabs.updates"));
     }
 
     public void apply() throws ConfigurationException {

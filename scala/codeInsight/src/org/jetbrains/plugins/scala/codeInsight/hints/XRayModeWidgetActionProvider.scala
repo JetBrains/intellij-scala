@@ -2,20 +2,22 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.ActionButtonWithText
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DefaultActionGroup, Presentation, Separator}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys, DefaultActionGroup, Presentation, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.markup.InspectionWidgetActionProvider
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
 
 import java.awt.Insets
 import java.awt.event.{MouseAdapter, MouseEvent}
+import java.util.function.Consumer
 import javax.swing.JComponent
 import javax.swing.plaf.FontUIResource
 
@@ -41,8 +43,8 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
 
         if (SystemInfo.isMac) {
           addMouseListener(new MouseAdapter() {
-            override def mouseClicked(e: MouseEvent): Unit = if (e.getButton == MouseEvent.BUTTON1) {
-              click() // Enable Cmd + Click
+            override def mouseClicked(e: MouseEvent): Unit = if (e.getButton == MouseEvent.BUTTON1 && e.isMetaDown) {
+              click()
               e.consume()
             }
           })
@@ -60,18 +62,21 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
-        ShowSettingsUtilImplExt.showSettingsDialog(
+        ShowSettingsUtil.getInstance.showSettingsDialog(
           e.getProject,
           classOf[ScalaProjectSettingsConfigurable],
-          ScalaBundle.message("scala.project.settings.form.tabs.xray.mode"))
+          (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
       }
     }
 
     new DefaultActionGroup(action, Separator.create()) {
-      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
       override def update(e: AnActionEvent): Unit = {
-        e.getPresentation.setEnabledAndVisible(ScalaHintsSettings.xRayMode)
+        def inLibrarySource = Option(CommonDataKeys.EDITOR.getData(e.getDataContext)).exists { editor =>
+          Option(editor.getVirtualFile).exists(file => ProjectFileIndex.getInstance(editor.getProject).isInLibrarySource(file))
+        }
+        e.getPresentation.setEnabledAndVisible(ScalaHintsSettings.xRayMode && !inLibrarySource)
       }
     }
   }
