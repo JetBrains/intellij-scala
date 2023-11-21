@@ -17,7 +17,7 @@ import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.usageTracker.RedundantImportUtils
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -253,7 +253,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     //   (they could be just ordinary file with "main" function or they could use Scala CLI)
     fileIndex.isInSource(vFile) ||
       ScratchUtil.isScratch(vFile) ||
-      ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile) ||
+      ScalaLanguageConsoleUtils.isConsole(file) ||
       file.isInstanceOf[SbtFile] && fileIndex.isInProject(vFile)
   }
 

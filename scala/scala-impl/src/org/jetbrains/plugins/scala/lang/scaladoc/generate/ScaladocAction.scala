@@ -12,7 +12,6 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 
 import javax.swing.JComponent
@@ -79,16 +78,11 @@ class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.sc
 
 object ScaladocAction {
 
-  // just stub entities, will never be invoked
-  object ScaladocRunConfigurationFactory extends ConfigurationFactory(new ScalaConsoleConfigurationType) {
-    override def createTemplateConfiguration(project: Project): RunConfiguration = new ScaladocRunConfiguration(project, null, null)
-    override def getId: String = "ScaladocRunConfigurationFactory"
-  }
-
-  class ScaladocRunConfiguration(project: Project,
-                                 dialog: ScaladocConsoleRunConfigurationForm,
-                                 config: ScaladocConfiguration)
-    extends RunConfigurationBase[Unit](project, ScaladocRunConfigurationFactory, "Generate Scaladoc") {
+  class ScaladocRunConfiguration(
+    project: Project,
+    dialog: ScaladocConsoleRunConfigurationForm,
+    config: ScaladocConfiguration
+  ) extends RunConfigurationBase[Unit](project, null, "Generate ScalaDoc") {
     override def checkConfiguration(): Unit = {}
 
     override def getConfigurationEditor: SettingsEditor[_ <: ScaladocRunConfiguration] = new SettingsEditor[ScaladocRunConfiguration]() {

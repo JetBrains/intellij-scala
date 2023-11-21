@@ -149,7 +149,8 @@ lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
       compilerIntegration % "test->test;compile->compile",
-      worksheetReplInterface % "test->test;compile->compile"
+      worksheetReplInterface % "test->test;compile->compile",
+      repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     )
 
 lazy val worksheetReplInterface =
@@ -271,6 +272,18 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
+  )
+
+lazy val repl = newProject("repl", file("scala/repl"))
+  .dependsOn(
+    scalaImpl % "test->test;compile->compile",
+    structureView % "test->test;compile->compile",
+  )
+  .withCompilerPluginIn(scalacPatches)
+  .settings(
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions,
+    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
   )
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))

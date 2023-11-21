@@ -463,8 +463,6 @@
         <editorFileSwapper implementation="org.jetbrains.plugins.scala.editor.ScalaEditorFileSwapper"/>
         <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.template.importSources.ScalaSourceRootFinder"/>
 
-        <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsActionPromoter"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer" order="first"/>
@@ -1968,35 +1966,8 @@
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
-        <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.actions.RunConsoleAction">
-            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
-        </action>
-        <!--suppress PluginXmlCapitalization -->
-        <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction">
-            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
-            <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift X"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift X" remove="true"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift X"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift X" remove="true"/>
-        </action>
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
-        </action>
-        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
-        </action>
-        <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
-        </action>
-        <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConversions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>

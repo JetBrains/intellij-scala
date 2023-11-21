@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
-import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl, TemplateManager}
+import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl}
 import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.chaining.scalaUtilChainingOps
@@ -81,11 +82,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
       val template = builder.buildTemplate()
-
-      val newEditor = CreateFromUsageUtil.positionCursor(entity.getLastChild)
-      val range = entity.getTextRange
-      newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(newEditor, template)
+      TemplateUtils.positionCursorAndStartTemplate(entity, template, editor)
     }
   }
 

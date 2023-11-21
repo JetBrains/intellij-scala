@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.template.TemplateBuilder
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -15,9 +16,9 @@ class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
   override val getText: String = ScalaBundle.message("create.extractor.object.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.extractor.object")
 
-  override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
+  override protected def afterCreationWork(clazz: ScTypeDefinition)(editor: Editor): Unit = {
     addUnapplyMethod(clazz)
-    super.afterCreationWork(clazz)
+    super.afterCreationWork(clazz)(editor)
   }
 
   override protected def addMoreElementsToTemplate(builder: TemplateBuilder, clazz: ScTypeDefinition): Unit = {

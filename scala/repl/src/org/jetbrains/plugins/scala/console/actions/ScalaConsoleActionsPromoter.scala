@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ScalaConsoleActionsPromoter extends ActionPromoter {
   //noinspection ScalaRedundantCast

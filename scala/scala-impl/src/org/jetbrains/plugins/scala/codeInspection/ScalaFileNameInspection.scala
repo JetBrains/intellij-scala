@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.refactoring.RefactoringFactory
 import com.intellij.refactoring.rename.RenameProcessor
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -36,7 +36,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
   }
 
   private def canHaveErrors(scalaFile: ScalaFile): Boolean =
-    !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
+    !ScalaLanguageConsoleUtils.isConsole(scalaFile) &&
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isWorksheetFile &&

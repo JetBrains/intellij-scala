@@ -1,41 +1,40 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import com.intellij.execution._
+import com.intellij.execution.*
 import com.intellij.execution.configurations.{ConfigurationType, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.console.ScalaReplBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class RunConsoleAction extends AnAction(
-  ScalaBundle.message("scalarepl.menu.action.text"),
-  ScalaBundle.message("scalarepl.menu.action.description"),
+  ScalaReplBundle.message("scalarepl.menu.action.text"),
+  ScalaReplBundle.message("scalarepl.menu.action.description"),
   Icons.SCALA_CONSOLE
 ) with RunConsoleAction.RunActionBase[ScalaConsoleConfigurationType] {
 
-  override protected def getNewSettingName: String = ScalaBundle.message("scala.console.actions.scala.repl")
+  override protected def getNewSettingName: String = ScalaReplBundle.message("scala.console.actions.scala.repl")
 
   override def update(e: AnActionEvent): Unit = {
     if (e.getProject == null || e.getProject.isDisposed) return
 
-    if(!e.getProject.hasScala) {
+    if(!e.getProject.hasScala)
       e.getPresentation.setEnabledAndVisible(false)
-    } else if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP) {
+    else if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP)
       ScalaActionUtil.enableAndShowIfInScalaFile(e)
-    } else {
+    else
       e.getPresentation.setEnabledAndVisible(true)
-    }
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

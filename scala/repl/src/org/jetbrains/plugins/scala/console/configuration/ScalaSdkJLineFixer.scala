@@ -8,9 +8,9 @@ import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.console.ScalaReplBundle
 import org.jetbrains.plugins.scala.extensions.RichFile
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 import java.io.File
@@ -30,7 +30,7 @@ object ScalaSdkJLineFixer {
     case class RequiredFound(file: File) extends JlineResolveResult
   }
 
-  import JlineResolveResult._
+  import JlineResolveResult.*
 
   /**
    * @return false - if jline jar could not be found and it is required to run scala console in current scala version<br>
@@ -53,9 +53,9 @@ object ScalaSdkJLineFixer {
     val project = module.getProject
 
     val message: String =
-      ScalaBundle.message("subsystem.requires.jline", subsystemName, JLineFinder.JLineJarName).replaceAll("\n", "<br>")
+      ScalaReplBundle.message("subsystem.requires.jline", subsystemName, JLineFinder.JLineJarName).replaceAll("\n", "<br>")
 
-    val goToSdkSettingsAction = new NotificationAction(ScalaBundle.message("scala.console.configure.scala.sdk.classpath")) {
+    val goToSdkSettingsAction = new NotificationAction(ScalaReplBundle.message("scala.console.configure.scala.sdk.classpath")) {
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         val configurable = ProjectStructureConfigurable.getInstance(project)

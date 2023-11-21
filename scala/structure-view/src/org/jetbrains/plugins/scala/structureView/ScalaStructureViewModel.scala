@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.structureView
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree.*
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -11,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.structureView.element.Element
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
 import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
@@ -20,7 +18,7 @@ import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, Scala
 import java.util
 import scala.jdk.CollectionConverters.*
 
-class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
+class ScalaStructureViewModel(myRootElement: ScalaFile)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 
   override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean =
@@ -29,13 +27,8 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
   override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
     element.asOptionOf[Element].forall(_.isAlwaysLeaf)
 
-  override def getRoot: StructureViewTreeElement = {
-    def file = console.map(_.getHistory)
-      .map(history => createScalaFileFromText(s"$history${myRootElement.getText}", myRootElement)(myRootElement.getManager))
-      .getOrElse(myRootElement)
-
-    Element(() => file)
-  }
+  override def getRoot: StructureViewTreeElement =
+    Element(() => myRootElement)
 
 // TODO Enable inferred types
 //  override def getFilters: Array[Filter] = Array(new Filter {

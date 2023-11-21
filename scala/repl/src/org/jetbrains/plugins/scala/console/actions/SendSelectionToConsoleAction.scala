@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole, ScalaReplBundle}
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 import java.io.{IOException, OutputStream}
 
 class SendSelectionToConsoleAction extends AnAction(
-  ScalaBundle.message("send.selection.to.scala.repl.menu.action.text"),
-  ScalaBundle.message("send.selection.to.scala.repl.menu.action.description"),
+  ScalaReplBundle.message("send.selection.to.scala.repl.menu.action.text"),
+  ScalaReplBundle.message("send.selection.to.scala.repl.menu.action.description"),
   Icons.SCALA_CONSOLE
 ) {
 

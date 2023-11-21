@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.console.actions
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
 import com.intellij.openapi.editor.actionSystem.{EditorAction, EditorActionHandler, EditorActionManager, EditorWriteActionHandler}
 import com.intellij.openapi.editor.{Caret, Editor}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaReplBundle}
 
 class ScalaConsoleNewLineAction extends EditorAction(new EditorWriteActionHandler(true) {
 
@@ -20,7 +19,7 @@ class ScalaConsoleNewLineAction extends EditorAction(new EditorWriteActionHandle
 }) {
   locally {
     val presentation = getTemplatePresentation
-    presentation.setText(ScalaBundle.message("scalaconsole.new.line.in.repl"))
-    presentation.setDescription(ScalaBundle.message("scalaconsole.new.line.in.repl"))
+    presentation.setText(ScalaReplBundle.message("scalaconsole.new.line.in.repl"))
+    presentation.setDescription(ScalaReplBundle.message("scalaconsole.new.line.in.repl"))
   }
 }

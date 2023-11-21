@@ -86,6 +86,10 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "DebuggerBundle.properties"
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir + "repl/",
+      bundleMessagesRelativePath = "ScalaReplBundle.properties"
+    ),
+    ModuleWithBundleInfo(
       rootPath = integrationDir + "devKit/",
       bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
     ),
