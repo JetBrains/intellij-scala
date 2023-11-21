@@ -2,12 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import com.intellij.openapi.actionSystem.{AnAction, ActionUpdateThread, AnActionEvent, ToggleAction}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, ToggleAction}
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
+
+import java.util.function.Consumer
 
 object ScalaTypeHintsConfigurable {
 
@@ -75,10 +79,14 @@ object ScalaTypeHintsConfigurable {
   class XRayModeTipAction extends AnAction {
     override def update(e: AnActionEvent): Unit = {
       e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.tip.context.menu", ScalaHintsSettings.xRayModeShortcut))
-      e.getPresentation.setEnabled(false)
     }
 
-    override def actionPerformed(e: AnActionEvent): Unit = ()
+    override def actionPerformed(e: AnActionEvent): Unit = (
+      ShowSettingsUtil.getInstance.showSettingsDialog(
+        e.getProject,
+        classOf[ScalaProjectSettingsConfigurable],
+        (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
+      )
   }
 
   object XRayModeTipAction {

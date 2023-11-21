@@ -6,17 +6,18 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.markup.InspectionWidgetActionProvider
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
 
 import java.awt.Insets
 import java.awt.event.{MouseAdapter, MouseEvent}
+import java.util.function.Consumer
 import javax.swing.JComponent
 import javax.swing.plaf.FontUIResource
 
@@ -61,10 +62,10 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
-        ShowSettingsUtilImplExt.showSettingsDialog(
+        ShowSettingsUtil.getInstance.showSettingsDialog(
           e.getProject,
           classOf[ScalaProjectSettingsConfigurable],
-          ScalaBundle.message("scala.project.settings.form.tabs.xray.mode"))
+          (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
       }
     }
 
