@@ -4,13 +4,15 @@ import com.intellij.notification.{NotificationType, Notifications}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.util.messages.MessageBusConnection
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+
+import java.util.function.Consumer
 
 class XRayModeTip extends StartupActivity.DumbAware {
   private var messageBusConnection: Option[MessageBusConnection] = None
@@ -73,10 +75,10 @@ class XRayModeTip extends StartupActivity.DumbAware {
         disable()
         notification.hideBalloon()
 
-        ShowSettingsUtilImplExt.showSettingsDialog(
+        ShowSettingsUtil.getInstance.showSettingsDialog(
           e.getProject,
           classOf[ScalaProjectSettingsConfigurable],
-          ScalaBundle.message("scala.project.settings.form.tabs.xray.mode"))
+          (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
       }
     })
 
