@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.isIndent
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
@@ -269,7 +270,7 @@ object Expr1 extends ParsingRule {
       //---------------return statement-----------//
       case ScalaTokenTypes.kRETURN =>
         builder.advanceLexer() //Ate return
-        if (!builder.newlineBeforeCurrentToken || builder.isScala3)
+        if (!builder.newlineBeforeCurrentToken || (builder.isScala3 && isIndent))
           ExprInIndentationRegion()
         exprMarker.done(ScalaElementType.RETURN_STMT)
         return true
