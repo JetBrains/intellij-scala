@@ -40,7 +40,7 @@ class XRayModeTip extends StartupActivity.DumbAware {
             isAction("Scala.TypeInfo", action) ||
             isAction("Scala.ShowImplicitConversions", action) || isAction("Scala.ShowImplicitArguments", action) || isAction("Scala.ShowImplicits", action)) {
 
-            suggestXRayMode()
+            suggestXRayMode(isAction("Scala.TypeInfo", action))
             disable()
           }
         }
@@ -57,9 +57,10 @@ class XRayModeTip extends StartupActivity.DumbAware {
     messageBusConnection = None
   }
 
-  private def suggestXRayMode(): Unit = {
+  private def suggestXRayMode(typeInfo: Boolean): Unit = {
     val notification = ScalaNotificationGroups.scalaFeaturesAdvertiser.createNotification(
-      ScalaCodeInsightBundle.message("xray.mode.tip.title"),
+      if (typeInfo) ScalaCodeInsightBundle.message("xray.mode.tip.title.type.hints")
+      else ScalaCodeInsightBundle.message("xray.mode.tip.title.implicit.hints"),
       ScalaHintsSettings.xRayModeShortcut.capitalize,
       NotificationType.INFORMATION)
 
