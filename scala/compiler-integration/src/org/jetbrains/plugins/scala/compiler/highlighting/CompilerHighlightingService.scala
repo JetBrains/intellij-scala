@@ -167,16 +167,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
-      try {
-        IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
-        if (client.successful) {
-          triggerDocumentCompilationInAllOpenEditors(Some(client))
-        }
+      IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+      if (client.successful) {
+        triggerDocumentCompilationInAllOpenEditors(Some(client))
       }
-      finally {
-        if (psiFile.is[ScalaFile]) {
-          triggerService.enableDocumentCompiler(virtualFile)
-        }
+      if (psiFile.is[ScalaFile] && client.successful) {
+        triggerService.enableDocumentCompiler(virtualFile)
       }
     }
   }
