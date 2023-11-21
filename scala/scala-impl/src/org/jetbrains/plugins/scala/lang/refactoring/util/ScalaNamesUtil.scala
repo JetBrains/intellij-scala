@@ -12,6 +12,14 @@ import scala.reflect.NameTransformer
 
 object ScalaNamesUtil {
 
+  /** Can character start an alphanumeric Scala identifier? */
+  def isIdentifierStart(c: Char): Boolean =
+    (c == '_') || (c == '$') || Character.isUnicodeIdentifierStart(c)
+
+  /** Can character form part of an alphanumeric Scala identifier? */
+  def isIdentifierPart(c: Char): Boolean =
+    (c == '$') || Character.isUnicodeIdentifierPart(c)
+
   def isOpCharacter(character: Char): Boolean = character match {
     case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
     case _ =>

@@ -363,6 +363,8 @@
 
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactoringHelper"/>
 
+        <suggestedRefactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.suggested.ScalaSuggestedRefactoringSupport"/>
+
         <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinArgumentsContext"/>
         <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinParametersContext"/>
         <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinTupleTypesContext"/>
