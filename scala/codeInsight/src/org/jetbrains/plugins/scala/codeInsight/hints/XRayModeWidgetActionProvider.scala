@@ -13,6 +13,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
 
 import java.awt.Insets
@@ -27,7 +28,7 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
 
     if (project == null || project.isDefault) return null
 
-    val action = new DumbAwareAction("X-Ray Mode") with CustomComponentAction {
+    val action = new DumbAwareAction(ScalaCodeInsightBundle.message("xray.mode.widget.text")) with CustomComponentAction {
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
       override def createCustomComponent(presentation: Presentation, place: String): JComponent = new ActionButtonWithText(this, presentation, place, JBUI.size(18)) {
@@ -58,7 +59,7 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       }
 
       override def update(e: AnActionEvent): Unit = {
-        e.getPresentation.setDescription("Configure X-Ray Mode...")
+        e.getPresentation.setDescription((ScalaCodeInsightBundle.message("xray.mode.widget.description")))
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
