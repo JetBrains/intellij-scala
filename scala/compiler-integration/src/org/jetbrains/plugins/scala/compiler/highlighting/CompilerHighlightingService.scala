@@ -12,7 +12,7 @@ import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.util.ModificationTracker
@@ -34,6 +34,7 @@ import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, Sc
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
+import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
 private final class CompilerHighlightingService(project: Project) extends Disposable {
@@ -289,17 +290,24 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       if (request ne null) {
         isReadyForExecution(request) match {
           case RequestState.Ready =>
-            // The request with the highest priority is ready for execution. We need to also remove all requests from the
-            // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
-            // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
-            // source file, as less important requests for unrelated files are still useful and should be executed.
-            priorityQueue.tailSet(request).forEach { r =>
-              // remove less important compilation requests for the same file
-              if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
-                priorityQueue.remove(r)
+            try {
+              // The request with the highest priority is ready for execution. We need to also remove all requests from the
+              // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
+              // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
+              // source file, as less important requests for unrelated files are still useful and should be executed.
+              priorityQueue.tailSet(request).forEach { r =>
+                // remove less important compilation requests for the same file
+                if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
+                  priorityQueue.remove(r)
+                }
               }
+              execute(request)
+            } catch {
+              case _: ProcessCanceledException =>
+                // Do not log PCE.
+              case NonFatal(t) =>
+                Log.error(s"Execution of compilation request $request failed", t)
             }
-            execute(request)
 
           case RequestState.NotReady =>
             val delayed = request.delayed
