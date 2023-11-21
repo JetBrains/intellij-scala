@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.ActionButtonWithText
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DefaultActionGroup, Presentation, Separator}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys, DefaultActionGroup, Presentation, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.markup.InspectionWidgetActionProvider
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
@@ -68,10 +69,13 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
     }
 
     new DefaultActionGroup(action, Separator.create()) {
-      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
       override def update(e: AnActionEvent): Unit = {
-        e.getPresentation.setEnabledAndVisible(ScalaHintsSettings.xRayMode)
+        def inLibrarySource = Option(CommonDataKeys.EDITOR.getData(e.getDataContext)).exists { editor =>
+          Option(editor.getVirtualFile).exists(file => ProjectFileIndex.getInstance(editor.getProject).isInLibrarySource(file))
+        }
+        e.getPresentation.setEnabledAndVisible(ScalaHintsSettings.xRayMode && !inLibrarySource)
       }
     }
   }
