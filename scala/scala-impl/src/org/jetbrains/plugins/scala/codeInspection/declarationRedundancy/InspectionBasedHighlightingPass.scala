@@ -108,7 +108,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         progress.checkCanceled()
         inspection.invoke(_, isOnTheFly = true)
       }
-      highlightInfos ++= infos.map { info: ProblemInfo =>
+      highlightInfos ++= infos.flatMap { info: ProblemInfo =>
         progress.checkCanceled()
         val range = info.element.getTextRange
         val severity: HighlightSeverity = getSeverity
@@ -118,14 +118,15 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         val highlightingInfoBuilder = HighlightInfo
           .newHighlightInfo(infoType)
           .severity(severity)
-          .range(range)
+          .range(info.element)
           .descriptionAndTooltip(info.message)
         if (textAttributes != null) {
           highlightingInfoBuilder.textAttributes(textAttributes)
         }
         val highlightInfo = highlightingInfoBuilder.create()
 
-        info.fixes.foreach { fix =>
+        // can be null if was rejected by com.intellij.codeInsight.daemon.impl.HighlightInfoFilter
+        if (highlightInfo != null) info.fixes.foreach { fix =>
           // TODO (SCL-20740): replace with new ProblemDescriptorBase(...), do not pass highlightInfo
           lazy val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
           val action = fix match {
@@ -142,7 +143,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
           highlightInfo.registerFix(action, null, info.message, range, highlightKey): @nowarn("cat=deprecation")
         }
 
-        highlightInfo
+        Option(highlightInfo)
       }
     }
   }
