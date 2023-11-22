@@ -11,10 +11,9 @@ import com.intellij.util.SystemProperties
 import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
@@ -347,25 +346,34 @@ abstract class ScalaMavenImporterTest
     })
   }
 
-  private def kotlinLibraryDetectionTest(expectedIncrementalityType: IncrementalityType): Unit = {
-    val pomFile = testProjectDir / "pom.xml"
-
-    val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
-    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
-
-    val incrementalityTypeBeforeImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
-    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeBeforeImport)
-
-    importProject(pomVFile)
-    val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
-    Assert.assertEquals(expectedIncrementalityType, incrementalityTypeAfterImport)
-  }
-
-  def testWithKotlinIncrementalCompiler(): Unit = {
-    kotlinLibraryDetectionTest(IncrementalityType.IDEA)
-  }
-
-  def testOnlyKotlinNoScalaIncrementalCompiler(): Unit = {
-    kotlinLibraryDetectionTest(IncrementalityType.SBT)
-  }
+  // TODO: I've already prepared new tests that will replace these tests. Currently, it is unclear why these
+  //       two tests lock up in the CI. They work fine locally.
+//  private def kotlinLibraryDetectionTest(expectedIncrementalityType: IncrementalityType): Unit = {
+//    val pomFile = testProjectDir / "pom.xml"
+//
+//    val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
+//    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
+//
+//    val incrementalityTypeBeforeImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+//    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeBeforeImport)
+//
+//    importProject(pomVFile)
+//    val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+//    Assert.assertEquals(expectedIncrementalityType, incrementalityTypeAfterImport)
+//
+//    // These tests implicitly set up the Kotlin SDK. Currently, this is the only way of avoiding SDK leakage,
+//    // without also depending on the Kotlin plugin in code.
+//    inWriteAction {
+//      val jdkTable = ProjectJdkTable.getInstance()
+//      jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK")).foreach(jdkTable.removeJdk)
+//    }
+//  }
+//
+//  def testWithKotlinIncrementalCompiler(): Unit = {
+//    kotlinLibraryDetectionTest(IncrementalityType.IDEA)
+//  }
+//
+//  def testOnlyKotlinNoScalaIncrementalCompiler(): Unit = {
+//    kotlinLibraryDetectionTest(IncrementalityType.SBT)
+//  }
 }
