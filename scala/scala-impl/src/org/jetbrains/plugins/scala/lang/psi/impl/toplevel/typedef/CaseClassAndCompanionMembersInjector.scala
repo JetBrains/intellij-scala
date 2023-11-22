@@ -27,6 +27,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
               val returnTypeText =
                 if (params.isEmpty) BooleanCanonical
+                else if (source.isInScala3File) className // in scala 3 the unapply method returns the case class itself
                 else {
                   val params = clauses.head.parameters
                   if (params.isEmpty) BooleanCanonical
@@ -58,29 +59,10 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         apply.toList ::: unapply.toList
 
-      case cls: ScClass if shouldGenerateCopyMethod(cls) => copyMethodText(cls).toList
+      case cls: ScClass if cls.isCase                    => copyMethodText(cls) ::: scala3AccessorMethods(cls)
       case _                                             => Seq.empty
     }
   }
-
-  private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
-    cls.isCase &&
-      !cls.hasAbstractModifier &&
-      cls.parameters.nonEmpty &&
-      (cls.constructor match {
-        case Some(cons: ScPrimaryConstructor) =>
-          val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
-
-          // That may not look entirely reasonable, but that's how it's done in scalac
-          lazy val hasUserDefinedCopyMethod =
-            !cls.isSynthetic &&
-              (hasCopyMethod(cls) ||
-              cls.supers.exists(hasCopyMethod))
-
-          !hasRepeatedParam && !hasUserDefinedCopyMethod
-        case _ => false
-      })
-
   private def hasCopyMethod(psiClass: PsiClass) = psiClass match {
     case td: ScTypeDefinition => td.functions.exists(_.name == Copy)
     case c: PsiClass          => c.getMethods.exists(_.name == Copy)
@@ -150,7 +132,28 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         .map(ScalaPsiUtil.typeParamString(_, withContextBounds = false))
         .mkString("[", ",", "]")
 
-  private def copyMethodText(caseClass: ScClass): Option[String] = {
+  private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
+    !cls.hasAbstractModifier &&
+      cls.parameters.nonEmpty &&
+      (cls.constructor match {
+        case Some(cons: ScPrimaryConstructor) =>
+          val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
+
+          // That may not look entirely reasonable, but that's how it's done in scalac
+          lazy val hasUserDefinedCopyMethod =
+            !cls.isSynthetic &&
+              (hasCopyMethod(cls) ||
+                cls.supers.exists(hasCopyMethod))
+
+          !hasRepeatedParam && !hasUserDefinedCopyMethod
+        case _ => false
+      })
+
+
+  private def copyMethodText(caseClass: ScClass): List[String] = {
+    if (!shouldGenerateCopyMethod(caseClass))
+      return List.empty
+
     caseClass.constructor
       .map(_.effectiveParameterClauses)
       .map { clauses =>
@@ -167,10 +170,23 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         val typeParamsDefinition = typeParamsString(caseClass.typeParameters)
         val returnType = className + typeArgsFromTypeParams(caseClass)
         "def copy" + typeParamsDefinition + paramString + " : " + returnType + " = throw new Error(\"\")"
-    }
+      }.toList
   }
 
   private def typeArgsFromTypeParams(caseClass: ScClass): String =
     if (caseClass.typeParameters.isEmpty) ""
     else caseClass.typeParameters.map(_.name).commaSeparated(model = Model.SquareBrackets)
+
+  private def scala3AccessorMethods(caseClass: ScClass): List[String] = {
+    for {
+      constr <- caseClass.constructor.toList
+      clause <- constr.parameterList.clauses.take(1)
+      (param, i)  <- clause.parameters.zipWithIndex
+    } yield {
+      val accessorName = "_" + (i + 1)
+      val accessorType = paramTypeText(param, defaultTypeText = AnyCanonical)
+
+      "def " + accessorName + " : " + accessorType + " = throw new Error(\"\")"
+    }
+  }
 }
