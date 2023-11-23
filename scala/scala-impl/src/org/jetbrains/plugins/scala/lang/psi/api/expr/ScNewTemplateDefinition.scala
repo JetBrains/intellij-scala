@@ -9,8 +9,9 @@ trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
   //It's very rare case, when we need to desugar apply first.
   def desugaredApply: Option[ScExpression]
 
+  //TODO: rename Anonimous -> Anonymous
   /**
-   * @return `true` if new expression creates an instance a new anonimous class<br>
+   * @return `true` if new expression creates an instance a new anonymous class<br>
    *         Examples: {{{
    *             new Foo() {}
    *             new Foo() { def foo(): Unit = () }

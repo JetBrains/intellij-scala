@@ -165,7 +165,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   protected final def nameMatches(namedElement: PsiNamedElement)
                                  (implicit state: ResolveState): Boolean = {
-    if (shouldSkipAnonimousContextParameter(namedElement))
+    if (shouldSkipAnonymousContextParameter(namedElement))
       return false
 
     val elementName = state.renamed.getOrElse(namedElement.name)
@@ -175,11 +175,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   /**
-   * Don't resolve to anonimous context parameters anywhere except during implicits resolution
+   * Don't resolve to anonymous context parameters anywhere except during implicits resolution
    *
    * @see SCL-21204 and SCL-21604
    */
-  private def shouldSkipAnonimousContextParameter(namedElement: PsiNamedElement): Boolean = namedElement match {
+  private def shouldSkipAnonymousContextParameter(namedElement: PsiNamedElement): Boolean = namedElement match {
     case p: ScParameter =>
       !this.isImplicitProcessor && p.isAnonimousContextParameter
     case _ =>

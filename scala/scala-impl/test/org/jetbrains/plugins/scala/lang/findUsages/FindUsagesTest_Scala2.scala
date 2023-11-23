@@ -43,7 +43,7 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |  new ${start}MyClass$end with MyTrait1 with MyTrait2
        |  new ${start}MyClass$end
        |
-       |  //new anonimous class instance creation
+       |  //new anonymous class instance creation
        |  new ${start}MyClass$end with MyTrait1 with MyTrait2 {}
        |  new ${start}MyClass$end {}
        |
