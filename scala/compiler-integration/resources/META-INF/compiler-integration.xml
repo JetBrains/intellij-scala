@@ -46,6 +46,8 @@
                              instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
 
+        <editorFactoryListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFactoryListener"/>
+
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingSetupActivity"/>
