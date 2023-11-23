@@ -12,8 +12,9 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
-import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter}
-import javax.swing.Timer
+import java.awt.event.{FocusAdapter, FocusEvent, InputEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter, MouseWheelEvent, MouseWheelListener}
+import java.awt.{Component, Toolkit}
+import javax.swing.{JScrollPane, JViewport, Timer}
 
 class ScalaEditorFactoryListener extends EditorFactoryListener {
   private final val DoublePressInterval = 500
@@ -33,6 +34,13 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     component.addFocusListener(editorFocusListener)
     component.addKeyListener(editorKeyListener)
     component.addMouseMotionListener(editorMouseListerner)
+    component.getParent match {
+      case viewport: JViewport => viewport.getParent match {
+        case scrollPane: JScrollPane => scrollPane.addMouseWheelListener(editorMouseWheelListener)
+        case _ =>
+      }
+      case _ =>
+    }
   }
 
   override def editorReleased(event: EditorFactoryEvent): Unit = {
@@ -40,6 +48,13 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     component.removeFocusListener(editorFocusListener)
     component.removeKeyListener(editorKeyListener)
     component.removeMouseMotionListener(editorMouseListerner)
+    component.getParent match {
+      case viewport: JViewport => viewport.getParent match {
+        case scrollPane: JScrollPane => scrollPane.removeMouseWheelListener(editorMouseWheelListener)
+        case _ =>
+      }
+      case _ =>
+    }
   }
 
   private var keyPressEvent: KeyEvent = _
@@ -101,6 +116,21 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (!mouseHasMoved) {
         longDelay.stop()
         mouseHasMoved = true
+      }
+    }
+  }
+
+  private val editorMouseWheelListener = new MouseWheelListener {
+    override def mouseWheelMoved(e: MouseWheelEvent): Unit = if (xRayMode) {
+      val isModifierKeyDown = if (SystemInfo.isMac) e.isMetaDown else e.isControlDown
+      if (isModifierKeyDown) {
+        e.consume()
+        val modifierKeyMask = if (SystemInfo.isMac) InputEvent.META_DOWN_MASK else InputEvent.CTRL_DOWN_MASK
+        val event = new MouseWheelEvent(e.getSource.asInstanceOf[Component],
+          e.getID, e.getWhen, e.getModifiersEx & ~modifierKeyMask,
+          e.getX, e.getY, e.getXOnScreen, e.getYOnScreen, e.getClickCount, e.isPopupTrigger,
+          e.getScrollType, e.getScrollAmount, e.getWheelRotation, e.getPreciseWheelRotation)
+        Toolkit.getDefaultToolkit.getSystemEventQueue.postEvent(event)
       }
     }
   }
