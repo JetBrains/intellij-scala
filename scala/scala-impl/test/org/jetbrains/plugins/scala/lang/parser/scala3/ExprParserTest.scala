@@ -1562,4 +1562,67 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-21539
+  def test_infix_expr_after_block_arg(): Unit = checkTree(
+    """
+      |// A("hi") :: Nil
+      |return A:
+      |  "hi"
+      |:: Nil
+      |
+      |// "hi" :: Nil
+      |return A:
+      |  "hi"
+      | :: Nil
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  PsiComment(comment)('// A("hi") :: Nil')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      MethodCall
+      |        ReferenceExpression: A
+      |          PsiElement(identifier)('A')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n  ')
+      |            StringLiteral
+      |              PsiElement(string content)('"hi"')
+      |      PsiWhiteSpace('\n')
+      |      ReferenceExpression: ::
+      |        PsiElement(identifier)('::')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: Nil
+      |        PsiElement(identifier)('Nil')
+      |  PsiWhiteSpace('\n\n')
+      |  PsiComment(comment)('// "hi" :: Nil')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |    PsiWhiteSpace(' ')
+      |    MethodCall
+      |      ReferenceExpression: A
+      |        PsiElement(identifier)('A')
+      |      ArgumentList
+      |        BlockExpression
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace('\n  ')
+      |          InfixExpression
+      |            StringLiteral
+      |              PsiElement(string content)('"hi"')
+      |            PsiWhiteSpace('\n ')
+      |            ReferenceExpression: ::
+      |              PsiElement(identifier)('::')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: Nil
+      |              PsiElement(identifier)('Nil')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
