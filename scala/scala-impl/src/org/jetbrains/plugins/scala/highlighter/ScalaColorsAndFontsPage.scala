@@ -128,6 +128,7 @@ object ScalaColorsAndFontsPage {
     val VARIABLES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.var")
     val LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.lazy.val.var")
     val PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter")
+    //TODO: rename ANONIMOUS -> ANONYMOUS
     val PARAMETER_OF_ANONIMOUS_FUNCTION = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter.of.anonimous.function")
     val METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.class.method.call")
     val OBJECT_METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.object.method.call")

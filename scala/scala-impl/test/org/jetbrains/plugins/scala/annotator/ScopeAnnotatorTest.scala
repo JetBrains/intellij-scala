@@ -530,7 +530,7 @@ class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
     assert2Clashes("new { val a = 1; val a = 2} with AnyRef", "a")
   }
 
-  def testAnonimousClassDefinition(): Unit = {
+  def testAnonymousClassDefinition(): Unit = {
     assertFine("new Object { val a = 1; } ; new Object { val a = 2; }")
     assert2Clashes("new Object { val a = 1; val a = 2 }", "a")
   }

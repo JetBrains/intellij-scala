@@ -62,7 +62,7 @@ class ScParameterImpl protected(
 
   /**
    * @return `param` - in `def foo(param: Int)`<br>
-   *         `null` - in anonimous context parameter: `def foo(using Int)`
+   *         `null` - in anonymous context parameter: `def foo(using Int)`
    */
   @Nullable
   override def nameId: PsiElement =
