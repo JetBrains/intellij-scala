@@ -44,7 +44,7 @@ class ParametersRenderer(
     if (shouldRenderImplicitModifier && clause.isImplicit) {
       buffer.append("implicit ")
     }
-    //Always render `using` if it exists mostly to handle anonimous context parameters `(using Int)`
+    //Always render `using` if it exists mostly to handle anonymous context parameters `(using Int)`
     //in order we don't end up in strange situation when we render just `(Int)`, which looks unclear without `using` prefix
     if (clause.isUsing) {
       buffer.append("using ")

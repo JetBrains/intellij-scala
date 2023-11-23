@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 
+//TODO: rename anonimous -> anonymous
 public abstract class PsiClassAnonimousWrapper implements PsiAnonymousClass {
 
     abstract protected PsiClass getDelegate();

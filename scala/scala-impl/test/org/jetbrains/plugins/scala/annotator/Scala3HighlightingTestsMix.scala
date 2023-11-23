@@ -11,7 +11,7 @@ class Scala3HighlightingTestsMix extends ScalaHighlightingTestBase {
     version == ScalaVersion.Latest.Scala_3
 
   //SCL-21604
-  def testAnonimousUsingParameterWithTypeWithSameNameAsObject(): Unit = {
+  def testAnonymousUsingParameterWithTypeWithSameNameAsObject(): Unit = {
     assertNoErrors(
       s"""type MyClass = Int
          |object MyClass:
