@@ -148,9 +148,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
       ("src/test/scala-2.12", JavaSourceRootType.TEST_SOURCE),
       ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("target/scala-2.12/resource_managed/main", JavaResourceRootType.RESOURCE),
       ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-      ("target/scala-2.12/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
     ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
     val DefaultSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] = Seq(
@@ -163,9 +161,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
       ("src/test/scala-2.13", JavaSourceRootType.TEST_SOURCE),
       ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("target/scala-2.13/resource_managed/main", JavaResourceRootType.RESOURCE),
       ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-      ("target/scala-2.13/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
     ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
     val DefaultSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
@@ -176,9 +172,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
       ("src/test/scala-3", JavaSourceRootType.TEST_SOURCE),
       ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("target/scala-3.0.2/resource_managed/main", JavaResourceRootType.RESOURCE),
       ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-      ("target/scala-3.0.2/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
     ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
   }
 
@@ -692,6 +686,14 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
             "src/test/scala",
             "target/scala-2.13/src_managed/test",
             "target/myGenerated/test",
+          )
+          resources := Seq(
+            "src/main/resources",
+            "target/scala-2.13/resource_managed/main"
+          )
+          testResources := Seq(
+            "src/test/resources",
+            "target/scala-2.13/resource_managed/test"
           )
           excluded := Seq("target")
         },
