@@ -12,6 +12,9 @@ import scala.reflect.NameTransformer
 
 object ScalaNamesUtil {
 
+  //This method is a copy of:
+  //dotty.tools.dotc.util.Chars.isOperatorPart
+  //dotty.tools.dotc.util.Chars#isSpecial(int)
   def isOpCharacter(character: Char): Boolean = character match {
     case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
     case _ =>
@@ -25,6 +28,10 @@ object ScalaNamesUtil {
   def isQualifiedName(text: String): Boolean =
     !isEmpty(text) && text.split('.').forall(isIdentifier)
 
+  //Q: Could this logic be legacy and invalid?
+  // In the latest Scala 3 repo, it checks for text.last, not text(0)
+  // See `dotty.tools.dotc.parsing.Scanners.TokenData#isOperator` in
+  // https://github.com/lampepfl/dotty/blob/590e15920eecf93a1a15ae328cb94e0be666ec2a/compiler/src/dotty/tools/dotc/parsing/Scanners.scala#L89<br>
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
   def scalaName(element: PsiElement): String = element match {
