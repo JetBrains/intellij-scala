@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
@@ -31,19 +32,25 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
       case _ => return null
     }
 
+    def calculateSourcePosition(element: PsiElement): Option[SourcePosition] = {
+      val containingFile = element.getContainingFile
+      if (containingFile eq null) return None
+
+      val position =
+        try {
+          if (nearest) DebuggerContextUtil.findNearest(context, element, containingFile)
+          else SourcePosition.createFromElement(element)
+        } catch {
+          case _: IndexNotReadyException => SourcePosition.createFromElement(element)
+        }
+
+      Option(position)
+    }
+
     val name = descriptor.getName
     resolveReferenceWithName(name, contextElement) match {
-      case bp: ScBindingPattern =>
-        val containingFile = bp.getContainingFile
-        if (containingFile == null)
-          return null
-
-        try
-          if (nearest) DebuggerContextUtil.findNearest(context, bp, containingFile)
-          else         SourcePosition.createFromElement(bp)
-        catch {
-          case _: IndexNotReadyException => SourcePosition.createFromElement(bp)
-        }
+      case bp: ScBindingPattern => calculateSourcePosition(bp).orNull
+      case cp: ScClassParameter => calculateSourcePosition(cp).orNull
       case _ => null
     }
   }
