@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Caret, Editor, RawText}
+import com.intellij.openapi.editor.{Caret, Document, Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.calcIndentationString
@@ -37,7 +38,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return text
 
     val caret = editor.getCaretModel.getCurrentCaret
-    val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, caret.getSelectionStart)
+    val elementAtCaret = getElementAtCaretOrCommonParentForSelection(file, editor.getDocument, caret)
     if (elementAtCaret == null)
       return text
     if (isInsideStringLiteralOrComment(caret, elementAtCaret))
@@ -92,6 +93,20 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     // don't add redundant indentation for the first line, as caret is already located at this position
     textWithFixedIndent.stripPrefix(caretIndentWhitespace)
   }
+
+  private def getElementAtCaretOrCommonParentForSelection(file: PsiFile, document: Document, caret: Caret): PsiElement = {
+    val start = caret.getSelectionStart
+    val end = caret.getSelectionEnd - 1
+    val startElement = findElementAtCaret_WithFixedEOF(file, document, start)
+    if (end > start) {
+      val endElement = file.findElementAt(end)
+      if (startElement != null && endElement != null)
+        PsiTreeUtil.findCommonParent(startElement, endElement)
+      else
+        startElement
+    }
+    else startElement
+  }
 }
 
 object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
@@ -111,7 +126,7 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     //def foo =\n<caret>
     val prevElement = elementAtCaret.prevLeafNotWhitespaceComment
     prevElement match {
-      case Some(e: PsiErrorElement)  if isIncompleteDefinitionError(e) =>
+      case Some(e: PsiErrorElement) if isIncompleteDefinitionError(e) =>
         return CaretPosition.AfterIncompleteDefinitionBody(e)
       case _ =>
     }
