@@ -76,7 +76,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     for (inlay <- inlays) {
       val renderer = inlay.getRenderer
       val endX = renderer.line.lineEndX(editor)
-      renderer.setMargin(endX, targetMaxX - endX, inlay, !editor.asOptionOf[EditorEx].exists(_.isPurePaintingMode))
+      renderer.setMargin(endX, targetMaxX, inlay, !editor.asOptionOf[EditorEx].exists(_.isPurePaintingMode))
     }
   }
 
@@ -109,22 +109,27 @@ private object AlignedInlayGroup {
     override def dispose(): Unit = marker.dispose()
   }
 
-  private case class Cached(lineEndX: Int, margin: Int)
+  private case class Cached(lineEndX: Int, targetX: Int) {
+    def margin: Int = targetX - lineEndX
+  }
 
   private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text], recalculateGroupsOffsets: Editor => Unit)
     extends TextPartsHintRenderer(textParts, ScalaMethodChainInlayHintsPass.methodChainContextMenu) {
 
-    private var cached: Cached = Cached(lineEndX = 0, margin = 0)
+    private var cached: Cached = Cached(lineEndX = 0, targetX = 0)
 
-    def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_], repaint: Boolean): Unit = {
-      if (cached.margin != margin) {
-        cached = Cached(lineEndX, margin)
+    def setMargin(lineEndX: Int, targetX: Int, inlay: Inlay[_], repaint: Boolean): Unit = {
+      val newCached = Cached(lineEndX, targetX)
+      if (cached != newCached) {
+        cached = newCached
 
         if (repaint) {
           inlay.update()
         }
       }
     }
+
+    override protected def adjustedBoxStart(r: Rectangle, m: Insets): Int = cached.targetX
 
     override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
       if (cached.lineEndX != line.lineEndX(editor)) {
