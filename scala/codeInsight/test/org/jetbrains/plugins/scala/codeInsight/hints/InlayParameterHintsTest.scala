@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
-import org.jetbrains.plugins.scala.codeInsight.InlayHintsTestBase
+import org.jetbrains.plugins.scala.codeInsight.{InlayHintsTestBase, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 
 class InlayParameterHintsTest extends InlayHintsTestBase {
@@ -211,5 +211,13 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |  withType($S`type` = $E"type")""".stripMargin
   )
 
-  private def doTest(text: String): Unit = doInlayTest(text)
+  private def doTest(text: String): Unit = {
+    val settings = ScalaCodeInsightSettings.getInstance
+    try {
+      settings.showParameterNames = true
+      doInlayTest(text)
+    } finally {
+      settings.showParameterNames = false
+    }
+  }
 }
