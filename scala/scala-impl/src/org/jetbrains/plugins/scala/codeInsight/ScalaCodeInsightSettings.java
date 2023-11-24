@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
-    public static final boolean SHOW_PARAMETER_NAMES_DEFAULT = true;
+    public static final boolean SHOW_PARAMETER_NAMES_DEFAULT = false;
     public static final boolean SHOW_METHOD_RESULT_TYPE_DEFAULT = true;
     public static final boolean SHOW_MEMBER_VARIABLE_TYPE_DEFAULT = false;
     public static final boolean SHOW_LOCAL_VARIABLE_TYPE_DEFAULT = false;
