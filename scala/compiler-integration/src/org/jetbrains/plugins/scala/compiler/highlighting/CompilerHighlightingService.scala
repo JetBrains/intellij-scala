@@ -133,7 +133,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     case wr: CompilationRequest.WorksheetRequest =>
       executeWorksheetCompilationRequest(wr)
     case ir: CompilationRequest.IncrementalRequest =>
-      executeIncrementalCompilationRequest(ir)
+      executeIncrementalCompilationRequest(ir, runDocumentCompiler = true)
     case dr: CompilationRequest.DocumentRequest =>
       executeDocumentCompilationRequest(dr)
   }
@@ -154,22 +154,30 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (isFirstTimeHighlighting) {
       //If we have just opened worksheet we need to invoke incremental compilation to ensure that worksheet module is compiled to avoid red code
       //Otherwise if you open non-compiled project and open worksheet it will contain red code
+      val realModule = module match {
+        case synthetic: SyntheticModule =>
+          // We need to compile the real module, not the synthetic one for the worksheet. Otherwise, bytecode for
+          // classes from the real module will not be produced.
+          synthetic.underlying
+        case m => m
+      }
+
       val sourceScope = if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test else SourceScope.Production
-      val incrementalRequest = CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, file, debugReason)
-      executeIncrementalCompilationRequest(incrementalRequest)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(realModule, sourceScope, virtualFile, document, file, debugReason)
+      executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
     performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, module, _))
   }
 
-  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest): Unit = {
+  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
       IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
-      if (client.successful) {
+      if (runDocumentCompiler && client.successful) {
         triggerDocumentCompilationInAllOpenEditors(Some(client))
       }
       if (psiFile.is[ScalaFile] && client.successful) {
