@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, IndentationWidth, PsiBuilderExt, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 object ParserUtils {
   //Associations of operator
@@ -25,9 +27,19 @@ object ParserUtils {
     case id => id.head != '=' && id.last == '='
   }
 
-  // a symbolic identifier such as +, or approx_==, or an identifier in backticks
-  def isSymbolicIdentifier(s: String): Boolean =
-    !s.forall(_.isUnicodeIdentifierPart)
+  /**
+   * A symbolic identifier such as +, or approx_==, or an identifier in backticks
+   *
+   * @see https://dotty.epfl.ch/docs/reference/changed-features/operators.html#syntax-change-1
+   * @see similar implementation in Scala 3 repo:<br>
+   *      https://github.com/lampepfl/dotty/blob/590e15920eecf93a1a15ae328cb94e0be666ec2a/compiler/src/dotty/tools/dotc/parsing/Scanners.scala#L89<br>
+   *      (dotty.tools.dotc.parsing.Scanners.TokenData#isOperator)
+   */
+  def isSymbolicIdentifier(s: String): Boolean = {
+    val isBackquoted = s.head == '`' && s.last == '`'
+    isBackquoted ||
+      ScalaNamesValidator.isIdentifier(s) && ScalaNamesUtil.isOpCharacter(s.last)
+  }
 
   /** Defines the precedence of an infix operator, according
     * to its first character.

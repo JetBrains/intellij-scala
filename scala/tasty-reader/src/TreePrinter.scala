@@ -988,6 +988,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     }
   }
 
+  //TODO: this duplicates org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isOpCharacter
+  // extract it to some common utility in a module accessible to both modules (e.g. scala-utils-language)
   private def isOperatorPart(c: Char): Boolean = (c: @switch) match {
     case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
     case c => val ct = Character.getType(c); ct == Character.MATH_SYMBOL.toInt || ct == Character.OTHER_SYMBOL.toInt
