@@ -92,7 +92,7 @@ abstract class ScalaCompilerHighlightingTestBase
         val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
         // The tests are running in a headless environment where focus events are not propagated.
         // We need to call our listener manually.
-        new CompilerHighlightingFocusChangeListener().focusGained(editor)
+        new CompilerHighlightingEditorFocusListener(editor).focusGained()
       }
     }
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
