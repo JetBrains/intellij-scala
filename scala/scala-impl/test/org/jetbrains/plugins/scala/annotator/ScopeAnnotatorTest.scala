@@ -829,4 +829,20 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
       "name", "name"
     )
   }
+
+  def testMultipleAnonymousParameters(): Unit = {
+    assertFine(
+      """case class Company(name: String)
+        |case class SalesRep(name: String)
+        |
+        |case class Invoice(customer: String)(using Company, SalesRep):
+        |  override def toString = s"${summon[Company].name} / ${summon[SalesRep].name} - Customer: $customer"
+        |
+        |@main def test(): Unit =
+        |  given Company = Company("Big Corp")
+        |  given SalesRep = SalesRep("John")
+        |  println(Invoice("Peter LTD"))
+        |""".stripMargin
+    )
+  }
 }

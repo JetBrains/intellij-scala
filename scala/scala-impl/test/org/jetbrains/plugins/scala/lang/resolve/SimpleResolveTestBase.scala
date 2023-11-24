@@ -8,8 +8,9 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
@@ -43,9 +44,16 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
 
   protected def getTgt(source: String, file: PsiFile): PsiElement = {
     val tgtOffset = source.replaceAll(REFSRC, "").indexOf(REFTGT)
-    if (tgtOffset != -1)
+    val res = if (tgtOffset != -1)
       PsiTreeUtil.getParentOfType(file.findElementAt(tgtOffset), classOf[PsiElement])
-    else null
+    else
+      null
+    res match {
+      //In example `(using MyContext)`
+      //there are 3 elements with same range, we want to select the most-outer element representing the whole parameter
+      case Parent(Parent(Parent(p: ScParameter))) if p.isAnonimousContextParameter => p
+      case _ => res
+    }
   }
 
   protected def doResolveTest(sources: (String, String)*): Unit =
