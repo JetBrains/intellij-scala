@@ -179,7 +179,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       virtualFile,
       psiFile,
       document,
-      isFirstTimeHighlighting = documentCompilerAvailable.contains(virtualFile),
+      isFirstTimeHighlighting = !documentCompilerAvailable.contains(virtualFile),
       debugReason
     )
 
