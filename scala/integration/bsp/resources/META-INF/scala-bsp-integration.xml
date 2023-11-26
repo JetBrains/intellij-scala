@@ -2,7 +2,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <bspProjectOpenProcessorExtension
                 implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspProjectOpenProcessor"/>
-        <bspConnectionDetailsGeneratorExtension
-                implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspDetailsConnectionGenerator"/>
+        <bspProjectAwareExtension implementation="org.jetbrains.plugins.scala.bsp.config.ScalaBspProjectAwareExtension"/>
     </extensions>
 </idea-plugin>
