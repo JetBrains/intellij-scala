@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
@@ -91,7 +92,16 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    if (forName.exists(_ != namedElement.name)) return true
+    if (forName.exists(_ != namedElement.name))
+      return true
+
+    //Do not show anonymous using parameters in completion,
+    //we shouldn't promote their usage, x$N parameter names is a compiler implementation detail
+    namedElement match {
+      case p: ScParameter if p.isAnonimousContextParameter =>
+        return true
+      case _ =>
+    }
 
     lazy val predicate: ScalaResolveResult => Boolean = toSignature(namedElement, state.substitutor) match {
       case Some(signature) if state.implicitConversion.isDefined => _ => implicitCase(signature)

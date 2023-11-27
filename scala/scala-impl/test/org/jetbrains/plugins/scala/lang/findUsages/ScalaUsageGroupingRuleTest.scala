@@ -83,7 +83,7 @@ class ScalaUsageGroupingRuleTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    {
         |      new Object() {
-        |        new MyToken("in class -> function -> local scope -> anonimous class")
+        |        new MyToken("in class -> function -> local scope -> anonymous class")
         |      }
         |    }
         |  }

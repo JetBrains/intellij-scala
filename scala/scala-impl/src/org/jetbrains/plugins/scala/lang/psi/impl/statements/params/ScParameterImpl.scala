@@ -42,7 +42,12 @@ class ScParameterImpl protected(
 
   def this(stub: ScParameterStub) = this(stub, ScalaElementType.PARAM, null)
 
-  override def toString: String = "Parameter: " + ifReadAllowed(name)("")
+  override def toString: String = "Parameter: " + ifReadAllowed {
+    if (nameId != null)
+      name
+    else
+      "<anonymous>"
+  }("")
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
@@ -62,11 +67,22 @@ class ScParameterImpl protected(
 
   /**
    * @return `param` - in `def foo(param: Int)`<br>
-   *         `null` - in anonimous context parameter: `def foo(using Int)`
+   *         `null` - in anonymous context parameter: `def foo(using Int)`
    */
   @Nullable
   override def nameId: PsiElement =
     findChildByType[PsiElement](TokenSets.ID_SET)
+
+  override protected def nameInner: String = {
+    val nameId = this.nameId
+    if (nameId != null)
+      nameId.getText
+    else {
+      //Anonimous Scala 3 using parameter (example: `(using String)`)
+      //Compiler uses `x$N` names for anonimous parameters, where `N` - position of the parameter among all parameters
+      s"x$$${index + 1}"
+    }
+  }
 
   override def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])

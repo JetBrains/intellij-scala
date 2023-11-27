@@ -153,6 +153,8 @@ public class DefaultHighlighter {
   public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+
+  //TODO: rename ANONIMOUS -> ANONYMOUS
   public static final TextAttributesKey PARAMETER_OF_ANONIMOUS_FUNCTION = createKey(PARAMETER_OF_ANONYMOUS_FUNCTION_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
   public static final TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
   public static final TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightInfoTypes.STATIC_METHOD.getAttributesKey());

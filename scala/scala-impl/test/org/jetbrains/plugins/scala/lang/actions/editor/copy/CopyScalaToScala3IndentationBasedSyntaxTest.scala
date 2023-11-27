@@ -1301,4 +1301,36 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |class A""".stripMargin,
     )
   }
+
+  def testPasteToBodyWithSelectedBlockExpression_1(): Unit = {
+    doPasteTest(
+      "42",
+      s"""def foo = {
+        |  $START{
+        |    1
+        |    2
+        |    3
+        |  }$END
+        |}""".stripMargin,
+      """def foo = {
+        |  42
+        |}""".stripMargin
+    )
+  }
+
+  def testPasteToBodyWithSelectedBlockExpression_2(): Unit = {
+    doPasteTest(
+      "42",
+      s"""def foo = {
+        |$START  {
+        |    1
+        |    2
+        |    3
+        |  }  $END
+        |}""".stripMargin,
+      """def foo = {
+        |  42
+        |}""".stripMargin
+    )
+  }
 }
