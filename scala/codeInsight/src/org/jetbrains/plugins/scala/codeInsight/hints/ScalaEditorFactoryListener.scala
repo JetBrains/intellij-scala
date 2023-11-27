@@ -25,9 +25,11 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
   private val longDelay = new Timer(PressAndHoldDuration, _ => xRayMode = true)
   private val shortDelay = new Timer(DoublePressHoldDuration, _ => xRayMode = true)
 
+  private val ArrowKeys = Set(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN)
+
   private val actionListener = new AnActionListener {
     override def beforeActionPerformed(action: AnAction, event: AnActionEvent): Unit = event.getInputEvent match {
-      case e: KeyEvent if e.getKeyCode == KeyEvent.VK_UP || e.getKeyCode == KeyEvent.VK_DOWN =>
+      case e: KeyEvent if ArrowKeys.contains(e.getKeyCode) =>
         xRayMode = false
         longDelay.stop()
         shortDelay.stop()
