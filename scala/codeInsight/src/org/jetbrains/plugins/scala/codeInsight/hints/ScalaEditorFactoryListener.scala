@@ -19,7 +19,7 @@ import javax.swing.{JScrollPane, JViewport, Timer}
 
 class ScalaEditorFactoryListener extends EditorFactoryListener {
   private final val DoublePressInterval = 500
-  private final val DoublePressHoldDuration = 100
+  private final val DoublePressHoldDuration = 500
   private final val PressAndHoldDuration = 1000
 
   private val longDelay = new Timer(PressAndHoldDuration, _ => xRayMode = true)
