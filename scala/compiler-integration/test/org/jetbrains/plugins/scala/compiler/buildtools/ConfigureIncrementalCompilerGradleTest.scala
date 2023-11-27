@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.buildtools
 
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -114,6 +115,7 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
     val modules = ModuleManager.getInstance(myProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
+    NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
   }
 }

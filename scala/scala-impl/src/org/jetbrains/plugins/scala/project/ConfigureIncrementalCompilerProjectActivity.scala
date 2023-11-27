@@ -1,14 +1,24 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.{ModalityState, ReadAction}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.fileTypes.{FileTypeRegistry, UnknownFileType}
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.startup.ProjectActivity
 
+import java.util.concurrent.{Callable, ExecutorService}
+import java.util.function.Consumer
+
 private final class ConfigureIncrementalCompilerProjectActivity extends ProjectActivity {
+
+  import ConfigureIncrementalCompilerProjectActivity._
 
   override def execute(project: Project): Unit = {
     project.subscribeToModuleRootChanged() { event =>
@@ -18,16 +28,56 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
           case UnknownFileType.INSTANCE =>
           // The Kotlin plugin is not enabled. Kotlin code cannot be compiled in this case, so it is ok to use Zinc.
           case kotlin =>
-            val modules = ModuleManager.getInstance(project).getModules
-            val hasKotlin = modules.filterNot(_.hasBuildModuleType).exists { module =>
-              val moduleScope = GlobalSearchScope.moduleScope(module)
-              !FileTypeIndex.processFiles(kotlin, _ => false, moduleScope)
+            // `true` means that there are Kotlin sources in the project
+            val callable: Callable[Boolean] = { () =>
+              if (project.isDisposed) false
+              else {
+                val modules = ModuleManager.getInstance(project).getModules
+                modules.filterNot { module =>
+                  ProgressManager.checkCanceled()
+                  module.hasBuildModuleType
+                }.exists { module =>
+                  ProgressManager.checkCanceled()
+                  val moduleScope = GlobalSearchScope.moduleScope(module)
+                  !FileTypeIndex.processFiles(kotlin, _ => false, moduleScope)
+                }
+              }
             }
-            if (hasKotlin) {
-              ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.IDEA
+
+            val consumer: Consumer[Boolean] = { hasKotlin =>
+              if (hasKotlin && !project.isDisposed) {
+                // There are Kotlin source files in the project.
+                ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.IDEA
+              }
             }
+
+            val executor = backgroundExecutor(project)
+            ReadAction
+              .nonBlocking(callable)
+              .expireWhen(() => project.isDisposed)
+              .coalesceBy(EqualityToken(project))
+              .finishOnUiThread(ModalityState.defaultModalityState(), consumer)
+              .submit(executor)
         }
       }
     }
   }
+}
+
+private object ConfigureIncrementalCompilerProjectActivity {
+
+  @Service(Array(Service.Level.PROJECT))
+  private final class BackgroundService extends Disposable {
+    val executor: ExecutorService =
+      AppExecutorUtil.createBoundedScheduledExecutorService("ConfigureIncrementalCompiler background executor", 1)
+
+    override def dispose(): Unit = {
+      executor.shutdown()
+    }
+  }
+
+  private def backgroundExecutor(project: Project): ExecutorService =
+    project.getService(classOf[BackgroundService]).executor
+
+  private final case class EqualityToken(project: Project)
 }

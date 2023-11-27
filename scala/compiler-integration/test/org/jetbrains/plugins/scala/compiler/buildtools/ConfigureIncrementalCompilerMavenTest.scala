@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.buildtools
 
 import com.intellij.maven.testFramework.MavenImportingTestCase
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{ModuleManager, ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -202,6 +203,7 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
     val modules = ModuleManager.getInstance(myProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
+    NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
   }
 }
