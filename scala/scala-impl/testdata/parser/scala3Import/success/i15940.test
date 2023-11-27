@@ -18,3 +18,385 @@ val test: Either[BuildException, Seq[ActionableDiagnostic]] =
     .left.map(_.head)
     .map(_.flatten) // error
 -----
+ScalaFile
+  ScObject: Ops
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ops')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: EitherSeqOps
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('EitherSeqOps')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: seq
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    AccessModifier
+                      PsiElement(private)('private')
+                  PsiWhiteSpace(' ')
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('seq')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Seq[Either[E, T]]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: Either[E, T]
+                          SimpleType: Either
+                            CodeReferenceElement: Either
+                              PsiElement(identifier)('Either')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: E
+                              CodeReferenceElement: E
+                                PsiElement(identifier)('E')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: AnyVal
+                  CodeReferenceElement: AnyVal
+                    PsiElement(identifier)('AnyVal')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: sequence
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('sequence')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Either[::[E], Seq[T]]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: ::[E]
+                      SimpleType: ::
+                        CodeReferenceElement: ::
+                          PsiElement(identifier)('::')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Seq[T]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: BuildException
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BuildException')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: CompositeBuildException
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CompositeBuildException')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: ex
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('ex')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: ::[BuildException]
+                SimpleType: ::
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: BuildException
+                    CodeReferenceElement: BuildException
+                      PsiElement(identifier)('BuildException')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: BuildException
+            CodeReferenceElement: BuildException
+              PsiElement(identifier)('BuildException')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ActionableDiagnostic
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActionableDiagnostic')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: ActionableHandler
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActionableHandler')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: ActionableDiagnostic
+          CodeReferenceElement: ActionableDiagnostic
+            PsiElement(identifier)('ActionableDiagnostic')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: exec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('exec')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Either[BuildException, Seq[A]]
+            SimpleType: Either
+              CodeReferenceElement: Either
+                PsiElement(identifier)('Either')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: BuildException
+                CodeReferenceElement: BuildException
+                  PsiElement(identifier)('BuildException')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[A]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Ops
+        PsiElement(identifier)('Ops')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test
+        PsiElement(identifier)('test')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Either[BuildException, Seq[ActionableDiagnostic]]
+      SimpleType: Either
+        CodeReferenceElement: Either
+          PsiElement(identifier)('Either')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: BuildException
+          CodeReferenceElement: BuildException
+            PsiElement(identifier)('BuildException')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Seq[ActionableDiagnostic]
+          SimpleType: Seq
+            CodeReferenceElement: Seq
+              PsiElement(identifier)('Seq')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: ActionableDiagnostic
+              CodeReferenceElement: ActionableDiagnostic
+                PsiElement(identifier)('ActionableDiagnostic')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    PsiComment(comment)('// Can be replaced with Seq[Either[BuildException, Seq[ _ <: ActionableDiagnostic]]] , but current version matches better type of missing implicit')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: Seq.empty[ActionableHandler[_]].map(_.exec)
+    .sequence
+    .left.map(_.head)
+    .map
+        MethodCall
+          ReferenceExpression: Seq.empty[ActionableHandler[_]].map(_.exec)
+    .sequence
+    .left.map
+            ReferenceExpression: Seq.empty[ActionableHandler[_]].map(_.exec)
+    .sequence
+    .left
+              ReferenceExpression: Seq.empty[ActionableHandler[_]].map(_.exec)
+    .sequence
+                MethodCall
+                  ReferenceExpression: Seq.empty[ActionableHandler[_]].map
+                    GenericCall
+                      ReferenceExpression: Seq.empty
+                        ReferenceExpression: Seq
+                          PsiElement(identifier)('Seq')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('empty')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: ActionableHandler[_]
+                          SimpleType: ActionableHandler
+                            CodeReferenceElement: ActionableHandler
+                              PsiElement(identifier)('ActionableHandler')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            WildcardType: _
+                              PsiElement(_)('_')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: _.exec
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('exec')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('sequence')
+              PsiWhiteSpace('\n    ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('left')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.head
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('head')
+            PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        PsiElement(.)('.')
+        PsiElement(identifier)('map')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: _.flatten
+          UnderscoreSection
+            PsiElement(_)('_')
+          PsiElement(.)('.')
+          PsiElement(identifier)('flatten')
+        PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')

@@ -1,3 +1,103 @@
 class Single[B](val value: B):
   type Retrieve[A] <: A = Single[A] match { case Single[b] => b }
 -----
+ScalaFile
+  ScClass: Single
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Single')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Retrieve
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Retrieve')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Single[A] match { case Single[b] => b }
+            ParametrizedType: Single[A]
+              SimpleType: Single
+                CodeReferenceElement: Single
+                  PsiElement(identifier)('Single')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Single[b]
+                  SimpleType: Single
+                    CodeReferenceElement: Single
+                      PsiElement(identifier)('Single')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: b
+                      PsiElement(identifier)('b')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: b
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')

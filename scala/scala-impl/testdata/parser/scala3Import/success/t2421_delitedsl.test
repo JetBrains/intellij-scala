@@ -35,3 +35,665 @@ trait DeliteDSL {
   }
 }
 -----
+ScalaFile
+  ScTrait: DeliteDSL
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DeliteDSL')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: <~<
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('<~<')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: From
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('From')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: To
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('To')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                TypeInParenthesis: (From => To)
+                  PsiElement(()('(')
+                  FunctionalType: From => To
+                    SimpleType: From
+                      CodeReferenceElement: From
+                        PsiElement(identifier)('From')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: To
+                      CodeReferenceElement: To
+                        PsiElement(identifier)('To')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: trivial
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('trivial')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: A <~< A
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <~<
+              PsiElement(identifier)('<~<')
+            PsiWhiteSpace(' ')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  TypeInParenthesis: (A <~< A)
+                    PsiElement(()('(')
+                    InfixType: A <~< A
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: <~<
+                        PsiElement(identifier)('<~<')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Forcible
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Forcible')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: Forcible
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Forcible')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: factory
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('factory')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: f
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('f')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        FunctionalType: T => Forcible[T]
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Forcible[T]
+                            SimpleType: Forcible
+                              CodeReferenceElement: Forcible
+                                PsiElement(identifier)('Forcible')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        TypeInParenthesis: (T <~< Forcible[T])
+                          PsiElement(()('(')
+                          InfixType: T <~< Forcible[T]
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: <~<
+                              PsiElement(identifier)('<~<')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: Forcible[T]
+                              SimpleType: Forcible
+                                CodeReferenceElement: Forcible
+                                  PsiElement(identifier)('Forcible')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(])(']')
+                          PsiElement())(')')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      ScFunctionDefinition: apply
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('apply')
+                        Parameters
+                          ParametersClause
+                            PsiElement(()('(')
+                            Parameter: x
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(identifier)('x')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              ParameterType
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: f
+                            PsiElement(identifier)('f')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                            PsiElement())(')')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: DeliteInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DeliteInt')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Forcible[Int]
+                  SimpleType: Forcible
+                    CodeReferenceElement: Forcible
+                      PsiElement(identifier)('Forcible')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: forcibleInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: forcibleInt
+              PsiElement(identifier)('forcibleInt')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Int <~< Forcible[Int]
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <~<
+              PsiElement(identifier)('<~<')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Forcible[Int]
+              SimpleType: Forcible
+                CodeReferenceElement: Forcible
+                  PsiElement(identifier)('Forcible')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Forcible.factory
+              ReferenceExpression: Forcible
+                PsiElement(identifier)('Forcible')
+              PsiElement(.)('.')
+              PsiElement(identifier)('factory')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: DeliteInt
+                  PsiElement(identifier)('DeliteInt')
+                ArgumentList
+                  PsiElement(()('(')
+                  TypedExpression
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: DeliteCollection
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DeliteCollection')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: xs
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Iterable[T]
+                      SimpleType: Iterable
+                        CodeReferenceElement: Iterable
+                          PsiElement(identifier)('Iterable')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('// must use existential in bound of P, instead of T itself, because we cannot both have:')
+              PsiWhiteSpace('\n        ')
+              PsiComment(comment)('// Test.x below: DeliteCollection[T=Int] -> P=DeliteInt <: Forcible[T=Int], as T=Int <~< P=DeliteInt')
+              PsiWhiteSpace('\n        ')
+              PsiComment(comment)('// Test.xAlready below: DeliteCollection[T=DeliteInt] -> P=DeliteInt <: Forcible[T=DeliteInt], as T=DeliteInt <~< P=DeliteInt')
+              PsiWhiteSpace('\n        ')
+              PsiComment(comment)('// this would required DeliteInt <: Forcible[Int] with Forcible[DeliteInt]')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: headProxy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('headProxy')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: P
+                    PsiElement(identifier)('P')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Forcible[_]
+                      SimpleType: Forcible
+                        CodeReferenceElement: Forcible
+                          PsiElement(identifier)('Forcible')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(implicit)('implicit')
+                    PsiWhiteSpace(' ')
+                    Parameter: w
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('w')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        InfixType: T <~< P
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: <~<
+                            PsiElement(identifier)('<~<')
+                          PsiWhiteSpace(' ')
+                          SimpleType: P
+                            CodeReferenceElement: P
+                              PsiElement(identifier)('P')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: w
+                    PsiElement(identifier)('w')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs.head
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('head')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// If T is already a proxy (it is forcible), the compiler should use')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// forcibleIdentity to deduce that P=T.  If T is Int, the compiler')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// should use intToForcible to deduce that P=DeliteInt.')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// Without this feature, the user must write 'xs.proxyOfFirst[DeliteInt]',')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// with the feature they can write 'xs.proxyOfFirst', which is shorter and')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// avoids exposing internal DELITE types to the world.')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: new DeliteCollection(List(1,2,3)).headProxy
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: DeliteCollection
+                            CodeReferenceElement: DeliteCollection
+                              PsiElement(identifier)('DeliteCollection')
+                          ArgumentList
+                            PsiElement(()('(')
+                            MethodCall
+                              ReferenceExpression: List
+                                PsiElement(identifier)('List')
+                              ArgumentList
+                                PsiElement(()('(')
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                                PsiElement(,)(',')
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
+                                PsiElement(,)(',')
+                                IntegerLiteral
+                                  PsiElement(integer)('3')
+                                PsiElement())(')')
+                            PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('headProxy')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('// inferred: val x: Forcible[Int] = new DeliteCollection[Int](List.apply[Int](1, 2, 3)).headProxy[Forcible[Int]](forcibleInt);')
+              PsiWhiteSpace('\n\n    ')
+              ScPatternDefinition: xAlready
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: xAlready
+                    PsiElement(identifier)('xAlready')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: new DeliteCollection(List(DeliteInt(1),DeliteInt(2),DeliteInt(3))).headProxy
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: DeliteCollection
+                            CodeReferenceElement: DeliteCollection
+                              PsiElement(identifier)('DeliteCollection')
+                          ArgumentList
+                            PsiElement(()('(')
+                            MethodCall
+                              ReferenceExpression: List
+                                PsiElement(identifier)('List')
+                              ArgumentList
+                                PsiElement(()('(')
+                                MethodCall
+                                  ReferenceExpression: DeliteInt
+                                    PsiElement(identifier)('DeliteInt')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    IntegerLiteral
+                                      PsiElement(integer)('1')
+                                    PsiElement())(')')
+                                PsiElement(,)(',')
+                                MethodCall
+                                  ReferenceExpression: DeliteInt
+                                    PsiElement(identifier)('DeliteInt')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    IntegerLiteral
+                                      PsiElement(integer)('2')
+                                    PsiElement())(')')
+                                PsiElement(,)(',')
+                                MethodCall
+                                  ReferenceExpression: DeliteInt
+                                    PsiElement(identifier)('DeliteInt')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    IntegerLiteral
+                                      PsiElement(integer)('3')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                            PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('headProxy')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('// inferred: val xAlready: DeliteInt = new DeliteCollection[DeliteInt](List.apply[DeliteInt](DeliteInt(1), DeliteInt(2), DeliteInt(3))).headProxy[DeliteInt](trivial[DeliteInt]);')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

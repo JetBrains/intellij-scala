@@ -21,3 +21,368 @@ object B {
   f(new T[Int ++: Double ++: TNil])
 }
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TList
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TList')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: TNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TNil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TList
+                  CodeReferenceElement: TList
+                    PsiElement(identifier)('TList')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ++:
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('++:')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TList
+                CodeReferenceElement: TList
+                  PsiElement(identifier)('TList')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TList
+                  CodeReferenceElement: TList
+                    PsiElement(identifier)('TList')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: :--
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)(':--')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TList
+                CodeReferenceElement: TList
+                  PsiElement(identifier)('TList')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: TList
+            CodeReferenceElement: TList
+              PsiElement(identifier)('TList')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match {
+    case (A ++: t) => t
+    case (h ++: t) => h ++: (t :-- A)
+  }
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: (A ++: t)
+                  PsiElement(()('(')
+                  InfixType: A ++: t
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ++:
+                      PsiElement(identifier)('++:')
+                    PsiWhiteSpace(' ')
+                    TypeVariable: t
+                      PsiElement(identifier)('t')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: (h ++: t)
+                  PsiElement(()('(')
+                  InfixType: h ++: t
+                    TypeVariable: h
+                      PsiElement(identifier)('h')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ++:
+                      PsiElement(identifier)('++:')
+                    PsiWhiteSpace(' ')
+                    TypeVariable: t
+                      PsiElement(identifier)('t')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: h ++: (t :-- A)
+                  SimpleType: h
+                    CodeReferenceElement: h
+                      PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ++:
+                    PsiElement(identifier)('++:')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (t :-- A)
+                    PsiElement(()('(')
+                    InfixType: t :-- A
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: :--
+                        PsiElement(identifier)(':--')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: (Int ++: String ++: Double ++: TNil) :-- String
+            TypeInParenthesis: (Int ++: String ++: Double ++: TNil)
+              PsiElement(()('(')
+              InfixType: Int ++: String ++: Double ++: TNil
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ++:
+                  PsiElement(identifier)('++:')
+                PsiWhiteSpace(' ')
+                InfixType: String ++: Double ++: TNil
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ++:
+                    PsiElement(identifier)('++:')
+                  PsiWhiteSpace(' ')
+                  InfixType: Double ++: TNil
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ++:
+                      PsiElement(identifier)('++:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TNil
+                      CodeReferenceElement: TNil
+                        PsiElement(identifier)('TNil')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: :--
+              PsiElement(identifier)(':--')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ta
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ta')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: T[X]
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: T[Int ++: Double ++: TNil]
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        InfixType: Int ++: Double ++: TNil
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ++:
+                            PsiElement(identifier)('++:')
+                          PsiWhiteSpace(' ')
+                          InfixType: Double ++: TNil
+                            SimpleType: Double
+                              CodeReferenceElement: Double
+                                PsiElement(identifier)('Double')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: ++:
+                              PsiElement(identifier)('++:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: TNil
+                              CodeReferenceElement: TNil
+                                PsiElement(identifier)('TNil')
+                        PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

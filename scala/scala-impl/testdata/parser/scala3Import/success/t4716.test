@@ -5,3 +5,126 @@ trait Bug2[@specialized(Int) +A] extends IterableOnce[A] {
   }
 }
 -----
+ScalaFile
+  ScTrait: Bug2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Int
+                    PsiElement(identifier)('Int')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: IterableOnce[A]
+            SimpleType: IterableOnce
+              CodeReferenceElement: IterableOnce
+                PsiElement(identifier)('IterableOnce')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ++
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('++')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: IterableOnce[B]
+                    SimpleType: IterableOnce
+                      CodeReferenceElement: IterableOnce
+                        PsiElement(identifier)('IterableOnce')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: it
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(lazy)('lazy')
+              PsiWhiteSpace(' ')
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: it
+                  PsiElement(identifier)('it')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: that.iterator
+                ReferenceExpression: that
+                  PsiElement(identifier)('that')
+                PsiElement(.)('.')
+                PsiElement(identifier)('iterator')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: it
+              PsiElement(identifier)('it')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

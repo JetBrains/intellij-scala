@@ -2,3 +2,100 @@ import language.`future`
 def Test =
   for (a, b) <- List("a","b","c").lazyZip(List(1,2,3)) do println(s"$a$b")
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.`future`
+        CodeReferenceElement: language
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('`future`')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ForStatement
+      PsiElement(for)('for')
+      PsiWhiteSpace(' ')
+      Enumerators
+        Generator
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ReferencePattern: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: b
+                PsiElement(identifier)('b')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(<-)('<-')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List("a","b","c").lazyZip
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                  PsiElement(,)(',')
+                  StringLiteral
+                    PsiElement(string content)('"b"')
+                  PsiElement(,)(',')
+                  StringLiteral
+                    PsiElement(string content)('"c"')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('lazyZip')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                  PsiElement())(')')
+              PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(do)('do')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: b
+              PsiElement(identifier)('b')
+            PsiElement(interpolated string end)('"')
+          PsiElement())(')')

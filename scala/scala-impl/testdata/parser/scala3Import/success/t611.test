@@ -24,3 +24,339 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bug.contrib_60
+      CodeReferenceElement: bug
+        PsiElement(identifier)('bug')
+      PsiElement(.)('.')
+      PsiElement(identifier)('contrib_60')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n\n')
+    ScClass: Field
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Field')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: FieldType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('FieldType')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDeclaration: internalValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: internalValue
+                PsiElement(identifier)('internalValue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: FieldType
+              CodeReferenceElement: FieldType
+                PsiElement(identifier)('FieldType')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: IntField
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('IntField')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('value')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Field
+              CodeReferenceElement: Field
+                PsiElement(identifier)('Field')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: FieldType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('FieldType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDefinition: internalValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: internalValue
+                PsiElement(identifier)('internalValue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: FieldType
+              CodeReferenceElement: FieldType
+                PsiElement(identifier)('FieldType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: value
+              PsiElement(identifier)('value')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: StringField
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('StringField')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('value')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Field
+              CodeReferenceElement: Field
+                PsiElement(identifier)('Field')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: FieldType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('FieldType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDefinition: internalValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: internalValue
+                PsiElement(identifier)('internalValue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: FieldType
+              CodeReferenceElement: FieldType
+                PsiElement(identifier)('FieldType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: value
+              PsiElement(identifier)('value')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: main
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('main')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: args
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: scala.Array[String]
+                      SimpleType: scala.Array
+                        CodeReferenceElement: scala.Array
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: Console.println
+                  ReferenceExpression: Console
+                    PsiElement(identifier)('Console')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: List
+                      PsiElement(identifier)('List')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: StringField
+                                CodeReferenceElement: StringField
+                                  PsiElement(identifier)('StringField')
+                              PsiWhiteSpace(' ')
+                              ArgumentList
+                                PsiElement(()('(')
+                                StringLiteral
+                                  PsiElement(string content)('"bar"')
+                                PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: IntField
+                                CodeReferenceElement: IntField
+                                  PsiElement(identifier)('IntField')
+                              ArgumentList
+                                PsiElement(()('(')
+                                IntegerLiteral
+                                  PsiElement(integer)('8')
+                                PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -16,3 +16,203 @@ object Test:
 
 
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// The following test is derived from scala/reflect/TypeTest.scala, but using')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// a dependent function instead of a dependent SAM. It shows that the special treatment')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// using a DependentTypeTree is not needed for plain function types.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// But for SAM types, the treatment is needed, otherwise TypeTest.scala does')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// not typecheck. Todo: Figure out the reason for this difference.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: F
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          DependentFunctionType: (x: S) => Option[x.type & T]
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Option[x.type & T]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: x.type & T
+                  SimpleType: x.type
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: identity
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Trivial type test that always succeeds')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('identity')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F[T, T]
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: identity
+              PsiElement(identifier)('identity')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: z
+              PsiElement(identifier)('z')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[1]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: y
+            PsiElement(identifier)('y')

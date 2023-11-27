@@ -4,3 +4,112 @@ object t5330c {
   s.forall( c => "ABC".toSeq.contains( c ))
 }
 -----
+ScalaFile
+  ScObject: t5330c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t5330c')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: s
+              PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[_ >: Char]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ >: Char
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(>:)('>:')
+                PsiWhiteSpace(' ')
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Set
+              PsiElement(identifier)('Set')
+            ArgumentList
+              PsiElement(()('(')
+              CharLiteral
+                PsiElement(Character)(''A'')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ReferenceExpression: s
+            PsiElement(identifier)('s')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: forall
+            PsiElement(identifier)('forall')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"ABC"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: contains
+                PsiElement(identifier)('contains')
+              PsiWhiteSpace(' ')
+              UnderscoreSection
+                PsiElement(_)('_')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: s.forall
+            ReferenceExpression: s
+              PsiElement(identifier)('s')
+            PsiElement(.)('.')
+            PsiElement(identifier)('forall')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: c
+                    PsiElement(identifier)('c')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: "ABC".toSeq.contains
+                  ReferenceExpression: "ABC".toSeq
+                    StringLiteral
+                      PsiElement(string content)('"ABC"')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toSeq')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiWhiteSpace(' ')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

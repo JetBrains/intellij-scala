@@ -12,3 +12,293 @@ def f4[T](x: Ordering[T]) = {
   yield new TreeSet[T]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: math.Ordering
+        CodeReferenceElement: math
+          PsiElement(identifier)('math')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Ordering')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: collection.immutable.TreeSet
+        CodeReferenceElement: collection.immutable
+          CodeReferenceElement: collection
+            PsiElement(identifier)('collection')
+          PsiElement(.)('.')
+          PsiElement(identifier)('immutable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('TreeSet')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Ordering[T]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      Tuple
+        PsiElement(()('(')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ScGivenPatternImpl(given pattern)
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Ordering[T]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardPattern
+                PsiElement(_)('_')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: TreeSet[T]
+                      SimpleType: TreeSet
+                        CodeReferenceElement: TreeSet
+                          PsiElement(identifier)('TreeSet')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f4')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Ordering[T]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: xs
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: xs
+            PsiElement(identifier)('xs')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ForStatement
+        PsiElement(for)('for')
+        PsiWhiteSpace(' ')
+        Enumerators
+          Generator
+            ScGivenPatternImpl(given pattern)
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Ordering[T]
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(<-)('<-')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+        PsiWhiteSpace('\n  ')
+        PsiElement(yield)('yield')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: TreeSet[T]
+                  SimpleType: TreeSet
+                    CodeReferenceElement: TreeSet
+                      PsiElement(identifier)('TreeSet')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ForStatement
+        PsiElement(for)('for')
+        PsiWhiteSpace(' ')
+        Enumerators
+          Generator
+            NamingPattern: x
+              PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(@)('@')
+              PsiWhiteSpace(' ')
+              ScGivenPatternImpl(given pattern)
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Ordering[T]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(<-)('<-')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+        PsiWhiteSpace('\n  ')
+        PsiElement(yield)('yield')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: TreeSet[T]
+                  SimpleType: TreeSet
+                    CodeReferenceElement: TreeSet
+                      PsiElement(identifier)('TreeSet')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -19,3 +19,213 @@ object Test extends App {
   }
 }
 -----
+ScalaFile
+  ScTrait: Universe
+    PsiComment(comment)('// cf. pos/t8300-patmat-b.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Universe')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Name
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Name')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: AnyRef with NameApi
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: NameApi
+              CodeReferenceElement: NameApi
+                PsiElement(identifier)('NameApi')
+        PsiWhiteSpace('\n  ')
+        ScTrait: NameApi
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NameApi')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: TermName
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TermName')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: Name with TermNameApi
+            SimpleType: Name
+              CodeReferenceElement: Name
+                PsiElement(identifier)('Name')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: TermNameApi
+              CodeReferenceElement: TermNameApi
+                PsiElement(identifier)('TermNameApi')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TermNameApi
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TermNameApi')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: NameApi
+                  CodeReferenceElement: NameApi
+                    PsiElement(identifier)('NameApi')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: u
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: u
+              PsiElement(identifier)('u')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Universe
+            CodeReferenceElement: Universe
+              PsiElement(identifier)('Universe')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: u
+              PsiElement(identifier)('u')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: ScalaName
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: ScalaName
+                    PsiElement(identifier)('ScalaName')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: TermName
+                  CodeReferenceElement: TermName
+                    PsiElement(identifier)('TermName')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              MatchStatement
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: ScalaName
+                        PsiElement(identifier)('ScalaName')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

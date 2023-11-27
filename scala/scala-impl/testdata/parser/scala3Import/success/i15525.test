@@ -54,3 +54,1340 @@ def test22 =
       Resolution(element0), Resolution(element0),
       Resolution(element0), Resolution(element0)))
 -----
+ScalaFile
+  ScClass: /
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('/')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Delegating
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Delegating')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Aux
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Aux')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: Container { type Elements = E }
+      SimpleType: Container
+        CodeReferenceElement: Container
+          PsiElement(identifier)('Container')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Elements
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Elements')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Container
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Container')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Elements
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Elements')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Delegating[Delegates]
+            SimpleType: Delegating
+              CodeReferenceElement: Delegating
+                PsiElement(identifier)('Delegating')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Delegates
+                CodeReferenceElement: Delegates
+                  PsiElement(identifier)('Delegates')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Delegates
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Delegates')
+  PsiWhiteSpace('\n\n')
+  ScClass: Resolution
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Resolution')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Aux[E]
+                SimpleType: Aux
+                  CodeReferenceElement: Aux
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Type
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Aux[E]
+            SimpleType: Aux
+              CodeReferenceElement: Aux
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: element0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('element0')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    CompoundType: Container { type Delegates = Unit }
+      SimpleType: Container
+        CodeReferenceElement: Container
+          PsiElement(identifier)('Container')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Delegates
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Delegates')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: element22
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('element22')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable0')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable5')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable6
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable6')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable7
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable7')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable8
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable8')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable9
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable9')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable10
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable10')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable11
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable11')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable12
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable12')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable13
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable13')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable14
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable14')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable15
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable15')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable16
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable16')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable17
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable17')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable18
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable18')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable19
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable19')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: transmittable20
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable20')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: transmittable21
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('transmittable21')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Resolution[?]
+              SimpleType: Resolution
+                CodeReferenceElement: Resolution
+                  PsiElement(identifier)('Resolution')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: ?
+                  PsiElement(?)('?')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    CompoundType: Container {
+    type Delegates =
+      transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type /
+      transmittable18.Type / transmittable19.Type /
+      transmittable20.Type / transmittable21.Type
+  }
+      SimpleType: Container
+        CodeReferenceElement: Container
+          PsiElement(identifier)('Container')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScTypeAliasDefinition: Delegates
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Delegates')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type /
+      transmittable18.Type / transmittable19.Type /
+      transmittable20.Type / transmittable21.Type
+            InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type /
+      transmittable18.Type / transmittable19.Type /
+      transmittable20.Type
+              InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type /
+      transmittable18.Type / transmittable19.Type
+                InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type /
+      transmittable18.Type
+                  InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type / transmittable17.Type
+                    InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type /
+      transmittable16.Type
+                      InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type / transmittable15.Type
+                        InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type /
+      transmittable14.Type
+                          InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type / transmittable13.Type
+                            InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type /
+      transmittable12.Type
+                              InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type / transmittable11.Type
+                                InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type /
+      transmittable10.Type
+                                  InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type / transmittable9.Type
+                                    InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type /
+      transmittable8.Type
+                                      InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type / transmittable7.Type
+                                        InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type /
+      transmittable6.Type
+                                          InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type / transmittable5.Type
+                                            InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type /
+      transmittable4.Type
+                                              InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type / transmittable3.Type
+                                                InfixType: transmittable0.Type / transmittable1.Type /
+      transmittable2.Type
+                                                  InfixType: transmittable0.Type / transmittable1.Type
+                                                    SimpleType: transmittable0.Type
+                                                      CodeReferenceElement: transmittable0.Type
+                                                        CodeReferenceElement: transmittable0
+                                                          PsiElement(identifier)('transmittable0')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('Type')
+                                                    PsiWhiteSpace(' ')
+                                                    CodeReferenceElement: /
+                                                      PsiElement(identifier)('/')
+                                                    PsiWhiteSpace(' ')
+                                                    SimpleType: transmittable1.Type
+                                                      CodeReferenceElement: transmittable1.Type
+                                                        CodeReferenceElement: transmittable1
+                                                          PsiElement(identifier)('transmittable1')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('Type')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: /
+                                                    PsiElement(identifier)('/')
+                                                  PsiWhiteSpace('\n      ')
+                                                  SimpleType: transmittable2.Type
+                                                    CodeReferenceElement: transmittable2.Type
+                                                      CodeReferenceElement: transmittable2
+                                                        PsiElement(identifier)('transmittable2')
+                                                      PsiElement(.)('.')
+                                                      PsiElement(identifier)('Type')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: /
+                                                  PsiElement(identifier)('/')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: transmittable3.Type
+                                                  CodeReferenceElement: transmittable3.Type
+                                                    CodeReferenceElement: transmittable3
+                                                      PsiElement(identifier)('transmittable3')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('Type')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: /
+                                                PsiElement(identifier)('/')
+                                              PsiWhiteSpace('\n      ')
+                                              SimpleType: transmittable4.Type
+                                                CodeReferenceElement: transmittable4.Type
+                                                  CodeReferenceElement: transmittable4
+                                                    PsiElement(identifier)('transmittable4')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('Type')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: /
+                                              PsiElement(identifier)('/')
+                                            PsiWhiteSpace(' ')
+                                            SimpleType: transmittable5.Type
+                                              CodeReferenceElement: transmittable5.Type
+                                                CodeReferenceElement: transmittable5
+                                                  PsiElement(identifier)('transmittable5')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('Type')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: /
+                                            PsiElement(identifier)('/')
+                                          PsiWhiteSpace('\n      ')
+                                          SimpleType: transmittable6.Type
+                                            CodeReferenceElement: transmittable6.Type
+                                              CodeReferenceElement: transmittable6
+                                                PsiElement(identifier)('transmittable6')
+                                              PsiElement(.)('.')
+                                              PsiElement(identifier)('Type')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: /
+                                          PsiElement(identifier)('/')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: transmittable7.Type
+                                          CodeReferenceElement: transmittable7.Type
+                                            CodeReferenceElement: transmittable7
+                                              PsiElement(identifier)('transmittable7')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('Type')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: /
+                                        PsiElement(identifier)('/')
+                                      PsiWhiteSpace('\n      ')
+                                      SimpleType: transmittable8.Type
+                                        CodeReferenceElement: transmittable8.Type
+                                          CodeReferenceElement: transmittable8
+                                            PsiElement(identifier)('transmittable8')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('Type')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: /
+                                      PsiElement(identifier)('/')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: transmittable9.Type
+                                      CodeReferenceElement: transmittable9.Type
+                                        CodeReferenceElement: transmittable9
+                                          PsiElement(identifier)('transmittable9')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('Type')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: /
+                                    PsiElement(identifier)('/')
+                                  PsiWhiteSpace('\n      ')
+                                  SimpleType: transmittable10.Type
+                                    CodeReferenceElement: transmittable10.Type
+                                      CodeReferenceElement: transmittable10
+                                        PsiElement(identifier)('transmittable10')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Type')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: /
+                                  PsiElement(identifier)('/')
+                                PsiWhiteSpace(' ')
+                                SimpleType: transmittable11.Type
+                                  CodeReferenceElement: transmittable11.Type
+                                    CodeReferenceElement: transmittable11
+                                      PsiElement(identifier)('transmittable11')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Type')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: /
+                                PsiElement(identifier)('/')
+                              PsiWhiteSpace('\n      ')
+                              SimpleType: transmittable12.Type
+                                CodeReferenceElement: transmittable12.Type
+                                  CodeReferenceElement: transmittable12
+                                    PsiElement(identifier)('transmittable12')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Type')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: /
+                              PsiElement(identifier)('/')
+                            PsiWhiteSpace(' ')
+                            SimpleType: transmittable13.Type
+                              CodeReferenceElement: transmittable13.Type
+                                CodeReferenceElement: transmittable13
+                                  PsiElement(identifier)('transmittable13')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Type')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: /
+                            PsiElement(identifier)('/')
+                          PsiWhiteSpace('\n      ')
+                          SimpleType: transmittable14.Type
+                            CodeReferenceElement: transmittable14.Type
+                              CodeReferenceElement: transmittable14
+                                PsiElement(identifier)('transmittable14')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Type')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: /
+                          PsiElement(identifier)('/')
+                        PsiWhiteSpace(' ')
+                        SimpleType: transmittable15.Type
+                          CodeReferenceElement: transmittable15.Type
+                            CodeReferenceElement: transmittable15
+                              PsiElement(identifier)('transmittable15')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Type')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: /
+                        PsiElement(identifier)('/')
+                      PsiWhiteSpace('\n      ')
+                      SimpleType: transmittable16.Type
+                        CodeReferenceElement: transmittable16.Type
+                          CodeReferenceElement: transmittable16
+                            PsiElement(identifier)('transmittable16')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: /
+                      PsiElement(identifier)('/')
+                    PsiWhiteSpace(' ')
+                    SimpleType: transmittable17.Type
+                      CodeReferenceElement: transmittable17.Type
+                        CodeReferenceElement: transmittable17
+                          PsiElement(identifier)('transmittable17')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Type')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: /
+                    PsiElement(identifier)('/')
+                  PsiWhiteSpace('\n      ')
+                  SimpleType: transmittable18.Type
+                    CodeReferenceElement: transmittable18.Type
+                      CodeReferenceElement: transmittable18
+                        PsiElement(identifier)('transmittable18')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: /
+                  PsiElement(identifier)('/')
+                PsiWhiteSpace(' ')
+                SimpleType: transmittable19.Type
+                  CodeReferenceElement: transmittable19.Type
+                    CodeReferenceElement: transmittable19
+                      PsiElement(identifier)('transmittable19')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Type')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: /
+                PsiElement(identifier)('/')
+              PsiWhiteSpace('\n      ')
+              SimpleType: transmittable20.Type
+                CodeReferenceElement: transmittable20.Type
+                  CodeReferenceElement: transmittable20
+                    PsiElement(identifier)('transmittable20')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Type')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: /
+              PsiElement(identifier)('/')
+            PsiWhiteSpace(' ')
+            SimpleType: transmittable21.Type
+              CodeReferenceElement: transmittable21.Type
+                CodeReferenceElement: transmittable21
+                  PsiElement(identifier)('transmittable21')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Type')
+        PsiWhiteSpace('\n  ')
+        PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test22
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test22')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: Resolution
+        PsiElement(identifier)('Resolution')
+      ArgumentList
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: element22
+            PsiElement(identifier)('element22')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Resolution
+                PsiElement(identifier)('Resolution')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: element0
+                  PsiElement(identifier)('element0')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement())(')')

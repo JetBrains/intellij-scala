@@ -9,3 +9,52 @@ error: error while loading Top, class file '/private/tmp/bobobo/./Top.class' is 
 one error found
 */
 -----
+ScalaFile
+  ScTrait: Top
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Top')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScObject: P
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('P')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Top
+                  CodeReferenceElement: Top
+                    PsiElement(identifier)('Top')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(BlockComment)('/*\n$ scala -e 'new AnyRef with C'\nerror: error while loading Top, class file '/private/tmp/bobobo/./Top.class' is broken\n(error reading Scala signature of /private/tmp/bobobo/./Top.class: malformed Scala signature of Top at 185; reference value P of trait C refers to nonexisting symbol.)\none error found\n*/')

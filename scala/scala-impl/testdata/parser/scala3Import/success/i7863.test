@@ -4,3 +4,86 @@ inline def g = f[[R] =>> Int => R]
 
 val a = g
 -----
+ScalaFile
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: g
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('g')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: f
+        PsiElement(identifier)('f')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeLambda: [R] =>> Int => R
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>>)('=>>')
+          PsiWhiteSpace(' ')
+          FunctionalType: Int => R
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: g
+      PsiElement(identifier)('g')

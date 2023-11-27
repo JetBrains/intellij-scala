@@ -6,3 +6,172 @@ def n(i: Seq[Int]) = i.sum
 val g1 = n
 val g2 = i => n(i)
 -----
+ScalaFile
+  ScFunctionDefinition: m
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('m')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: i.sum
+      ReferenceExpression: i
+        PsiElement(identifier)('i')
+      PsiElement(.)('.')
+      PsiElement(identifier)('sum')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f1
+        PsiElement(identifier)('f1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: m
+      PsiElement(identifier)('m')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f2
+        PsiElement(identifier)('f2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          Parameter: i
+            PsiElement(identifier)('i')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: m
+          PsiElement(identifier)('m')
+        ArgumentList
+          PsiElement(()('(')
+          TypedExpression
+            ReferenceExpression: i
+              PsiElement(identifier)('i')
+            SequenceArgumentType
+              PsiElement(identifier)('*')
+          PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: n
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('n')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Seq[Int]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: i.sum
+      ReferenceExpression: i
+        PsiElement(identifier)('i')
+      PsiElement(.)('.')
+      PsiElement(identifier)('sum')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: g1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: g1
+        PsiElement(identifier)('g1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: n
+      PsiElement(identifier)('n')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: g2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: g2
+        PsiElement(identifier)('g2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          Parameter: i
+            PsiElement(identifier)('i')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: n
+          PsiElement(identifier)('n')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: i
+            PsiElement(identifier)('i')
+          PsiElement())(')')

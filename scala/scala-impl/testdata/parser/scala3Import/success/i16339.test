@@ -6,3 +6,196 @@ class Test:
   def t1[Z, Z2 <: Z](get: Get[Z, Z2]) = get match
     case Bar(_) =>
 -----
+ScalaFile
+  ScTrait: Get
+    PsiComment(comment)('// scalac: -Werror')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Get')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: X2
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('X2')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: X
+          CodeReferenceElement: X
+            PsiElement(identifier)('X')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Y2
+        PsiElement(identifier)('Y2')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Y
+          CodeReferenceElement: Y
+            PsiElement(identifier)('Y')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Y2
+                CodeReferenceElement: Y2
+                  PsiElement(identifier)('Y2')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Get[Y, Y2]
+            SimpleType: Get
+              CodeReferenceElement: Get
+                PsiElement(identifier)('Get')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Y
+                CodeReferenceElement: Y
+                  PsiElement(identifier)('Y')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Y2
+                CodeReferenceElement: Y2
+                  PsiElement(identifier)('Y2')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Z
+              PsiElement(identifier)('Z')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Z2
+              PsiElement(identifier)('Z2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Z
+                CodeReferenceElement: Z
+                  PsiElement(identifier)('Z')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: get
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('get')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Get[Z, Z2]
+                    SimpleType: Get
+                      CodeReferenceElement: Get
+                        PsiElement(identifier)('Get')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Z
+                        CodeReferenceElement: Z
+                          PsiElement(identifier)('Z')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Z2
+                        CodeReferenceElement: Z2
+                          PsiElement(identifier)('Z2')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: get
+              PsiElement(identifier)('get')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>

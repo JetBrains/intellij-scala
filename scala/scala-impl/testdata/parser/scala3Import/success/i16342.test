@@ -17,3 +17,337 @@ final implicit class Ops(private val userId: Opaque) extends AnyVal {
   def value: String = userId.asInstanceOf[String]
 }
 -----
+ScalaFile
+  ScTypeAliasDefinition: Opaque
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: Base with Tag
+      SimpleType: Base
+        CodeReferenceElement: Base
+          PsiElement(identifier)('Base')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      SimpleType: Tag
+        CodeReferenceElement: Tag
+          PsiElement(identifier)('Tag')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Base
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Base')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: Any {
+  type Hack
+}
+      SimpleType: Any
+        CodeReferenceElement: Any
+          PsiElement(identifier)('Any')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Hack
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Hack')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Tag
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tag')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Opaque
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Opaque')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Opaque
+            CodeReferenceElement: Opaque
+              PsiElement(identifier)('Opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: value.asInstanceOf
+              ReferenceExpression: value
+                PsiElement(identifier)('value')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asInstanceOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Opaque
+                CodeReferenceElement: Opaque
+                  PsiElement(identifier)('Opaque')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: userId
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('userId')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Opaque
+                    CodeReferenceElement: Opaque
+                      PsiElement(identifier)('Opaque')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[String]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Option(userId).map
+              MethodCall
+                ReferenceExpression: Option
+                  PsiElement(identifier)('Option')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: userId
+                    PsiElement(identifier)('userId')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.value
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('value')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unappy2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unappy2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: userId
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('userId')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  CompoundType: Base with Tag
+                    SimpleType: Base
+                      CodeReferenceElement: Base
+                        PsiElement(identifier)('Base')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tag
+                      CodeReferenceElement: Tag
+                        PsiElement(identifier)('Tag')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[String]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Option(userId).map
+              MethodCall
+                ReferenceExpression: Option
+                  PsiElement(identifier)('Option')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: userId
+                    PsiElement(identifier)('userId')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.value
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('value')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Ops
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ops')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: userId
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('userId')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Opaque
+                CodeReferenceElement: Opaque
+                  PsiElement(identifier)('Opaque')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('value')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: userId.asInstanceOf
+              ReferenceExpression: userId
+                PsiElement(identifier)('userId')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asInstanceOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

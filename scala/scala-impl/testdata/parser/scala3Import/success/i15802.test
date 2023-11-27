@@ -12,3 +12,325 @@ trait Endpoint[INPUT, ERROR_OUTPUT, OUTPUT]{
   val x: Endpoint[_, Unit, Unit] = ???
   x.zServerLogic[Any](_ => ZIO.fail(new RuntimeException("boom")))
 -----
+ScalaFile
+  ScTrait: ZIO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZIO')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: ZIO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZIO')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fail')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: error
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('error')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZIO[Any, E, Nothing]
+            SimpleType: ZIO
+              CodeReferenceElement: ZIO
+                PsiElement(identifier)('ZIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Endpoint
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Endpoint')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: INPUT
+        PsiElement(identifier)('INPUT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: ERROR_OUTPUT
+        PsiElement(identifier)('ERROR_OUTPUT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: OUTPUT
+        PsiElement(identifier)('OUTPUT')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ZServerEndpoint
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ZServerEndpoint')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: zServerLogic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('zServerLogic')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: logic
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('logic')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: INPUT => ZIO[R, ERROR_OUTPUT, OUTPUT]
+                    SimpleType: INPUT
+                      CodeReferenceElement: INPUT
+                        PsiElement(identifier)('INPUT')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: ZIO[R, ERROR_OUTPUT, OUTPUT]
+                      SimpleType: ZIO
+                        CodeReferenceElement: ZIO
+                          PsiElement(identifier)('ZIO')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: ERROR_OUTPUT
+                          CodeReferenceElement: ERROR_OUTPUT
+                            PsiElement(identifier)('ERROR_OUTPUT')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: OUTPUT
+                          CodeReferenceElement: OUTPUT
+                            PsiElement(identifier)('OUTPUT')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZServerEndpoint[R]
+            SimpleType: ZServerEndpoint
+              CodeReferenceElement: ZServerEndpoint
+                PsiElement(identifier)('ZServerEndpoint')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Endpoint[_, Unit, Unit]
+          SimpleType: Endpoint
+            CodeReferenceElement: Endpoint
+              PsiElement(identifier)('Endpoint')
+          TypeArgumentsList
+            PsiElement([)('[')
+            WildcardType: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        GenericCall
+          ReferenceExpression: x.zServerLogic
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(identifier)('zServerLogic')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiElement(])(']')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: ZIO.fail
+                ReferenceExpression: ZIO
+                  PsiElement(identifier)('ZIO')
+                PsiElement(.)('.')
+                PsiElement(identifier)('fail')
+              ArgumentList
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: RuntimeException
+                          CodeReferenceElement: RuntimeException
+                            PsiElement(identifier)('RuntimeException')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"boom"')
+                          PsiElement())(')')
+                PsiElement())(')')
+          PsiElement())(')')

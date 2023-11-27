@@ -12,3 +12,280 @@ object TupleExample {
   summon[Concat[A *: B *: Tuple, C *: EmptyTuple]   <:<    A *: B *: Tuple]
 }
 -----
+ScalaFile
+  ScObject: TupleExample
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleExample')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: C
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Concat[A *: B *: EmptyTuple, C *: EmptyTuple]    =:=    A *: B *: C *: EmptyTuple
+              ParametrizedType: Concat[A *: B *: EmptyTuple, C *: EmptyTuple]
+                SimpleType: Concat
+                  CodeReferenceElement: Concat
+                    PsiElement(identifier)('Concat')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: A *: B *: EmptyTuple
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: B *: EmptyTuple
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  InfixType: C *: EmptyTuple
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(])(']')
+              PsiWhiteSpace('    ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace('    ')
+              InfixType: A *: B *: C *: EmptyTuple
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: B *: C *: EmptyTuple
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  InfixType: C *: EmptyTuple
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Concat[A *: B *: EmptyTuple, C *: Tuple]   =:=    A *: B *: C *: Tuple
+              ParametrizedType: Concat[A *: B *: EmptyTuple, C *: Tuple]
+                SimpleType: Concat
+                  CodeReferenceElement: Concat
+                    PsiElement(identifier)('Concat')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: A *: B *: EmptyTuple
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: B *: EmptyTuple
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  InfixType: C *: Tuple
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tuple
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                  PsiElement(])(']')
+              PsiWhiteSpace('   ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace('    ')
+              InfixType: A *: B *: C *: Tuple
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: B *: C *: Tuple
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  InfixType: C *: Tuple
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tuple
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Concat[A *: B *: Tuple, C *: EmptyTuple]   <:<    A *: B *: Tuple
+              ParametrizedType: Concat[A *: B *: Tuple, C *: EmptyTuple]
+                SimpleType: Concat
+                  CodeReferenceElement: Concat
+                    PsiElement(identifier)('Concat')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: A *: B *: Tuple
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: B *: Tuple
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Tuple
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  InfixType: C *: EmptyTuple
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(])(']')
+              PsiWhiteSpace('   ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace('    ')
+              InfixType: A *: B *: Tuple
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: B *: Tuple
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Tuple
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

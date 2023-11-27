@@ -1,3 +1,84 @@
 class A(a: Any) extends annotation.StaticAnnotation
 @A({val x = 0}) trait B
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.StaticAnnotation
+            CodeReferenceElement: annotation.StaticAnnotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('StaticAnnotation')
+  PsiWhiteSpace('\n')
+  ScTrait: B
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            ArgumentList
+              PsiElement(()('(')
+              BlockExpression
+                PsiElement({)('{')
+                ScPatternDefinition: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiElement(})('}')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    ExtendsBlock
+      <empty list>

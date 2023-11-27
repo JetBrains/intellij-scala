@@ -2,3 +2,103 @@ class Test extends java.util.ArrayList[Object] {
   override def add(index: Int, element: java.lang.Object): Unit = {}
 }
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: java.util.ArrayList[Object]
+            SimpleType: java.util.ArrayList
+              CodeReferenceElement: java.util.ArrayList
+                CodeReferenceElement: java.util
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ArrayList')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Object
+                CodeReferenceElement: Object
+                  PsiElement(identifier)('Object')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: add
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: index
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('index')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: element
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('element')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: java.lang.Object
+                    CodeReferenceElement: java.lang.Object
+                      CodeReferenceElement: java.lang
+                        CodeReferenceElement: java
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Object')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

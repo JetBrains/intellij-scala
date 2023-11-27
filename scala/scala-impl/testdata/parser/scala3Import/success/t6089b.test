@@ -17,3 +17,309 @@ class BKTree {
 object BKTreeEmpty extends BKTree
 case class BKTreeNode[A](v: A) extends BKTree
 -----
+ScalaFile
+  ScClass: BKTree
+    PsiComment(comment)('// this crazy code simply tries to nest pattern matches so that the last call is in a tricky-to-determine')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// tail position (my initial tightenign of tailpos detection for SI-6089 ruled this out)')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BKTree')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScFunctionDefinition: -?-
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation.tailrec
+                    CodeReferenceElement: annotation.tailrec
+                      CodeReferenceElement: annotation
+                        PsiElement(identifier)('annotation')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('tailrec')
+          PsiWhiteSpace('\n ')
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('-?-')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: AA
+              PsiElement(identifier)('AA')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: AA
+                    CodeReferenceElement: AA
+                      PsiElement(identifier)('AA')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ThisReference
+              PsiElement(this)('this')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: BKTreeEmpty
+                    PsiElement(identifier)('BKTreeEmpty')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  BooleanLiteral
+                    PsiElement(false)('false')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: BKTreeNode
+                    PsiElement(identifier)('BKTreeNode')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: v
+                      PsiElement(identifier)('v')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScPatternDefinition: d
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: d
+                          PsiElement(identifier)('d')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    InfixExpression
+                      InfixExpression
+                        ReferenceExpression: d
+                          PsiElement(identifier)('d')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ==
+                          PsiElement(identifier)('==')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ||
+                        PsiElement(identifier)('||')
+                      PsiWhiteSpace(' ')
+                      ExpressionInParenthesis
+                        PsiElement(()('(')
+                        PsiWhiteSpace(' ')
+                        MatchStatement
+                          InfixExpression
+                            MethodCall
+                              ReferenceExpression: Map
+                                PsiElement(identifier)('Map')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ->
+                                    PsiElement(identifier)('->')
+                                  PsiWhiteSpace(' ')
+                                  ThisReference
+                                    PsiElement(this)('this')
+                                PsiElement(,)(',')
+                                InfixExpression
+                                  IntegerLiteral
+                                    PsiElement(integer)('2')
+                                  PsiWhiteSpace('  ')
+                                  ReferenceExpression: ->
+                                    PsiElement(identifier)('->')
+                                  PsiWhiteSpace(' ')
+                                  ThisReference
+                                    PsiElement(this)('this')
+                                PsiElement(,)(',')
+                                InfixExpression
+                                  IntegerLiteral
+                                    PsiElement(integer)('3')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ->
+                                    PsiElement(identifier)('->')
+                                  PsiWhiteSpace(' ')
+                                  ThisReference
+                                    PsiElement(this)('this')
+                                PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: get
+                              PsiElement(identifier)('get')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: d
+                              PsiElement(identifier)('d')
+                          PsiWhiteSpace(' ')
+                          PsiElement(match)('match')
+                          PsiWhiteSpace(' ')
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n        ')
+                          CaseClauses
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              StableElementPattern
+                                ReferenceExpression: None
+                                  PsiElement(identifier)('None')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                BooleanLiteral
+                                  PsiElement(false)('false')
+                            PsiWhiteSpace('\n        ')
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              ConstructorPattern
+                                CodeReferenceElement: Some
+                                  PsiElement(identifier)('Some')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: w
+                                    PsiElement(identifier)('w')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                InfixExpression
+                                  ReferenceExpression: w
+                                    PsiElement(identifier)('w')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: -?-
+                                    PsiElement(identifier)('-?-')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: a
+                                    PsiElement(identifier)('a')
+                          PsiWhiteSpace(' ')
+                          PsiComment(comment)('// can tail call here (since || is shortcutting)')
+                          PsiWhiteSpace('\n      ')
+                          PsiElement(})('}')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: BKTreeEmpty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BKTreeEmpty')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: BKTree
+            CodeReferenceElement: BKTree
+              PsiElement(identifier)('BKTree')
+  PsiWhiteSpace('\n')
+  ScClass: BKTreeNode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BKTreeNode')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: v
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('v')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: BKTree
+            CodeReferenceElement: BKTree
+              PsiElement(identifier)('BKTree')

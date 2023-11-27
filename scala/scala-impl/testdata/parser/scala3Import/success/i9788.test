@@ -1,2 +1,66 @@
 case class A(x: (Unit, Unit) | (Unit, Unit, Unit))
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              InfixType: (Unit, Unit) | (Unit, Unit, Unit)
+                TupleType: (Unit, Unit)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                TupleType: (Unit, Unit, Unit)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiElement())(')')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

@@ -1,3 +1,32 @@
 @main def Test =
   println(NoTypeHints)
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: NoTypeHints
+          PsiElement(identifier)('NoTypeHints')
+        PsiElement())(')')

@@ -12,3 +12,162 @@ object Test {
 
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: cls
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: cls
+              PsiElement(identifier)('cls')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: java.lang.Class[_]
+            SimpleType: java.lang.Class
+              CodeReferenceElement: java.lang.Class
+                CodeReferenceElement: java.lang
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('lang')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Class')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: myAsInstanceOf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('myAsInstanceOf')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Class[T]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: cls
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('cls')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: java.lang.Class[_]
+                    SimpleType: java.lang.Class
+                      CodeReferenceElement: java.lang.Class
+                        CodeReferenceElement: java.lang
+                          CodeReferenceElement: java
+                            PsiElement(identifier)('java')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('lang')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Class[T]
+            SimpleType: Class
+              CodeReferenceElement: Class
+                PsiElement(identifier)('Class')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: cls.asInstanceOf
+              ReferenceExpression: cls
+                PsiElement(identifier)('cls')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asInstanceOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Class[T]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Enum.valueOf
+            ReferenceExpression: Enum
+              PsiElement(identifier)('Enum')
+            PsiElement(.)('.')
+            PsiElement(identifier)('valueOf')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: myAsInstanceOf
+                PsiElement(identifier)('myAsInstanceOf')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: cls
+                  PsiElement(identifier)('cls')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('""')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n\n\n\n')
+        PsiElement(})('}')

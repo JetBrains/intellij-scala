@@ -7,3 +7,288 @@ def test =
   val a2: (Int, (String, Nothing)) = ??? : Tuple.Fold[(Int, String), Nothing, Tuple2]
   val a3: Int | String | Char = ??? : Tuple.Fold[(Int, String, Char), Nothing, [X, Y] =>> X | Y]
 -----
+ScalaFile
+  ScTypeAliasDefinition: Empty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Empty')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: EmptyTuple
+      CodeReferenceElement: EmptyTuple
+        PsiElement(identifier)('EmptyTuple')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Twice
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Twice')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TupleType: (X, X)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: X
+          CodeReferenceElement: X
+            PsiElement(identifier)('X')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: X
+          CodeReferenceElement: X
+            PsiElement(identifier)('X')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a1
+            PsiElement(identifier)('a1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.Fold[EmptyTuple, Nothing, Tuple2]
+            SimpleType: Tuple.Fold
+              CodeReferenceElement: Tuple.Fold
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Fold')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple2
+                CodeReferenceElement: Tuple2
+                  PsiElement(identifier)('Tuple2')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a2
+            PsiElement(identifier)('a2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (Int, (String, Nothing))
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TupleType: (String, Nothing)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.Fold[(Int, String), Nothing, Tuple2]
+            SimpleType: Tuple.Fold
+              CodeReferenceElement: Tuple.Fold
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Fold')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple2
+                CodeReferenceElement: Tuple2
+                  PsiElement(identifier)('Tuple2')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a3
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a3
+            PsiElement(identifier)('a3')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        InfixType: Int | String | Char
+          InfixType: Int | String
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: Char
+            CodeReferenceElement: Char
+              PsiElement(identifier)('Char')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.Fold[(Int, String, Char), Nothing, [X, Y] =>> X | Y]
+            SimpleType: Tuple.Fold
+              CodeReferenceElement: Tuple.Fold
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Fold')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String, Char)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeLambda: [X, Y] =>> X | Y
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Y
+                    PsiElement(identifier)('Y')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                InfixType: X | Y
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
+              PsiElement(])(']')

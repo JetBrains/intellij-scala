@@ -11,3 +11,400 @@ def perform0[Z <: Signature, A, U](op: Operation[Z, A, U]): Unit = ???
 
 def perform1[Z <: Signature, A, U](op: (z: Z) => z.Impl[A, U]): Unit = ???
 -----
+ScalaFile
+  ScTrait: Signature
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Signature')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Impl')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+            PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Operation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Operation')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Signature
+          CodeReferenceElement: Signature
+            PsiElement(identifier)('Signature')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    DependentFunctionType: (z: Z) => z.Impl[A, U]
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: z
+          PsiElement(identifier)('z')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Z
+            CodeReferenceElement: Z
+              PsiElement(identifier)('Z')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      ParametrizedType: z.Impl[A, U]
+        SimpleType: z.Impl
+          CodeReferenceElement: z.Impl
+            CodeReferenceElement: z
+              PsiElement(identifier)('z')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Impl')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          SimpleType: U
+            CodeReferenceElement: U
+              PsiElement(identifier)('U')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: Perform0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Perform0')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Signature
+          CodeReferenceElement: Signature
+            PsiElement(identifier)('Signature')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: op
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('op')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Operation[Z, A, U]
+                SimpleType: Operation
+                  CodeReferenceElement: Operation
+                    PsiElement(identifier)('Operation')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Z
+                    CodeReferenceElement: Z
+                      PsiElement(identifier)('Z')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: U
+                    CodeReferenceElement: U
+                      PsiElement(identifier)('U')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Perform1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Perform1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Signature
+          CodeReferenceElement: Signature
+            PsiElement(identifier)('Signature')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: op
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('op')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              DependentFunctionType: (z: Z) => z.Impl[A, U]
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: z
+                    PsiElement(identifier)('z')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Z
+                      CodeReferenceElement: Z
+                        PsiElement(identifier)('Z')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: z.Impl[A, U]
+                  SimpleType: z.Impl
+                    CodeReferenceElement: z.Impl
+                      CodeReferenceElement: z
+                        PsiElement(identifier)('z')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Impl')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: perform0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('perform0')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Signature
+          CodeReferenceElement: Signature
+            PsiElement(identifier)('Signature')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: op
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('op')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Operation[Z, A, U]
+              SimpleType: Operation
+                CodeReferenceElement: Operation
+                  PsiElement(identifier)('Operation')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Z
+                  CodeReferenceElement: Z
+                    PsiElement(identifier)('Z')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: perform1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('perform1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Signature
+          CodeReferenceElement: Signature
+            PsiElement(identifier)('Signature')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: op
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('op')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            DependentFunctionType: (z: Z) => z.Impl[A, U]
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: z
+                  PsiElement(identifier)('z')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Z
+                    CodeReferenceElement: Z
+                      PsiElement(identifier)('Z')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              ParametrizedType: z.Impl[A, U]
+                SimpleType: z.Impl
+                  CodeReferenceElement: z.Impl
+                    CodeReferenceElement: z
+                      PsiElement(identifier)('z')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Impl')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: U
+                    CodeReferenceElement: U
+                      PsiElement(identifier)('U')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

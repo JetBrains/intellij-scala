@@ -13,3 +13,343 @@ private def foo(s: Option[Tree[?]]) = s match // seems to only occur in a nested
   case Some(Branch()) => true // must be unapply and not direct type check
   case _              => false
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScClass: Tree
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(sealed)('sealed')
+        PsiWhiteSpace(' ')
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Tree')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScClass: Lam
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Lam')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        TypeParameter: U
+          PsiElement(identifier)('U')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Tree[Any]
+              SimpleType: Tree
+                CodeReferenceElement: Tree
+                  PsiElement(identifier)('Tree')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: App
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('App')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        TypeParameter: U
+          PsiElement(identifier)('U')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Tree[Any]
+              SimpleType: Tree
+                CodeReferenceElement: Tree
+                  PsiElement(identifier)('Tree')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Var
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Var')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('      ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Tree[Any]
+              SimpleType: Tree
+                CodeReferenceElement: Tree
+                  PsiElement(identifier)('Tree')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScObject: Branch
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Branch')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: unapply
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('unapply')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: branch
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('branch')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    InfixType: Lam[?,?] | App[?,?]
+                      ParametrizedType: Lam[?,?]
+                        SimpleType: Lam
+                          CodeReferenceElement: Lam
+                            PsiElement(identifier)('Lam')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          WildcardType: ?
+                            PsiElement(?)('?')
+                          PsiElement(,)(',')
+                          WildcardType: ?
+                            PsiElement(?)('?')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: App[?,?]
+                        SimpleType: App
+                          CodeReferenceElement: App
+                            PsiElement(identifier)('App')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          WildcardType: ?
+                            PsiElement(?)('?')
+                          PsiElement(,)(',')
+                          WildcardType: ?
+                            PsiElement(?)('?')
+                          PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            LiteralType: true
+              BooleanLiteral
+                PsiElement(true)('true')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BooleanLiteral
+              PsiElement(true)('true')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('foo')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: s
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Option[Tree[?]]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Tree[?]
+                    SimpleType: Tree
+                      CodeReferenceElement: Tree
+                        PsiElement(identifier)('Tree')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      MatchStatement
+        ReferenceExpression: s
+          PsiElement(identifier)('s')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// seems to only occur in a nested pattern')
+        PsiWhiteSpace('\n  ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: Some
+                PsiElement(identifier)('Some')
+              Pattern Argument List
+                PsiElement(()('(')
+                Scala3 TypedPattern
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Var
+                      CodeReferenceElement: Var
+                        PsiElement(identifier)('Var')
+                PsiElement())(')')
+            PsiWhiteSpace('   ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              BooleanLiteral
+                PsiElement(true)('true')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// must come first')
+          PsiWhiteSpace('\n  ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: Some
+                PsiElement(identifier)('Some')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Branch
+                    PsiElement(identifier)('Branch')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              BooleanLiteral
+                PsiElement(true)('true')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// must be unapply and not direct type check')
+          PsiWhiteSpace('\n  ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiWhiteSpace('              ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              BooleanLiteral
+                PsiElement(false)('false')

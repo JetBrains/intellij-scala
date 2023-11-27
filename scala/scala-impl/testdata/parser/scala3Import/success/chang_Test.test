@@ -2,3 +2,52 @@ object Test extends App {
   new com.netgents.hello.Outer[String]
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: com.netgents.hello.Outer[String]
+                  SimpleType: com.netgents.hello.Outer
+                    CodeReferenceElement: com.netgents.hello.Outer
+                      CodeReferenceElement: com.netgents.hello
+                        CodeReferenceElement: com.netgents
+                          CodeReferenceElement: com
+                            PsiElement(identifier)('com')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('netgents')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('hello')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Outer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

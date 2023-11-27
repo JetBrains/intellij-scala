@@ -10,3 +10,149 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: e
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('e')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Exception
+                    CodeReferenceElement: Exception
+                      PsiElement(identifier)('Exception')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: msg
+                      PsiElement(identifier)('msg')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: a
+          PsiComment(comment)('// this code ain't dead.')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ThrowStatement
+                      PsiElement(throw)('throw')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: e
+                          PsiElement(identifier)('e')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"true"')
+                          PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    BooleanLiteral
+                      PsiElement(false)('false')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ThrowStatement
+                      PsiElement(throw)('throw')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: e
+                          PsiElement(identifier)('e')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"false"')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -31,3 +31,572 @@ object _main { // don't do this at home
   }
 }
 -----
+ScalaFile
+  ScObject: _main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('_main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// don't do this at home')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Impl')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: SizeImpl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SizeImpl')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Impl
+                  CodeReferenceElement: Impl
+                    PsiElement(identifier)('Impl')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDefinition: size
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('size')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('42')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: ColorImpl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ColorImpl')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Impl
+                  CodeReferenceElement: Impl
+                    PsiElement(identifier)('Impl')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDefinition: color
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('color')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"red"')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Both
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Both')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: SizeImpl with ColorImpl
+            SimpleType: SizeImpl
+              CodeReferenceElement: SizeImpl
+                PsiElement(identifier)('SizeImpl')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: ColorImpl
+              CodeReferenceElement: ColorImpl
+                PsiElement(identifier)('ColorImpl')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: info
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('info')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: Impl
+                    CodeReferenceElement: Impl
+                      PsiElement(identifier)('Impl')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: Both
+                      CodeReferenceElement: Both
+                        PsiElement(identifier)('Both')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        StringLiteral
+                          PsiElement(string content)('"size  "')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: x.size
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('size')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      StringLiteral
+                        PsiElement(string content)('" color "')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.color
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('color')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// you wish')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: SizeImpl
+                      CodeReferenceElement: SizeImpl
+                        PsiElement(identifier)('SizeImpl')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    StringLiteral
+                      PsiElement(string content)('"size  "')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.size
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('size')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: ColorImpl
+                      CodeReferenceElement: ColorImpl
+                        PsiElement(identifier)('ColorImpl')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    StringLiteral
+                      PsiElement(string content)('"color "')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.color
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('color')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace('           ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"n.a."')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: info2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('info2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: Impl
+                    CodeReferenceElement: Impl
+                      PsiElement(identifier)('Impl')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    CompoundType: SizeImpl with ColorImpl
+                      SimpleType: SizeImpl
+                        CodeReferenceElement: SizeImpl
+                          PsiElement(identifier)('SizeImpl')
+                      PsiWhiteSpace(' ')
+                      PsiElement(with)('with')
+                      PsiWhiteSpace(' ')
+                      SimpleType: ColorImpl
+                        CodeReferenceElement: ColorImpl
+                          PsiElement(identifier)('ColorImpl')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        StringLiteral
+                          PsiElement(string content)('"size  "')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: x.size
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('size')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      StringLiteral
+                        PsiElement(string content)('" color "')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.color
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('color')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// you wish')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: SizeImpl
+                      CodeReferenceElement: SizeImpl
+                        PsiElement(identifier)('SizeImpl')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    StringLiteral
+                      PsiElement(string content)('"size  "')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.size
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('size')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: ColorImpl
+                      CodeReferenceElement: ColorImpl
+                        PsiElement(identifier)('ColorImpl')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    StringLiteral
+                      PsiElement(string content)('"color "')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.color
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('color')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace('           ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"n.a."')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScClass: MyNode
+              PsiComment(comment)('// make up some class that has a size')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('MyNode')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: SizeImpl
+                      CodeReferenceElement: SizeImpl
+                        PsiElement(identifier)('SizeImpl')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Console.println
+                ReferenceExpression: Console
+                  PsiElement(identifier)('Console')
+                PsiElement(.)('.')
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  StringLiteral
+                    PsiElement(string content)('"hello "')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: info
+                      PsiElement(identifier)('info')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: MyNode
+                                CodeReferenceElement: MyNode
+                                  PsiElement(identifier)('MyNode')
+                      PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Console.println
+                ReferenceExpression: Console
+                  PsiElement(identifier)('Console')
+                PsiElement(.)('.')
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  StringLiteral
+                    PsiElement(string content)('"hello "')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: info2
+                      PsiElement(identifier)('info2')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: MyNode
+                                CodeReferenceElement: MyNode
+                                  PsiElement(identifier)('MyNode')
+                      PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

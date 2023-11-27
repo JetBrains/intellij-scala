@@ -1,3 +1,73 @@
 trait X[T <: X[T]] { self: T => }
 object Y extends X[Y.type]
 -----
+ScalaFile
+  ScTrait: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: X[T]
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Y')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: X[Y.type]
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Y.type
+                CodeReferenceElement: Y
+                  PsiElement(identifier)('Y')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')

@@ -4,3 +4,120 @@ class Module { self =>
   def foo(s: self.type): commonModuleType = s
 }
 -----
+ScalaFile
+  ScClass: Module
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Module')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: settingsType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('settingsType')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: commonModuleType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('commonModuleType')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Module {type settingsType = self.settingsType}
+            SimpleType: Module
+              CodeReferenceElement: Module
+                PsiElement(identifier)('Module')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: settingsType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('settingsType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: self.settingsType
+                  CodeReferenceElement: self.settingsType
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('settingsType')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: self.type
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: commonModuleType
+            CodeReferenceElement: commonModuleType
+              PsiElement(identifier)('commonModuleType')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: s
+            PsiElement(identifier)('s')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

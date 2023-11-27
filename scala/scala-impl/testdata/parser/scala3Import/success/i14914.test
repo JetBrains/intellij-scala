@@ -7,3 +7,92 @@ def Test(b: Boolean) =
        2
   val _: Unit = a
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a
+            PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: b
+            PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(then)('then')
+          PsiWhiteSpace('\n       ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace('\n    ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PrefixExpression
+              ReferenceExpression: !
+                PsiElement(identifier)('!')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+            PsiWhiteSpace(' ')
+            PsiElement(then)('then')
+            PsiWhiteSpace('\n       ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          WildcardPattern
+            PsiElement(_)('_')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: a
+          PsiElement(identifier)('a')

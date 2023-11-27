@@ -9,3 +9,168 @@ object Test {
   summonValues[(96, 97, 98)]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: summonValues
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('summonValues')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: erasedValue
+                PsiElement(identifier)('erasedValue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    TypeInParenthesis: (a *: b)
+                      PsiElement(()('(')
+                      InfixType: a *: b
+                        TypeVariable: a
+                          PsiElement(identifier)('a')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        TypeVariable: b
+                          PsiElement(identifier)('b')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    GenericCall
+                      ReferenceExpression: constValue
+                        PsiElement(identifier)('constValue')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: a
+                          CodeReferenceElement: a
+                            PsiElement(identifier)('a')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    GenericCall
+                      ReferenceExpression: summonValues
+                        PsiElement(identifier)('summonValues')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: b
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                        PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summonValues
+            PsiElement(identifier)('summonValues')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TupleType: (96, 97, 98)
+              PsiElement(()('(')
+              TypesList
+                LiteralType: 96
+                  IntegerLiteral
+                    PsiElement(integer)('96')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: 97
+                  IntegerLiteral
+                    PsiElement(integer)('97')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: 98
+                  IntegerLiteral
+                    PsiElement(integer)('98')
+              PsiElement())(')')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

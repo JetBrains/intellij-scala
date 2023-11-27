@@ -3,3 +3,20 @@ package t5031
 object ID
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: t5031
+      PsiElement(identifier)('t5031')
+    PsiWhiteSpace('\n\n')
+    ScObject: ID
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ID')
+      ExtendsBlock
+        <empty list>

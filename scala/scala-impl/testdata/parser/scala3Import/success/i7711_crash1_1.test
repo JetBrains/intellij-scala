@@ -8,3 +8,134 @@ type IFT = (x : { type IFTA }) => x.IFTA => x.IFTA => x.IFTA
 val iftTrue : IFT =
   x => t => f => t
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaLibV
+      PsiElement(identifier)('scalaLibV')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: reflect.Selectable.reflectiveSelectable
+          CodeReferenceElement: reflect.Selectable
+            CodeReferenceElement: reflect
+              PsiElement(identifier)('reflect')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Selectable')
+          PsiElement(.)('.')
+          PsiElement(identifier)('reflectiveSelectable')
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: IFT
+      PsiComment(comment)('// Church-encoded Booleans, in DOT.')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('IFT')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      DependentFunctionType: (x : { type IFTA }) => x.IFTA => x.IFTA => x.IFTA
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: x
+            PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            CompoundType: { type IFTA }
+              Refinement
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDeclaration: IFTA
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('IFTA')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        FunctionalType: x.IFTA => x.IFTA => x.IFTA
+          SimpleType: x.IFTA
+            CodeReferenceElement: x.IFTA
+              CodeReferenceElement: x
+                PsiElement(identifier)('x')
+              PsiElement(.)('.')
+              PsiElement(identifier)('IFTA')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          FunctionalType: x.IFTA => x.IFTA
+            SimpleType: x.IFTA
+              CodeReferenceElement: x.IFTA
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('IFTA')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: x.IFTA
+              CodeReferenceElement: x.IFTA
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('IFTA')
+    PsiWhiteSpace('\n\n')
+    ScPatternDefinition: iftTrue
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: iftTrue
+          PsiElement(identifier)('iftTrue')
+      PsiWhiteSpace(' ')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: IFT
+        CodeReferenceElement: IFT
+          PsiElement(identifier)('IFT')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      FunctionExpression
+        Parameters
+          ParametersClause
+            Parameter: x
+              PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              Parameter: t
+                PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: f
+                  PsiElement(identifier)('f')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: t
+              PsiElement(identifier)('t')

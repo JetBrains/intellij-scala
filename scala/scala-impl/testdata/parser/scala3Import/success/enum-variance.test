@@ -17,3 +17,405 @@ enum Show[-T]:
 val reflAnimal: Show.Refl[Animal] = new Show.Refl(_.toString)
 val reflDog: Show.Refl[Dog] = reflAnimal
 -----
+ScalaFile
+  ScClass: Animal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Animal')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Dog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dog')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Opt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Opt')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Sm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Sm
+            PsiElement(identifier)('Sm')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: t
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('t')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: None
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: None
+            PsiElement(identifier)('None')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: smDog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: smDog
+        PsiElement(identifier)('smDog')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Opt.Sm[Dog]
+      SimpleType: Opt.Sm
+        CodeReferenceElement: Opt.Sm
+          CodeReferenceElement: Opt
+            PsiElement(identifier)('Opt')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Sm')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Dog
+          CodeReferenceElement: Dog
+            PsiElement(identifier)('Dog')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Opt.Sm
+              CodeReferenceElement: Opt.Sm
+                CodeReferenceElement: Opt
+                  PsiElement(identifier)('Opt')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Sm')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Dog
+                  PsiElement(identifier)('Dog')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: smAnimal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: smAnimal
+        PsiElement(identifier)('smAnimal')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Opt.Sm[Animal]
+      SimpleType: Opt.Sm
+        CodeReferenceElement: Opt.Sm
+          CodeReferenceElement: Opt
+            PsiElement(identifier)('Opt')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Sm')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Animal
+          CodeReferenceElement: Animal
+            PsiElement(identifier)('Animal')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: smDog
+      PsiElement(identifier)('smDog')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Show
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Show')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Refl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Refl
+            PsiElement(identifier)('Refl')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: op
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('op')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: T => String
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: show
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('show')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ThisReference
+              PsiElement(this)('this')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Refl
+                    PsiElement(identifier)('Refl')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: op
+                      PsiElement(identifier)('op')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: op
+                      PsiElement(identifier)('op')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: t
+                        PsiElement(identifier)('t')
+                      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: reflAnimal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: reflAnimal
+        PsiElement(identifier)('reflAnimal')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Show.Refl[Animal]
+      SimpleType: Show.Refl
+        CodeReferenceElement: Show.Refl
+          CodeReferenceElement: Show
+            PsiElement(identifier)('Show')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Refl')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Animal
+          CodeReferenceElement: Animal
+            PsiElement(identifier)('Animal')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Show.Refl
+              CodeReferenceElement: Show.Refl
+                CodeReferenceElement: Show
+                  PsiElement(identifier)('Show')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Refl')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.toString
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toString')
+              PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: reflDog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: reflDog
+        PsiElement(identifier)('reflDog')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Show.Refl[Dog]
+      SimpleType: Show.Refl
+        CodeReferenceElement: Show.Refl
+          CodeReferenceElement: Show
+            PsiElement(identifier)('Show')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Refl')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Dog
+          CodeReferenceElement: Dog
+            PsiElement(identifier)('Dog')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: reflAnimal
+      PsiElement(identifier)('reflAnimal')

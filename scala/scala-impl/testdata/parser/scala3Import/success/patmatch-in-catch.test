@@ -14,3 +14,206 @@ def driver(action: Action): Action =
             ???
     result
 -----
+ScalaFile
+  ScClass: Action
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Action')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: MainReturn
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MainReturn')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Action
+            CodeReferenceElement: Action
+              PsiElement(identifier)('Action')
+  PsiWhiteSpace('\n')
+  ScObject: ExceptionNormalExit
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ExceptionNormalExit')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Action
+            CodeReferenceElement: Action
+              PsiElement(identifier)('Action')
+  PsiWhiteSpace('\n')
+  ScClass: CaughtException
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CaughtException')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: action
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('action')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Action
+                CodeReferenceElement: Action
+                  PsiElement(identifier)('Action')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: RuntimeException
+            CodeReferenceElement: RuntimeException
+              PsiElement(identifier)('RuntimeException')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: driver
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('driver')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: action
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('action')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Action
+              CodeReferenceElement: Action
+                PsiElement(identifier)('Action')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Action
+      CodeReferenceElement: Action
+        PsiElement(identifier)('Action')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n    ')
+      ScPatternDefinition: result
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: result
+            PsiElement(identifier)('result')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n      ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: action
+            PsiElement(identifier)('action')
+          PsiWhiteSpace('\n      ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: CaughtException
+                  PsiElement(identifier)('CaughtException')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: action
+                    PsiElement(identifier)('action')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n        ')
+              MatchStatement
+                ReferenceExpression: action
+                  PsiElement(identifier)('action')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n          ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: ExceptionNormalExit
+                        PsiElement(identifier)('ExceptionNormalExit')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n            ')
+                    BlockOfExpressions
+                      ReferenceExpression: action
+                        PsiElement(identifier)('action')
+                  PsiWhiteSpace('\n          ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n            ')
+                    BlockOfExpressions
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+      PsiWhiteSpace('\n    ')
+      ReferenceExpression: result
+        PsiElement(identifier)('result')

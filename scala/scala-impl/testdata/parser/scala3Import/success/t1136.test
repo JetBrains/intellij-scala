@@ -7,3 +7,107 @@ object test {
   }
 }
 -----
+ScalaFile
+  ScObject: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ReferenceExpression: s.toList
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toList')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: t
+                      PsiElement(identifier)('t')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      ParametrizedType: List[Int]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: foo
+                        PsiElement(identifier)('foo')
+                      ArgumentList
+                        PsiElement(()('(')
+                        TypedExpression
+                          ReferenceExpression: t
+                            PsiElement(identifier)('t')
+                          SequenceArgumentType
+                            PsiElement(identifier)('*')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              PsiComment(comment)('//case _ =>  // unreachable code')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

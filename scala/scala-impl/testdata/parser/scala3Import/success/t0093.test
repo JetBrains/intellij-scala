@@ -3,3 +3,69 @@ object Bug {
   // no bug with "false == cond"
 }
 -----
+ScalaFile
+  ScObject: Bug
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: cond
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('cond')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          WhileStatement
+            PsiElement(while)('while')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: cond
+                PsiElement(identifier)('cond')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// no bug with "false == cond"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

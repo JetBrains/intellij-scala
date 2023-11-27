@@ -10,3 +10,249 @@ object exec{
   }
 }
 -----
+ScalaFile
+  ScObject: exec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('exec')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Runner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Runner')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: run
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('run')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: t
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('t')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScObject: Runner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Runner')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: run
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('run')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Runner
+                      CodeReferenceElement: Runner
+                        PsiElement(identifier)('Runner')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: t
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('t')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: implicitly[Runner[T]].run
+                    GenericCall
+                      ReferenceExpression: implicitly
+                        PsiElement(identifier)('implicitly')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: Runner[T]
+                          SimpleType: Runner
+                            CodeReferenceElement: Runner
+                              PsiElement(identifier)('Runner')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('run')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: t
+                      PsiElement(identifier)('t')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: runImplicitly
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('runImplicitly')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                  PsiElement(])(']')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Runner[T]
+                  SimpleType: Runner
+                    CodeReferenceElement: Runner
+                      PsiElement(identifier)('Runner')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      ScFunctionDefinition: run
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('run')
+                        Parameters
+                          ParametersClause
+                            PsiElement(()('(')
+                            Parameter: t
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(identifier)('t')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              ParameterType
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: List(()).map(x => x).head
+                          MethodCall
+                            ReferenceExpression: List(()).map
+                              MethodCall
+                                ReferenceExpression: List
+                                  PsiElement(identifier)('List')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  UnitExpression
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('map')
+                            ArgumentList
+                              PsiElement(()('(')
+                              FunctionExpression
+                                Parameters
+                                  ParametersClause
+                                    Parameter: x
+                                      PsiElement(identifier)('x')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: x
+                                  PsiElement(identifier)('x')
+                              PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('head')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// <<<')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

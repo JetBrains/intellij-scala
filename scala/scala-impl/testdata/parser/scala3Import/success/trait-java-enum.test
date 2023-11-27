@@ -4,3 +4,82 @@ enum MyEnum extends T {
   case A, B
 }
 -----
+ScalaFile
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: java.lang.Enum[T]
+            SimpleType: java.lang.Enum
+              CodeReferenceElement: java.lang.Enum
+                CodeReferenceElement: java.lang
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('lang')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScEnum: MyEnum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEnum')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: A, B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: A
+            PsiElement(identifier)('A')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: B
+            PsiElement(identifier)('B')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

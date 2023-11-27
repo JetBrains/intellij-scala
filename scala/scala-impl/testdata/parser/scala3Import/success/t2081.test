@@ -10,3 +10,182 @@ object ScalaForRubyists {
   val y = 5.0e0 + 5e7
 }
 -----
+ScalaFile
+  ScObject: ScalaForRubyists
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ScalaForRubyists')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: RichInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RichInt')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: n
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('n')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: days
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('days')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('1000')
+                        ReferenceExpression: *
+                          PsiElement(identifier)('*')
+                        IntegerLiteral
+                          PsiElement(integer)('60')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      IntegerLiteral
+                        PsiElement(integer)('60')
+                    ReferenceExpression: *
+                      PsiElement(identifier)('*')
+                    IntegerLiteral
+                      PsiElement(integer)('24')
+                  ReferenceExpression: *
+                    PsiElement(identifier)('*')
+                  ReferenceExpression: n
+                    PsiElement(identifier)('n')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: RichInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RichInt')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: n
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('n')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: RichInt
+            CodeReferenceElement: RichInt
+              PsiElement(identifier)('RichInt')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: RichInt
+                    CodeReferenceElement: RichInt
+                      PsiElement(identifier)('RichInt')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: n
+                      PsiElement(identifier)('n')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 10.days
+            IntegerLiteral
+              PsiElement(integer)('10')
+            PsiElement(.)('.')
+            PsiElement(identifier)('days')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          PsiComment(comment)('// a couple parser corner cases I wanted not to break')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            DoubleLiteral
+              PsiElement(double)('5.0e0')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            DoubleLiteral
+              PsiElement(double)('5e7')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

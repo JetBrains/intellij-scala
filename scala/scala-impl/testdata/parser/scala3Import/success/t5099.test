@@ -13,3 +13,120 @@ class LazyValVsFunctionType[a]  {
     }
 }
 -----
+ScalaFile
+  ScClass: LazyValVsFunctionType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LazyValVsFunctionType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace('  ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: f
+              PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: a => a
+            SimpleType: a
+              CodeReferenceElement: a
+                PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: a
+              CodeReferenceElement: a
+                PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: x
+                  PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n        ')
+              ScPatternDefinition: _x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(lazy)('lazy')
+                PsiWhiteSpace(' ')
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: _x
+                    PsiElement(identifier)('_x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ThrowStatement
+                  PsiElement(throw)('throw')
+                  PsiWhiteSpace(' ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: java.lang.Error
+                            CodeReferenceElement: java.lang.Error
+                              CodeReferenceElement: java.lang
+                                CodeReferenceElement: java
+                                  PsiElement(identifier)('java')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('lang')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Error')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('"todo"')
+                            PsiElement())(')')
+              PsiWhiteSpace('\n        ')
+              ReferenceExpression: _x
+                PsiElement(identifier)('_x')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error: type mismatch')
+              PsiWhiteSpace('\n')
+              PsiComment(BlockComment)('/*\n[error]  found   : a => => a\n[error]  required: a => a\n[error]     val f: a => a = x => {\n[error]                       ^\n[error] one error found\n*/')
+              PsiWhiteSpace('\n        ')
+              PsiComment(comment)('// _x: a // ok')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

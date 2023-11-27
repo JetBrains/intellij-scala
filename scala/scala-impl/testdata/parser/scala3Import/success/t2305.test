@@ -25,3 +25,312 @@ object breaks {
     */
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.ArrayList
+        CodeReferenceElement: java.util
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ArrayList')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Bind
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bind')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Z
+        PsiElement(identifier)('Z')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: MySerializable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySerializable')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: java.io.Serializable
+            CodeReferenceElement: java.io.Serializable
+              CodeReferenceElement: java.io
+                CodeReferenceElement: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('io')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Serializable')
+  PsiWhiteSpace('\n\n')
+  ScObject: Bind
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bind')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: JavaArrayListBind
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: JavaArrayListBind
+              PsiElement(identifier)('JavaArrayListBind')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Bind[ArrayList]
+            SimpleType: Bind
+              CodeReferenceElement: Bind
+                PsiElement(identifier)('Bind')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: ArrayList
+                CodeReferenceElement: ArrayList
+                  PsiElement(identifier)('ArrayList')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Bind[ArrayList]
+                    SimpleType: Bind
+                      CodeReferenceElement: Bind
+                        PsiElement(identifier)('Bind')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: ArrayList
+                        CodeReferenceElement: ArrayList
+                          PsiElement(identifier)('ArrayList')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: MySerializableBind
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: MySerializableBind
+              PsiElement(identifier)('MySerializableBind')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Bind[MySerializable]
+            SimpleType: Bind
+              CodeReferenceElement: Bind
+                PsiElement(identifier)('Bind')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: MySerializable
+                CodeReferenceElement: MySerializable
+                  PsiElement(identifier)('MySerializable')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Bind[MySerializable]
+                    SimpleType: Bind
+                      CodeReferenceElement: Bind
+                        PsiElement(identifier)('Bind')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: MySerializable
+                        CodeReferenceElement: MySerializable
+                          PsiElement(identifier)('MySerializable')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: works
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('works')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: runbind
+          PsiComment(comment)('// this works fine:')
+          PsiWhiteSpace('\n    ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('runbind')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: bind
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bind')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Bind[MySerializable]
+                    SimpleType: Bind
+                      CodeReferenceElement: Bind
+                        PsiElement(identifier)('Bind')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: MySerializable
+                        CodeReferenceElement: MySerializable
+                          PsiElement(identifier)('MySerializable')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n    ')
+        ReferenceExpression: runbind
+          PsiElement(identifier)('runbind')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: breaks
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('breaks')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: runbind
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('runbind')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: bind
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bind')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Bind[ArrayList]
+                    SimpleType: Bind
+                      CodeReferenceElement: Bind
+                        PsiElement(identifier)('Bind')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: ArrayList
+                        CodeReferenceElement: ArrayList
+                          PsiElement(identifier)('ArrayList')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n        ')
+        ReferenceExpression: runbind
+          PsiElement(identifier)('runbind')
+        PsiWhiteSpace('\n    ')
+        PsiComment(BlockComment)('/*java.lang.AssertionError: assertion failed: java.io.Serializable\n        at scala.Predef$.assert(Predef.scala:107)\n        at scala.tools.nsc.symtab.Types$TypeRef.transform(Types.scala:1417)\n        at scala.tools.nsc.symtab.Types$TypeRef.baseType(Types.scala:1559)\n    */')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

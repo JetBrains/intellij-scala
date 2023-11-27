@@ -8,3 +8,87 @@ object Test {
   def foo: Int ?=> (g: HasT) ?=> g.T = ???
 }
 -----
+ScalaFile
+  ScTrait: HasT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HasT')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: Int ?=> (g: HasT) ?=> g.T
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(?=>)('?=>')
+            PsiWhiteSpace(' ')
+            DependentFunctionType: (g: HasT) ?=> g.T
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: g
+                  PsiElement(identifier)('g')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: HasT
+                    CodeReferenceElement: HasT
+                      PsiElement(identifier)('HasT')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              SimpleType: g.T
+                CodeReferenceElement: g.T
+                  CodeReferenceElement: g
+                    PsiElement(identifier)('g')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

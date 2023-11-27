@@ -15,3 +15,170 @@ object OuterObject extends OuterTrait {
   }
 }
 -----
+ScalaFile
+  ScTrait: OuterTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OuterTrait')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: InnerTrait
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('InnerTrait')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Element
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Element')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Collection
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Collection')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[Inner.Element]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Inner.Element
+                      CodeReferenceElement: Inner.Element
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Element')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScValueDeclaration: Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: Inner
+              PsiElement(identifier)('Inner')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: InnerTrait
+            CodeReferenceElement: InnerTrait
+              PsiElement(identifier)('InnerTrait')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: OuterObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OuterObject')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: OuterTrait
+            CodeReferenceElement: OuterTrait
+              PsiElement(identifier)('OuterTrait')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScObject: Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inner')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: InnerTrait
+                  CodeReferenceElement: InnerTrait
+                    PsiElement(identifier)('InnerTrait')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Element
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Element')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Collection
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Collection')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Seq[Inner.Element]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Inner.Element
+                      CodeReferenceElement: Inner.Element
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Element')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

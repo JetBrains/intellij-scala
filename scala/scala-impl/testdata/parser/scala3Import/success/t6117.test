@@ -18,3 +18,167 @@ class Test(val importMe: ImportMe) {
   println(foo(1))
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ImportMe
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ImportMe')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: importMe
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('importMe')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: ImportMe
+                  CodeReferenceElement: ImportMe
+                    PsiElement(identifier)('ImportMe')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: importMe
+                PsiElement(identifier)('importMe')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: importMe
+                PsiElement(identifier)('importMe')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+          PsiWhiteSpace('\n\n  ')
+          PsiComment(comment)('// A.scala:12: error: reference to foo is ambiguous;')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// it is imported twice in the same scope by')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// import importMe.*')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// and import importMe.*')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//   println(foo(1))')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//           ^')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

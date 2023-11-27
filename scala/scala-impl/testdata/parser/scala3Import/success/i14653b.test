@@ -11,3 +11,235 @@ def test(c: Amount, d: Amount.Type): Unit =
    Amount.twice(c)
    Amount.twice(d)
 -----
+ScalaFile
+  ScTypeAliasDefinition: Amount
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Amount')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: Amount.Type
+      CodeReferenceElement: Amount.Type
+        CodeReferenceElement: Amount
+          PsiElement(identifier)('Amount')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Type')
+  PsiWhiteSpace('\n')
+  ScObject: Amount
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Amount')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Type
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: twice
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('twice')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Type
+                    CodeReferenceElement: Type
+                      PsiElement(identifier)('Type')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Type
+            CodeReferenceElement: Type
+              PsiElement(identifier)('Type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Amount
+      CodeReferenceElement: Amount
+        PsiElement(identifier)('Amount')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('b')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Amount.Type
+      CodeReferenceElement: Amount.Type
+        CodeReferenceElement: Amount
+          PsiElement(identifier)('Amount')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Type')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Amount
+              CodeReferenceElement: Amount
+                PsiElement(identifier)('Amount')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: d
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('d')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Amount.Type
+              CodeReferenceElement: Amount.Type
+                CodeReferenceElement: Amount
+                  PsiElement(identifier)('Amount')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Type')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n   ')
+      MethodCall
+        ReferenceExpression: Amount.twice
+          ReferenceExpression: Amount
+            PsiElement(identifier)('Amount')
+          PsiElement(.)('.')
+          PsiElement(identifier)('twice')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
+          PsiElement())(')')
+      PsiWhiteSpace('\n   ')
+      MethodCall
+        ReferenceExpression: Amount.twice
+          ReferenceExpression: Amount
+            PsiElement(identifier)('Amount')
+          PsiElement(.)('.')
+          PsiElement(identifier)('twice')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: b
+            PsiElement(identifier)('b')
+          PsiElement())(')')
+      PsiWhiteSpace('\n   ')
+      MethodCall
+        ReferenceExpression: Amount.twice
+          ReferenceExpression: Amount
+            PsiElement(identifier)('Amount')
+          PsiElement(.)('.')
+          PsiElement(identifier)('twice')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiElement())(')')
+      PsiWhiteSpace('\n   ')
+      MethodCall
+        ReferenceExpression: Amount.twice
+          ReferenceExpression: Amount
+            PsiElement(identifier)('Amount')
+          PsiElement(.)('.')
+          PsiElement(identifier)('twice')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: d
+            PsiElement(identifier)('d')
+          PsiElement())(')')

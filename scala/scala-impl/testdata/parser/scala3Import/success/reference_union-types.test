@@ -36,3 +36,528 @@ object t2 {
 
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: unionTypes
+      PsiElement(identifier)('unionTypes')
+    PsiWhiteSpace('\n\n')
+    ScObject: t1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t1')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: Hash
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Hash')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace('\n\n  ')
+          ScClass: UserName
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('UserName')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: name
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('name')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n  ')
+          ScClass: Password
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Password')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: hash
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('hash')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Hash
+                        CodeReferenceElement: Hash
+                          PsiElement(identifier)('Hash')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: help
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('help')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: id
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('id')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    InfixType: UserName | Password
+                      SimpleType: UserName
+                        CodeReferenceElement: UserName
+                          PsiElement(identifier)('UserName')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Password
+                        CodeReferenceElement: Password
+                          PsiElement(identifier)('Password')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: user
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: user
+                    PsiElement(identifier)('user')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchStatement
+                  ReferenceExpression: id
+                    PsiElement(identifier)('id')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: UserName
+                          PsiElement(identifier)('UserName')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: name
+                            PsiElement(identifier)('name')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: lookupName
+                            PsiElement(identifier)('lookupName')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: name
+                              PsiElement(identifier)('name')
+                            PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: Password
+                          PsiElement(identifier)('Password')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: hash
+                            PsiElement(identifier)('hash')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: lookupPassword
+                            PsiElement(identifier)('lookupPassword')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: hash
+                              PsiElement(identifier)('hash')
+                            PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: lookupName
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('lookupName')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: lookupPassword
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('lookupPassword')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: hash
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('hash')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Hash
+                      CodeReferenceElement: Hash
+                        PsiElement(identifier)('Hash')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: t2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t2')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: t1
+                PsiElement(identifier)('t1')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: Admin
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Admin')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n  ')
+          ScTrait: UserData
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('UserData')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: L
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('L')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScFunctionDeclaration: lookup
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('lookup')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: admin
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('admin')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Admin
+                            CodeReferenceElement: Admin
+                              PsiElement(identifier)('Admin')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Object
+                    CodeReferenceElement: Object
+                      PsiElement(identifier)('Object')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScClass: UserName
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('UserName')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: name
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('name')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: lookup
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('lookup')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: admin
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('admin')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Admin
+                            CodeReferenceElement: Admin
+                              PsiElement(identifier)('Admin')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: UserData
+                    CodeReferenceElement: UserData
+                      PsiElement(identifier)('UserData')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScClass: Password
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Password')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: hash
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('hash')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Hash
+                        CodeReferenceElement: Hash
+                          PsiElement(identifier)('Hash')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: lookup
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('lookup')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: admin
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('admin')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Admin
+                            CodeReferenceElement: Admin
+                              PsiElement(identifier)('Admin')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: UserData
+                    CodeReferenceElement: UserData
+                      PsiElement(identifier)('UserData')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

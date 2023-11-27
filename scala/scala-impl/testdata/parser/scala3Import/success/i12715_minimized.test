@@ -7,3 +7,102 @@ transparent inline def f: String =
 def test =
   inline val failMsg = f
 -----
+ScalaFile
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('10')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MatchStatement
+              PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"foo"')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n        ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: failMsg
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: failMsg
+            PsiElement(identifier)('failMsg')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: f
+          PsiElement(identifier)('f')

@@ -112,3 +112,1911 @@ trait Transactional {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala.concurrent1
+      CodeReferenceElement: scala
+        PsiElement(identifier)('scala')
+      PsiElement(.)('.')
+      PsiElement(identifier)('concurrent1')
+    PsiWhiteSpace('\n\n')
+    ScClass: AbortException
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('AbortException')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: RuntimeException
+              CodeReferenceElement: RuntimeException
+                PsiElement(identifier)('RuntimeException')
+    PsiWhiteSpace('\n\n')
+    ScObject: Transaction
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Transaction')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: cnt
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: cnt
+                PsiElement(identifier)('cnt')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            LongLiteral
+              PsiElement(long)('0L')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: nextId
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('nextId')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Long
+              CodeReferenceElement: Long
+                PsiElement(identifier)('Long')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: synchronized
+                PsiElement(identifier)('synchronized')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n    ')
+                  InfixExpression
+                    ReferenceExpression: cnt
+                      PsiElement(identifier)('cnt')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +=
+                      PsiElement(identifier)('+=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: cnt
+                    PsiElement(identifier)('cnt')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: Running
+            PsiComment(comment)('// Transaction status constants')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Running
+                PsiElement(identifier)('Running')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: Committed
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Committed
+                PsiElement(identifier)('Committed')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: Abortable
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Abortable
+                PsiElement(identifier)('Abortable')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: Aborted
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Aborted
+                PsiElement(identifier)('Aborted')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: Compound
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Compound
+                PsiElement(identifier)('Compound')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('4')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: atomic
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('atomic')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: Transaction => T
+                      SimpleType: Transaction
+                        CodeReferenceElement: Transaction
+                          PsiElement(identifier)('Transaction')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Option[T]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: (new Transaction).run
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Transaction
+                            CodeReferenceElement: Transaction
+                              PsiElement(identifier)('Transaction')
+                  PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('run')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: Transaction
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Transaction')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: status
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: status
+                PsiElement(identifier)('status')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: compiletime.uninitialized
+              ReferenceExpression: compiletime
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('uninitialized')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDefinition: id
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: id
+                PsiElement(identifier)('id')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Long
+              CodeReferenceElement: Long
+                PsiElement(identifier)('Long')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            UnderscoreSection
+              PsiElement(_)('_')
+          PsiWhiteSpace('  ')
+          PsiComment(comment)('// only for real transactions')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDefinition: head
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: head
+                PsiElement(identifier)('head')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Transaction
+              CodeReferenceElement: Transaction
+                PsiElement(identifier)('Transaction')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ThisReference
+              PsiElement(this)('this')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: next
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: next
+                PsiElement(identifier)('next')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Transaction
+              CodeReferenceElement: Transaction
+                PsiElement(identifier)('Transaction')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            NullLiteral
+              PsiElement(null)('null')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: this
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(this)('this')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: hd
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('hd')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Transaction
+                      CodeReferenceElement: Transaction
+                        PsiElement(identifier)('Transaction')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: tl
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('tl')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Transaction
+                      CodeReferenceElement: Transaction
+                        PsiElement(identifier)('Transaction')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ConstructorBlock
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfInvocation
+                PsiElement(this)('this')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              AssignStatement
+                ReferenceExpression: this.head
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('head')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: head
+                  PsiElement(identifier)('head')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              AssignStatement
+                ReferenceExpression: this.next
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('next')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: makeAbort
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('makeAbort')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: synchronized
+                PsiElement(identifier)('synchronized')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n    ')
+                  WhileStatement
+                    PsiElement(while)('while')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      InfixExpression
+                        ReferenceExpression: status
+                          PsiElement(identifier)('status')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Transaction.Aborted
+                          ReferenceExpression: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Aborted')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: &&
+                        PsiElement(identifier)('&&')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: status
+                          PsiElement(identifier)('status')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Transaction.Committed
+                          ReferenceExpression: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Committed')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      AssignStatement
+                        ReferenceExpression: status
+                          PsiElement(identifier)('status')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Transaction.Abortable
+                          ReferenceExpression: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Abortable')
+                      PsiWhiteSpace('\n      ')
+                      MethodCall
+                        ReferenceExpression: wait
+                          PsiElement(identifier)('wait')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: abort
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('abort')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: synchronized
+                PsiElement(identifier)('synchronized')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: status
+                      PsiElement(identifier)('status')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Transaction.Aborted
+                      ReferenceExpression: Transaction
+                        PsiElement(identifier)('Transaction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Aborted')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: notifyAll
+                      PsiElement(identifier)('notifyAll')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: commit
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('commit')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: synchronized
+                PsiElement(identifier)('synchronized')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: status
+                      PsiElement(identifier)('status')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Transaction.Committed
+                      ReferenceExpression: Transaction
+                        PsiElement(identifier)('Transaction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Committed')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: notifyAll
+                      PsiElement(identifier)('notifyAll')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: run
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('run')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: Transaction => T
+                      SimpleType: Transaction
+                        CodeReferenceElement: Transaction
+                          PsiElement(identifier)('Transaction')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Option[T]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            TryStatement
+              PsiElement(try)('try')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: status
+                    PsiElement(identifier)('status')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Transaction.Running
+                    ReferenceExpression: Transaction
+                      PsiElement(identifier)('Transaction')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Running')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: id
+                    PsiElement(identifier)('id')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Transaction.nextId
+                    ReferenceExpression: Transaction
+                      PsiElement(identifier)('Transaction')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nextId')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: result
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: result
+                      PsiElement(identifier)('result')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: b
+                          PsiElement(identifier)('b')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ThisReference
+                            PsiElement(this)('this')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: commit
+                    PsiElement(identifier)('commit')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: result
+                  PsiElement(identifier)('result')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              CatchBlock
+                PsiElement(catch)('catch')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: ex
+                          PsiElement(identifier)('ex')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: AbortException
+                            CodeReferenceElement: AbortException
+                              PsiElement(identifier)('AbortException')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: abort
+                            PsiElement(identifier)('abort')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: None
+                          PsiElement(identifier)('None')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: ex
+                          PsiElement(identifier)('ex')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Throwable
+                            CodeReferenceElement: Throwable
+                              PsiElement(identifier)('Throwable')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: abort
+                            PsiElement(identifier)('abort')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        ThrowStatement
+                          PsiElement(throw)('throw')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ex
+                            PsiElement(identifier)('ex')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Transactional
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Transactional')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDeclaration: checkPoint
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('create a new snapshot')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('checkPoint')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDeclaration: rollBack
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('copy back snapshot')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('rollBack')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+          PsiWhiteSpace('\n\n  ')
+          ScVariableDeclaration: readers
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: readers
+                PsiElement(identifier)('readers')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Transaction
+              CodeReferenceElement: Transaction
+                PsiElement(identifier)('Transaction')
+          PsiWhiteSpace('\n  ')
+          ScVariableDeclaration: writer
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: writer
+                PsiElement(identifier)('writer')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Transaction
+              CodeReferenceElement: Transaction
+                PsiElement(identifier)('Transaction')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: currentWriter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('currentWriter')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Transaction
+              CodeReferenceElement: Transaction
+                PsiElement(identifier)('Transaction')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            NullLiteral
+              PsiElement(null)('null')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: writer
+                PsiElement(identifier)('writer')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              NullLiteral
+                PsiElement(null)('null')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            NullLiteral
+              PsiElement(null)('null')
+            PsiWhiteSpace('\n    ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: writer.status
+                  ReferenceExpression: writer
+                    PsiElement(identifier)('writer')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('status')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ==
+                  PsiElement(identifier)('==')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: Transaction.Running
+                  ReferenceExpression: Transaction
+                    PsiElement(identifier)('Transaction')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Running')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: writer
+                PsiElement(identifier)('writer')
+              PsiWhiteSpace('\n    ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: writer.status
+                      ReferenceExpression: writer
+                        PsiElement(identifier)('writer')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('status')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: !=
+                      PsiElement(identifier)('!=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Transaction.Committed
+                      ReferenceExpression: Transaction
+                        PsiElement(identifier)('Transaction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Committed')
+                  PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: rollBack
+                      PsiElement(identifier)('rollBack')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: writer
+                    PsiElement(identifier)('writer')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  NullLiteral
+                    PsiElement(null)('null')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n      ')
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: getter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('getter')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: thisTrans
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('thisTrans')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Transaction
+                      CodeReferenceElement: Transaction
+                        PsiElement(identifier)('Transaction')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: writer
+                    PsiElement(identifier)('writer')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: thisTrans
+                    PsiElement(identifier)('thisTrans')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReturnStatement
+                  PsiElement(return)('return')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: readers
+                  PsiElement(identifier)('readers')
+              PsiWhiteSpace('\n    ')
+              WhileStatement
+                PsiElement(while)('while')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                InfixExpression
+                  InfixExpression
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: !=
+                      PsiElement(identifier)('!=')
+                    PsiWhiteSpace(' ')
+                    NullLiteral
+                      PsiElement(null)('null')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: &&
+                    PsiElement(identifier)('&&')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: r.head.status
+                      ReferenceExpression: r.head
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('head')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('status')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: !=
+                      PsiElement(identifier)('!=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Transaction.Running
+                      ReferenceExpression: Transaction
+                        PsiElement(identifier)('Transaction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Running')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r.next
+                      ReferenceExpression: r
+                        PsiElement(identifier)('r')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('next')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: readers
+                      PsiElement(identifier)('readers')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              WhileStatement
+                PsiElement(while)('while')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: r
+                    PsiElement(identifier)('r')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: !=
+                    PsiElement(identifier)('!=')
+                  PsiWhiteSpace(' ')
+                  NullLiteral
+                    PsiElement(null)('null')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: r.head
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('head')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: thisTrans
+                        PsiElement(identifier)('thisTrans')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReturnStatement
+                      PsiElement(return)('return')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: last
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: last
+                        PsiElement(identifier)('last')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                  PsiWhiteSpace('\n      ')
+                  AssignStatement
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r.next
+                      ReferenceExpression: r
+                        PsiElement(identifier)('r')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('next')
+                  PsiWhiteSpace('\n      ')
+                  WhileStatement
+                    PsiElement(while)('while')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      InfixExpression
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        NullLiteral
+                          PsiElement(null)('null')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: &&
+                        PsiElement(identifier)('&&')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: r.head.status
+                          ReferenceExpression: r.head
+                            ReferenceExpression: r
+                              PsiElement(identifier)('r')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('head')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('status')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Transaction.Running
+                          ReferenceExpression: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Running')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: r.next
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('next')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: last.next
+                          ReferenceExpression: last
+                            PsiElement(identifier)('last')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('next')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: synchronized
+                  PsiElement(identifier)('synchronized')
+                PsiWhiteSpace(' ')
+                ArgumentList
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: thisTrans.status
+                          ReferenceExpression: thisTrans
+                            PsiElement(identifier)('thisTrans')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('status')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ==
+                          PsiElement(identifier)('==')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Transaction.Abortable
+                          ReferenceExpression: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Abortable')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ThrowStatement
+                        PsiElement(throw)('throw')
+                        PsiWhiteSpace(' ')
+                        ScNewTemplateDefinition: <anonymous>
+                          PsiElement(new)('new')
+                          PsiWhiteSpace(' ')
+                          ExtendsBlock
+                            TemplateParents
+                              ConstructorInvocation
+                                SimpleType: AbortException
+                                  CodeReferenceElement: AbortException
+                                    PsiElement(identifier)('AbortException')
+                    PsiWhiteSpace('\n      ')
+                    ScPatternDefinition: w
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: w
+                          PsiElement(identifier)('w')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: currentWriter
+                          PsiElement(identifier)('currentWriter')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: w
+                          PsiElement(identifier)('w')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        NullLiteral
+                          PsiElement(null)('null')
+                      PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: thisTrans.id
+                            ReferenceExpression: thisTrans
+                              PsiElement(identifier)('thisTrans')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('id')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: <
+                            PsiElement(identifier)('<')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: w.id
+                            ReferenceExpression: w
+                              PsiElement(identifier)('w')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('id')
+                        PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        BlockExpression
+                          PsiElement({)('{')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: w.makeAbort
+                              ReferenceExpression: w
+                                PsiElement(identifier)('w')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('makeAbort')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement(;)(';')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: rollBack
+                              PsiElement(identifier)('rollBack')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement(;)(';')
+                          PsiWhiteSpace(' ')
+                          AssignStatement
+                            ReferenceExpression: writer
+                              PsiElement(identifier)('writer')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            NullLiteral
+                              PsiElement(null)('null')
+                          PsiWhiteSpace(' ')
+                          PsiElement(})('}')
+                        PsiWhiteSpace('\n        ')
+                        PsiElement(else)('else')
+                        PsiWhiteSpace(' ')
+                        ThrowStatement
+                          PsiElement(throw)('throw')
+                          PsiWhiteSpace(' ')
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: AbortException
+                                    CodeReferenceElement: AbortException
+                                      PsiElement(identifier)('AbortException')
+                    PsiWhiteSpace('\n      ')
+                    AssignStatement
+                      ReferenceExpression: readers
+                        PsiElement(identifier)('readers')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: readers
+                            PsiElement(identifier)('readers')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          NullLiteral
+                            PsiElement(null)('null')
+                        PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: thisTrans
+                          PsiElement(identifier)('thisTrans')
+                        PsiWhiteSpace(' ')
+                        PsiElement(else)('else')
+                        PsiWhiteSpace(' ')
+                        ScNewTemplateDefinition: <anonymous>
+                          PsiElement(new)('new')
+                          PsiWhiteSpace(' ')
+                          ExtendsBlock
+                            TemplateParents
+                              ConstructorInvocation
+                                SimpleType: Transaction
+                                  CodeReferenceElement: Transaction
+                                    PsiElement(identifier)('Transaction')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: thisTrans
+                                    PsiElement(identifier)('thisTrans')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: readers
+                                    PsiElement(identifier)('readers')
+                                  PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: setter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('setter')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: thisTrans
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('thisTrans')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Transaction
+                      CodeReferenceElement: Transaction
+                        PsiElement(identifier)('Transaction')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: writer
+                    PsiElement(identifier)('writer')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: thisTrans
+                    PsiElement(identifier)('thisTrans')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReturnStatement
+                  PsiElement(return)('return')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: synchronized
+                  PsiElement(identifier)('synchronized')
+                PsiWhiteSpace(' ')
+                ArgumentList
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScPatternDefinition: w
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: w
+                          PsiElement(identifier)('w')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: currentWriter
+                          PsiElement(identifier)('currentWriter')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: w
+                          PsiElement(identifier)('w')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        NullLiteral
+                          PsiElement(null)('null')
+                      PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: thisTrans.id
+                            ReferenceExpression: thisTrans
+                              PsiElement(identifier)('thisTrans')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('id')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: <
+                            PsiElement(identifier)('<')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: w.id
+                            ReferenceExpression: w
+                              PsiElement(identifier)('w')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('id')
+                        PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        BlockExpression
+                          PsiElement({)('{')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: w.makeAbort
+                              ReferenceExpression: w
+                                PsiElement(identifier)('w')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('makeAbort')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement(;)(';')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: rollBack
+                              PsiElement(identifier)('rollBack')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(})('}')
+                        PsiWhiteSpace('\n        ')
+                        PsiElement(else)('else')
+                        PsiWhiteSpace(' ')
+                        ThrowStatement
+                          PsiElement(throw)('throw')
+                          PsiWhiteSpace(' ')
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: AbortException
+                                    CodeReferenceElement: AbortException
+                                      PsiElement(identifier)('AbortException')
+                    PsiWhiteSpace('\n      ')
+                    ScVariableDefinition: r
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(var)('var')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: r
+                          PsiElement(identifier)('r')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: readers
+                        PsiElement(identifier)('readers')
+                    PsiWhiteSpace('\n      ')
+                    WhileStatement
+                      PsiElement(while)('while')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        InfixExpression
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: !=
+                            PsiElement(identifier)('!=')
+                          PsiWhiteSpace(' ')
+                          NullLiteral
+                            PsiElement(null)('null')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: &&
+                          PsiElement(identifier)('&&')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          ReferenceExpression: r.head.status
+                            ReferenceExpression: r.head
+                              ReferenceExpression: r
+                                PsiElement(identifier)('r')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('head')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('status')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: !=
+                            PsiElement(identifier)('!=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: Transaction.Running
+                            ReferenceExpression: Transaction
+                              PsiElement(identifier)('Transaction')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Running')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        AssignStatement
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: r.next
+                            ReferenceExpression: r
+                              PsiElement(identifier)('r')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('next')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        AssignStatement
+                          ReferenceExpression: readers
+                            PsiElement(identifier)('readers')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                    PsiWhiteSpace('\n      ')
+                    WhileStatement
+                      PsiElement(while)('while')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        NullLiteral
+                          PsiElement(null)('null')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n        ')
+                        IfStatement
+                          PsiElement(if)('if')
+                          PsiWhiteSpace(' ')
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: r.id
+                              ReferenceExpression: r
+                                PsiElement(identifier)('r')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('id')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: <
+                              PsiElement(identifier)('<')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: thisTrans.id
+                              ReferenceExpression: thisTrans
+                                PsiElement(identifier)('thisTrans')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('id')
+                          PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ThrowStatement
+                            PsiElement(throw)('throw')
+                            PsiWhiteSpace(' ')
+                            ScNewTemplateDefinition: <anonymous>
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                TemplateParents
+                                  ConstructorInvocation
+                                    SimpleType: AbortException
+                                      CodeReferenceElement: AbortException
+                                        PsiElement(identifier)('AbortException')
+                          PsiWhiteSpace('\n        ')
+                          PsiElement(else)('else')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: w.makeAbort
+                              ReferenceExpression: w
+                                PsiElement(identifier)('w')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('makeAbort')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                        PsiWhiteSpace('\n        ')
+                        ScPatternDefinition: last
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfPatterns
+                            ReferencePattern: last
+                              PsiElement(identifier)('last')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                        PsiWhiteSpace('\n        ')
+                        AssignStatement
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: r.next
+                            ReferenceExpression: r
+                              PsiElement(identifier)('r')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('next')
+                        PsiWhiteSpace('\n        ')
+                        WhileStatement
+                          PsiElement(while)('while')
+                          PsiWhiteSpace(' ')
+                          PsiElement(()('(')
+                          InfixExpression
+                            InfixExpression
+                              ReferenceExpression: r
+                                PsiElement(identifier)('r')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: !=
+                                PsiElement(identifier)('!=')
+                              PsiWhiteSpace(' ')
+                              NullLiteral
+                                PsiElement(null)('null')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: &&
+                              PsiElement(identifier)('&&')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              ReferenceExpression: r.head.status
+                                ReferenceExpression: r.head
+                                  ReferenceExpression: r
+                                    PsiElement(identifier)('r')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('head')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('status')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: !=
+                                PsiElement(identifier)('!=')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: Transaction.Running
+                                ReferenceExpression: Transaction
+                                  PsiElement(identifier)('Transaction')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Running')
+                          PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            AssignStatement
+                              ReferenceExpression: r
+                                PsiElement(identifier)('r')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: r.next
+                                ReferenceExpression: r
+                                  PsiElement(identifier)('r')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('next')
+                            PsiElement(;)(';')
+                            PsiWhiteSpace(' ')
+                            AssignStatement
+                              ReferenceExpression: last.next
+                                ReferenceExpression: last
+                                  PsiElement(identifier)('last')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('next')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: r
+                                PsiElement(identifier)('r')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(})('}')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: checkPoint
+                        PsiElement(identifier)('checkPoint')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

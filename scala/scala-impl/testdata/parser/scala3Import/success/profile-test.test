@@ -28,3 +28,148 @@ object ProfileTest:
   }
 
 -----
+ScalaFile
+  ScObject: ProfileTest
+    PsiComment(comment)('// When compiling this with -Yprofile, this should output')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Source file         Lines   Tokens    Tasty  Complexity/Line     Directory')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// profile-test.scala     16       50      316   0.49  low          tests/pos')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ProfileTest')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace(' ')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: baz
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('baz')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bam
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('doc comment')
+              ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bam')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+          PsiWhiteSpace(' ')
+          PsiElement(then)('then')
+          PsiWhiteSpace('\n    ')
+          PsiComment(comment)('// comment')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: baz
+            PsiElement(identifier)('baz')
+          PsiWhiteSpace('\n  ')
+          PsiElement(else)('else')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: bam
+            PsiElement(identifier)('bam')
+        PsiWhiteSpace('\n\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+          PsiWhiteSpace(' ')
+          PsiElement(then)('then')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: baz
+              PsiElement(identifier)('baz')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// comment')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: bam
+              PsiElement(identifier)('bam')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

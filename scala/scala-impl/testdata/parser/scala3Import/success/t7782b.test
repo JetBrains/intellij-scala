@@ -24,3 +24,249 @@ abstract class C[E] {
   // required: ?BB
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: pack
+      PsiElement(identifier)('pack')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: O.empty
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+          PsiWhiteSpace('\n  ')
+          ReferenceExpression: empty
+            PsiElement(identifier)('empty')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// this will trigger completion of `test`')
+          PsiWhiteSpace('\n        ')
+          PsiComment(comment)('// with skolemizationLevel = 1')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: O
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('O')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// order matters (!!!)')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: empty
+            PsiComment(comment)('// this order breaks under 2.11.x')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('empty')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: empty
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('empty')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: E
+                PsiElement(identifier)('E')
+              PsiElement(])(']')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: C[E]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: C
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('C')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: E
+          PsiElement(identifier)('E')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDeclaration: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: BB
+                PsiElement(identifier)('BB')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: BB
+                      CodeReferenceElement: BB
+                        PsiElement(identifier)('BB')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: test
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('test')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: B
+                PsiElement(identifier)('B')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: foo
+                PsiElement(identifier)('foo')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// error: no type parameters for method foo: (<param> f: BB)scala.this.Unit exist so that it can be applied to arguments (B&1)')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// --- because ---')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// argument expression's type is not compatible with formal parameter type;')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// found   : B&1')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// required: ?BB')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -8,3 +8,136 @@ def f(x: E | T): Unit = x match {
   case t: T => ()
 }
 -----
+ScalaFile
+  ScEnum: E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: C
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: C
+            PsiElement(identifier)('C')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            InfixType: E | T
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: e
+              PsiElement(identifier)('e')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: t
+              PsiElement(identifier)('t')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

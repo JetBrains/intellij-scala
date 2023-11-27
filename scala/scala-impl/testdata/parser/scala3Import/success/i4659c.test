@@ -4,3 +4,84 @@ case class SourcePosition(outer: SourcePosition = NoSourcePosition) {
 
 object NoSourcePosition extends SourcePosition()
 -----
+ScalaFile
+  ScClass: SourcePosition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SourcePosition')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: outer
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('outer')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: SourcePosition
+                CodeReferenceElement: SourcePosition
+                  PsiElement(identifier)('SourcePosition')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: NoSourcePosition
+              PsiElement(identifier)('NoSourcePosition')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: assert
+            PsiElement(identifier)('assert')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: outer
+                PsiElement(identifier)('outer')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: !=
+                PsiElement(identifier)('!=')
+              PsiWhiteSpace(' ')
+              NullLiteral
+                PsiElement(null)('null')
+            PsiElement())(')')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// crash')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: NoSourcePosition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoSourcePosition')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SourcePosition
+            CodeReferenceElement: SourcePosition
+              PsiElement(identifier)('SourcePosition')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')

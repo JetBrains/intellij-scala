@@ -5,3 +5,19 @@ object Simple {}
 }*/
 
 -----
+ScalaFile
+  ScObject: Simple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Simple')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(BlockComment)('/*class Simple {\n  val x = 3\n  val y: String = ""\n}*/')

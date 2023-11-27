@@ -100,3 +100,1933 @@ object GUIClient {
 }
 
 -----
+ScalaFile
+  ScObject: Geom
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Geom')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: Point
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Point')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+        PsiWhiteSpace('\n  ')
+        ScClass: Rectangle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Rectangle')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: ll
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('ll')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Point
+                      CodeReferenceElement: Point
+                        PsiElement(identifier)('Point')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: ur
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('ur')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Point
+                      CodeReferenceElement: Point
+                        PsiElement(identifier)('Point')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: inset
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('inset')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: delta
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('delta')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                BlockExpression
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: Rectangle
+                      PsiElement(identifier)('Rectangle')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Point
+                          PsiElement(identifier)('Point')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: ll.x
+                              ReferenceExpression: ll
+                                PsiElement(identifier)('ll')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: -
+                              PsiElement(identifier)('-')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: delta
+                              PsiElement(identifier)('delta')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          InfixExpression
+                            ReferenceExpression: ll.y
+                              ReferenceExpression: ll
+                                PsiElement(identifier)('ll')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('y')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: -
+                              PsiElement(identifier)('-')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: delta
+                              PsiElement(identifier)('delta')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: Point
+                          PsiElement(identifier)('Point')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: ur.x
+                              ReferenceExpression: ur
+                                PsiElement(identifier)('ur')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: delta
+                              PsiElement(identifier)('delta')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          InfixExpression
+                            ReferenceExpression: ur.y
+                              ReferenceExpression: ur
+                                PsiElement(identifier)('ur')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('y')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: delta
+                              PsiElement(identifier)('delta')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement(;)(';')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Color
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Color')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Color
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Color')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: black
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: black
+              PsiElement(identifier)('black')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0x000000')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: grey
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: grey
+              PsiElement(identifier)('grey')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0x808080')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Screen
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Screen')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Color
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Color')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: drawRect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('drawRect')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Geom.Rectangle
+                    CodeReferenceElement: Geom.Rectangle
+                      CodeReferenceElement: Geom
+                        PsiElement(identifier)('Geom')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Rectangle')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Color
+                    CodeReferenceElement: Color
+                      PsiElement(identifier)('Color')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fillRect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fillRect')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Geom.Rectangle
+                    CodeReferenceElement: Geom.Rectangle
+                      CodeReferenceElement: Geom
+                        PsiElement(identifier)('Geom')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Rectangle')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Color
+                    CodeReferenceElement: Color
+                      PsiElement(identifier)('Color')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: DummyScreen
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DummyScreen')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Screen
+            CodeReferenceElement: Screen
+              PsiElement(identifier)('Screen')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: drawRect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('drawRect')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Geom.Rectangle
+                    CodeReferenceElement: Geom.Rectangle
+                      CodeReferenceElement: Geom
+                        PsiElement(identifier)('Geom')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Rectangle')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Color
+                    CodeReferenceElement: Color
+                      PsiElement(identifier)('Color')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Console.println
+                ReferenceExpression: Console
+                  PsiElement(identifier)('Console')
+                PsiElement(.)('.')
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"draw "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: r
+                        PsiElement(identifier)('r')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('" with "')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fillRect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fillRect')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Geom.Rectangle
+                    CodeReferenceElement: Geom.Rectangle
+                      CodeReferenceElement: Geom
+                        PsiElement(identifier)('Geom')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Rectangle')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Color
+                    CodeReferenceElement: Color
+                      PsiElement(identifier)('Color')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Console.println
+                ReferenceExpression: Console
+                  PsiElement(identifier)('Console')
+                PsiElement(.)('.')
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"fill "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: r
+                        PsiElement(identifier)('r')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('" with "')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: GUI
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GUI')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Controller
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Controller')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: addMouseCtl
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('addMouseCtl')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: c
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('c')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: MouseCtl
+                          CodeReferenceElement: MouseCtl
+                            PsiElement(identifier)('MouseCtl')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Glyph
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Glyph')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: getRect
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getRect')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Geom.Rectangle
+                  CodeReferenceElement: Geom.Rectangle
+                    CodeReferenceElement: Geom
+                      PsiElement(identifier)('Geom')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Rectangle')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: setLoc
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('setLoc')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Geom.Point
+                          CodeReferenceElement: Geom.Point
+                            CodeReferenceElement: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: draw
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('draw')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Console.println
+                      ReferenceExpression: Console
+                        PsiElement(identifier)('Console')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('println')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        StringLiteral
+                          PsiElement(string content)('"draw "')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ThisReference
+                          PsiElement(this)('this')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Label
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Label')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: scr
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('scr')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Screen
+                      CodeReferenceElement: Screen
+                        PsiElement(identifier)('Screen')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: p
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('p')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Geom.Point
+                      CodeReferenceElement: Geom.Point
+                        CodeReferenceElement: Geom
+                          PsiElement(identifier)('Geom')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Point')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Glyph
+                  CodeReferenceElement: Glyph
+                    PsiElement(identifier)('Glyph')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: origin
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                PsiWhiteSpace(' ')
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: origin
+                    PsiElement(identifier)('origin')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: p
+                  PsiElement(identifier)('p')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: getRect
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getRect')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Geom.Rectangle(origin, origin).inset
+                    MethodCall
+                      ReferenceExpression: Geom.Rectangle
+                        ReferenceExpression: Geom
+                          PsiElement(identifier)('Geom')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Rectangle')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: origin
+                          PsiElement(identifier)('origin')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: origin
+                          PsiElement(identifier)('origin')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('inset')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('10')
+                    PsiElement())(')')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: setLoc
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('setLoc')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Geom.Point
+                          CodeReferenceElement: Geom.Point
+                            CodeReferenceElement: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: origin
+                      PsiElement(identifier)('origin')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Ctl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ctl')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: getGlyph
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getGlyph')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Glyph
+                  CodeReferenceElement: Glyph
+                    PsiElement(identifier)('Glyph')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: enable
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('enable')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: b
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: this.type
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: MouseCtl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MouseCtl')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Ctl
+                  CodeReferenceElement: Ctl
+                    PsiElement(identifier)('Ctl')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: mouseDown
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('mouseDown')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Geom.Point
+                          CodeReferenceElement: Geom.Point
+                            CodeReferenceElement: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Button
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Button')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: scr
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('scr')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Screen
+                      CodeReferenceElement: Screen
+                        PsiElement(identifier)('Screen')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: p
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('p')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Geom.Point
+                      CodeReferenceElement: Geom.Point
+                        CodeReferenceElement: Geom
+                          PsiElement(identifier)('Geom')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Point')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Glyph
+                  CodeReferenceElement: Glyph
+                    PsiElement(identifier)('Glyph')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              ConstructorInvocation
+                SimpleType: MouseCtl
+                  CodeReferenceElement: MouseCtl
+                    PsiElement(identifier)('MouseCtl')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: enabled
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: enabled
+                    PsiElement(identifier)('enabled')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BooleanLiteral
+                  PsiElement(false)('false')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: label
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: label
+                    PsiElement(identifier)('label')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Label
+                          CodeReferenceElement: Label
+                            PsiElement(identifier)('Label')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: scr
+                            PsiElement(identifier)('scr')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: p
+                            PsiElement(identifier)('p')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: name
+                            PsiElement(identifier)('name')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: draw
+                PsiComment(BlockComment)('/* Glyph methods */')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('draw')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    ReferenceExpression: enabled
+                      PsiElement(identifier)('enabled')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: scr.drawRect
+                        ReferenceExpression: scr
+                          PsiElement(identifier)('scr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('drawRect')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: getRect
+                          PsiElement(identifier)('getRect')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Color.black
+                          ReferenceExpression: Color
+                            PsiElement(identifier)('Color')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('black')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: scr.fillRect
+                        ReferenceExpression: scr
+                          PsiElement(identifier)('scr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('fillRect')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: getRect
+                          PsiElement(identifier)('getRect')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Color.grey
+                          ReferenceExpression: Color
+                            PsiElement(identifier)('Color')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('grey')
+                        PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: label.draw
+                      ReferenceExpression: label
+                        PsiElement(identifier)('label')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('draw')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: setLoc
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('setLoc')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Geom.Point
+                          CodeReferenceElement: Geom.Point
+                            CodeReferenceElement: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: label.setLoc
+                    ReferenceExpression: label
+                      PsiElement(identifier)('label')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('setLoc')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: getRect
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getRect')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: label.getRect.inset
+                    ReferenceExpression: label.getRect
+                      ReferenceExpression: label
+                        PsiElement(identifier)('label')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('getRect')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('inset')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PrefixExpression
+                      ReferenceExpression: -
+                        PsiElement(identifier)('-')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiElement())(')')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: enable
+                PsiComment(BlockComment)('/* Ctl methods */')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('enable')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: b
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: this.type
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  AssignStatement
+                    ReferenceExpression: enabled
+                      PsiElement(identifier)('enabled')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: draw
+                      PsiElement(identifier)('draw')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: getGlyph
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getGlyph')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: label
+                  PsiElement(identifier)('label')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: mouseDown
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('mouseDown')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Geom.Point
+                          CodeReferenceElement: Geom.Point
+                            CodeReferenceElement: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    ReferenceExpression: enabled
+                      PsiElement(identifier)('enabled')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: doit
+                        PsiElement(identifier)('doit')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Console.println
+                        ReferenceExpression: Console
+                          PsiElement(identifier)('Console')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"button is disabled"')
+                        PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: doit
+                PsiComment(BlockComment)('/* deferred method to be specified by client */')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('doit')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: GUIClient
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GUIClient')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: App
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('App')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: quit
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('quit')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Console.println
+                      ReferenceExpression: Console
+                        PsiElement(identifier)('Console')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('println')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"application exited"')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: QuitButton
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('QuitButton')
+          PsiWhiteSpace(' ')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: scr
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('scr')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Screen
+                      CodeReferenceElement: Screen
+                        PsiElement(identifier)('Screen')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: p
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('p')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Geom.Point
+                      CodeReferenceElement: Geom.Point
+                        CodeReferenceElement: Geom
+                          PsiElement(identifier)('Geom')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Point')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: App
+                      CodeReferenceElement: App
+                        PsiElement(identifier)('App')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: GUI.Button
+                  CodeReferenceElement: GUI.Button
+                    CodeReferenceElement: GUI
+                      PsiElement(identifier)('GUI')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Button')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: scr
+                    PsiElement(identifier)('scr')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: p
+                    PsiElement(identifier)('p')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: name
+                    PsiElement(identifier)('name')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: doit
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('doit')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: a.quit
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('quit')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: b
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: b
+                  PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: QuitButton
+                        CodeReferenceElement: QuitButton
+                          PsiElement(identifier)('QuitButton')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiWhiteSpace('\n      ')
+                        ReferenceExpression: DummyScreen
+                          PsiElement(identifier)('DummyScreen')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: Geom.Point
+                            ReferenceExpression: Geom
+                              PsiElement(identifier)('Geom')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Point')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                            PsiElement())(')')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"quit"')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ScNewTemplateDefinition: <anonymous>
+                          PsiElement(new)('new')
+                          PsiWhiteSpace(' ')
+                          ExtendsBlock
+                            TemplateParents
+                              ConstructorInvocation
+                                SimpleType: App
+                                  CodeReferenceElement: App
+                                    PsiElement(identifier)('App')
+                        PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: b.draw
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('draw')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: b.enable(true).mouseDown
+                MethodCall
+                  ReferenceExpression: b.enable
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('enable')
+                  ArgumentList
+                    PsiElement(()('(')
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('mouseDown')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Geom.Point
+                    ReferenceExpression: Geom
+                      PsiElement(identifier)('Geom')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Point')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

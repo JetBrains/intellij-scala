@@ -14,3 +14,314 @@ object Test {
   summon[FindField[R, "B"] =:= Double]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Opaque
+        PsiElement(identifier)('Opaque')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: FindField
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FindField')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: scala.Tuple
+                CodeReferenceElement: scala.Tuple
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match {
+    case FieldType[K, f] *: t => f
+    case _ *: t => FindField[t, K]
+  }
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: FieldType[K, f] *: t
+                  ParametrizedType: FieldType[K, f]
+                    SimpleType: FieldType
+                      CodeReferenceElement: FieldType
+                        PsiElement(identifier)('FieldType')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: f
+                        PsiElement(identifier)('f')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: f
+                  CodeReferenceElement: f
+                    PsiElement(identifier)('f')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: _ *: t
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: FindField[t, K]
+                  SimpleType: FindField
+                    CodeReferenceElement: FindField
+                      PsiElement(identifier)('FindField')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: f
+              PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: FieldType["A", Int]
+            SimpleType: FieldType
+              CodeReferenceElement: FieldType
+                PsiElement(identifier)('FieldType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: "A"
+                StringLiteral
+                  PsiElement(string content)('"A"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: f1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: f1
+              PsiElement(identifier)('f1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//val f2: Int = f')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: R
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('R')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: FieldType["A", Int] *: FieldType["B", Double] *: FieldType["C", String] *: FieldType["D", Boolean] *: EmptyTuple
+            ParametrizedType: FieldType["A", Int]
+              SimpleType: FieldType
+                CodeReferenceElement: FieldType
+                  PsiElement(identifier)('FieldType')
+              TypeArgumentsList
+                PsiElement([)('[')
+                LiteralType: "A"
+                  StringLiteral
+                    PsiElement(string content)('"A"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            InfixType: FieldType["B", Double] *: FieldType["C", String] *: FieldType["D", Boolean] *: EmptyTuple
+              ParametrizedType: FieldType["B", Double]
+                SimpleType: FieldType
+                  CodeReferenceElement: FieldType
+                    PsiElement(identifier)('FieldType')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  LiteralType: "B"
+                    StringLiteral
+                      PsiElement(string content)('"B"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              InfixType: FieldType["C", String] *: FieldType["D", Boolean] *: EmptyTuple
+                ParametrizedType: FieldType["C", String]
+                  SimpleType: FieldType
+                    CodeReferenceElement: FieldType
+                      PsiElement(identifier)('FieldType')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    LiteralType: "C"
+                      StringLiteral
+                        PsiElement(string content)('"C"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: FieldType["D", Boolean] *: EmptyTuple
+                  ParametrizedType: FieldType["D", Boolean]
+                    SimpleType: FieldType
+                      CodeReferenceElement: FieldType
+                        PsiElement(identifier)('FieldType')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      LiteralType: "D"
+                        StringLiteral
+                          PsiElement(string content)('"D"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: FindField[R, "B"] =:= Double
+              ParametrizedType: FindField[R, "B"]
+                SimpleType: FindField
+                  CodeReferenceElement: FindField
+                    PsiElement(identifier)('FindField')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "B"
+                    StringLiteral
+                      PsiElement(string content)('"B"')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -23,3 +23,376 @@ extension[TLabel <: Singleton & String, TValue] (labelTagged: LabelTagged[TLabel
   println(foo.label)   // was error, now OK
 }
 -----
+ScalaFile
+  ScTypeAliasDefinition: LabelTagged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LabelTagged')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TLabel
+        PsiElement(identifier)('TLabel')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: Singleton & String
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: TValue
+        PsiElement(identifier)('TValue')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: TValue
+      CodeReferenceElement: TValue
+        PsiElement(identifier)('TValue')
+  PsiWhiteSpace('\n\n')
+  ScObject: LabelTagged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LabelTagged')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: TLabel
+              PsiElement(identifier)('TLabel')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              InfixType: Singleton & String
+                SimpleType: Singleton
+                  CodeReferenceElement: Singleton
+                    PsiElement(identifier)('Singleton')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: TValue
+              PsiElement(identifier)('TValue')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              Parameter: label
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('label')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TLabel
+                    CodeReferenceElement: TLabel
+                      PsiElement(identifier)('TLabel')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TValue
+                    CodeReferenceElement: TValue
+                      PsiElement(identifier)('TValue')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: LabelTagged[TLabel, TValue]
+            SimpleType: LabelTagged
+              CodeReferenceElement: LabelTagged
+                PsiElement(identifier)('LabelTagged')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: TLabel
+                CodeReferenceElement: TLabel
+                  PsiElement(identifier)('TLabel')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: TValue
+                CodeReferenceElement: TValue
+                  PsiElement(identifier)('TValue')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: value
+            PsiElement(identifier)('value')
+  PsiWhiteSpace('\n\n')
+  Extension on LabelTagged[TLabel, TValue]
+    PsiElement(extension)('extension')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TLabel
+        PsiElement(identifier)('TLabel')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: Singleton & String
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: TValue
+        PsiElement(identifier)('TValue')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: labelTagged
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('labelTagged')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: LabelTagged[TLabel, TValue]
+              SimpleType: LabelTagged
+                CodeReferenceElement: LabelTagged
+                  PsiElement(identifier)('LabelTagged')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: TLabel
+                  CodeReferenceElement: TLabel
+                    PsiElement(identifier)('TLabel')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: TValue
+                  CodeReferenceElement: TValue
+                    PsiElement(identifier)('TValue')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: value
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('value')
+        Parameters
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: TValue
+          CodeReferenceElement: TValue
+            PsiElement(identifier)('TValue')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: labelTagged
+          PsiElement(identifier)('labelTagged')
+      PsiWhiteSpace('\n\n  ')
+      ScFunctionDefinition: label
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('label')
+        PsiWhiteSpace('\n  ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            Parameter: label
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('label')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: ValueOf[TLabel]
+                  SimpleType: ValueOf
+                    CodeReferenceElement: ValueOf
+                      PsiElement(identifier)('ValueOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: TLabel
+                      CodeReferenceElement: TLabel
+                        PsiElement(identifier)('TLabel')
+                    PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: TLabel
+          CodeReferenceElement: TLabel
+            PsiElement(identifier)('TLabel')
+        PsiWhiteSpace('\n  ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: label.value
+          ReferenceExpression: label
+            PsiElement(identifier)('label')
+          PsiElement(.)('.')
+          PsiElement(identifier)('value')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: hello
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('hello')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: foo
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: foo
+            PsiElement(identifier)('foo')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: LabelTagged["foo", Int]
+          SimpleType: LabelTagged
+            CodeReferenceElement: LabelTagged
+              PsiElement(identifier)('LabelTagged')
+          TypeArgumentsList
+            PsiElement([)('[')
+            LiteralType: "foo"
+              StringLiteral
+                PsiElement(string content)('"foo"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: LabelTagged
+            PsiElement(identifier)('LabelTagged')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"foo"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('10')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: label
+              PsiElement(identifier)('label')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: foo
+                PsiElement(identifier)('foo')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('  ')
+      PsiComment(comment)('// OK')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: foo.label
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('label')
+          PsiElement())(')')
+      PsiWhiteSpace('   ')
+      PsiComment(comment)('// was error, now OK')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

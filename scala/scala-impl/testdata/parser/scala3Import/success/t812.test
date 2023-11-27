@@ -6,3 +6,117 @@ class Test extends Main {
   private[Test] def xxx = 10;
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        ImportSelectors
+          ImportSelector
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+            PsiWhiteSpace(' ')
+            PsiElement(as)('as')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Main')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Main
+              CodeReferenceElement: Main
+                PsiElement(identifier)('Main')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: test
+                PsiElement(identifier)('test')
+              PsiElement(.)('.')
+              ImportSelectors
+                ImportSelector
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
+                  PsiWhiteSpace(' ')
+                  PsiElement(as)('as')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Hello')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: super[App].main
+              SuperReference
+                PsiElement(super)('super')
+                PsiElement([)('[')
+                PsiElement(identifier)('App')
+                PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('main')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Array
+                  PsiElement(identifier)('Array')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"test"')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: xxx
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+                PsiElement([)('[')
+                PsiElement(identifier)('Test')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('xxx')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('10')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

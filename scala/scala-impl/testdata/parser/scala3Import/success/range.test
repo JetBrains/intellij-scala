@@ -8,3 +8,301 @@ object Test {
   def until(d: BigDecimal, end: BigDecimal, step: BigDecimal) = Range.BigDecimal(d, end, step)
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.math
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('math')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: collection.immutable.NumericRange
+        CodeReferenceElement: collection.immutable
+          CodeReferenceElement: collection
+            PsiElement(identifier)('collection')
+          PsiElement(.)('.')
+          PsiElement(identifier)('immutable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('NumericRange')
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: r1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: r1
+              PsiElement(identifier)('r1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.collection.immutable.Range.Partial[_, _]
+            SimpleType: scala.collection.immutable.Range.Partial
+              CodeReferenceElement: scala.collection.immutable.Range.Partial
+                CodeReferenceElement: scala.collection.immutable.Range
+                  CodeReferenceElement: scala.collection.immutable
+                    CodeReferenceElement: scala.collection
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('collection')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('immutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Range')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Partial')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: r2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: r2
+              PsiElement(identifier)('r2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.Range.Partial[_, _]
+            SimpleType: scala.Range.Partial
+              CodeReferenceElement: scala.Range.Partial
+                CodeReferenceElement: scala.Range
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Range')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Partial')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: r1
+            PsiElement(identifier)('r1')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: until
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('until')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: d
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('d')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: end
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('end')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Range.Partial[BigDecimal, NumericRange.Exclusive[BigDecimal]]
+            SimpleType: Range.Partial
+              CodeReferenceElement: Range.Partial
+                CodeReferenceElement: Range
+                  PsiElement(identifier)('Range')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Partial')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: BigDecimal
+                CodeReferenceElement: BigDecimal
+                  PsiElement(identifier)('BigDecimal')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: NumericRange.Exclusive[BigDecimal]
+                SimpleType: NumericRange.Exclusive
+                  CodeReferenceElement: NumericRange.Exclusive
+                    CodeReferenceElement: NumericRange
+                      PsiElement(identifier)('NumericRange')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Exclusive')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Range.Partial
+                    CodeReferenceElement: Range.Partial
+                      CodeReferenceElement: Range
+                        PsiElement(identifier)('Range')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Partial')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: until
+                        PsiElement(identifier)('until')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: d
+                          PsiElement(identifier)('d')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: end
+                          PsiElement(identifier)('end')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        UnderscoreSection
+                          PsiElement(_)('_')
+                        PsiElement())(')')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: until
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('until')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: d
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('d')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: end
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('end')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: step
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('step')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BigDecimal
+                    CodeReferenceElement: BigDecimal
+                      PsiElement(identifier)('BigDecimal')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Range.BigDecimal
+              ReferenceExpression: Range
+                PsiElement(identifier)('Range')
+              PsiElement(.)('.')
+              PsiElement(identifier)('BigDecimal')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: d
+                PsiElement(identifier)('d')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: end
+                PsiElement(identifier)('end')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: step
+                PsiElement(identifier)('step')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

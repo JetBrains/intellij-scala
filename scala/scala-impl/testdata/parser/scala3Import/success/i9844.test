@@ -40,3 +40,500 @@ object test3:
     }
   }
 -----
+ScalaFile
+  ScObject: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Baz
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Baz')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    SelfType: this
+                      PsiElement(this)('this')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Foo[A]
+                        SimpleType: Foo
+                          CodeReferenceElement: Foo
+                            PsiElement(identifier)('Foo')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    ScFunctionDeclaration: bar
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('bar')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: a
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('a')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test2')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                PsiWhiteSpace(' ')
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: f
+                    PsiElement(identifier)('f')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"abc"')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Baz
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Baz')
+          PsiWhiteSpace('  ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Bam
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Bam')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScPatternDefinition: f
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: f
+                          PsiElement(identifier)('f')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Bam
+                        CodeReferenceElement: Bam
+                          PsiElement(identifier)('Bam')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    SelfType: this
+                      PsiElement(this)('this')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n        ')
+                    ScPatternDefinition: g
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: g
+                          PsiElement(identifier)('g')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                    PsiWhiteSpace('\n        ')
+                    ScPatternDefinition: g1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: g1
+                          PsiElement(identifier)('g1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: g
+                        PsiElement(identifier)('g')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: test3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test3')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: DetSkipOctree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DetSkipOctree')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Leaf
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(sealed)('sealed')
+                PsiWhiteSpace(' ')
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Leaf')
+                PsiWhiteSpace('  ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: PL
+                    PsiElement(identifier)('PL')
+                  PsiElement(])(']')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScTrait: Branch
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(sealed)('sealed')
+                PsiWhiteSpace(' ')
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Branch')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: PL
+                    PsiElement(identifier)('PL')
+                  PsiElement(])(']')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: DetSkipOctree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DetSkipOctree')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: PL
+              PsiElement(identifier)('PL')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Impl')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: PL
+              PsiElement(identifier)('PL')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: DetSkipOctree[PL]
+                  SimpleType: DetSkipOctree
+                    CodeReferenceElement: DetSkipOctree
+                      PsiElement(identifier)('DetSkipOctree')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: PL
+                      CodeReferenceElement: PL
+                        PsiElement(identifier)('PL')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Leaf
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Leaf')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: DetSkipOctree.Leaf[PL]
+                  SimpleType: DetSkipOctree.Leaf
+                    CodeReferenceElement: DetSkipOctree.Leaf
+                      CodeReferenceElement: DetSkipOctree
+                        PsiElement(identifier)('DetSkipOctree')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Leaf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: PL
+                      CodeReferenceElement: PL
+                        PsiElement(identifier)('PL')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              ScTrait: LeftBranchImpl
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(protected)('protected')
+                PsiWhiteSpace(' ')
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('LeftBranchImpl')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    SelfType: this
+                      PsiElement(this)('this')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: DetSkipOctree.Branch[PL]
+                        SimpleType: DetSkipOctree.Branch
+                          CodeReferenceElement: DetSkipOctree.Branch
+                            CodeReferenceElement: DetSkipOctree
+                              PsiElement(identifier)('DetSkipOctree')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Branch')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: PL
+                            CodeReferenceElement: PL
+                              PsiElement(identifier)('PL')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n\n      ')
+                    ScFunctionDefinition: demoteLeaf
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('demoteLeaf')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: point
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('point')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: PL
+                                CodeReferenceElement: PL
+                                  PsiElement(identifier)('PL')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Parameter: leaf
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('leaf')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: Leaf
+                                CodeReferenceElement: Leaf
+                                  PsiElement(identifier)('Leaf')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')

@@ -3,3 +3,46 @@
 // Crashes with -Ydebug
 trait Bippy { 3 match { case 3 => } }
 -----
+ScalaFile
+  ScTrait: Bippy
+    PsiComment(comment)('// Compiles with no options')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Compiles with -Ydebug -Ydisable-unreachable-prevention')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Crashes with -Ydebug')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bippy')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        MatchStatement
+          IntegerLiteral
+            PsiElement(integer)('3')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

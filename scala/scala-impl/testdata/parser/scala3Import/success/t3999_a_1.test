@@ -8,3 +8,179 @@ package object bar {
   implicit def boolean2Outside(b: Boolean): foo.Outside = new Outside
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n\n')
+    ScClass: Outside
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Outside')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: bar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('bar')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: Val
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Val')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: b
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('b')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: boolean2Val
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('boolean2Val')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: foo.bar.`package`.Val
+              CodeReferenceElement: foo.bar.`package`.Val
+                CodeReferenceElement: foo.bar.`package`
+                  CodeReferenceElement: foo.bar
+                    CodeReferenceElement: foo
+                      PsiElement(identifier)('foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('bar')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('`package`')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Val')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Val
+                      CodeReferenceElement: Val
+                        PsiElement(identifier)('Val')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: b
+                        PsiElement(identifier)('b')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: boolean2Outside
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('boolean2Outside')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: foo.Outside
+              CodeReferenceElement: foo.Outside
+                CodeReferenceElement: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Outside')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Outside
+                      CodeReferenceElement: Outside
+                        PsiElement(identifier)('Outside')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -9,3 +9,125 @@ object t0710 {
   }
 }
 -----
+ScalaFile
+  ScObject: t0710
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t0710')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: method
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('method')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScClass: Parent
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(sealed)('sealed')
+              PsiWhiteSpace(' ')
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Parent')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n    ')
+            ScObject: Child
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Child')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Parent
+                      CodeReferenceElement: Parent
+                        PsiElement(identifier)('Parent')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Parent
+                CodeReferenceElement: Parent
+                  PsiElement(identifier)('Parent')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Child
+                PsiElement(identifier)('Child')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression: Child
+                      PsiElement(identifier)('Child')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    UnitExpression
+                      PsiElement(()('(')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -13,3 +13,232 @@ type AtoB[Xs <: HList] <: HList = Xs match
 //  case Unit => Unit
 //  case a *: as => B *: A2B[as]
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: HList
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HList')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: HCons
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HCons')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: As
+        PsiElement(identifier)('As')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: HList
+          CodeReferenceElement: HList
+            PsiElement(identifier)('HList')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: HList
+            CodeReferenceElement: HList
+              PsiElement(identifier)('HList')
+  PsiWhiteSpace('\n')
+  ScClass: HNil
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HNil')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: HList
+            CodeReferenceElement: HList
+              PsiElement(identifier)('HList')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: AtoB
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AtoB')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Xs
+        PsiElement(identifier)('Xs')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: HList
+          CodeReferenceElement: HList
+            PsiElement(identifier)('HList')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: HList
+      CodeReferenceElement: HList
+        PsiElement(identifier)('HList')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Xs match
+  case HNil[a] => HNil[B]
+  case HCons[a, as] => HCons[B, AtoB[as]]
+      SimpleType: Xs
+        CodeReferenceElement: Xs
+          PsiElement(identifier)('Xs')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HNil[a]
+            SimpleType: HNil
+              CodeReferenceElement: HNil
+                PsiElement(identifier)('HNil')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: a
+                PsiElement(identifier)('a')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HNil[B]
+            SimpleType: HNil
+              CodeReferenceElement: HNil
+                PsiElement(identifier)('HNil')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HCons[a, as]
+            SimpleType: HCons
+              CodeReferenceElement: HCons
+                PsiElement(identifier)('HCons')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeVariable: as
+                PsiElement(identifier)('as')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HCons[B, AtoB[as]]
+            SimpleType: HCons
+              CodeReferenceElement: HCons
+                PsiElement(identifier)('HCons')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: AtoB[as]
+                SimpleType: AtoB
+                  CodeReferenceElement: AtoB
+                    PsiElement(identifier)('AtoB')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: as
+                    CodeReferenceElement: as
+                      PsiElement(identifier)('as')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('//type A2B[Xs <: Tuple] <: Tuple = Xs match')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  case Unit => Unit')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  case a *: as => B *: A2B[as]')

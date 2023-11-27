@@ -6,3 +6,174 @@ trait Bippy[@specialized(
 
 trait Bippy2[@specialized(Char, Boolean, Byte, Short, Int, Long, Float, Double, Unit, AnyRef) T] { }
 -----
+ScalaFile
+  ScTrait: Bippy
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bippy')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n  ')
+                  ReferenceExpression: scala.Char
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Char')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Boolean
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Boolean')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Byte
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Byte')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n  ')
+                  ReferenceExpression: scala.Short
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Short')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Int
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Long
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n  ')
+                  ReferenceExpression: scala.Float
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Float')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Double
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Double')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: scala.Unit
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Unit')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n  ')
+                  ReferenceExpression: scala.AnyRef
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('AnyRef')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Bippy2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bippy2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Char
+                    PsiElement(identifier)('Char')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Boolean
+                    PsiElement(identifier)('Boolean')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Byte
+                    PsiElement(identifier)('Byte')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Short
+                    PsiElement(identifier)('Short')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Int
+                    PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Long
+                    PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Float
+                    PsiElement(identifier)('Float')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Double
+                    PsiElement(identifier)('Double')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Unit
+                    PsiElement(identifier)('Unit')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: AnyRef
+                    PsiElement(identifier)('AnyRef')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

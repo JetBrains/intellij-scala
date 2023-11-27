@@ -63,3 +63,684 @@ class Test {
   }
 }
 -----
+ScalaFile
+  ScClass: Test
+    PsiComment(comment)('// not a peep out of the pattern matcher's unreachability analysis')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// its budget should suffice for these simple matches (they do have a large search space)')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: foo.Bar
+              CodeReferenceElement: foo
+                PsiElement(identifier)('foo')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Bar')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// a large enum')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: exhaustUnreachabilitysStack_ENUM_STYLE
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('exhaustUnreachabilitysStack_ENUM_STYLE')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: Bar.BULGARIA
+                    ReferenceExpression: Bar
+                      PsiElement(identifier)('Bar')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('BULGARIA')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace('            ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: exhaustUnreachabilitysStack_StringStyle
+          PsiComment(comment)('// lots of strings')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('exhaustUnreachabilitysStack_StringStyle')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            StringLiteral
+              PsiElement(string content)('"foo"')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"b"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"c"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"d"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"e"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"f"')
+                PsiWhiteSpace('          ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"aa"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"ba"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"ca"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"da"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"ea"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"f1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"a1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"b1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"c1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"d1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"e1a"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"f1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"f1a0"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"a1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"b1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"c1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"d1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"e1a2"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"f1a3"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_a"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_b"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_c"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_d"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_e"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_f"')
+                PsiWhiteSpace('         ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_aa"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_ba"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_ca"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_da"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_ea"')
+                PsiWhiteSpace('        ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_f1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_a1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_b1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_c1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_d1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_e1a"')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_f1a0"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_f1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_a1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_b1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_c1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_d1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_e1a2"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"_f1a3"')
+                PsiWhiteSpace('      ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace('            ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

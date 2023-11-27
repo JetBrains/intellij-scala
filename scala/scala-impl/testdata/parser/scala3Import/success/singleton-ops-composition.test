@@ -9,3 +9,368 @@ object Test {
   val t5: BitwiseOr[100 << 2 >>> 2 >> 2 ^^ 3, BitwiseAnd[7, 7]] = 31
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.boolean
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('boolean')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: ^
+            PsiElement(identifier)('^')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('^^')
+        PsiElement(,)(',')
+        ImportSelector
+          PsiElement(_)('_')
+        PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// must rename int.^ or get clash with boolean.^')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: t0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t0
+              PsiElement(identifier)('t0')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: 1 + 2 * 3
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            InfixType: 2 * 3
+              LiteralType: 2
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *
+                PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              LiteralType: 3
+                IntegerLiteral
+                  PsiElement(integer)('3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('7')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t1
+              PsiElement(identifier)('t1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: (2 * 7 + 1) % 10
+            TypeInParenthesis: (2 * 7 + 1)
+              PsiElement(()('(')
+              InfixType: 2 * 7 + 1
+                InfixType: 2 * 7
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *
+                    PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 7
+                    IntegerLiteral
+                      PsiElement(integer)('7')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: %
+              PsiElement(identifier)('%')
+            PsiWhiteSpace(' ')
+            LiteralType: 10
+              IntegerLiteral
+                PsiElement(integer)('10')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('5')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: t3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t3
+              PsiElement(identifier)('t3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: 1 * 1 + 2 * 2 + 3 * 3 + 4 * 4
+            InfixType: 1 * 1 + 2 * 2 + 3 * 3
+              InfixType: 1 * 1 + 2 * 2
+                InfixType: 1 * 1
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *
+                    PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                InfixType: 2 * 2
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *
+                    PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              InfixType: 3 * 3
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            InfixType: 4 * 4
+              LiteralType: 4
+                IntegerLiteral
+                  PsiElement(integer)('4')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *
+                PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              LiteralType: 4
+                IntegerLiteral
+                  PsiElement(integer)('4')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('30')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: t4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t4
+              PsiElement(identifier)('t4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: true && false || true && true || false ^ false
+            InfixType: true && false || true && true
+              InfixType: true && false
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &&
+                  PsiElement(identifier)('&&')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ||
+                PsiElement(identifier)('||')
+              PsiWhiteSpace(' ')
+              InfixType: true && true
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &&
+                  PsiElement(identifier)('&&')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ||
+              PsiElement(identifier)('||')
+            PsiWhiteSpace(' ')
+            InfixType: false ^ false
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ^
+                PsiElement(identifier)('^')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: t5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t5
+              PsiElement(identifier)('t5')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: BitwiseOr[100 << 2 >>> 2 >> 2 ^^ 3, BitwiseAnd[7, 7]]
+            SimpleType: BitwiseOr
+              CodeReferenceElement: BitwiseOr
+                PsiElement(identifier)('BitwiseOr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: 100 << 2 >>> 2 >> 2 ^^ 3
+                InfixType: 100 << 2 >>> 2 >> 2
+                  InfixType: 100 << 2 >>> 2
+                    InfixType: 100 << 2
+                      LiteralType: 100
+                        IntegerLiteral
+                          PsiElement(integer)('100')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: <<
+                        PsiElement(identifier)('<<')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 2
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: >>>
+                      PsiElement(identifier)('>>>')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 2
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: >>
+                    PsiElement(identifier)('>>')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ^^
+                  PsiElement(identifier)('^^')
+                PsiWhiteSpace(' ')
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: BitwiseAnd[7, 7]
+                SimpleType: BitwiseAnd
+                  CodeReferenceElement: BitwiseAnd
+                    PsiElement(identifier)('BitwiseAnd')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  LiteralType: 7
+                    IntegerLiteral
+                      PsiElement(integer)('7')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 7
+                    IntegerLiteral
+                      PsiElement(integer)('7')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('31')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

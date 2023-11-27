@@ -2,3 +2,28 @@ object SQuery2Test {
   new SQLBuilder
 }
 -----
+ScalaFile
+  ScObject: SQuery2Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SQuery2Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: SQLBuilder
+                  CodeReferenceElement: SQLBuilder
+                    PsiElement(identifier)('SQLBuilder')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

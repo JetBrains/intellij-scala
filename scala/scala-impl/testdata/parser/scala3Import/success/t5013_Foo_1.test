@@ -4,3 +4,52 @@ class Foo {
   protected[Foo] var x = 0
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(protected)('protected')
+                PsiElement([)('[')
+                PsiElement(identifier)('Foo')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

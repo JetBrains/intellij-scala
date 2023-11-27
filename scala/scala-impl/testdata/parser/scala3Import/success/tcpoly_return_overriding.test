@@ -12,3 +12,224 @@ object foo extends Rep[Unit] {
   def rep[g[x]](implicit gen: Generic[g]): g[Unit]= gen.unit
 }
 -----
+ScalaFile
+  ScTrait: Generic
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Generic')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: g
+        PsiElement(identifier)('g')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: x
+            PsiElement(identifier)('x')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: unit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unit')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: g[Unit]
+            SimpleType: g
+              CodeReferenceElement: g
+                PsiElement(identifier)('g')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Rep
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Rep')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: t
+        PsiElement(identifier)('t')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: rep
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rep')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: m
+              PsiElement(identifier)('m')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: gen
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('gen')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Generic[m]
+                    SimpleType: Generic
+                      CodeReferenceElement: Generic
+                        PsiElement(identifier)('Generic')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: m
+                        CodeReferenceElement: m
+                          PsiElement(identifier)('m')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: m[t]
+            SimpleType: m
+              CodeReferenceElement: m
+                PsiElement(identifier)('m')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: foo
+    PsiComment(comment)('// testing that the return type is also transformed when checking overriding')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// + that substitution (of types&symbols) preserves isHigherKinded when replacing a higher-kinded type with another one')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Rep[Unit]
+            SimpleType: Rep
+              CodeReferenceElement: Rep
+                PsiElement(identifier)('Rep')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: rep
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rep')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: g
+              PsiElement(identifier)('g')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: gen
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('gen')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Generic[g]
+                    SimpleType: Generic
+                      CodeReferenceElement: Generic
+                        PsiElement(identifier)('Generic')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: g
+                        CodeReferenceElement: g
+                          PsiElement(identifier)('g')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: g[Unit]
+            SimpleType: g
+              CodeReferenceElement: g
+                PsiElement(identifier)('g')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: gen.unit
+            ReferenceExpression: gen
+              PsiElement(identifier)('gen')
+            PsiElement(.)('.')
+            PsiElement(identifier)('unit')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

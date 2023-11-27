@@ -7,3 +7,123 @@ extension (foo: Foo)
 
 def test(foo: Foo): foo.Bar = foo.toBar()
 -----
+ScalaFile
+  PsiComment(comment)('// This is a minimisation of the fallout that the original fix caused on Shapeless 3.')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: { type Bar }
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  Extension on Foo
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('foo')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: toBar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('toBar')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: foo.Bar
+          CodeReferenceElement: foo.Bar
+            CodeReferenceElement: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Bar')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('foo')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: foo.Bar
+      CodeReferenceElement: foo.Bar
+        CodeReferenceElement: foo
+          PsiElement(identifier)('foo')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo.toBar
+        ReferenceExpression: foo
+          PsiElement(identifier)('foo')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toBar')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')

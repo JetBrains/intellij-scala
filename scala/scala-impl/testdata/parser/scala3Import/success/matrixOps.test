@@ -16,3 +16,365 @@ object Test:
     yield
       m.row(i).zip(m.row(j)).map(_ - _).sum
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Matrix
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Matrix')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[Array[Double]]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Array[Double]
+                SimpleType: Array
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Vector
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Vector')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[Double]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Matrix
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Matrix
+                    CodeReferenceElement: Matrix
+                      PsiElement(identifier)('Matrix')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: nRows
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('nRows')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: m.length
+                ReferenceExpression: m
+                  PsiElement(identifier)('m')
+                PsiElement(.)('.')
+                PsiElement(identifier)('length')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: nCols
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('nCols')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: m(0).length
+                MethodCall
+                  ReferenceExpression: m
+                    PsiElement(identifier)('m')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('length')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: row
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('row')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: i
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('i')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Vector
+                CodeReferenceElement: Vector
+                  PsiElement(identifier)('Vector')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: m
+                  PsiElement(identifier)('m')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: i
+                    PsiElement(identifier)('i')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: col
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('col')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: j
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('j')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Vector
+                CodeReferenceElement: Vector
+                  PsiElement(identifier)('Vector')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                MethodCall
+                  ReferenceExpression: Array.tabulate
+                    ReferenceExpression: Array
+                      PsiElement(identifier)('Array')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('tabulate')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: m.length
+                      ReferenceExpression: m
+                        PsiElement(identifier)('m')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                    PsiElement())(')')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: i
+                          PsiElement(identifier)('i')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      MethodCall
+                        ReferenceExpression: m
+                          PsiElement(identifier)('m')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: i
+                            PsiElement(identifier)('i')
+                          PsiElement())(')')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: j
+                          PsiElement(identifier)('j')
+                        PsiElement())(')')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: pairwise
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('pairwise')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Matrix
+                    CodeReferenceElement: Matrix
+                      PsiElement(identifier)('Matrix')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ForStatement
+            PsiElement(for)('for')
+            PsiWhiteSpace('\n      ')
+            Enumerators
+              Generator
+                ReferencePattern: i
+                  PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                PsiElement(<-)('<-')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: until
+                    PsiElement(identifier)('until')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: m.nRows
+                    ReferenceExpression: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nRows')
+              PsiWhiteSpace('\n      ')
+              Generator
+                ReferencePattern: j
+                  PsiElement(identifier)('j')
+                PsiWhiteSpace(' ')
+                PsiElement(<-)('<-')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: until
+                    PsiElement(identifier)('until')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: m.nCols
+                    ReferenceExpression: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nCols')
+            PsiWhiteSpace('\n    ')
+            PsiElement(yield)('yield')
+            PsiWhiteSpace('\n      ')
+            ReferenceExpression: m.row(i).zip(m.row(j)).map(_ - _).sum
+              MethodCall
+                ReferenceExpression: m.row(i).zip(m.row(j)).map
+                  MethodCall
+                    ReferenceExpression: m.row(i).zip
+                      MethodCall
+                        ReferenceExpression: m.row
+                          ReferenceExpression: m
+                            PsiElement(identifier)('m')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('row')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: i
+                            PsiElement(identifier)('i')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('zip')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: m.row
+                          ReferenceExpression: m
+                            PsiElement(identifier)('m')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('row')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: j
+                            PsiElement(identifier)('j')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: -
+                      PsiElement(identifier)('-')
+                    PsiWhiteSpace(' ')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sum')

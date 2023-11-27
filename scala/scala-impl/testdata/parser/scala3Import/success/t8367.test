@@ -10,3 +10,44 @@ class Throwable
 // class CloneNotSupportedException
 // class InterruptedException
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: java.lang
+      CodeReferenceElement: java
+        PsiElement(identifier)('java')
+      PsiElement(.)('.')
+      PsiElement(identifier)('lang')
+    PsiWhiteSpace('\n\n')
+    ScClass: Throwable
+      PsiComment(comment)('// SI-8367 shows something is wrong with primaryConstructor and it was made worse with the fix for SI-8192')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('// perhaps primaryConstructor should not return NoSymbol when isJavaDefined')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('// or, perhaps isJavaDefined should be refined (the package definition above is pretty sneaky)')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('// also, why does this only happen for a (scala-defined!) class with this special name?')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('// (there are a couple of others: CloneNotSupportedException,InterruptedException)')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Throwable')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// class CloneNotSupportedException')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// class InterruptedException')

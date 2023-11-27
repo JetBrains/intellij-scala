@@ -10,3 +10,242 @@ def get(s: Any) = s match
   case _: Set[t, d, v] => ??? : v
   case _: Foo[a, b] => ???
 -----
+ScalaFile
+  ScTypeAliasDeclaration: Var
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Var')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TV
+        PsiElement(identifier)('TV')
+      PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Set
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Set')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TS
+        PsiElement(identifier)('TS')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Var[TS]
+          SimpleType: Var
+            CodeReferenceElement: Var
+              PsiElement(identifier)('Var')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: TS
+              CodeReferenceElement: TS
+                PsiElement(identifier)('TS')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: TS
+          CodeReferenceElement: TS
+            PsiElement(identifier)('TS')
+      PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: FX
+        PsiElement(identifier)('FX')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: GX
+          CodeReferenceElement: GX
+            PsiElement(identifier)('GX')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: GX
+        PsiElement(identifier)('GX')
+      PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Get
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Get')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: S match {
+  case Set[t, d, v] => v
+}
+      SimpleType: S
+        CodeReferenceElement: S
+          PsiElement(identifier)('S')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[t, d, v]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: t
+                PsiElement(identifier)('t')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeVariable: d
+                PsiElement(identifier)('d')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeVariable: v
+                PsiElement(identifier)('v')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: v
+            CodeReferenceElement: v
+              PsiElement(identifier)('v')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: get
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('get')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: s
+        PsiElement(identifier)('s')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Set[t, d, v]
+                SimpleType: Set
+                  CodeReferenceElement: Set
+                    PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: d
+                    PsiElement(identifier)('d')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: v
+                    PsiElement(identifier)('v')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            TypedExpression
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: v
+                CodeReferenceElement: v
+                  PsiElement(identifier)('v')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Foo[a, b]
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: b
+                    PsiElement(identifier)('b')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')

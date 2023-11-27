@@ -4,3 +4,138 @@ object Test {
   val extractor: (e: Entry) => e.Key = extractKey
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Entry
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Entry')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: Key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Key')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScValueDeclaration: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: key
+                    PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Key
+                  CodeReferenceElement: Key
+                    PsiElement(identifier)('Key')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: extractKey
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('extractKey')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Entry
+                    CodeReferenceElement: Entry
+                      PsiElement(identifier)('Entry')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: e.Key
+            CodeReferenceElement: e.Key
+              CodeReferenceElement: e
+                PsiElement(identifier)('e')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Key')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: e.key
+            ReferenceExpression: e
+              PsiElement(identifier)('e')
+            PsiElement(.)('.')
+            PsiElement(identifier)('key')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: extractor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: extractor
+              PsiElement(identifier)('extractor')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          DependentFunctionType: (e: Entry) => e.Key
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Entry
+                  CodeReferenceElement: Entry
+                    PsiElement(identifier)('Entry')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: e.Key
+              CodeReferenceElement: e.Key
+                CodeReferenceElement: e
+                  PsiElement(identifier)('e')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Key')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: extractKey
+            PsiElement(identifier)('extractKey')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

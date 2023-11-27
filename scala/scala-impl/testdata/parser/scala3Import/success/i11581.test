@@ -26,3 +26,135 @@ class Xyz {
 
 end Xyz
 -----
+ScalaFile
+  ScClass: Abc
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Abc')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('10')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            IntegerLiteral
+              PsiElement(integer)('10')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiElement(;)(';')
+        PsiWhiteSpace('  ')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        PostfixExpression
+          ReferenceExpression: end
+            PsiElement(identifier)('end')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
+  PsiWhiteSpace('\n\n\n')
+  PsiElement(;)(';')
+  PsiWhiteSpace('  ')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  PostfixExpression
+    ReferenceExpression: end
+      PsiElement(identifier)('end')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: Abc
+      PsiElement(identifier)('Abc')
+  PsiWhiteSpace('\n\n')
+  ScClass: Xyz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Xyz')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('10')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            IntegerLiteral
+              PsiElement(integer)('10')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  PostfixExpression
+    ReferenceExpression: end
+      PsiElement(identifier)('end')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: Xyz
+      PsiElement(identifier)('Xyz')

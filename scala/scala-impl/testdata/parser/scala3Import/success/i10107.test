@@ -3,3 +3,65 @@ inline def f() =
 
 def test = f()
 -----
+ScalaFile
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      TypedExpression
+        BooleanLiteral
+          PsiElement(true)('true')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Boolean
+          CodeReferenceElement: Boolean
+            PsiElement(identifier)('Boolean')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      UnitExpression
+        PsiElement(()('(')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      UnitExpression
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: f
+        PsiElement(identifier)('f')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')

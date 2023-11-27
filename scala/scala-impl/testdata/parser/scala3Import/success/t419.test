@@ -10,3 +10,140 @@ object Foo extends Bar {
 
 }
 -----
+ScalaFile
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Config
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Config')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: config
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: config
+              PsiElement(identifier)('config')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Config
+            CodeReferenceElement: Config
+              PsiElement(identifier)('Config')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// aha, traits can have variables?')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: FooConfig
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FooConfig')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Config
+                  CodeReferenceElement: Config
+                    PsiElement(identifier)('Config')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: config
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: config
+              PsiElement(identifier)('config')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Config
+            CodeReferenceElement: Config
+              PsiElement(identifier)('Config')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: FooConfig
+                    CodeReferenceElement: FooConfig
+                      PsiElement(identifier)('FooConfig')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// or not')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

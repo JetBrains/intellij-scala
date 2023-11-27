@@ -44,3 +44,848 @@ object OnnxMin {
   def ConcatV13: AddGivenAxisSizeLoop[Dimension #: Shape, Dimension #: Shape, Index ::: INil, 0] = ???
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.string.+
+        CodeReferenceElement: scala.compiletime.ops.string
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('string')
+        PsiElement(.)('.')
+        PsiElement(identifier)('+')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: S
+            PsiElement(identifier)('S')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: +
+            PsiElement(identifier)('+')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: <
+            PsiElement(identifier)('<')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: <=
+            PsiElement(identifier)('<=')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          PsiElement(*)('*')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.boolean.&&
+        CodeReferenceElement: scala.compiletime.ops.boolean
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('boolean')
+        PsiElement(.)('.')
+        PsiElement(identifier)('&&')
+  PsiWhiteSpace('\n\n')
+  ScObject: OnnxMin
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OnnxMin')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Index
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Index')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Int & Singleton
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: Singleton
+              CodeReferenceElement: Singleton
+                PsiElement(identifier)('Singleton')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Indices
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Indices')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: :::
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)(':::')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('H')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Index
+                CodeReferenceElement: Index
+                  PsiElement(identifier)('Index')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Indices
+                CodeReferenceElement: Indices
+                  PsiElement(identifier)('Indices')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: head
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('head')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: tail
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('tail')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Indices
+                  CodeReferenceElement: Indices
+                    PsiElement(identifier)('Indices')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: INil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('INil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Indices
+                  CodeReferenceElement: Indices
+                    PsiElement(identifier)('Indices')
+        PsiWhiteSpace('\n  ')
+        ScObject: INil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('INil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: INil
+                  CodeReferenceElement: INil
+                    PsiElement(identifier)('INil')
+        PsiWhiteSpace('\n\n\n  ')
+        ScTypeAliasDefinition: Dimension
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Dimension')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Int & Singleton
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: Singleton
+              CodeReferenceElement: Singleton
+                PsiElement(identifier)('Singleton')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Product
+                  CodeReferenceElement: Product
+                    PsiElement(identifier)('Product')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              ConstructorInvocation
+                SimpleType: Serializable
+                  CodeReferenceElement: Serializable
+                    PsiElement(identifier)('Serializable')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: #:
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('#:')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('H')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Dimension
+                CodeReferenceElement: Dimension
+                  PsiElement(identifier)('Dimension')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Shape
+                CodeReferenceElement: Shape
+                  PsiElement(identifier)('Shape')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: head
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('head')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: tail
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('tail')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: SNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SNil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+        PsiWhiteSpace('\n  ')
+        ScObject: SNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SNil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: SNil
+                  CodeReferenceElement: SNil
+                    PsiElement(identifier)('SNil')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: CContains
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('CContains')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Haystack
+              PsiElement(identifier)('Haystack')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Indices
+                CodeReferenceElement: Indices
+                  PsiElement(identifier)('Indices')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Needle
+              PsiElement(identifier)('Needle')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Index
+                CodeReferenceElement: Index
+                  PsiElement(identifier)('Index')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Haystack match {
+    case head ::: tail => head match {
+      case Needle => true
+      case _ => CContains[tail, Needle]
+    }
+    case INil => false
+  }
+            SimpleType: Haystack
+              CodeReferenceElement: Haystack
+                PsiElement(identifier)('Haystack')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: head ::: tail
+                  TypeVariable: head
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: :::
+                    PsiElement(identifier)(':::')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: tail
+                    PsiElement(identifier)('tail')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: head match {
+      case Needle => true
+      case _ => CContains[tail, Needle]
+    }
+                  SimpleType: head
+                    CodeReferenceElement: head
+                      PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Needle
+                        CodeReferenceElement: Needle
+                          PsiElement(identifier)('Needle')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: true
+                        BooleanLiteral
+                          PsiElement(true)('true')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: CContains[tail, Needle]
+                        SimpleType: CContains
+                          CodeReferenceElement: CContains
+                            PsiElement(identifier)('CContains')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: tail
+                            CodeReferenceElement: tail
+                              PsiElement(identifier)('tail')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Needle
+                            CodeReferenceElement: Needle
+                              PsiElement(identifier)('Needle')
+                          PsiElement(])(']')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: INil
+                  CodeReferenceElement: INil
+                    PsiElement(identifier)('INil')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AddGivenAxisSizeLoop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AddGivenAxisSizeLoop')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: First
+              PsiElement(identifier)('First')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Shape
+                CodeReferenceElement: Shape
+                  PsiElement(identifier)('Shape')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Second
+              PsiElement(identifier)('Second')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Shape
+                CodeReferenceElement: Shape
+                  PsiElement(identifier)('Shape')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: AxisIndex
+              PsiElement(identifier)('AxisIndex')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Indices
+                CodeReferenceElement: Indices
+                  PsiElement(identifier)('Indices')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Index
+                CodeReferenceElement: Index
+                  PsiElement(identifier)('Index')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Shape
+            CodeReferenceElement: Shape
+              PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: First match {
+    case head #: tail => CContains[AxisIndex, I] match {
+      case true =>  Second match {
+        case secondHead #: secondTail => head #: tail
+        case SNil => AxisIndex match{
+          case INil => SNil
+        }
+      }
+    }
+  }
+            SimpleType: First
+              CodeReferenceElement: First
+                PsiElement(identifier)('First')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: head #: tail
+                  TypeVariable: head
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: tail
+                    PsiElement(identifier)('tail')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CContains[AxisIndex, I] match {
+      case true =>  Second match {
+        case secondHead #: secondTail => head #: tail
+        case SNil => AxisIndex match{
+          case INil => SNil
+        }
+      }
+    }
+                  ParametrizedType: CContains[AxisIndex, I]
+                    SimpleType: CContains
+                      CodeReferenceElement: CContains
+                        PsiElement(identifier)('CContains')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: AxisIndex
+                        CodeReferenceElement: AxisIndex
+                          PsiElement(identifier)('AxisIndex')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: true
+                        BooleanLiteral
+                          PsiElement(true)('true')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace('  ')
+                      MatchType: Second match {
+        case secondHead #: secondTail => head #: tail
+        case SNil => AxisIndex match{
+          case INil => SNil
+        }
+      }
+                        SimpleType: Second
+                          CodeReferenceElement: Second
+                            PsiElement(identifier)('Second')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace(' ')
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            InfixType: secondHead #: secondTail
+                              TypeVariable: secondHead
+                                PsiElement(identifier)('secondHead')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: #:
+                                PsiElement(identifier)('#:')
+                              PsiWhiteSpace(' ')
+                              TypeVariable: secondTail
+                                PsiElement(identifier)('secondTail')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            InfixType: head #: tail
+                              SimpleType: head
+                                CodeReferenceElement: head
+                                  PsiElement(identifier)('head')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: #:
+                                PsiElement(identifier)('#:')
+                              PsiWhiteSpace(' ')
+                              SimpleType: tail
+                                CodeReferenceElement: tail
+                                  PsiElement(identifier)('tail')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            SimpleType: SNil
+                              CodeReferenceElement: SNil
+                                PsiElement(identifier)('SNil')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            MatchType: AxisIndex match{
+          case INil => SNil
+        }
+                              SimpleType: AxisIndex
+                                CodeReferenceElement: AxisIndex
+                                  PsiElement(identifier)('AxisIndex')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n          ')
+                              ScMatchTypeCasesImpl(match type cases)
+                                ScMatchTypeCaseImpl(match type case)
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: INil
+                                    CodeReferenceElement: INil
+                                      PsiElement(identifier)('INil')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: SNil
+                                    CodeReferenceElement: SNil
+                                      PsiElement(identifier)('SNil')
+                              PsiWhiteSpace('\n        ')
+                              PsiElement(})('}')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ConcatV13
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ConcatV13')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AddGivenAxisSizeLoop[Dimension #: Shape, Dimension #: Shape, Index ::: INil, 0]
+            SimpleType: AddGivenAxisSizeLoop
+              CodeReferenceElement: AddGivenAxisSizeLoop
+                PsiElement(identifier)('AddGivenAxisSizeLoop')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: Dimension #: Shape
+                SimpleType: Dimension
+                  CodeReferenceElement: Dimension
+                    PsiElement(identifier)('Dimension')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: #:
+                  PsiElement(identifier)('#:')
+                PsiWhiteSpace(' ')
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: Dimension #: Shape
+                SimpleType: Dimension
+                  CodeReferenceElement: Dimension
+                    PsiElement(identifier)('Dimension')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: #:
+                  PsiElement(identifier)('#:')
+                PsiWhiteSpace(' ')
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: Index ::: INil
+                SimpleType: Index
+                  CodeReferenceElement: Index
+                    PsiElement(identifier)('Index')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: :::
+                  PsiElement(identifier)(':::')
+                PsiWhiteSpace(' ')
+                SimpleType: INil
+                  CodeReferenceElement: INil
+                    PsiElement(identifier)('INil')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 0
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

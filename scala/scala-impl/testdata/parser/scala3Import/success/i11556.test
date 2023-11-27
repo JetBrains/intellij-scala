@@ -23,3 +23,613 @@ object Issue11556:
   implicitly[q2.type <:< Query[Nothing, Node]]
 end Issue11556
 -----
+ScalaFile
+  ScTypeAliasDefinition: Traverser
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Traverser')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('O')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionalType: I => LazyList[(O)]
+      SimpleType: I
+        CodeReferenceElement: I
+          PsiElement(identifier)('I')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      ParametrizedType: LazyList[(O)]
+        SimpleType: LazyList
+          CodeReferenceElement: LazyList
+            PsiElement(identifier)('LazyList')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeInParenthesis: (O)
+            PsiElement(()('(')
+            SimpleType: O
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+            PsiElement())(')')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  Extension on Traverser[I, O]
+    PsiElement(extension)('extension')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ta
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ta')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Traverser[I, O]
+              SimpleType: Traverser
+                CodeReferenceElement: Traverser
+                  PsiElement(identifier)('Traverser')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n    ')
+    ScExtensionBody
+      ScFunctionDefinition: ~>
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('~>')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: P
+            PsiElement(identifier)('P')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: tb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('tb')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: Traverser[O, P]
+                  SimpleType: Traverser
+                    CodeReferenceElement: Traverser
+                      PsiElement(identifier)('Traverser')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: O
+                      CodeReferenceElement: O
+                        PsiElement(identifier)('O')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Traverser[I, P]
+          SimpleType: Traverser
+            CodeReferenceElement: Traverser
+              PsiElement(identifier)('Traverser')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: I
+              CodeReferenceElement: I
+                PsiElement(identifier)('I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: P
+              CodeReferenceElement: P
+                PsiElement(identifier)('P')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: Graph
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Graph')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScClass: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Path
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Path')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: e
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('e')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Query
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Query')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('O')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Traverser[Path[I], Path[O]]
+      SimpleType: Traverser
+        CodeReferenceElement: Traverser
+          PsiElement(identifier)('Traverser')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Path[I]
+          SimpleType: Path
+            CodeReferenceElement: Path
+              PsiElement(identifier)('Path')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: I
+              CodeReferenceElement: I
+                PsiElement(identifier)('I')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Path[O]
+          SimpleType: Path
+            CodeReferenceElement: Path
+              PsiElement(identifier)('Path')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: O
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: nodesQ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('nodesQ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Graph
+              CodeReferenceElement: Graph
+                PsiElement(identifier)('Graph')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Query[Nothing, g.Node]
+      SimpleType: Query
+        CodeReferenceElement: Query
+          PsiElement(identifier)('Query')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Nothing
+          CodeReferenceElement: Nothing
+            PsiElement(identifier)('Nothing')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: g.Node
+          CodeReferenceElement: g.Node
+            CodeReferenceElement: g
+              PsiElement(identifier)('g')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Node')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: outsQ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('outsQ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Graph
+              CodeReferenceElement: Graph
+                PsiElement(identifier)('Graph')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Query[g.Node, g.Node]
+      SimpleType: Query
+        CodeReferenceElement: Query
+          PsiElement(identifier)('Query')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: g.Node
+          CodeReferenceElement: g.Node
+            CodeReferenceElement: g
+              PsiElement(identifier)('g')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Node')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: g.Node
+          CodeReferenceElement: g.Node
+            CodeReferenceElement: g
+              PsiElement(identifier)('g')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Node')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: graphObj
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('graphObj')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Graph
+            CodeReferenceElement: Graph
+              PsiElement(identifier)('Graph')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: graphObj
+        PsiElement(identifier)('graphObj')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_graphObj_type
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    SimpleType: graphObj.type
+      CodeReferenceElement: graphObj
+        PsiElement(identifier)('graphObj')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: graphObj
+      PsiElement(identifier)('graphObj')
+  PsiWhiteSpace('\n\n')
+  ScObject: Issue11556
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Issue11556')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: q1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: q1
+              PsiElement(identifier)('q1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Query[Nothing, Node]
+            SimpleType: Query
+              CodeReferenceElement: Query
+                PsiElement(identifier)('Query')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Node
+                CodeReferenceElement: Node
+                  PsiElement(identifier)('Node')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: nodesQ
+              PsiElement(identifier)('nodesQ')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ~>
+              PsiElement(identifier)('~>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: outsQ
+              PsiElement(identifier)('outsQ')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: q1.type <:< Query[Nothing, Node]
+              SimpleType: q1.type
+                CodeReferenceElement: q1
+                  PsiElement(identifier)('q1')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Query[Nothing, Node]
+                SimpleType: Query
+                  CodeReferenceElement: Query
+                    PsiElement(identifier)('Query')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: q2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: q2
+              PsiElement(identifier)('q2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: nodesQ
+              PsiElement(identifier)('nodesQ')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ~>
+              PsiElement(identifier)('~>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: outsQ
+              PsiElement(identifier)('outsQ')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: q3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: q3
+              PsiElement(identifier)('q3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Query[Nothing, Node]
+            SimpleType: Query
+              CodeReferenceElement: Query
+                PsiElement(identifier)('Query')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Node
+                CodeReferenceElement: Node
+                  PsiElement(identifier)('Node')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: q2
+            PsiElement(identifier)('q2')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: q2.type <:< Query[Nothing, Node]
+              SimpleType: q2.type
+                CodeReferenceElement: q2
+                  PsiElement(identifier)('q2')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Query[Nothing, Node]
+                SimpleType: Query
+                  CodeReferenceElement: Query
+                    PsiElement(identifier)('Query')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: Issue11556
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Issue11556')

@@ -14,3 +14,244 @@ object app extends App {
   implicitly[Tc1[X] & Tc2[X]] // no implicit argument of type Tc1[X] & Tc2[X] was found for parameter ev of method implicitly in object Predef
 }
 -----
+ScalaFile
+  ScTrait: Tc1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tc1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Tc2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tc2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: catchAll
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('catchAll')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F[X]
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ManualLambda
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ManualLambda')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: Tc1[a] & Tc2[a]
+      ParametrizedType: Tc1[a]
+        SimpleType: Tc1
+          CodeReferenceElement: Tc1
+            PsiElement(identifier)('Tc1')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: a
+            CodeReferenceElement: a
+              PsiElement(identifier)('a')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Tc2[a]
+        SimpleType: Tc2
+          CodeReferenceElement: Tc2
+            PsiElement(identifier)('Tc2')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: a
+            CodeReferenceElement: a
+              PsiElement(identifier)('a')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: app
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('app')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Tc1[X]
+              SimpleType: Tc1
+                CodeReferenceElement: Tc1
+                  PsiElement(identifier)('Tc1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//ok')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: ManualLambda[X]
+              SimpleType: ManualLambda
+                CodeReferenceElement: ManualLambda
+                  PsiElement(identifier)('ManualLambda')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Tc1[X] & Tc2[X]
+              ParametrizedType: Tc1[X]
+                SimpleType: Tc1
+                  CodeReferenceElement: Tc1
+                    PsiElement(identifier)('Tc1')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Tc2[X]
+                SimpleType: Tc2
+                  CodeReferenceElement: Tc2
+                    PsiElement(identifier)('Tc2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// no implicit argument of type Tc1[X] & Tc2[X] was found for parameter ev of method implicitly in object Predef')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

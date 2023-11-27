@@ -21,3 +21,165 @@ object O {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala.t6126
+      CodeReferenceElement: scala
+        PsiElement(identifier)('scala')
+      PsiElement(.)('.')
+      PsiElement(identifier)('t6126')
+    PsiWhiteSpace('\n\n')
+    PsiComment(comment)('// Don't warn about inheritance in the same file.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// We might use that as a prelude to sealing a class.')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: deprecatedInheritance
+                CodeReferenceElement: deprecatedInheritance
+                  PsiElement(identifier)('deprecatedInheritance')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"`Foo` will be made final in a future version."')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"2.10.0"')
+                PsiElement())(')')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace('\n')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScClass: SubFoo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('SubFoo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+    PsiWhiteSpace('\n\n')
+    ScTrait: T
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: deprecatedInheritance
+                CodeReferenceElement: deprecatedInheritance
+                  PsiElement(identifier)('deprecatedInheritance')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace('\n')
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('T')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: SubT
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('SubT')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+    PsiWhiteSpace('\n\n')
+    ScTrait: S
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: deprecatedInheritance
+                CodeReferenceElement: deprecatedInheritance
+                  PsiElement(identifier)('deprecatedInheritance')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace('\n')
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('S')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: O
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('O')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

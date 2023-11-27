@@ -4,3 +4,63 @@ object Test {
   val a = foo(new Box["a"])
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Utils
+        PsiElement(identifier)('Utils')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Box["a"]
+                        SimpleType: Box
+                          CodeReferenceElement: Box
+                            PsiElement(identifier)('Box')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          LiteralType: "a"
+                            StringLiteral
+                              PsiElement(string content)('"a"')
+                          PsiElement(])(']')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

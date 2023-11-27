@@ -9,3 +9,113 @@ export M.*
 type CC[N] = M.C[N]
 type CCC = M.C[Int]
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: p
+      PsiElement(identifier)('p')
+    PsiWhiteSpace('\n\n')
+    ScObject: M
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('M')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: C
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('C')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: N
+                PsiElement(identifier)('N')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: M
+          PsiElement(identifier)('M')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: CC
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('CC')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: N
+          PsiElement(identifier)('N')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: M.C[N]
+        SimpleType: M.C
+          CodeReferenceElement: M.C
+            CodeReferenceElement: M
+              PsiElement(identifier)('M')
+            PsiElement(.)('.')
+            PsiElement(identifier)('C')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: N
+            CodeReferenceElement: N
+              PsiElement(identifier)('N')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScTypeAliasDefinition: CCC
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('CCC')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: M.C[Int]
+        SimpleType: M.C
+          CodeReferenceElement: M.C
+            CodeReferenceElement: M
+              PsiElement(identifier)('M')
+            PsiElement(.)('.')
+            PsiElement(identifier)('C')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiElement(])(']')

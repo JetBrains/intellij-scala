@@ -37,3 +37,675 @@ object Test:
     }
   }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('deriving')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Kind1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Kind1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: C {
+    type MirroredType[X] = O[X]
+    type MirroredMonoType = O[Any]
+    type MirroredElemTypes[_] <: Tuple
+  }
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: MirroredType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredType')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: O[X]
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: MirroredMonoType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredMonoType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: O[Any]
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: MirroredElemTypes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredElemTypes')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Kind2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Kind2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: C {
+    type MirroredType[X, Y] = O[X, Y]
+    type MirroredMonoType = O[Any, Any]
+    type MirroredElemTypes[_, _] <: Tuple
+  }
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: MirroredType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredType')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Y
+                    PsiElement(identifier)('Y')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: O[X, Y]
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Y
+                      CodeReferenceElement: Y
+                        PsiElement(identifier)('Y')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: MirroredMonoType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredMonoType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: O[Any, Any]
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: MirroredElemTypes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredElemTypes')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: (X, Boolean)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Swap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Swap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: (Y, X)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Y
+                CodeReferenceElement: Y
+                  PsiElement(identifier)('Y')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: summon
+                    PsiElement(identifier)('summon')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Kind1[Mirror.Product, Test]
+                      SimpleType: Kind1
+                        CodeReferenceElement: Kind1
+                          PsiElement(identifier)('Kind1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Mirror.Product
+                          CodeReferenceElement: Mirror.Product
+                            CodeReferenceElement: Mirror
+                              PsiElement(identifier)('Mirror')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Product')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Test
+                          CodeReferenceElement: Test
+                            PsiElement(identifier)('Test')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: Mirror.Product {
+      type MirroredElemTypes[X] = (X, Boolean)
+    }
+                  SimpleType: Mirror.Product
+                    CodeReferenceElement: Mirror.Product
+                      CodeReferenceElement: Mirror
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Product')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: MirroredElemTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('MirroredElemTypes')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: X
+                          PsiElement(identifier)('X')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TupleType: (X, Boolean)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: summon
+                    PsiElement(identifier)('summon')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Kind2[Mirror.Product, Swap]
+                      SimpleType: Kind2
+                        CodeReferenceElement: Kind2
+                          PsiElement(identifier)('Kind2')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Mirror.Product
+                          CodeReferenceElement: Mirror.Product
+                            CodeReferenceElement: Mirror
+                              PsiElement(identifier)('Mirror')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Product')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Swap
+                          CodeReferenceElement: Swap
+                            PsiElement(identifier)('Swap')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: Mirror.Product {
+      type MirroredElemTypes[X, Y] = (Y, X)
+    }
+                  SimpleType: Mirror.Product
+                    CodeReferenceElement: Mirror.Product
+                      CodeReferenceElement: Mirror
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Product')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: MirroredElemTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('MirroredElemTypes')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: X
+                          PsiElement(identifier)('X')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeParameter: Y
+                          PsiElement(identifier)('Y')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TupleType: (Y, X)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Y
+                            CodeReferenceElement: Y
+                              PsiElement(identifier)('Y')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: summon
+                    PsiElement(identifier)('summon')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Kind2[Mirror.Product, [X, Y] =>> (Y, X) & (Y *: X *: EmptyTuple)]
+                      SimpleType: Kind2
+                        CodeReferenceElement: Kind2
+                          PsiElement(identifier)('Kind2')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Mirror.Product
+                          CodeReferenceElement: Mirror.Product
+                            CodeReferenceElement: Mirror
+                              PsiElement(identifier)('Mirror')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Product')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeLambda: [X, Y] =>> (Y, X) & (Y *: X *: EmptyTuple)
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: X
+                              PsiElement(identifier)('X')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeParameter: Y
+                              PsiElement(identifier)('Y')
+                            PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>>)('=>>')
+                          PsiWhiteSpace(' ')
+                          InfixType: (Y, X) & (Y *: X *: EmptyTuple)
+                            TupleType: (Y, X)
+                              PsiElement(()('(')
+                              TypesList
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                              PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: &
+                              PsiElement(identifier)('&')
+                            PsiWhiteSpace(' ')
+                            TypeInParenthesis: (Y *: X *: EmptyTuple)
+                              PsiElement(()('(')
+                              InfixType: Y *: X *: EmptyTuple
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                InfixType: X *: EmptyTuple
+                                  SimpleType: X
+                                    CodeReferenceElement: X
+                                      PsiElement(identifier)('X')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: *:
+                                    PsiElement(identifier)('*:')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: EmptyTuple
+                                    CodeReferenceElement: EmptyTuple
+                                      PsiElement(identifier)('EmptyTuple')
+                              PsiElement())(')')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: Mirror.Product {
+      type MirroredElemTypes[X, Y] = (Y, X)
+    }
+                  SimpleType: Mirror.Product
+                    CodeReferenceElement: Mirror.Product
+                      CodeReferenceElement: Mirror
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Product')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: MirroredElemTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('MirroredElemTypes')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: X
+                          PsiElement(identifier)('X')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeParameter: Y
+                          PsiElement(identifier)('Y')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TupleType: (Y, X)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Y
+                            CodeReferenceElement: Y
+                              PsiElement(identifier)('Y')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')

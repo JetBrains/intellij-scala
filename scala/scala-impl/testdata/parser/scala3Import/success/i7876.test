@@ -5,3 +5,52 @@ import foo._, bar.*
 
 object eq
 -----
+ScalaFile
+  ScObject: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: foo
+        PsiElement(identifier)('foo')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: bar
+        PsiElement(identifier)('bar')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: eq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('eq')
+    ExtendsBlock
+      <empty list>

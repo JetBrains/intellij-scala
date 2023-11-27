@@ -6,3 +6,452 @@ def foo22[T](c1:T, c2:T, c3:T, c4:T, c5:T, c6:T, c7:T, c8:T, c9:T, c10:T, c11:T,
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: foo22
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo22')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c1')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c2')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c3
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c3')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c4
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c4')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c5
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c5')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c6
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c6')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c7
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c7')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c8
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c8')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c9
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c9')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c10
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c10')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c11
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c11')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c12
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c12')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c13
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c13')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c14
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c14')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c15
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c15')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c16
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c16')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c17
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c17')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c18
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c18')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c19
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c19')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c20
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c20')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c21
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c21')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c22
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c22')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: Int => T
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: a
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('a')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// This lambda ends with 23 parameters (c1 to c22 and a)')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: c22
+                    PsiElement(identifier)('c22')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c21
+                    PsiElement(identifier)('c21')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c20
+                    PsiElement(identifier)('c20')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c19
+                    PsiElement(identifier)('c19')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c18
+                    PsiElement(identifier)('c18')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c17
+                    PsiElement(identifier)('c17')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c16
+                    PsiElement(identifier)('c16')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c15
+                    PsiElement(identifier)('c15')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c14
+                    PsiElement(identifier)('c14')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c13
+                    PsiElement(identifier)('c13')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c12
+                    PsiElement(identifier)('c12')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c11
+                    PsiElement(identifier)('c11')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c10
+                    PsiElement(identifier)('c10')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c9
+                    PsiElement(identifier)('c9')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c8
+                    PsiElement(identifier)('c8')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c7
+                    PsiElement(identifier)('c7')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c6
+                    PsiElement(identifier)('c6')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c5
+                    PsiElement(identifier)('c5')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c4
+                    PsiElement(identifier)('c4')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c3
+                    PsiElement(identifier)('c3')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c2
+                    PsiElement(identifier)('c2')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c1
+                    PsiElement(identifier)('c1')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

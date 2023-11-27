@@ -6,3 +6,82 @@ object A {
   def x(f: List[_] => Int = _ => 3) = 9
 }
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: x
+          PsiComment(comment)('// The default getter must have an explicit return type (List[_] => Int)')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// This wasn't happening since e28c3edda4. That commit encoded upper/lower')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// bounds of Any/Nothing as EmptyTree, which were triggering an .isEmpty')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// check in Namers#TypeTreeSubstitutor')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: List[_] => Int
+                    ParametrizedType: List[_]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: _
+                        PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('9')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

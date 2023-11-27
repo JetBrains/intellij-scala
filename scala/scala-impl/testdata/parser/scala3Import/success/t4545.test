@@ -13,3 +13,1137 @@ object Test {
   ) { case ((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)) => () }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: D
+              PsiElement(identifier)('D')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: J
+              PsiElement(identifier)('J')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: L
+              PsiElement(identifier)('L')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Q
+              PsiElement(identifier)('Q')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: table
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('table')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tuple20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]
+                    SimpleType: Tuple20
+                      CodeReferenceElement: Tuple20
+                        PsiElement(identifier)('Tuple20')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fun
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fun')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Unit
+                    TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: D
+                          CodeReferenceElement: D
+                            PsiElement(identifier)('D')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: G
+                          CodeReferenceElement: G
+                            PsiElement(identifier)('G')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: J
+                          CodeReferenceElement: J
+                            PsiElement(identifier)('J')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: K
+                          CodeReferenceElement: K
+                            PsiElement(identifier)('K')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Q
+                          CodeReferenceElement: Q
+                            PsiElement(identifier)('Q')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: D
+              PsiElement(identifier)('D')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: J
+              PsiElement(identifier)('J')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: L
+              PsiElement(identifier)('L')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Q
+              PsiElement(identifier)('Q')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: table
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('table')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tuple21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]
+                    SimpleType: Tuple21
+                      CodeReferenceElement: Tuple21
+                        PsiElement(identifier)('Tuple21')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fun
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fun')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Unit
+                    TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: D
+                          CodeReferenceElement: D
+                            PsiElement(identifier)('D')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: G
+                          CodeReferenceElement: G
+                            PsiElement(identifier)('G')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: J
+                          CodeReferenceElement: J
+                            PsiElement(identifier)('J')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: K
+                          CodeReferenceElement: K
+                            PsiElement(identifier)('K')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Q
+                          CodeReferenceElement: Q
+                            PsiElement(identifier)('Q')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: U
+                          CodeReferenceElement: U
+                            PsiElement(identifier)('U')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: g20
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g20')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace('\n    ')
+                Tuple
+                  PsiElement(()('(')
+                  PsiWhiteSpace('  ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    PatternInParenthesis
+                      PsiElement(()('(')
+                      TuplePattern
+                        PsiElement(()('(')
+                        ArgumentPatterns
+                          ReferencePattern: a
+                            PsiElement(identifier)('a')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: b
+                            PsiElement(identifier)('b')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: c
+                            PsiElement(identifier)('c')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: d
+                            PsiElement(identifier)('d')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: e
+                            PsiElement(identifier)('e')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: f
+                            PsiElement(identifier)('f')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: g
+                            PsiElement(identifier)('g')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: h
+                            PsiElement(identifier)('h')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: i
+                            PsiElement(identifier)('i')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: j
+                            PsiElement(identifier)('j')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: k
+                            PsiElement(identifier)('k')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: l
+                            PsiElement(identifier)('l')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: m
+                            PsiElement(identifier)('m')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: n
+                            PsiElement(identifier)('n')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: o
+                            PsiElement(identifier)('o')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: p
+                            PsiElement(identifier)('p')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: q
+                            PsiElement(identifier)('q')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: r
+                            PsiElement(identifier)('r')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: s
+                            PsiElement(identifier)('s')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: t
+                            PsiElement(identifier)('t')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      UnitExpression
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: g21
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g21')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: g
+                PsiElement(identifier)('g')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                Tuple
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('   ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    PatternInParenthesis
+                      PsiElement(()('(')
+                      TuplePattern
+                        PsiElement(()('(')
+                        ArgumentPatterns
+                          ReferencePattern: a
+                            PsiElement(identifier)('a')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: b
+                            PsiElement(identifier)('b')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: c
+                            PsiElement(identifier)('c')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: d
+                            PsiElement(identifier)('d')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: e
+                            PsiElement(identifier)('e')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: f
+                            PsiElement(identifier)('f')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: g
+                            PsiElement(identifier)('g')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: h
+                            PsiElement(identifier)('h')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: i
+                            PsiElement(identifier)('i')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: j
+                            PsiElement(identifier)('j')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: k
+                            PsiElement(identifier)('k')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: l
+                            PsiElement(identifier)('l')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: m
+                            PsiElement(identifier)('m')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: n
+                            PsiElement(identifier)('n')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: o
+                            PsiElement(identifier)('o')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: p
+                            PsiElement(identifier)('p')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: q
+                            PsiElement(identifier)('q')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: r
+                            PsiElement(identifier)('r')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: s
+                            PsiElement(identifier)('s')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: t
+                            PsiElement(identifier)('t')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: u
+                            PsiElement(identifier)('u')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      UnitExpression
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
