@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.LatestScalaVersions
@@ -35,6 +36,7 @@ class ConfigureIncrementalCompilerTest extends JavaCodeInsightFixtureTestCase {
       loaders.zip(expectedIncrementalities).foreach { case (loader, expected) =>
         loader.init(getModule, scalaVersion)
 
+        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
         // Check incrementality type after setting up a library loader.
         assertEquals(expected, projectIncrementalityType)
       }
