@@ -33,10 +33,7 @@ class XRayModeTip extends StartupActivity.DumbAware {
 
       override def afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult): Unit = {
         if (isEnabled) {
-          if (isAction("Scala.XRayMode", action)) {
-            disable()
-          }
-          else if (
+          if (
             isAction("Scala.TypeInfo", action) ||
             isAction("Scala.ShowImplicitConversions", action) || isAction("Scala.ShowImplicitArguments", action) || isAction("Scala.ShowImplicits", action)) {
 

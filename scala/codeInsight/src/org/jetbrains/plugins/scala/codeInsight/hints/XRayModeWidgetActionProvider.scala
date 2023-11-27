@@ -25,8 +25,10 @@ import javax.swing.plaf.FontUIResource
 class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
   override def createAction(editor: Editor): AnAction = {
     val project = editor.getProject
-
     if (project == null || project.isDefault) return null
+
+    val file = editor.getVirtualFile
+    if (file == null || file.getExtension != "scala" && file.getExtension != "sc") return null
 
     val action = new DumbAwareAction(ScalaCodeInsightBundle.message("xray.mode.widget.text")) with CustomComponentAction {
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
