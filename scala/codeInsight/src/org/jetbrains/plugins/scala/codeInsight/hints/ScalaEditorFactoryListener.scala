@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings.{getInstance => DaemonCodeAnalyzerSettings}
 import com.intellij.codeInsight.hints.ParameterHintsPassFactory
-import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
-import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable.{getInstance => EditorSettingsExternalizable}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
@@ -24,12 +25,26 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
   private val longDelay = new Timer(PressAndHoldDuration, _ => xRayMode = true)
   private val shortDelay = new Timer(DoublePressHoldDuration, _ => xRayMode = true)
 
+  private val actionListener = new AnActionListener {
+    override def beforeActionPerformed(action: AnAction, event: AnActionEvent): Unit = event.getInputEvent match {
+      case e: KeyEvent if e.getKeyCode == KeyEvent.VK_UP || e.getKeyCode == KeyEvent.VK_DOWN =>
+        xRayMode = false
+        longDelay.stop()
+        shortDelay.stop()
+      case _ =>
+    }
+  }
+
   locally {
     longDelay.setRepeats(false)
     shortDelay.setRepeats(false)
+    ApplicationManager.getApplication.getMessageBus.connect().subscribe(AnActionListener.TOPIC, actionListener)
   }
 
   override def editorCreated(event: EditorFactoryEvent): Unit = {
+    val file = event.getEditor.getVirtualFile
+    if (file == null || file.getExtension != "scala" && file.getExtension != "sc") return
+
     val component = event.getEditor.getContentComponent
     component.addFocusListener(editorFocusListener)
     component.addKeyListener(editorKeyListener)
@@ -156,14 +171,6 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         showImplicitHintsSetting = ImplicitHints.enabled
         ImplicitHints.enabled = true
-      }
-
-      keyPressEvent.getSource match {
-        case component: EditorComponentImpl =>
-          val action = ActionManager.getInstance.getAction(XRayModeAction.Id)
-          val event = AnActionEvent.createFromInputEvent(keyPressEvent, ActionPlaces.KEYBOARD_SHORTCUT, null, component.getEditor.getDataContext)
-          ActionUtil.performActionDumbAwareWithCallbacks(action, event)
-        case _ =>
       }
     } else {
       if (ScalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES) {
