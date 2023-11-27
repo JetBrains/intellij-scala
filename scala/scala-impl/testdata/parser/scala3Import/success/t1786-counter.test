@@ -37,3 +37,919 @@ t1786-counter.scala:10: error: class TupleShape needs to be abstract, since meth
 one error found
 */
 -----
+ScalaFile
+  ScTrait: ShapeLevel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ShapeLevel')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Fail
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Fail')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: ProductNodeShape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ProductNodeShape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shape[Level, M, U, P]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: shapes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('shapes')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Seq[Shape[_, _, _, _]]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Shape[_, _, _, _]
+                              SimpleType: Shape
+                                CodeReferenceElement: Shape
+                                  PsiElement(identifier)('Shape')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shape[Level, _, _, _]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Mixed_
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('Mixed_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Unpacked_
+              PsiElement(identifier)('Unpacked_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Packed_
+              PsiElement(identifier)('Packed_')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: TupleShape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TupleShape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: shapes
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('shapes')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shape[_, _, _, _]
+                      SimpleType: Shape
+                        CodeReferenceElement: Shape
+                          PsiElement(identifier)('Shape')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: ProductNodeShape[Level, Product, M, U, P]
+                  SimpleType: ProductNodeShape
+                    CodeReferenceElement: ProductNodeShape
+                      PsiElement(identifier)('ProductNodeShape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Product
+                      CodeReferenceElement: Product
+                        PsiElement(identifier)('Product')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: shapes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('shapes')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Seq[Shape[_, _, _, _]]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Shape[_, _, _, _]
+                              SimpleType: Shape
+                                CodeReferenceElement: Shape
+                                  PsiElement(identifier)('Shape')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shape[Level, _, _, _]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: ShapeLevel
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ShapeLevel')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Ok
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ok')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Mixed_
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('Mixed_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Unpacked_
+              PsiElement(identifier)('Unpacked_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Packed_
+              PsiElement(identifier)('Packed_')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: ProductNodeShape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ProductNodeShape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shape[Level, M, U, P]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: shapes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('shapes')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Seq[Shape[_, _, _, _]]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Shape[_, _, _, _]
+                              SimpleType: Shape
+                                CodeReferenceElement: Shape
+                                  PsiElement(identifier)('Shape')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shape[Level, _, _, _]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: TupleShape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TupleShape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Product
+                CodeReferenceElement: Product
+                  PsiElement(identifier)('Product')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: shapes
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('shapes')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shape[_, _, _, _]
+                      SimpleType: Shape
+                        CodeReferenceElement: Shape
+                          PsiElement(identifier)('Shape')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: ProductNodeShape[Level, Product, M, U, P]
+                  SimpleType: ProductNodeShape
+                    CodeReferenceElement: ProductNodeShape
+                      PsiElement(identifier)('ProductNodeShape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Product
+                      CodeReferenceElement: Product
+                        PsiElement(identifier)('Product')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: shapes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('shapes')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Seq[Shape[_, _, _, _]]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Shape[_, _, _, _]
+                              SimpleType: Shape
+                                CodeReferenceElement: Shape
+                                  PsiElement(identifier)('Shape')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shape[Level, _, _, _]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// This is why we reverted the fix for SI-1786 -- see SI-6169 for a potential alternative that could be extended to cover this.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// both objects type check on 2.10.3, but only Ok was accepted by 2.11 after the original fix to SI-1786.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Fail results in:')
+  PsiWhiteSpace('\n')
+  PsiComment(BlockComment)('/*\nt1786-counter.scala:10: error: class TupleShape needs to be abstract, since method copy in class ProductNodeShape of type (shapes: Seq[Fail.Shape[_, _, _, _]])Fail.Shape[Level, _, _, _] is not defined\n(Note that Seq[Fail.Shape[_, _, _, _]] does not match Seq[Fail.Shape[_ <: Fail.ShapeLevel, _, _, _]]: their type parameters differ)\n  final class TupleShape[Level <: ShapeLevel, M <: Product, U <: Product, P <: Product](val shapes: Shape[_, _, _, _]*) extends ProductNodeShape[Level, Product, M, U, P] {\n              ^\none error found\n*/')

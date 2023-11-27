@@ -7,3 +7,260 @@ val a: Option[(Int, Int)] = Dyn.asdf[Tuple2[Int, Int]]
 val b: Option[(Int, Int)] = Dyn.selectDynamic[(Int, Int)]("asdf")
 val c: Option[(Int, Int)] = Dyn.asdf[(Int, Int)]
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.dynamics
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('dynamics')
+  PsiWhiteSpace('\n\n')
+  ScObject: Dyn
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dyn')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Dynamic
+            CodeReferenceElement: Dynamic
+              PsiElement(identifier)('Dynamic')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: selectDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selectDynamic')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[T]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: None
+            PsiElement(identifier)('None')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[(Int, Int)]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TupleType: (Int, Int)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Dyn.asdf
+        ReferenceExpression: Dyn
+          PsiElement(identifier)('Dyn')
+        PsiElement(.)('.')
+        PsiElement(identifier)('asdf')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Tuple2[Int, Int]
+          SimpleType: Tuple2
+            CodeReferenceElement: Tuple2
+              PsiElement(identifier)('Tuple2')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[(Int, Int)]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TupleType: (Int, Int)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: Dyn.selectDynamic
+          ReferenceExpression: Dyn
+            PsiElement(identifier)('Dyn')
+          PsiElement(.)('.')
+          PsiElement(identifier)('selectDynamic')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TupleType: (Int, Int)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        StringLiteral
+          PsiElement(string content)('"asdf"')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: c
+        PsiElement(identifier)('c')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[(Int, Int)]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TupleType: (Int, Int)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Dyn.asdf
+        ReferenceExpression: Dyn
+          PsiElement(identifier)('Dyn')
+        PsiElement(.)('.')
+        PsiElement(identifier)('asdf')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TupleType: (Int, Int)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiElement(])(']')

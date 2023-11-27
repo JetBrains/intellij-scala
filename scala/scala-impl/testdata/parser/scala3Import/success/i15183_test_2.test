@@ -11,3 +11,245 @@ enum Shape derives Decoder:
   case Rectangle(width: Double, height: Double)
   case Circle(radius: Double)
 -----
+ScalaFile
+  ScEnum: Env
+    PsiComment(comment)('// Fails in each cases below')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Env')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Local, Sit, Prod
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Local
+            PsiElement(identifier)('Local')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          ScEnumSingletonCase: Sit
+            PsiElement(identifier)('Sit')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          ScEnumSingletonCase: Prod
+            PsiElement(identifier)('Prod')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Env2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Env2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Local
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Local
+            PsiElement(identifier)('Local')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Sit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Sit
+            PsiElement(identifier)('Sit')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Prod
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Prod
+            PsiElement(identifier)('Prod')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Shape
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Shape')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Rectangle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Rectangle
+            PsiElement(identifier)('Rectangle')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: width
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('width')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: height
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('height')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Circle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Circle
+            PsiElement(identifier)('Circle')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: radius
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('radius')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>

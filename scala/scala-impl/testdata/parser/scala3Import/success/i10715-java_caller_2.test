@@ -10,3 +10,144 @@ def buffer(c: java.nio.ByteBuffer): Unit =
   c.position
   c.position(10).position.toString
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Child
+              CodeReferenceElement: Child
+                PsiElement(identifier)('Child')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: c.f
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiElement(.)('.')
+          PsiElement(identifier)('f')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// always ok')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: c.f
+        ReferenceExpression: c
+          PsiElement(identifier)('c')
+        PsiElement(.)('.')
+        PsiElement(identifier)('f')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// should work too')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: c.f
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiElement(.)('.')
+          PsiElement(identifier)('f')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: c.f.toString
+        ReferenceExpression: c.f
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiElement(.)('.')
+          PsiElement(identifier)('f')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toString')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: buffer
+    PsiComment(comment)('// The issue was first detected on NIO buffers,')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// (on Java 11+), so these should pass now.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('buffer')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: java.nio.ByteBuffer
+              CodeReferenceElement: java.nio.ByteBuffer
+                CodeReferenceElement: java.nio
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('nio')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ByteBuffer')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: c.position
+        ReferenceExpression: c
+          PsiElement(identifier)('c')
+        PsiElement(.)('.')
+        PsiElement(identifier)('position')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: c.position(10).position.toString
+        ReferenceExpression: c.position(10).position
+          MethodCall
+            ReferenceExpression: c.position
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement(.)('.')
+              PsiElement(identifier)('position')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('10')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('position')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toString')

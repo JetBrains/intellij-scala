@@ -14,3 +14,265 @@ object Test {
   def refArrayOps[T <: AnyRef](xs: Array[T]): ArrayOps[T] = new ArrayOps(xs)
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection.ArrayOps
+        CodeReferenceElement: scala.collection
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collection')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ArrayOps')
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: genericArrayOps
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('genericArrayOps')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[T]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ArrayOps[T]
+            SimpleType: ArrayOps
+              CodeReferenceElement: ArrayOps
+                PsiElement(identifier)('ArrayOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    ParametrizedType: Array[AnyRef]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: AnyRef
+                          CodeReferenceElement: AnyRef
+                            PsiElement(identifier)('AnyRef')
+                        PsiElement(])(']')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  GenericCall
+                    ReferenceExpression: refArrayOps[AnyRef](x).asInstanceOf
+                      MethodCall
+                        GenericCall
+                          ReferenceExpression: refArrayOps
+                            PsiElement(identifier)('refArrayOps')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: AnyRef
+                              CodeReferenceElement: AnyRef
+                                PsiElement(identifier)('AnyRef')
+                            PsiElement(])(']')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: ArrayOps[T]
+                        SimpleType: ArrayOps
+                          CodeReferenceElement: ArrayOps
+                            PsiElement(identifier)('ArrayOps')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  NullLiteral
+                    PsiElement(null)('null')
+                PsiWhiteSpace('              ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  GenericCall
+                    ReferenceExpression: null.asInstanceOf
+                      NullLiteral
+                        PsiElement(null)('null')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: ArrayOps[T]
+                        SimpleType: ArrayOps
+                          CodeReferenceElement: ArrayOps
+                            PsiElement(identifier)('ArrayOps')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// `ArrayOps` is AnyVal')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def genericArrayOps[T >: Nothing <: Any](xs: Array[T]): scala.collection.mutable.ArrayOps[T]')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   = OptionMatching.runOrElse(xs)(((x1: Array[T]) =>')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//     ((OptionMatching.guard(x1.isInstanceOf[Array[AnyRef]], x1.asInstanceOf[Array[T] with Array[AnyRef]]).flatMap(((x2: Array[T] with Array[AnyRef]) =>')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//       OptionMatching.one(Test.this.refArrayOps[AnyRef](x2).asInstanceOf[scala.collection.mutable.ArrayOps[T]]))): Option[scala.collection.mutable.ArrayOps[T]]).orElse(')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//     (OptionMatching.guard(null.==(x1), x1.asInstanceOf[Array[T]]).flatMap(((x3: Array[T]) =>')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//         OptionMatching.one(null))): Option[scala.collection.mutable.ArrayOps[T]])): Option[scala.collection.mutable.ArrayOps[T]]).orElse((OptionMatching.zero: Option[scala.collection.mutable.ArrayOps[T]]))))')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: refArrayOps
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('refArrayOps')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[T]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ArrayOps[T]
+            SimpleType: ArrayOps
+              CodeReferenceElement: ArrayOps
+                PsiElement(identifier)('ArrayOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ArrayOps
+                    CodeReferenceElement: ArrayOps
+                      PsiElement(identifier)('ArrayOps')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

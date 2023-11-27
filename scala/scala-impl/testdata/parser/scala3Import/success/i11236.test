@@ -21,3 +21,435 @@ trait NonEmptyTupleK extends TupleK {
 
 abstract class #:[+H, +T <: TupleK] extends NonEmptyTupleK
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: tup
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: tup
+              PsiElement(identifier)('tup')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Char #: Int #: String #: TupleK
+            SimpleType: Char
+              CodeReferenceElement: Char
+                PsiElement(identifier)('Char')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            InfixType: Int #: String #: TupleK
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: #:
+                PsiElement(identifier)('#:')
+              PsiWhiteSpace(' ')
+              InfixType: String #: TupleK
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: #:
+                  PsiElement(identifier)('#:')
+                PsiWhiteSpace(' ')
+                SimpleType: TupleK
+                  CodeReferenceElement: TupleK
+                    PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: String #: TupleK
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            SimpleType: TupleK
+              CodeReferenceElement: TupleK
+                PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: (tup.tail: Int #: String #: TupleK).tail
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: tup.tail
+                  ReferenceExpression: tup
+                    PsiElement(identifier)('tup')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('tail')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                InfixType: Int #: String #: TupleK
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  InfixType: String #: TupleK
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: #:
+                      PsiElement(identifier)('#:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TupleK
+                      CodeReferenceElement: TupleK
+                        PsiElement(identifier)('TupleK')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tail')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: tup.tail
+            ReferenceExpression: tup
+              PsiElement(identifier)('tup')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tail')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: a.tail
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tail')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: String #: TupleK
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            SimpleType: TupleK
+              CodeReferenceElement: TupleK
+                PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: tup.tail.tail
+            ReferenceExpression: tup.tail
+              ReferenceExpression: tup
+                PsiElement(identifier)('tup')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tail')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tail')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: z
+              PsiElement(identifier)('z')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: tup.tail.tail
+            ReferenceExpression: tup.tail
+              ReferenceExpression: tup
+                PsiElement(identifier)('tup')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tail')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tail')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: TupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleK')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: TupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Tail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tail')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTupleK
+                CodeReferenceElement: NonEmptyTupleK
+                  PsiElement(identifier)('NonEmptyTupleK')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: X match {
+    case _ #: xs => xs
+  }
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: _ #: xs
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: xs
+                    PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: xs
+                  CodeReferenceElement: xs
+                    PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: NonEmptyTupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NonEmptyTupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tail
+          PsiComment(BlockComment)('/*inline*/')
+          PsiWhiteSpace(' ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tail')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: This
+              PsiElement(identifier)('This')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: this.type
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTupleK
+                CodeReferenceElement: NonEmptyTupleK
+                  PsiElement(identifier)('NonEmptyTupleK')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TupleK.Tail[This]
+            SimpleType: TupleK.Tail
+              CodeReferenceElement: TupleK.Tail
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Tail')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: This
+                CodeReferenceElement: This
+                  PsiElement(identifier)('This')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: #:
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('#:')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('H')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: TupleK
+          CodeReferenceElement: TupleK
+            PsiElement(identifier)('TupleK')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NonEmptyTupleK
+            CodeReferenceElement: NonEmptyTupleK
+              PsiElement(identifier)('NonEmptyTupleK')

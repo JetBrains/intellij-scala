@@ -6,3 +6,101 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.jdk.CollectionConverters
+        CodeReferenceElement: scala.jdk
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('jdk')
+        PsiElement(.)('.')
+        PsiElement(identifier)('CollectionConverters')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: x.asInstanceOf[java.util.List[_]].asScala.toList
+              ReferenceExpression: x.asInstanceOf[java.util.List[_]].asScala
+                GenericCall
+                  ReferenceExpression: x.asInstanceOf
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('asInstanceOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: java.util.List[_]
+                      SimpleType: java.util.List
+                        CodeReferenceElement: java.util.List
+                          CodeReferenceElement: java.util
+                            CodeReferenceElement: java
+                              PsiElement(identifier)('java')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('util')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('asScala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toList')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

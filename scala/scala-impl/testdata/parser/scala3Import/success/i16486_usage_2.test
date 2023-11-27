@@ -3,3 +3,59 @@ class Bug {
   def searchJson = Json.obj("foo" -> "bar")
 }
 -----
+ScalaFile
+  ScClass: Bug
+    PsiComment(comment)('// usage_2.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: searchJson
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('searchJson')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Json.obj
+              ReferenceExpression: Json
+                PsiElement(identifier)('Json')
+              PsiElement(.)('.')
+              PsiElement(identifier)('obj')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                StringLiteral
+                  PsiElement(string content)('"foo"')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ->
+                  PsiElement(identifier)('->')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"bar"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

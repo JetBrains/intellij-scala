@@ -7,3 +7,53 @@ object sci {
   val isEmpty = iftTrue // 1nd try
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: listV
+      PsiElement(identifier)('listV')
+    PsiWhiteSpace('\n\n')
+    PsiComment(comment)('//import reflect.Selectable.reflectiveSelectable')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scalaLibV
+          PsiElement(identifier)('scalaLibV')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScObject: sci
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('sci')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: isEmpty
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: isEmpty
+                PsiElement(identifier)('isEmpty')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: iftTrue
+              PsiElement(identifier)('iftTrue')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// 1nd try')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

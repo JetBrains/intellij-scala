@@ -5,3 +5,73 @@ import impl.*
 
 opaque type UOption[+A] = (A | UNone.type) // error: Cyclic Reference involving UOption
 -----
+ScalaFile
+  ScObject: impl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('impl')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: UNone
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('UNone')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: impl
+        PsiElement(identifier)('impl')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: UOption
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UOption')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (A | UNone.type)
+      PsiElement(()('(')
+      InfixType: A | UNone.type
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        SimpleType: UNone.type
+          CodeReferenceElement: UNone
+            PsiElement(identifier)('UNone')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+      PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error: Cyclic Reference involving UOption')

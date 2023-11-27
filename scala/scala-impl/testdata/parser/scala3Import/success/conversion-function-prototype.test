@@ -41,3 +41,650 @@ object Test {
 
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala
+      PsiElement(identifier)('scala')
+    PsiWhiteSpace('\n\n\n')
+    ScObject: ConversionFunction
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ConversionFunction')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: ConversionFunction
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(opaque)('opaque')
+            PsiWhiteSpace(' ')
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ConversionFunction')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: F
+                PsiElement(identifier)('+')
+                PsiElement(identifier)('F')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                FunctionalType: Nothing => Any
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: apply
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('apply')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: F
+                PsiElement(identifier)('F')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                FunctionalType: Nothing => Any
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: ConversionFunction[F]
+              SimpleType: ConversionFunction
+                CodeReferenceElement: ConversionFunction
+                  PsiElement(identifier)('ConversionFunction')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: get
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('get')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: F
+                PsiElement(identifier)('F')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                FunctionalType: Nothing => Any
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ConversionFunction[F]
+                      SimpleType: ConversionFunction
+                        CodeReferenceElement: ConversionFunction
+                          PsiElement(identifier)('ConversionFunction')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: ConversionFunction
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ConversionFunction')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('F')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          FunctionalType: Nothing => Any
+            SimpleType: Nothing
+              CodeReferenceElement: Nothing
+                PsiElement(identifier)('Nothing')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      ParametrizedType: ConversionFunction.ConversionFunction[F]
+        SimpleType: ConversionFunction.ConversionFunction
+          CodeReferenceElement: ConversionFunction.ConversionFunction
+            CodeReferenceElement: ConversionFunction
+              PsiElement(identifier)('ConversionFunction')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ConversionFunction')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScGivenAliasDefinition: given_ConversionFunction_Int_to_String
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ConversionFunction[Int => String]
+                SimpleType: ConversionFunction
+                  CodeReferenceElement: ConversionFunction
+                    PsiElement(identifier)('ConversionFunction')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  FunctionalType: Int => String
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction
+                  PsiElement(identifier)('ConversionFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.toString
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              PsiComment(comment)('// val a: String = 3')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction.get[3 => String].apply
+                  GenericCall
+                    ReferenceExpression: ConversionFunction.get
+                      ReferenceExpression: ConversionFunction
+                        PsiElement(identifier)('ConversionFunction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      FunctionalType: 3 => String
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: X
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: t
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('t')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n\n  ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScGivenAliasDefinition: given_ConversionFunction
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ConversionFunction[(x: X) => x.T]
+                SimpleType: ConversionFunction
+                  CodeReferenceElement: ConversionFunction
+                    PsiElement(identifier)('ConversionFunction')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  DependentFunctionType: (x: X) => x.T
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: x.T
+                      CodeReferenceElement: x.T
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction
+                  PsiElement(identifier)('ConversionFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: x
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('x')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.t
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              PsiComment(comment)('// val a: x.T = x')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: x.T
+                CodeReferenceElement: x.T
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction.get[(x: X) => x.T].apply
+                  GenericCall
+                    ReferenceExpression: ConversionFunction.get
+                      ReferenceExpression: ConversionFunction
+                        PsiElement(identifier)('ConversionFunction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      DependentFunctionType: (x: X) => x.T
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: x
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: x.T
+                          CodeReferenceElement: x.T
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScGivenAliasDefinition: given_ConversionFunction
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ConversionFunction[(x: X) => x.T]
+                SimpleType: ConversionFunction
+                  CodeReferenceElement: ConversionFunction
+                    PsiElement(identifier)('ConversionFunction')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  DependentFunctionType: (x: X) => x.T
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: x.T
+                      CodeReferenceElement: x.T
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction
+                  PsiElement(identifier)('ConversionFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.t
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('t')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              PsiComment(comment)('// val a: x.T = x')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: x.T
+                CodeReferenceElement: x.T
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: ConversionFunction.get[(x: X) => x.T].apply
+                  GenericCall
+                    ReferenceExpression: ConversionFunction.get
+                      ReferenceExpression: ConversionFunction
+                        PsiElement(identifier)('ConversionFunction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      DependentFunctionType: (x: X) => x.T
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: x
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: x.T
+                          CodeReferenceElement: x.T
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

@@ -7,3 +7,184 @@ final def splitBounds[E, D[X] <: Domain[X]](
       splitBounds(newBounds) // does not compile
       splitBounds[E,D](newBounds) // does compile
 -----
+ScalaFile
+  ScTrait: Domain
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Domain')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: splitBounds
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('splitBounds')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: X
+            PsiElement(identifier)('X')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Domain[X]
+          SimpleType: Domain
+            CodeReferenceElement: Domain
+              PsiElement(identifier)('Domain')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        Parameter: bounds
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('bounds')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Seq[E]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace(' ')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: domain
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('domain')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: D[E]
+              SimpleType: D
+                CodeReferenceElement: D
+                  PsiElement(identifier)('D')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Seq[E]
+      SimpleType: Seq
+        CodeReferenceElement: Seq
+          PsiElement(identifier)('Seq')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: E
+          CodeReferenceElement: E
+            PsiElement(identifier)('E')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n      ')
+      ScPatternDefinition: newBounds
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: newBounds
+            PsiElement(identifier)('newBounds')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Seq[E]
+          SimpleType: Seq
+            CodeReferenceElement: Seq
+              PsiElement(identifier)('Seq')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n      ')
+      MethodCall
+        ReferenceExpression: splitBounds
+          PsiElement(identifier)('splitBounds')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: newBounds
+            PsiElement(identifier)('newBounds')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// does not compile')
+      PsiWhiteSpace('\n      ')
+      MethodCall
+        GenericCall
+          ReferenceExpression: splitBounds
+            PsiElement(identifier)('splitBounds')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            SimpleType: D
+              CodeReferenceElement: D
+                PsiElement(identifier)('D')
+            PsiElement(])(']')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: newBounds
+            PsiElement(identifier)('newBounds')
+          PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// does compile')

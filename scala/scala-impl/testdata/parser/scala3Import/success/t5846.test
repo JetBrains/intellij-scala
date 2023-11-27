@@ -9,3 +9,88 @@ object Test extends App {
 
 }
 -----
+ScalaFile
+  ScObject: Test
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Return the most general sorted map type.')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: empty
+              PsiElement(identifier)('empty')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: collection.SortedMap[String, String]
+            SimpleType: collection.SortedMap
+              CodeReferenceElement: collection.SortedMap
+                CodeReferenceElement: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('SortedMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: collection.SortedMap.empty
+              ReferenceExpression: collection.SortedMap
+                ReferenceExpression: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('SortedMap')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

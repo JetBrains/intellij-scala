@@ -5,3 +5,92 @@ class C { me =>
   type X = me.T
 }
 -----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: me
+          PsiElement(identifier)('me')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: me
+              PsiElement(identifier)('me')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                CodeReferenceElement: toString
+                  PsiElement(identifier)('toString')
+                PsiWhiteSpace(' ')
+                PsiElement(as)('as')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ts')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              ThisReference
+                PsiElement(this)('this')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: me.type
+                CodeReferenceElement: me
+                  PsiElement(identifier)('me')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScTrait: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: me.T
+            CodeReferenceElement: me.T
+              CodeReferenceElement: me
+                PsiElement(identifier)('me')
+              PsiElement(.)('.')
+              PsiElement(identifier)('T')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -46,3 +46,1174 @@ val input = #:(25, #:(256, #:(256, #:(3, Ø))))
 val reduced = reduce(input, #:(3, #:(1, #:(2, Ø))))
 val reshaped: 5 #: 5 #: Ø = reshape(reduced, #:(5, #:(5, Ø)))
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: `*`
+            PsiElement(identifier)('`*`')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: +
+            PsiElement(identifier)('+')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Shape
+    PsiComment(comment)('// HList')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Shape')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: #:
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('#:')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: Int & Singleton
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: head
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('head')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: H
+                CodeReferenceElement: H
+                  PsiElement(identifier)('H')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: tail
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('tail')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Shape
+            CodeReferenceElement: Shape
+              PsiElement(identifier)('Shape')
+  PsiWhiteSpace('\n')
+  ScObject: Ø
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ø')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Shape
+            CodeReferenceElement: Shape
+              PsiElement(identifier)('Shape')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Ø
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ø')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: Ø.type
+      CodeReferenceElement: Ø
+        PsiElement(identifier)('Ø')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: reduce
+    PsiComment(comment)('// Reduce')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('reduce')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('shape')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: axes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('axes')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Reduce[S, A, 0]
+      SimpleType: Reduce
+        CodeReferenceElement: Reduce
+          PsiElement(identifier)('Reduce')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: S
+          CodeReferenceElement: S
+            PsiElement(identifier)('S')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        LiteralType: 0
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Reduce
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Reduce')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Axes
+        PsiElement(identifier)('Axes')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Shape
+      CodeReferenceElement: Shape
+        PsiElement(identifier)('Shape')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: S match {
+  case head #: tail => Contains[Axes, I] match {
+    case true => Reduce[tail, Remove[Axes, I], I + 1]
+    case false => head #: Reduce[tail, Axes, I + 1]
+  }
+  case Ø => Axes match {
+    case Ø => Ø
+    // otherwise, do not reduce further
+  }
+}
+      SimpleType: S
+        CodeReferenceElement: S
+          PsiElement(identifier)('S')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: head #: tail
+            TypeVariable: head
+              PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            TypeVariable: tail
+              PsiElement(identifier)('tail')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: Contains[Axes, I] match {
+    case true => Reduce[tail, Remove[Axes, I], I + 1]
+    case false => head #: Reduce[tail, Axes, I + 1]
+  }
+            ParametrizedType: Contains[Axes, I]
+              SimpleType: Contains
+                CodeReferenceElement: Contains
+                  PsiElement(identifier)('Contains')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Axes
+                  CodeReferenceElement: Axes
+                    PsiElement(identifier)('Axes')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Reduce[tail, Remove[Axes, I], I + 1]
+                  SimpleType: Reduce
+                    CodeReferenceElement: Reduce
+                      PsiElement(identifier)('Reduce')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: tail
+                      CodeReferenceElement: tail
+                        PsiElement(identifier)('tail')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Remove[Axes, I]
+                      SimpleType: Remove
+                        CodeReferenceElement: Remove
+                          PsiElement(identifier)('Remove')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Axes
+                          CodeReferenceElement: Axes
+                            PsiElement(identifier)('Axes')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    InfixType: I + 1
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 1
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: head #: Reduce[tail, Axes, I + 1]
+                  SimpleType: head
+                    CodeReferenceElement: head
+                      PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Reduce[tail, Axes, I + 1]
+                    SimpleType: Reduce
+                      CodeReferenceElement: Reduce
+                        PsiElement(identifier)('Reduce')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Axes
+                        CodeReferenceElement: Axes
+                          PsiElement(identifier)('Axes')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InfixType: I + 1
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Ø
+            CodeReferenceElement: Ø
+              PsiElement(identifier)('Ø')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: Axes match {
+    case Ø => Ø
+    // otherwise, do not reduce further
+  }
+            SimpleType: Axes
+              CodeReferenceElement: Axes
+                PsiElement(identifier)('Axes')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Ø
+                  CodeReferenceElement: Ø
+                    PsiElement(identifier)('Ø')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Ø
+                  CodeReferenceElement: Ø
+                    PsiElement(identifier)('Ø')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// otherwise, do not reduce further')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Contains
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Contains')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Haystack
+        PsiElement(identifier)('Haystack')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Needle
+        PsiElement(identifier)('Needle')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Haystack match {
+  case Ø => false
+  case head #: tail => head match {
+    case Needle => true
+    case _ => Contains[tail, Needle]
+  }
+}
+      SimpleType: Haystack
+        CodeReferenceElement: Haystack
+          PsiElement(identifier)('Haystack')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Ø
+            CodeReferenceElement: Ø
+              PsiElement(identifier)('Ø')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: false
+            BooleanLiteral
+              PsiElement(false)('false')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: head #: tail
+            TypeVariable: head
+              PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            TypeVariable: tail
+              PsiElement(identifier)('tail')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: head match {
+    case Needle => true
+    case _ => Contains[tail, Needle]
+  }
+            SimpleType: head
+              CodeReferenceElement: head
+                PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Needle
+                  CodeReferenceElement: Needle
+                    PsiElement(identifier)('Needle')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Contains[tail, Needle]
+                  SimpleType: Contains
+                    CodeReferenceElement: Contains
+                      PsiElement(identifier)('Contains')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: tail
+                      CodeReferenceElement: tail
+                        PsiElement(identifier)('tail')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Needle
+                      CodeReferenceElement: Needle
+                        PsiElement(identifier)('Needle')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Remove
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Remove')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Value
+        PsiElement(identifier)('Value')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Shape
+      CodeReferenceElement: Shape
+        PsiElement(identifier)('Shape')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: From match {
+  case Ø => Ø
+  case head #: tail => head match {
+    case Value => Remove[tail, Value]
+    case _ => head #: Remove[tail, Value]
+  }
+}
+      SimpleType: From
+        CodeReferenceElement: From
+          PsiElement(identifier)('From')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Ø
+            CodeReferenceElement: Ø
+              PsiElement(identifier)('Ø')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: Ø
+            CodeReferenceElement: Ø
+              PsiElement(identifier)('Ø')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: head #: tail
+            TypeVariable: head
+              PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            TypeVariable: tail
+              PsiElement(identifier)('tail')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: head match {
+    case Value => Remove[tail, Value]
+    case _ => head #: Remove[tail, Value]
+  }
+            SimpleType: head
+              CodeReferenceElement: head
+                PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Value
+                  CodeReferenceElement: Value
+                    PsiElement(identifier)('Value')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Remove[tail, Value]
+                  SimpleType: Remove
+                    CodeReferenceElement: Remove
+                      PsiElement(identifier)('Remove')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: tail
+                      CodeReferenceElement: tail
+                        PsiElement(identifier)('tail')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Value
+                      CodeReferenceElement: Value
+                        PsiElement(identifier)('Value')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: head #: Remove[tail, Value]
+                  SimpleType: head
+                    CodeReferenceElement: head
+                      PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Remove[tail, Value]
+                    SimpleType: Remove
+                      CodeReferenceElement: Remove
+                        PsiElement(identifier)('Remove')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: reshape
+    PsiComment(comment)('// Reshape')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('reshape')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: To
+        PsiElement(identifier)('To')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: from
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('from')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: From
+              CodeReferenceElement: From
+                PsiElement(identifier)('From')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: to
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('to')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: To
+              CodeReferenceElement: To
+                PsiElement(identifier)('To')
+        PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: ev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ev')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            InfixType: NumElements[From] =:= NumElements[To]
+              ParametrizedType: NumElements[From]
+                SimpleType: NumElements
+                  CodeReferenceElement: NumElements
+                    PsiElement(identifier)('NumElements')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: From
+                    CodeReferenceElement: From
+                      PsiElement(identifier)('From')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              ParametrizedType: NumElements[To]
+                SimpleType: NumElements
+                  CodeReferenceElement: NumElements
+                    PsiElement(identifier)('NumElements')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: To
+                    CodeReferenceElement: To
+                      PsiElement(identifier)('To')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: To
+      CodeReferenceElement: To
+        PsiElement(identifier)('To')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: NumElements
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NumElements')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Shape
+          CodeReferenceElement: Shape
+            PsiElement(identifier)('Shape')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: X match {
+  case Ø => 1
+  case head #: tail => head * NumElements[tail]
+}
+      SimpleType: X
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Ø
+            CodeReferenceElement: Ø
+              PsiElement(identifier)('Ø')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: head #: tail
+            TypeVariable: head
+              PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: #:
+              PsiElement(identifier)('#:')
+            PsiWhiteSpace(' ')
+            TypeVariable: tail
+              PsiElement(identifier)('tail')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: head * NumElements[tail]
+            SimpleType: head
+              CodeReferenceElement: head
+                PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ParametrizedType: NumElements[tail]
+              SimpleType: NumElements
+                CodeReferenceElement: NumElements
+                  PsiElement(identifier)('NumElements')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: tail
+                  CodeReferenceElement: tail
+                    PsiElement(identifier)('tail')
+                PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: input
+    PsiComment(comment)('// Test cases')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: input
+        PsiElement(identifier)('input')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: #:
+        PsiElement(identifier)('#:')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('25')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: #:
+            PsiElement(identifier)('#:')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('256')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: #:
+                PsiElement(identifier)('#:')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('256')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: #:
+                    PsiElement(identifier)('#:')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Ø
+                      PsiElement(identifier)('Ø')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: reduced
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: reduced
+        PsiElement(identifier)('reduced')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: reduce
+        PsiElement(identifier)('reduce')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: input
+          PsiElement(identifier)('input')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: #:
+            PsiElement(identifier)('#:')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: #:
+                PsiElement(identifier)('#:')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: #:
+                    PsiElement(identifier)('#:')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Ø
+                      PsiElement(identifier)('Ø')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: reshaped
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: reshaped
+        PsiElement(identifier)('reshaped')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: 5 #: 5 #: Ø
+      LiteralType: 5
+        IntegerLiteral
+          PsiElement(integer)('5')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: #:
+        PsiElement(identifier)('#:')
+      PsiWhiteSpace(' ')
+      InfixType: 5 #: Ø
+        LiteralType: 5
+          IntegerLiteral
+            PsiElement(integer)('5')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: #:
+          PsiElement(identifier)('#:')
+        PsiWhiteSpace(' ')
+        SimpleType: Ø
+          CodeReferenceElement: Ø
+            PsiElement(identifier)('Ø')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: reshape
+        PsiElement(identifier)('reshape')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: reduced
+          PsiElement(identifier)('reduced')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: #:
+            PsiElement(identifier)('#:')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: #:
+                PsiElement(identifier)('#:')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: Ø
+                  PsiElement(identifier)('Ø')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement())(')')

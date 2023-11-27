@@ -2,3 +2,82 @@ var xs = Set(List(0), Vector(0))
 var ys: Set[collection.immutable.AbstractSeq[Int]] = xs
 
 -----
+ScalaFile
+  ScVariableDefinition: xs
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: xs
+        PsiElement(identifier)('xs')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Set
+        PsiElement(identifier)('Set')
+      ArgumentList
+        PsiElement(()('(')
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Vector
+            PsiElement(identifier)('Vector')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScVariableDefinition: ys
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ys
+        PsiElement(identifier)('ys')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Set[collection.immutable.AbstractSeq[Int]]
+      SimpleType: Set
+        CodeReferenceElement: Set
+          PsiElement(identifier)('Set')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: collection.immutable.AbstractSeq[Int]
+          SimpleType: collection.immutable.AbstractSeq
+            CodeReferenceElement: collection.immutable.AbstractSeq
+              CodeReferenceElement: collection.immutable
+                CodeReferenceElement: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('immutable')
+              PsiElement(.)('.')
+              PsiElement(identifier)('AbstractSeq')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: xs
+      PsiElement(identifier)('xs')

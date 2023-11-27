@@ -9,3 +9,167 @@ object Test {
   val l5: Logarithm = (1.0).asInstanceOf[Logarithm]
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: logs
+      PsiElement(identifier)('logs')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: l
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: l
+                PsiElement(identifier)('l')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Logarithm
+                PsiElement(identifier)('Logarithm')
+              ArgumentList
+                PsiElement(()('(')
+                DoubleLiteral
+                  PsiElement(double)('1.0')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: l2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: l2
+                PsiElement(identifier)('l2')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Logarithm
+                PsiElement(identifier)('Logarithm')
+              ArgumentList
+                PsiElement(()('(')
+                DoubleLiteral
+                  PsiElement(double)('2.0')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: l3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: l3
+                PsiElement(identifier)('l3')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: l
+                PsiElement(identifier)('l')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *
+                PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: l2
+                PsiElement(identifier)('l2')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: l4
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: l4
+                PsiElement(identifier)('l4')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: l
+                PsiElement(identifier)('l')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: l2
+                PsiElement(identifier)('l2')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: d
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: d
+                PsiElement(identifier)('d')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: l3.toDouble
+              ReferenceExpression: l3
+                PsiElement(identifier)('l3')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toDouble')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: l5
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: l5
+                PsiElement(identifier)('l5')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Logarithm
+              CodeReferenceElement: Logarithm
+                PsiElement(identifier)('Logarithm')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: (1.0).asInstanceOf
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  DoubleLiteral
+                    PsiElement(double)('1.0')
+                  PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('asInstanceOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Logarithm
+                  CodeReferenceElement: Logarithm
+                    PsiElement(identifier)('Logarithm')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

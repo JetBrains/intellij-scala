@@ -25,3 +25,564 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: hlists
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('hlists')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: HList
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('HList')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: HList
+                  CodeReferenceElement: HList
+                    PsiElement(identifier)('HList')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDeclaration: merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: l
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('l')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Merge[L]
+                  SimpleType: Merge
+                    CodeReferenceElement: Merge
+                      PsiElement(identifier)('Merge')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: L
+                      CodeReferenceElement: L
+                        PsiElement(identifier)('L')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScClass: HCons
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('HCons')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: HList
+                CodeReferenceElement: HList
+                  PsiElement(identifier)('HList')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: head
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: tail
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('tail')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: HList
+                  CodeReferenceElement: HList
+                    PsiElement(identifier)('HList')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: HCons[H, tail.Merge[L]]
+                  SimpleType: HCons
+                    CodeReferenceElement: HCons
+                      PsiElement(identifier)('HCons')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: tail.Merge[L]
+                      SimpleType: tail.Merge
+                        CodeReferenceElement: tail.Merge
+                          CodeReferenceElement: tail
+                            PsiElement(identifier)('tail')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Merge')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: l
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('l')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Merge[L]
+                  SimpleType: Merge
+                    CodeReferenceElement: Merge
+                      PsiElement(identifier)('Merge')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: L
+                      CodeReferenceElement: L
+                        PsiElement(identifier)('L')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: HCons
+                    PsiElement(identifier)('HCons')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: head
+                      PsiElement(identifier)('head')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: tail.merge
+                        ReferenceExpression: tail
+                          PsiElement(identifier)('tail')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('merge')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: l
+                          PsiElement(identifier)('l')
+                        PsiElement())(')')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: HNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('HNil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: HList
+                  CodeReferenceElement: HList
+                    PsiElement(identifier)('HList')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: merge
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('merge')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: L
+                    PsiElement(identifier)('L')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: HList
+                      CodeReferenceElement: HList
+                        PsiElement(identifier)('HList')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: l
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('l')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Merge[L]
+                  SimpleType: Merge
+                    CodeReferenceElement: Merge
+                      PsiElement(identifier)('Merge')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: L
+                      CodeReferenceElement: L
+                        PsiElement(identifier)('L')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: l
+                  PsiElement(identifier)('l')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: HNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: HNil
+              PsiElement(identifier)('HNil')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: HNil
+            CodeReferenceElement: HNil
+              PsiElement(identifier)('HNil')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScObject: HNil
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('HNil')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: HNil
+                      CodeReferenceElement: HNil
+                        PsiElement(identifier)('HNil')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: HNil
+              PsiElement(identifier)('HNil')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: hlists
+              PsiElement(identifier)('hlists')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: merged
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: merged
+              PsiElement(identifier)('merged')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HCons[Int,HCons[String,HNil]]
+            SimpleType: HCons
+              CodeReferenceElement: HCons
+                PsiElement(identifier)('HCons')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              ParametrizedType: HCons[String,HNil]
+                SimpleType: HCons
+                  CodeReferenceElement: HCons
+                    PsiElement(identifier)('HCons')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  SimpleType: HNil
+                    CodeReferenceElement: HNil
+                      PsiElement(identifier)('HNil')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              MethodCall
+                ReferenceExpression: HCons
+                  PsiElement(identifier)('HCons')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('42')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: HNil
+                    PsiElement(identifier)('HNil')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: merge
+                PsiElement(identifier)('merge')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: HCons
+                  PsiElement(identifier)('HCons')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"foo"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: HNil
+                    PsiElement(identifier)('HNil')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

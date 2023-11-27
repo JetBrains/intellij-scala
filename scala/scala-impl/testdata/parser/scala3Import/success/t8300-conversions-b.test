@@ -22,3 +22,289 @@ object Test extends App {
   sym.asFreeType
 }
 -----
+ScalaFile
+  ScTrait: Universe
+    PsiComment(comment)('// cf. pos/t8300-conversions-a.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Universe')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Symbol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Symbol')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: AnyRef with SymbolApi
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: SymbolApi
+              CodeReferenceElement: SymbolApi
+                PsiElement(identifier)('SymbolApi')
+        PsiWhiteSpace('\n  ')
+        ScTrait: SymbolApi
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SymbolApi')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: TypeSymbol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TypeSymbol')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: TypeSymbolApi with Symbol
+            SimpleType: TypeSymbolApi
+              CodeReferenceElement: TypeSymbolApi
+                PsiElement(identifier)('TypeSymbolApi')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: Symbol
+              CodeReferenceElement: Symbol
+                PsiElement(identifier)('Symbol')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TypeSymbolApi
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TypeSymbolApi')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: SymbolApi
+                  CodeReferenceElement: SymbolApi
+                    PsiElement(identifier)('SymbolApi')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: FreeTypeSymbol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FreeTypeSymbol')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: FreeTypeSymbolApi with TypeSymbol
+            SimpleType: FreeTypeSymbolApi
+              CodeReferenceElement: FreeTypeSymbolApi
+                PsiElement(identifier)('FreeTypeSymbolApi')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: TypeSymbol
+              CodeReferenceElement: TypeSymbol
+                PsiElement(identifier)('TypeSymbol')
+        PsiWhiteSpace('\n  ')
+        ScTrait: FreeTypeSymbolApi
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FreeTypeSymbolApi')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TypeSymbolApi
+                  CodeReferenceElement: TypeSymbolApi
+                    PsiElement(identifier)('TypeSymbolApi')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: CompatibleSymbol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('CompatibleSymbol')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: sym
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('sym')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Symbol
+                      CodeReferenceElement: Symbol
+                        PsiElement(identifier)('Symbol')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: asFreeType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('asFreeType')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: FreeTypeSymbol
+                  CodeReferenceElement: FreeTypeSymbol
+                    PsiElement(identifier)('FreeTypeSymbol')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: u
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: u
+              PsiElement(identifier)('u')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Universe
+            CodeReferenceElement: Universe
+              PsiElement(identifier)('Universe')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: u
+              PsiElement(identifier)('u')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: sym
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: sym
+              PsiElement(identifier)('sym')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Symbol
+            CodeReferenceElement: Symbol
+              PsiElement(identifier)('Symbol')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: sym.asFreeType
+          ReferenceExpression: sym
+            PsiElement(identifier)('sym')
+          PsiElement(.)('.')
+          PsiElement(identifier)('asFreeType')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

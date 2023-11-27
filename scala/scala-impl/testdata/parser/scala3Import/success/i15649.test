@@ -10,3 +10,169 @@ object Foo:
 object FooBar:                                      // problem disappears if we rename as `Bar`
   def foo: M.ConfigSource.R = new M.ConfigSource.R  // problem disappears if we use `???` as rhs
 -----
+ScalaFile
+  ScTrait: ConfigSourceModule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ConfigSourceModule')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: ConfigSource
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ConfigSource')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScClass: R
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('R')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: M
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('M')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: ConfigSourceModule
+            CodeReferenceElement: ConfigSourceModule
+              PsiElement(identifier)('ConfigSourceModule')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: FromConfigSource
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FromConfigSource')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: c
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('c')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: M.ConfigSource.type
+                      CodeReferenceElement: M.ConfigSource
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ConfigSource')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: FooBar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooBar')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('                                      ')
+        PsiComment(comment)('// problem disappears if we rename as `Bar`')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: M.ConfigSource.R
+            CodeReferenceElement: M.ConfigSource.R
+              CodeReferenceElement: M.ConfigSource
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ConfigSource')
+              PsiElement(.)('.')
+              PsiElement(identifier)('R')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: M.ConfigSource.R
+                    CodeReferenceElement: M.ConfigSource.R
+                      CodeReferenceElement: M.ConfigSource
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ConfigSource')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('R')
+  PsiWhiteSpace('  ')
+  PsiComment(comment)('// problem disappears if we use `???` as rhs')

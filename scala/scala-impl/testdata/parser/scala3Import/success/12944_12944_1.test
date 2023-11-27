@@ -10,3 +10,227 @@ object Test1 {
   val works = summon[Bar[2] =:= "2"]
 }
 -----
+ScalaFile
+  ScObject: Test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ++
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('++')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: L
+              PsiElement(identifier)('L')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: (L, R) match
+    case (Int, Int)       => 2
+    case (String, String) => "2"
+    case (String, Int)    => "2"
+    case (Int, String)    => "2"
+            TupleType: (L, R)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TupleType: (Int, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiWhiteSpace('       ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 2
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TupleType: (String, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: "2"
+                  StringLiteral
+                    PsiElement(string content)('"2"')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TupleType: (String, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiWhiteSpace('    ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: "2"
+                  StringLiteral
+                    PsiElement(string content)('"2"')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TupleType: (Int, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+                PsiWhiteSpace('    ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: "2"
+                  StringLiteral
+                    PsiElement(string content)('"2"')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: W
+              PsiElement(identifier)('W')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: W ++ "" ++ W
+            InfixType: W ++ ""
+              SimpleType: W
+                CodeReferenceElement: W
+                  PsiElement(identifier)('W')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ++
+                PsiElement(identifier)('++')
+              PsiWhiteSpace(' ')
+              LiteralType: ""
+                StringLiteral
+                  PsiElement(string content)('""')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            SimpleType: W
+              CodeReferenceElement: W
+                PsiElement(identifier)('W')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: works
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: works
+              PsiElement(identifier)('works')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: Bar[2] =:= "2"
+                ParametrizedType: Bar[2]
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    LiteralType: 2
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: "2"
+                  StringLiteral
+                    PsiElement(string content)('"2"')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

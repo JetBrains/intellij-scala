@@ -12,3 +12,313 @@ object ThingHolder { type Alias[AIn] = Thing { type A = AIn } }
 class View[AIn](val in: ThingHolder.Alias[AIn]) {          def f(p: in.A): in.A = p }
 class SubView extends View[Int](IntThing)       { override def f(p: in.A): in.A = p }
 -----
+ScalaFile
+  ScTrait: Thing
+    PsiComment(comment)('// exercise coevolveSym: SingleType with an underlying RefinedType, via a type alias')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Thing')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: IntThing
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IntThing')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Thing
+            CodeReferenceElement: Thing
+              PsiElement(identifier)('Thing')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: ThingHolder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ThingHolder')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Alias
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Alias')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: AIn
+              PsiElement(identifier)('AIn')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Thing { type A = AIn }
+            SimpleType: Thing
+              CodeReferenceElement: Thing
+                PsiElement(identifier)('Thing')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: A
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: AIn
+                  CodeReferenceElement: AIn
+                    PsiElement(identifier)('AIn')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: View
+    PsiComment(comment)('// The following erroneously failed with  error: method f overrides nothing.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// because asSeenFrom produced a typeref of the shape T'#A where A referred to a symbol defined in a T of times past')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// More precisely, the TypeRef case of TypeMap's mapOver correctly modified prefix')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// from having an underlying type of { type A = Ain } to { type A = Int }, with a new symbol for A (now with info Int),')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// but the symbol in the outer type ref wasn't co-evolved (so it still referred to the { type A = AIn } underlying the old prefix)')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// coEvolveSym used to only look at prefixes that were directly RefinedTypes, but they could also be SingleTypes with an underlying RefinedType')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('View')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: AIn
+        PsiElement(identifier)('AIn')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: in
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('in')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: ThingHolder.Alias[AIn]
+                SimpleType: ThingHolder.Alias
+                  CodeReferenceElement: ThingHolder.Alias
+                    CodeReferenceElement: ThingHolder
+                      PsiElement(identifier)('ThingHolder')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Alias')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: AIn
+                    CodeReferenceElement: AIn
+                      PsiElement(identifier)('AIn')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('          ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: in.A
+                    CodeReferenceElement: in.A
+                      CodeReferenceElement: in
+                        PsiElement(identifier)('in')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: in.A
+            CodeReferenceElement: in.A
+              CodeReferenceElement: in
+                PsiElement(identifier)('in')
+              PsiElement(.)('.')
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: p
+            PsiElement(identifier)('p')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: SubView
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SubView')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: View[Int]
+            SimpleType: View
+              CodeReferenceElement: View
+                PsiElement(identifier)('View')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: IntThing
+              PsiElement(identifier)('IntThing')
+            PsiElement())(')')
+      PsiWhiteSpace('       ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: in.A
+                    CodeReferenceElement: in.A
+                      CodeReferenceElement: in
+                        PsiElement(identifier)('in')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: in.A
+            CodeReferenceElement: in.A
+              CodeReferenceElement: in
+                PsiElement(identifier)('in')
+              PsiElement(.)('.')
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: p
+            PsiElement(identifier)('p')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

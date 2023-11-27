@@ -12,3 +12,306 @@ trait U[T0]:
 class X extends U[T[Monad]]:
   def f(x: Inner[T0_member][List]): Unit = ???
 -----
+ScalaFile
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Inner
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inner')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: x
+        PsiElement(identifier)('x')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [X[_]] =>> x match { case T[f] => f[X] }
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: X
+          PsiElement(identifier)('X')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      MatchType: x match { case T[f] => f[X] }
+        SimpleType: x
+          CodeReferenceElement: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace(' ')
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScMatchTypeCasesImpl(match type cases)
+          ScMatchTypeCaseImpl(match type case)
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ParametrizedType: T[f]
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeVariable: f
+                  PsiElement(identifier)('f')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: f[X]
+              SimpleType: f
+                CodeReferenceElement: f
+                  PsiElement(identifier)('f')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Monad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Monad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: TMonad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TMonad')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: T[Monad]
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Monad
+          CodeReferenceElement: Monad
+            PsiElement(identifier)('Monad')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: U
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('U')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T0
+        PsiElement(identifier)('T0')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: T0_member
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T0_member')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: T0
+            CodeReferenceElement: T0
+              PsiElement(identifier)('T0')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Inner[T0][List]
+                    ParametrizedType: Inner[T0]
+                      SimpleType: Inner
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T0
+                          CodeReferenceElement: T0
+                            PsiElement(identifier)('T0')
+                        PsiElement(])(']')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+  PsiWhiteSpace('\n\n')
+  ScClass: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: U[T[Monad]]
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: T[Monad]
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Monad
+                    CodeReferenceElement: Monad
+                      PsiElement(identifier)('Monad')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Inner[T0_member][List]
+                    ParametrizedType: Inner[T0_member]
+                      SimpleType: Inner
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T0_member
+                          CodeReferenceElement: T0_member
+                            PsiElement(identifier)('T0_member')
+                        PsiElement(])(']')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')

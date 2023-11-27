@@ -8,3 +8,167 @@ def Main = {
   println(s"x: $x")
 }
 -----
+ScalaFile
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  Extension on O.type
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ctx')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: O.type
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: unapplySeq
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('unapplySeq')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: input
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('input')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Option[Seq[T]]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Seq[T]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Some
+            PsiElement(identifier)('Some')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: Seq
+                PsiElement(identifier)('Seq')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: input
+                  PsiElement(identifier)('input')
+                PsiElement())(')')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ConstructorPattern
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('3')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"x: ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(interpolated string end)('"')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

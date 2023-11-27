@@ -7,3 +7,140 @@ object Test {
   // "This catches all Throwables. If this is really intended, use `case ex6 : Throwable` to clear this warning."
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScObject: NF
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NF')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: unapply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('unapply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: t
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('t')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Throwable
+                          CodeReferenceElement: Throwable
+                            PsiElement(identifier)('Throwable')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Option[Throwable]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Throwable
+                      CodeReferenceElement: Throwable
+                        PsiElement(identifier)('Throwable')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: None
+                  PsiElement(identifier)('None')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TryStatement
+                PsiElement(try)('try')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                CatchBlock
+                  PsiElement(catch)('catch')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: NF
+                            PsiElement(identifier)('NF')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            ReferencePattern: ex
+                              PsiElement(identifier)('ex')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ReferenceExpression: None
+                            PsiElement(identifier)('None')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: getOrElse
+              PsiElement(identifier)('getOrElse')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// Was emitting a spurious warning post typer:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// "This catches all Throwables. If this is really intended, use `case ex6 : Throwable` to clear this warning."')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

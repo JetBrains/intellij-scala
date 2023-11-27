@@ -2,3 +2,39 @@ object Test {
   java.nio.ByteBuffer.allocate(1).isReadOnly
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: java.nio.ByteBuffer.allocate(1).isReadOnly
+          MethodCall
+            ReferenceExpression: java.nio.ByteBuffer.allocate
+              ReferenceExpression: java.nio.ByteBuffer
+                ReferenceExpression: java.nio
+                  ReferenceExpression: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('nio')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ByteBuffer')
+              PsiElement(.)('.')
+              PsiElement(identifier)('allocate')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('isReadOnly')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

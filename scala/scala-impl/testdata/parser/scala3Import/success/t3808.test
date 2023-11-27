@@ -10,3 +10,141 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: meh
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('meh')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScTrait: TC
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(trait)('trait')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('TC')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: I
+                  PsiElement(identifier)('I')
+                PsiElement(])(']')
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: tci
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tci
+                  PsiElement(identifier)('tci')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: TC[Int]
+                SimpleType: TC
+                  CodeReferenceElement: TC
+                    PsiElement(identifier)('TC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TC[Int]
+                        SimpleType: TC
+                          CodeReferenceElement: TC
+                            PsiElement(identifier)('TC')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: baz
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('baz')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: J
+                  PsiElement(identifier)('J')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: TC
+                    CodeReferenceElement: TC
+                      PsiElement(identifier)('TC')
+                PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"meh"')
+            PsiWhiteSpace('\n\n    ')
+            ReferenceExpression: baz
+              PsiElement(identifier)('baz')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// () // commenting or uncommenting this line should not affect compilation (visibly)')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

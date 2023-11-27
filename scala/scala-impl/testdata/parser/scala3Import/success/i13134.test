@@ -9,3 +9,98 @@ def test =
     assert(!end) // postfix operator `end` needs to be enabled
   }              // by making the implicit value scala.language.postfixOps visible.
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n    ')
+      ScPatternDefinition: end
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: end
+            PsiElement(identifier)('end')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('0')
+      PsiWhiteSpace('\n    ')
+      MethodCall
+        ReferenceExpression: assert
+          PsiElement(identifier)('assert')
+        ArgumentList
+          PsiElement(()('(')
+          InfixExpression
+            PrefixExpression
+              ReferenceExpression: ~
+                PsiElement(identifier)('~')
+              ReferenceExpression: end
+                PsiElement(identifier)('end')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            PrefixExpression
+              ReferenceExpression: -
+                PsiElement(identifier)('-')
+              IntegerLiteral
+                PsiElement(integer)('1')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('//Not found: ~')
+      PsiWhiteSpace('\n  ')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n  ')
+  BlockExpression
+    PsiElement({)('{')
+    PsiWhiteSpace('\n    ')
+    ScPatternDefinition: end
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: end
+          PsiElement(identifier)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(false)('false')
+    PsiWhiteSpace('\n    ')
+    MethodCall
+      ReferenceExpression: assert
+        PsiElement(identifier)('assert')
+      ArgumentList
+        PsiElement(()('(')
+        PrefixExpression
+          ReferenceExpression: !
+            PsiElement(identifier)('!')
+          ReferenceExpression: end
+            PsiElement(identifier)('end')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// postfix operator `end` needs to be enabled')
+    PsiWhiteSpace('\n  ')
+    PsiElement(})('}')
+  PsiWhiteSpace('              ')
+  PsiComment(comment)('// by making the implicit value scala.language.postfixOps visible.')

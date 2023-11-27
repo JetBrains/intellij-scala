@@ -21,3 +21,415 @@ trait IChannel[F[_]:CpsAsyncMonad, A]:
 trait IOChannel[F[_]:CpsAsyncMonad,I,O] extends IChannel[F,I] with OChannel[F,O]
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: gopher
+      PsiElement(identifier)('gopher')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.util.Try
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Try')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: await
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('await')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            ParameterType
+              ParametrizedType: F[T]
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: am
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('am')
+            PsiElement(:)(':')
+            ParameterType
+              ParametrizedType: CpsAsyncMonad[F]
+                SimpleType: CpsAsyncMonad
+                  CodeReferenceElement: CpsAsyncMonad
+                    PsiElement(identifier)('CpsAsyncMonad')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScTrait: CpsAsyncMonad
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('CpsAsyncMonad')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDeclaration: adoptCallbackStyle
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('adoptCallbackStyle')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: source
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('source')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: (Try[A]=>Unit) => Unit
+                      TypeInParenthesis: (Try[A]=>Unit)
+                        PsiElement(()('(')
+                        FunctionalType: Try[A]=>Unit
+                          ParametrizedType: Try[A]
+                            SimpleType: Try
+                              CodeReferenceElement: Try
+                                PsiElement(identifier)('Try')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                          PsiElement(=>)('=>')
+                          SimpleType: Unit
+                            CodeReferenceElement: Unit
+                              PsiElement(identifier)('Unit')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: F[A]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScTrait: IChannel
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('IChannel')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+          PsiElement(:)(':')
+          SimpleType: CpsAsyncMonad
+            CodeReferenceElement: CpsAsyncMonad
+              PsiElement(identifier)('CpsAsyncMonad')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDefinition: aread
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('aread')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            ParametrizedType: F[A]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: summon[CpsAsyncMonad[F]].adoptCallbackStyle
+                GenericCall
+                  ReferenceExpression: summon
+                    PsiElement(identifier)('summon')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: CpsAsyncMonad[F]
+                      SimpleType: CpsAsyncMonad
+                        CodeReferenceElement: CpsAsyncMonad
+                          PsiElement(identifier)('CpsAsyncMonad')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('adoptCallbackStyle')
+              ArgumentList
+                PsiElement(()('(')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: f
+                        PsiElement(identifier)('f')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: addReader
+                      PsiElement(identifier)('addReader')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      PsiElement())(')')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDefinition: read
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('read')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: await
+                PsiElement(identifier)('await')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: aread
+                  PsiElement(identifier)('aread')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDeclaration: addReader
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('addReader')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: Try[A]=>Unit
+                      ParametrizedType: Try[A]
+                        SimpleType: Try
+                          CodeReferenceElement: Try
+                            PsiElement(identifier)('Try')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                      PsiElement(=>)('=>')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+    PsiWhiteSpace('\n\n\n')
+    ScTrait: IOChannel
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('IOChannel')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+          PsiElement(:)(':')
+          SimpleType: CpsAsyncMonad
+            CodeReferenceElement: CpsAsyncMonad
+              PsiElement(identifier)('CpsAsyncMonad')
+        PsiElement(,)(',')
+        TypeParameter: I
+          PsiElement(identifier)('I')
+        PsiElement(,)(',')
+        TypeParameter: O
+          PsiElement(identifier)('O')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: IChannel[F,I]
+              SimpleType: IChannel
+                CodeReferenceElement: IChannel
+                  PsiElement(identifier)('IChannel')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiElement(,)(',')
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ConstructorInvocation
+            ParametrizedType: OChannel[F,O]
+              SimpleType: OChannel
+                CodeReferenceElement: OChannel
+                  PsiElement(identifier)('OChannel')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiElement(,)(',')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(])(']')

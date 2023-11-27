@@ -5,3 +5,93 @@ enum StatusCode(m: StatusCode.Matcher):
   case InternalServerError extends StatusCode(???)
 
 -----
+ScalaFile
+  ScObject: StatusCode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StatusCode')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Matcher
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Matcher')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: StatusCode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StatusCode')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: m
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('m')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: StatusCode.Matcher
+                CodeReferenceElement: StatusCode.Matcher
+                  CodeReferenceElement: StatusCode
+                    PsiElement(identifier)('StatusCode')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Matcher')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: InternalServerError
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: InternalServerError
+            PsiElement(identifier)('InternalServerError')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: StatusCode
+                    CodeReferenceElement: StatusCode
+                      PsiElement(identifier)('StatusCode')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+                    PsiElement())(')')

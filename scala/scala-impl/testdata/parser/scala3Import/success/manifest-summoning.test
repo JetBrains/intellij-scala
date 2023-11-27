@@ -21,3 +21,430 @@ val `Array[Array[List[Int]]]` = manifest[Array[Array[List[Int]]]]
 trait Mixin[T <: Mixin[T]] { type Self = T }
 class Baz extends Mixin[Baz] { val m = manifest[Self] }
 -----
+ScalaFile
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: opaques
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('opaques')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Inner
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(opaque)('opaque')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Inner')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Inner
+                  CodeReferenceElement: Inner
+                    PsiElement(identifier)('Inner')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"i"')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: singleton
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: singleton
+              PsiElement(identifier)('singleton')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: opaques.Inner
+            CodeReferenceElement: opaques.Inner
+              CodeReferenceElement: opaques
+                PsiElement(identifier)('opaques')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Inner')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: opaques.i
+            ReferenceExpression: opaques
+              PsiElement(identifier)('opaques')
+            PsiElement(.)('.')
+            PsiElement(identifier)('i')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: om_Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: om_Inner
+              PsiElement(identifier)('om_Inner')
+          PsiWhiteSpace('     ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: optManifest
+              PsiElement(identifier)('optManifest')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: opaques.Inner
+                CodeReferenceElement: opaques.Inner
+                  CodeReferenceElement: opaques
+                    PsiElement(identifier)('opaques')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Inner')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// NoManifest')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: om_singleton
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: om_singleton
+              PsiElement(identifier)('om_singleton')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: optManifest
+              PsiElement(identifier)('optManifest')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: singleton.type
+                CodeReferenceElement: singleton
+                  PsiElement(identifier)('singleton')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// NoManifest')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ct_Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ct_Inner
+              PsiElement(identifier)('ct_Inner')
+          PsiWhiteSpace('     ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: reflect.classTag
+              ReferenceExpression: reflect
+                PsiElement(identifier)('reflect')
+              PsiElement(.)('.')
+              PsiElement(identifier)('classTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: opaques.Inner
+                CodeReferenceElement: opaques.Inner
+                  CodeReferenceElement: opaques
+                    PsiElement(identifier)('opaques')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Inner')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ct_singleton
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ct_singleton
+              PsiElement(identifier)('ct_singleton')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: reflect.classTag
+              ReferenceExpression: reflect
+                PsiElement(identifier)('reflect')
+              PsiElement(.)('.')
+              PsiElement(identifier)('classTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: singleton.type
+                CodeReferenceElement: singleton
+                  PsiElement(identifier)('singleton')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: `List[Nothing]`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: `List[Nothing]`
+        PsiElement(identifier)('`List[Nothing]`')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: manifest
+        PsiElement(identifier)('manifest')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: List[Nothing]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Nothing
+              CodeReferenceElement: Nothing
+                PsiElement(identifier)('Nothing')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: `List[Array[Nothing]]`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: `List[Array[Nothing]]`
+        PsiElement(identifier)('`List[Array[Nothing]]`')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: manifest
+        PsiElement(identifier)('manifest')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: List[Array[Nothing]]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Array[Nothing]
+              SimpleType: Array
+                CodeReferenceElement: Array
+                  PsiElement(identifier)('Array')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// ok when Nothing is not the argument of top-level array')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: `Array[Array[List[Int]]]`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: `Array[Array[List[Int]]]`
+        PsiElement(identifier)('`Array[Array[List[Int]]]`')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: manifest
+        PsiElement(identifier)('manifest')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Array[Array[List[Int]]]
+          SimpleType: Array
+            CodeReferenceElement: Array
+              PsiElement(identifier)('Array')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Array[List[Int]]
+              SimpleType: Array
+                CodeReferenceElement: Array
+                  PsiElement(identifier)('Array')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: List[Int]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Mixin
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mixin')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Mixin[T]
+          SimpleType: Mixin
+            CodeReferenceElement: Mixin
+              PsiElement(identifier)('Mixin')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Self
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Self')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: Baz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Baz')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Mixin[Baz]
+            SimpleType: Mixin
+              CodeReferenceElement: Mixin
+                PsiElement(identifier)('Mixin')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Baz
+                CodeReferenceElement: Baz
+                  PsiElement(identifier)('Baz')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: manifest
+              PsiElement(identifier)('manifest')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Self
+                CodeReferenceElement: Self
+                  PsiElement(identifier)('Self')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

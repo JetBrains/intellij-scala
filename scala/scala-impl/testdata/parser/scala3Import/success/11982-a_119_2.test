@@ -4,3 +4,64 @@ object UnpairApp {
   val x: String = unpair[("msg", 42)]
 }
 -----
+ScalaFile
+  ScObject: UnpairApp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnpairApp')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Unpair
+              PsiElement(identifier)('Unpair')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: unpair
+              PsiElement(identifier)('unpair')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: ("msg", 42)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: "msg"
+                    StringLiteral
+                      PsiElement(string content)('"msg"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 42
+                    IntegerLiteral
+                      PsiElement(integer)('42')
+                PsiElement())(')')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

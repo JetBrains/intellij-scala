@@ -39,3 +39,944 @@ object Example {
   val schema3 = ((long("id") ++ string("first_name") ++ string("last_name")): Singleton[Long]#Append[ColumnSet.Cons[String, ColumnSet.Empty]]#Append[ColumnSet.Singleton[String]]) ++ long("age")
 }
 -----
+ScalaFile
+  ScClass: Column
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Column')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: ColumnSet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ColumnSet')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Append
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Append')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: That
+              PsiElement(identifier)('That')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ColumnSet
+                CodeReferenceElement: ColumnSet
+                  PsiElement(identifier)('ColumnSet')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: ColumnSet
+            CodeReferenceElement: ColumnSet
+              PsiElement(identifier)('ColumnSet')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: ++
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('++')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: That
+              PsiElement(identifier)('That')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ColumnSet
+                CodeReferenceElement: ColumnSet
+                  PsiElement(identifier)('ColumnSet')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: That
+                    CodeReferenceElement: That
+                      PsiElement(identifier)('That')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Append[That]
+            SimpleType: Append
+              CodeReferenceElement: Append
+                PsiElement(identifier)('Append')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: That
+                CodeReferenceElement: That
+                  PsiElement(identifier)('That')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: ColumnSet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ColumnSet')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Empty')
+          PsiWhiteSpace('                  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Empty.type
+            CodeReferenceElement: Empty
+              PsiElement(identifier)('Empty')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Singleton
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Singleton')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace('           ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cons[A, Empty]
+            SimpleType: Cons
+              CodeReferenceElement: Cons
+                PsiElement(identifier)('Cons')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Empty
+                CodeReferenceElement: Empty
+                  PsiElement(identifier)('Empty')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Empty')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: ColumnSet
+                  CodeReferenceElement: ColumnSet
+                    PsiElement(identifier)('ColumnSet')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Append
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Append')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: That
+                    PsiElement(identifier)('That')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ColumnSet
+                      CodeReferenceElement: ColumnSet
+                        PsiElement(identifier)('ColumnSet')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: That
+                  CodeReferenceElement: That
+                    PsiElement(identifier)('That')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: ++
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('++')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: That
+                    PsiElement(identifier)('That')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ColumnSet
+                      CodeReferenceElement: ColumnSet
+                        PsiElement(identifier)('ColumnSet')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: that
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('that')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Append[That]
+                  SimpleType: Append
+                    CodeReferenceElement: Append
+                      PsiElement(identifier)('Append')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: That
+                      CodeReferenceElement: That
+                        PsiElement(identifier)('That')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: that
+                  PsiElement(identifier)('that')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Cons
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Cons')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ColumnSet
+                CodeReferenceElement: ColumnSet
+                  PsiElement(identifier)('ColumnSet')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: head
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('head')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Column[A]
+                      SimpleType: Column
+                        CodeReferenceElement: Column
+                          PsiElement(identifier)('Column')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: tail
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('tail')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: ColumnSet
+                  CodeReferenceElement: ColumnSet
+                    PsiElement(identifier)('ColumnSet')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Append
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Append')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: That
+                    PsiElement(identifier)('That')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ColumnSet
+                      CodeReferenceElement: ColumnSet
+                        PsiElement(identifier)('ColumnSet')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Cons[A, tail.Append[That]]
+                  SimpleType: Cons
+                    CodeReferenceElement: Cons
+                      PsiElement(identifier)('Cons')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: tail.Append[That]
+                      SimpleType: tail.Append
+                        CodeReferenceElement: tail.Append
+                          CodeReferenceElement: tail
+                            PsiElement(identifier)('tail')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Append')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: ++
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('++')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: That
+                    PsiElement(identifier)('That')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ColumnSet
+                      CodeReferenceElement: ColumnSet
+                        PsiElement(identifier)('ColumnSet')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: that
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('that')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Append[That]
+                  SimpleType: Append
+                    CodeReferenceElement: Append
+                      PsiElement(identifier)('Append')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: That
+                      CodeReferenceElement: That
+                        PsiElement(identifier)('That')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Cons
+                    PsiElement(identifier)('Cons')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: head
+                      PsiElement(identifier)('head')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: tail
+                        PsiElement(identifier)('tail')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ++
+                        PsiElement(identifier)('++')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: that
+                        PsiElement(identifier)('that')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: long
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('long')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Singleton[Long]
+            SimpleType: Singleton
+              CodeReferenceElement: Singleton
+                PsiElement(identifier)('Singleton')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace('     ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Cons
+              PsiElement(identifier)('Cons')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: Column
+                    PsiElement(identifier)('Column')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: name
+                    PsiElement(identifier)('name')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Empty
+                PsiElement(identifier)('Empty')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: string
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('string')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Singleton[String]
+            SimpleType: Singleton
+              CodeReferenceElement: Singleton
+                PsiElement(identifier)('Singleton')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Cons
+              PsiElement(identifier)('Cons')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: Column
+                    PsiElement(identifier)('Column')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: name
+                    PsiElement(identifier)('name')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Empty
+                PsiElement(identifier)('Empty')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Example
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Example')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: ColumnSet
+              PsiElement(identifier)('ColumnSet')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: schema0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: schema0
+              PsiElement(identifier)('schema0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            MethodCall
+              ReferenceExpression: long
+                PsiElement(identifier)('long')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"id"')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: string
+                PsiElement(identifier)('string')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"first_name"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: schema1
+          PsiComment(comment)('// inferred type 3.0.0-RC3: Singleton[Long]#Append[Cons[String, Empty]]#Append[Singleton[String]]')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// inferred type 2.13.5   : Cons[Long,Cons[String,Singleton[String]]]')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: schema1
+              PsiElement(identifier)('schema1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              MethodCall
+                ReferenceExpression: long
+                  PsiElement(identifier)('long')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"id"')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ++
+                PsiElement(identifier)('++')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: string
+                  PsiElement(identifier)('string')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"first_name"')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: string
+                PsiElement(identifier)('string')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"last_name"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: schema2
+          PsiComment(comment)('// inferred type 3.0.0-RC3: error')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// inferred type 2.13.5   : Cons[Long,Cons[String,Cons[String,Singleton[Long]]]]')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: schema2
+              PsiElement(identifier)('schema2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                MethodCall
+                  ReferenceExpression: long
+                    PsiElement(identifier)('long')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"id"')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: string
+                    PsiElement(identifier)('string')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"first_name"')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ++
+                PsiElement(identifier)('++')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: string
+                  PsiElement(identifier)('string')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"last_name"')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: long
+                PsiElement(identifier)('long')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"age"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: schema3
+          PsiComment(comment)('// inferred type 3.0.0-RC3: Singleton[Long]#Append[Cons[String, Empty]]#Append[Singleton[String]]#Append[Cons[Long, Empty]]')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: schema3
+              PsiElement(identifier)('schema3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  InfixExpression
+                    InfixExpression
+                      MethodCall
+                        ReferenceExpression: long
+                          PsiElement(identifier)('long')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"id"')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ++
+                        PsiElement(identifier)('++')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: string
+                          PsiElement(identifier)('string')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"first_name"')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ++
+                      PsiElement(identifier)('++')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: string
+                        PsiElement(identifier)('string')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"last_name"')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Singleton[Long]#Append[ColumnSet.Cons[String, ColumnSet.Empty]]#Append[ColumnSet.Singleton[String]]
+                  TypeProjection: Singleton[Long]#Append[ColumnSet.Cons[String, ColumnSet.Empty]]#Append
+                    ParametrizedType: Singleton[Long]#Append[ColumnSet.Cons[String, ColumnSet.Empty]]
+                      TypeProjection: Singleton[Long]#Append
+                        ParametrizedType: Singleton[Long]
+                          SimpleType: Singleton
+                            CodeReferenceElement: Singleton
+                              PsiElement(identifier)('Singleton')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: Long
+                              CodeReferenceElement: Long
+                                PsiElement(identifier)('Long')
+                            PsiElement(])(']')
+                        PsiElement(#)('#')
+                        PsiElement(identifier)('Append')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: ColumnSet.Cons[String, ColumnSet.Empty]
+                          SimpleType: ColumnSet.Cons
+                            CodeReferenceElement: ColumnSet.Cons
+                              CodeReferenceElement: ColumnSet
+                                PsiElement(identifier)('ColumnSet')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Cons')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: ColumnSet.Empty
+                              CodeReferenceElement: ColumnSet.Empty
+                                CodeReferenceElement: ColumnSet
+                                  PsiElement(identifier)('ColumnSet')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Empty')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(#)('#')
+                    PsiElement(identifier)('Append')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: ColumnSet.Singleton[String]
+                      SimpleType: ColumnSet.Singleton
+                        CodeReferenceElement: ColumnSet.Singleton
+                          CodeReferenceElement: ColumnSet
+                            PsiElement(identifier)('ColumnSet')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Singleton')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: long
+                PsiElement(identifier)('long')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"age"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

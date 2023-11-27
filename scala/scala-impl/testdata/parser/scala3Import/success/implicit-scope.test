@@ -29,3 +29,477 @@ object B {
   (if (x > 0) A.someFlag else A.someFlag).bits // OK, used to fail with: value bits is not a member of ?
 }
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: opaques
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('opaques')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: FlagSet
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(opaque)('opaque')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FlagSet')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: FlagSet
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FlagSet')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: bits
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('bits')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Long
+                          CodeReferenceElement: Long
+                            PsiElement(identifier)('Long')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: FlagSet
+                  CodeReferenceElement: FlagSet
+                    PsiElement(identifier)('FlagSet')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: bits
+                  PsiElement(identifier)('bits')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: toBits
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('toBits')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: fs
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('fs')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: FlagSet
+                          CodeReferenceElement: FlagSet
+                            PsiElement(identifier)('FlagSet')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: fs
+                  PsiElement(identifier)('fs')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: someFlag
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: someFlag
+              PsiElement(identifier)('someFlag')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: FlagSet
+              PsiElement(identifier)('FlagSet')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: FlagSet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FlagSet')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: opaques.FlagSet
+            CodeReferenceElement: opaques.FlagSet
+              CodeReferenceElement: opaques
+                PsiElement(identifier)('opaques')
+              PsiElement(.)('.')
+              PsiElement(identifier)('FlagSet')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: FlagSet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FlagSet')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: bits
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bits')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: FlagSet
+            CodeReferenceElement: FlagSet
+              PsiElement(identifier)('FlagSet')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: opaques.FlagSet
+              ReferenceExpression: opaques
+                PsiElement(identifier)('opaques')
+              PsiElement(.)('.')
+              PsiElement(identifier)('FlagSet')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: bits
+                PsiElement(identifier)('bits')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        Extension on FlagSet
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: FlagSet
+                    CodeReferenceElement: FlagSet
+                      PsiElement(identifier)('FlagSet')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScExtensionBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: bits
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('bits')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: opaques.toBits
+                  ReferenceExpression: opaques
+                    PsiElement(identifier)('opaques')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toBits')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: xs
+                    PsiElement(identifier)('xs')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: |
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: ys
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('ys')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: FlagSet
+                        CodeReferenceElement: FlagSet
+                          PsiElement(identifier)('FlagSet')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: FlagSet
+                CodeReferenceElement: FlagSet
+                  PsiElement(identifier)('FlagSet')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: FlagSet
+                  PsiElement(identifier)('FlagSet')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: xs.bits
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('bits')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ys.bits
+                      ReferenceExpression: ys
+                        PsiElement(identifier)('ys')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('bits')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Variance
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Variance')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: A.FlagSet
+            CodeReferenceElement: A.FlagSet
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+              PsiElement(.)('.')
+              PsiElement(identifier)('FlagSet')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: f
+              PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A.FlagSet
+            CodeReferenceElement: A.FlagSet
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+              PsiElement(.)('.')
+              PsiElement(identifier)('FlagSet')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: A.someFlag
+            ReferenceExpression: A
+              PsiElement(identifier)('A')
+            PsiElement(.)('.')
+            PsiElement(identifier)('someFlag')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: f.bits
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement(.)('.')
+          PsiElement(identifier)('bits')
+        PsiWhiteSpace('   ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v
+              PsiElement(identifier)('v')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Variance
+            CodeReferenceElement: Variance
+              PsiElement(identifier)('Variance')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: A.someFlag
+            ReferenceExpression: A
+              PsiElement(identifier)('A')
+            PsiElement(.)('.')
+            PsiElement(identifier)('someFlag')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: v.bits
+          ReferenceExpression: v
+            PsiElement(identifier)('v')
+          PsiElement(.)('.')
+          PsiElement(identifier)('bits')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK, used to fail with: value bits is not a member of B.Variance')
+        PsiWhiteSpace('\n\n  ')
+        ReferenceExpression: A.someFlag.bits
+          ReferenceExpression: A.someFlag
+            ReferenceExpression: A
+              PsiElement(identifier)('A')
+            PsiElement(.)('.')
+            PsiElement(identifier)('someFlag')
+          PsiElement(.)('.')
+          PsiElement(identifier)('bits')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: (if (x > 0) A.someFlag else A.someFlag).bits
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: >
+                  PsiElement(identifier)('>')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: A.someFlag
+                ReferenceExpression: A
+                  PsiElement(identifier)('A')
+                PsiElement(.)('.')
+                PsiElement(identifier)('someFlag')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: A.someFlag
+                ReferenceExpression: A
+                  PsiElement(identifier)('A')
+                PsiElement(.)('.')
+                PsiElement(identifier)('someFlag')
+            PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('bits')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK, used to fail with: value bits is not a member of ?')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

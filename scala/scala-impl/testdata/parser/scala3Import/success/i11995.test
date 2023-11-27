@@ -17,3 +17,297 @@ class Spec[R <: Has[_]]
 object MySpec1 extends Spec[Has[Console] with Has[Clock]] // does not compile
 object MySpec2 extends Spec[ConsoleWithClock] // okay
 -----
+ScalaFile
+  ScTrait: MyBase
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyBase')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: BothThing
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BothThing')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: MyBase[L & R]
+            SimpleType: MyBase
+              CodeReferenceElement: MyBase
+                PsiElement(identifier)('MyBase')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: L & R
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"blather"')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Has
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Has')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Console
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Console')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Clock
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Clock')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ConsoleWithClock
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ConsoleWithClock')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: Has[Console] with Has[Clock]
+      ParametrizedType: Has[Console]
+        SimpleType: Has
+          CodeReferenceElement: Has
+            PsiElement(identifier)('Has')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Console
+            CodeReferenceElement: Console
+              PsiElement(identifier)('Console')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Has[Clock]
+        SimpleType: Has
+          CodeReferenceElement: Has
+            PsiElement(identifier)('Has')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Clock
+            CodeReferenceElement: Clock
+              PsiElement(identifier)('Clock')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: Spec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Spec')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Has[_]
+          SimpleType: Has
+            CodeReferenceElement: Has
+              PsiElement(identifier)('Has')
+          TypeArgumentsList
+            PsiElement([)('[')
+            WildcardType: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: MySpec1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySpec1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Spec[Has[Console] with Has[Clock]]
+            SimpleType: Spec
+              CodeReferenceElement: Spec
+                PsiElement(identifier)('Spec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: Has[Console] with Has[Clock]
+                ParametrizedType: Has[Console]
+                  SimpleType: Has
+                    CodeReferenceElement: Has
+                      PsiElement(identifier)('Has')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Console
+                      CodeReferenceElement: Console
+                        PsiElement(identifier)('Console')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Has[Clock]
+                  SimpleType: Has
+                    CodeReferenceElement: Has
+                      PsiElement(identifier)('Has')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Clock
+                      CodeReferenceElement: Clock
+                        PsiElement(identifier)('Clock')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// does not compile')
+  PsiWhiteSpace('\n')
+  ScObject: MySpec2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySpec2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Spec[ConsoleWithClock]
+            SimpleType: Spec
+              CodeReferenceElement: Spec
+                PsiElement(identifier)('Spec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: ConsoleWithClock
+                CodeReferenceElement: ConsoleWithClock
+                  PsiElement(identifier)('ConsoleWithClock')
+              PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// okay')

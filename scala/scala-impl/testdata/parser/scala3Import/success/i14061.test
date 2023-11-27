@@ -9,3 +9,149 @@ def main(args: Array[String]): Unit =
   finally
     println("a")
 -----
+ScalaFile
+  ScFunctionDefinition: main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: args
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('args')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Array[String]
+              SimpleType: Array
+                CodeReferenceElement: Array
+                  PsiElement(identifier)('Array')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: bar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: bar
+            PsiElement(identifier)('bar')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: PartialFunction[Throwable, Unit]
+          SimpleType: PartialFunction
+            CodeReferenceElement: PartialFunction
+              PsiElement(identifier)('PartialFunction')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Throwable
+              CodeReferenceElement: Throwable
+                PsiElement(identifier)('Throwable')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        BlockExpression
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: e
+                  PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: IllegalArgumentException
+                    CodeReferenceElement: IllegalArgumentException
+                      PsiElement(identifier)('IllegalArgumentException')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: e.printStackTrace
+                  ReferenceExpression: e
+                    PsiElement(identifier)('e')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('printStackTrace')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: e
+                  PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Throwable
+                    CodeReferenceElement: Throwable
+                      PsiElement(identifier)('Throwable')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: e.printStackTrace
+                  ReferenceExpression: e
+                    PsiElement(identifier)('e')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('printStackTrace')
+      PsiWhiteSpace('\n  ')
+      TryStatement
+        PsiElement(try)('try')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"a"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CatchBlock
+          PsiElement(catch)('catch')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+        PsiWhiteSpace('\n  ')
+        FinallyBlock
+          PsiElement(finally)('finally')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"a"')
+              PsiElement())(')')

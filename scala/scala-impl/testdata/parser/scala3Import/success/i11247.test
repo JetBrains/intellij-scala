@@ -53,3 +53,985 @@ object EmptyTupleK extends TupleK
 sealed trait NonEmptyTupleK extends TupleK
 sealed abstract class #:[+H, +T <: TupleK] extends NonEmptyTupleK
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.showAsInfix
+        CodeReferenceElement: annotation
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('showAsInfix')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScClass: TupleKOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleKOps')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: tupleMerge
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tupleMerge')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tuple1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tuple1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TupleK
+                    CodeReferenceElement: TupleK
+                      PsiElement(identifier)('TupleK')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: tuple2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tuple2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TupleK
+                    CodeReferenceElement: TupleK
+                      PsiElement(identifier)('TupleK')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: tupleMergeSort
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tupleMergeSort')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tuple
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tuple')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TupleK
+                    CodeReferenceElement: TupleK
+                      PsiElement(identifier)('TupleK')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: tuple.size
+                ReferenceExpression: tuple
+                  PsiElement(identifier)('tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('size')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: <=
+                PsiElement(identifier)('<=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: tuple
+              PsiElement(identifier)('tuple')
+            PsiWhiteSpace('\n    ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: tuple1, tuple2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: tuple1
+                        PsiElement(identifier)('tuple1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: tuple2
+                        PsiElement(identifier)('tuple2')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: tuple.splitAt
+                    ReferenceExpression: tuple
+                      PsiElement(identifier)('tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('splitAt')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: tuple.size
+                        ReferenceExpression: tuple
+                          PsiElement(identifier)('tuple')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('size')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: /
+                        PsiElement(identifier)('/')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: sorted1, sorted2
+                PsiComment(comment)('// val (tuple1: TupleK, tuple2: TupleK) = tuple.splitAt(tuple.size / 2) // ok')
+                PsiWhiteSpace('\n      ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: sorted1
+                        PsiElement(identifier)('sorted1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: sorted2
+                        PsiElement(identifier)('sorted2')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                Tuple
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: tupleMergeSort
+                      PsiElement(identifier)('tupleMergeSort')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: tuple1
+                        PsiElement(identifier)('tuple1')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: tupleMergeSort
+                      PsiElement(identifier)('tupleMergeSort')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: tuple2
+                        PsiElement(identifier)('tuple2')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                ReferenceExpression: tupleMerge
+                  PsiElement(identifier)('tupleMerge')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: sorted1
+                    PsiElement(identifier)('sorted1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: sorted2
+                    PsiElement(identifier)('sorted2')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: TupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: size
+          PsiComment(BlockComment)('/*inline*/')
+          PsiWhiteSpace(' ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('size')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: This
+              PsiElement(identifier)('This')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: this.type
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Size[This]
+            SimpleType: Size
+              CodeReferenceElement: Size
+                PsiElement(identifier)('Size')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: This
+                CodeReferenceElement: This
+                  PsiElement(identifier)('This')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: splitAt
+          PsiComment(BlockComment)('/*inline*/')
+          PsiWhiteSpace(' ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('splitAt')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: This
+              PsiElement(identifier)('This')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: this.type
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: n
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('n')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Split[This, n.type]
+            SimpleType: Split
+              CodeReferenceElement: Split
+                PsiElement(identifier)('Split')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: This
+                CodeReferenceElement: This
+                  PsiElement(identifier)('This')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: n.type
+                CodeReferenceElement: n
+                  PsiElement(identifier)('n')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: TupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Size
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Size')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: X match {
+    case EmptyTupleK => 0
+    case x #: xs => S[Size[xs]]
+  }
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTupleK
+                  CodeReferenceElement: EmptyTupleK
+                    PsiElement(identifier)('EmptyTupleK')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: x #: xs
+                  TypeVariable: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: xs
+                    PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: S[Size[xs]]
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Size[xs]
+                      SimpleType: Size
+                        CodeReferenceElement: Size
+                          PsiElement(identifier)('Size')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: xs
+                          CodeReferenceElement: xs
+                            PsiElement(identifier)('xs')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Take
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Take')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: N match {
+    case 0 => EmptyTupleK
+    case S[n1] => T match {
+      case EmptyTupleK => EmptyTupleK
+      case x #: xs => x #: Take[xs, n1]
+    }
+  }
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTupleK
+                  CodeReferenceElement: EmptyTupleK
+                    PsiElement(identifier)('EmptyTupleK')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: S[n1]
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: n1
+                      PsiElement(identifier)('n1')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: T match {
+      case EmptyTupleK => EmptyTupleK
+      case x #: xs => x #: Take[xs, n1]
+    }
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTupleK
+                        CodeReferenceElement: EmptyTupleK
+                          PsiElement(identifier)('EmptyTupleK')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTupleK
+                        CodeReferenceElement: EmptyTupleK
+                          PsiElement(identifier)('EmptyTupleK')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      InfixType: x #: xs
+                        TypeVariable: x
+                          PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: #:
+                          PsiElement(identifier)('#:')
+                        PsiWhiteSpace(' ')
+                        TypeVariable: xs
+                          PsiElement(identifier)('xs')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: x #: Take[xs, n1]
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: #:
+                          PsiElement(identifier)('#:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Take[xs, n1]
+                          SimpleType: Take
+                            CodeReferenceElement: Take
+                              PsiElement(identifier)('Take')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: xs
+                              CodeReferenceElement: xs
+                                PsiElement(identifier)('xs')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: n1
+                              CodeReferenceElement: n1
+                                PsiElement(identifier)('n1')
+                            PsiElement(])(']')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Drop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Drop')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: N match {
+    case 0 => T
+    case S[n1] => T match {
+      case EmptyTupleK => EmptyTupleK
+      case x #: xs => Drop[xs, n1]
+    }
+  }
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: S[n1]
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: n1
+                      PsiElement(identifier)('n1')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: T match {
+      case EmptyTupleK => EmptyTupleK
+      case x #: xs => Drop[xs, n1]
+    }
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTupleK
+                        CodeReferenceElement: EmptyTupleK
+                          PsiElement(identifier)('EmptyTupleK')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTupleK
+                        CodeReferenceElement: EmptyTupleK
+                          PsiElement(identifier)('EmptyTupleK')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      InfixType: x #: xs
+                        TypeVariable: x
+                          PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: #:
+                          PsiElement(identifier)('#:')
+                        PsiWhiteSpace(' ')
+                        TypeVariable: xs
+                          PsiElement(identifier)('xs')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Drop[xs, n1]
+                        SimpleType: Drop
+                          CodeReferenceElement: Drop
+                            PsiElement(identifier)('Drop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: xs
+                            CodeReferenceElement: xs
+                              PsiElement(identifier)('xs')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: n1
+                            CodeReferenceElement: n1
+                              PsiElement(identifier)('n1')
+                          PsiElement(])(']')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Split
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Split')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TupleK
+                CodeReferenceElement: TupleK
+                  PsiElement(identifier)('TupleK')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: (Take[T, N], Drop[T, N])
+            PsiElement(()('(')
+            TypesList
+              ParametrizedType: Take[T, N]
+                SimpleType: Take
+                  CodeReferenceElement: Take
+                    PsiElement(identifier)('Take')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: N
+                    CodeReferenceElement: N
+                      PsiElement(identifier)('N')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Drop[T, N]
+                SimpleType: Drop
+                  CodeReferenceElement: Drop
+                    PsiElement(identifier)('Drop')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: N
+                    CodeReferenceElement: N
+                      PsiElement(identifier)('N')
+                  PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: EmptyTupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EmptyTupleK')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: EmptyTupleK.type
+      CodeReferenceElement: EmptyTupleK
+        PsiElement(identifier)('EmptyTupleK')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+  PsiWhiteSpace('\n\n')
+  ScObject: EmptyTupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EmptyTupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+  PsiWhiteSpace('\n\n')
+  ScTrait: NonEmptyTupleK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NonEmptyTupleK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TupleK
+            CodeReferenceElement: TupleK
+              PsiElement(identifier)('TupleK')
+  PsiWhiteSpace('\n')
+  ScClass: #:
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('#:')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('H')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: TupleK
+          CodeReferenceElement: TupleK
+            PsiElement(identifier)('TupleK')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NonEmptyTupleK
+            CodeReferenceElement: NonEmptyTupleK
+              PsiElement(identifier)('NonEmptyTupleK')

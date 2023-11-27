@@ -5,3 +5,91 @@ object Test {
   val test: SeqOps[Char, AnyConstr, _] = null.asInstanceOf[StringOps]
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: collection
+      PsiElement(identifier)('collection')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: AnyConstr
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('AnyConstr')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: X
+                PsiElement(identifier)('X')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test
+                PsiElement(identifier)('test')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: SeqOps[Char, AnyConstr, _]
+              SimpleType: SeqOps
+                CodeReferenceElement: SeqOps
+                  PsiElement(identifier)('SeqOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: AnyConstr
+                  CodeReferenceElement: AnyConstr
+                    PsiElement(identifier)('AnyConstr')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: null.asInstanceOf
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiElement(.)('.')
+                PsiElement(identifier)('asInstanceOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: StringOps
+                  CodeReferenceElement: StringOps
+                    PsiElement(identifier)('StringOps')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

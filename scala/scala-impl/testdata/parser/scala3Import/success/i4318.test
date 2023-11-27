@@ -1,2 +1,15 @@
 import java.lang.Object
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.lang.Object
+        CodeReferenceElement: java.lang
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('lang')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Object')

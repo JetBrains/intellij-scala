@@ -3,3 +3,110 @@ object Test {
   val WORK: collection.mutable.Queue[Int] = col filterNot (_ % 2 == 0)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: col
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: col
+              PsiElement(identifier)('col')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: collection.mutable.Queue
+              ReferenceExpression: collection.mutable
+                ReferenceExpression: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('mutable')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Queue')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: WORK
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: WORK
+              PsiElement(identifier)('WORK')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: collection.mutable.Queue[Int]
+            SimpleType: collection.mutable.Queue
+              CodeReferenceElement: collection.mutable.Queue
+                CodeReferenceElement: collection.mutable
+                  CodeReferenceElement: collection
+                    PsiElement(identifier)('collection')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Queue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: col
+              PsiElement(identifier)('col')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: filterNot
+              PsiElement(identifier)('filterNot')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                InfixExpression
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: %
+                    PsiElement(identifier)('%')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ==
+                  PsiElement(identifier)('==')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

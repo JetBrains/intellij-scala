@@ -6,3 +6,68 @@ object sorting {
 
 }
 -----
+ScalaFile
+  ScObject: sorting
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('sorting')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: xs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: xs
+              PsiElement(identifier)('xs')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[String]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: java.util.Arrays.sort
+            ReferenceExpression: java.util.Arrays
+              ReferenceExpression: java.util
+                ReferenceExpression: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Arrays')
+            PsiElement(.)('.')
+            PsiElement(identifier)('sort')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

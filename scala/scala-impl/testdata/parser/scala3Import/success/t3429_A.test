@@ -11,3 +11,82 @@ class A {
 //                      ^
 // one error found
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: myTestMethod
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: Test
+                    CodeReferenceElement: Test
+                      PsiElement(identifier)('Test')
+                  ArgumentList
+                    PsiElement(()('(')
+                    AssignStatement
+                      ReferenceExpression: exc
+                        PsiElement(identifier)('exc')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      GenericCall
+                        ReferenceExpression: classOf
+                          PsiElement(identifier)('classOf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Exception
+                            CodeReferenceElement: Exception
+                              PsiElement(identifier)('Exception')
+                          PsiElement(])(']')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('myTestMethod')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// rytz@chara:~/scala/trunk/sandbox$ javac Test.java')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// rytz@chara:~/scala/trunk/sandbox$ ../build/pack/bin/scalac A.scala')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A.scala:2: error: type mismatch;')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  found   : java.lang.Class[Exception](classOf[java.lang.Exception])')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  required: java.lang.Class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   @Test(exc = classOf[Exception])')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//                      ^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// one error found')

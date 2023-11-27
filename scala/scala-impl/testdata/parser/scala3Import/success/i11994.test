@@ -5,3 +5,130 @@ class WeirdNumber(v: Double) extends java.lang.Number {
   override def floatValue  = v.floatValue
 }
 -----
+ScalaFile
+  ScClass: WeirdNumber
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WeirdNumber')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: v
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('v')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: java.lang.Number
+            CodeReferenceElement: java.lang.Number
+              CodeReferenceElement: java.lang
+                CodeReferenceElement: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('lang')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Number')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: doubleValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('doubleValue')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: v
+            PsiElement(identifier)('v')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: intValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('intValue')
+          Parameters
+            <empty list>
+          PsiWhiteSpace('    ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: v.intValue
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiElement(.)('.')
+            PsiElement(identifier)('intValue')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: longValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('longValue')
+          Parameters
+            <empty list>
+          PsiWhiteSpace('   ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: v.longValue
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiElement(.)('.')
+            PsiElement(identifier)('longValue')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: floatValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('floatValue')
+          Parameters
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: v.floatValue
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiElement(.)('.')
+            PsiElement(identifier)('floatValue')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

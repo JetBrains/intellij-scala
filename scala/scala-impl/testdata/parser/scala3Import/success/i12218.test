@@ -9,3 +9,143 @@ import language.`3.3`
   then println("invalid arr")
   else println("valid arr")
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.`3.3`
+        CodeReferenceElement: language
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('`3.3`')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: runTest
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('runTest')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: arr
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: arr
+            PsiElement(identifier)('arr')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Array
+            PsiElement(identifier)('Array')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      IfStatement
+        PsiElement(if)('if')
+        PsiWhiteSpace('\n    ')
+        InfixExpression
+          ReferenceExpression: arr.isEmpty
+            ReferenceExpression: arr
+              PsiElement(identifier)('arr')
+            PsiElement(.)('.')
+            PsiElement(identifier)('isEmpty')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: ||
+            PsiElement(identifier)('||')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: locally
+              PsiElement(identifier)('locally')
+            ArgumentList
+              BlockExpression
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: first
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: first
+                      PsiElement(identifier)('first')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: arr
+                      PsiElement(identifier)('arr')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                InfixExpression
+                  ReferenceExpression: first
+                    PsiElement(identifier)('first')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: !=
+                    PsiElement(identifier)('!=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        PsiElement(then)('then')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"invalid arr"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        PsiElement(else)('else')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"valid arr"')
+            PsiElement())(')')

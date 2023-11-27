@@ -4,3 +4,91 @@
 class Fork(value: Int = -1, jvmArgs: Array[String] = Array("nope"))
 extends annotation.Annotation
 -----
+ScalaFile
+  ScClass: Fork
+    PsiComment(comment)('// Test is pending because we have no good way to test it.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// We need to: Compile Fork.java, and then compile Test.scala')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// with Fork.class on the classpath.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Fork')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            PrefixExpression
+              ReferenceExpression: -
+                PsiElement(identifier)('-')
+              IntegerLiteral
+                PsiElement(integer)('1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: jvmArgs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('jvmArgs')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Array[String]
+                SimpleType: Array
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Array
+                PsiElement(identifier)('Array')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"nope"')
+                PsiElement())(')')
+          PsiElement())(')')
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.Annotation
+            CodeReferenceElement: annotation.Annotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')

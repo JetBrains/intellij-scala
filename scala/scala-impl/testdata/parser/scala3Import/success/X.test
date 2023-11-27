@@ -9,3 +9,324 @@ object FunctorK {
 }
 
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('deriving')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTrait: FunctorK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FunctorK')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: FunctorK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FunctorK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: given_FunctorK_C
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: FunctorK[[F[_]] =>> C]
+                  SimpleType: FunctorK
+                    CodeReferenceElement: FunctorK
+                      PsiElement(identifier)('FunctorK')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [F[_]] =>> C
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: F
+                          PsiElement(identifier)('F')
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: _
+                              PsiElement(_)('_')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: given_FunctorK_Tuple1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: FunctorK[[F[_]] =>> Tuple1[F[T]]]
+                  SimpleType: FunctorK
+                    CodeReferenceElement: FunctorK
+                      PsiElement(identifier)('FunctorK')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [F[_]] =>> Tuple1[F[T]]
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: F
+                          PsiElement(identifier)('F')
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: _
+                              PsiElement(_)('_')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Tuple1[F[T]]
+                        SimpleType: Tuple1
+                          CodeReferenceElement: Tuple1
+                            PsiElement(identifier)('Tuple1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: F[T]
+                            SimpleType: F
+                              CodeReferenceElement: F
+                                PsiElement(identifier)('F')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: derived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derived')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  CompoundType: Mirror { type MirroredType[X[_]] = F[X] ; type MirroredElemTypes[_[_]] }
+                    SimpleType: Mirror
+                      CodeReferenceElement: Mirror
+                        PsiElement(identifier)('Mirror')
+                    PsiWhiteSpace(' ')
+                    Refinement
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScTypeAliasDefinition: MirroredType
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('MirroredType')
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: X
+                            PsiElement(identifier)('X')
+                            TypeParameterClause
+                              PsiElement([)('[')
+                              TypeParameter: _
+                                PsiElement(_)('_')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: F[X]
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                            PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace(' ')
+                      ScTypeAliasDeclaration: MirroredElemTypes
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('MirroredElemTypes')
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: _
+                            PsiElement(_)('_')
+                            TypeParameterClause
+                              PsiElement([)('[')
+                              TypeParameter: _
+                                PsiElement(_)('_')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: FunctorK[m.MirroredElemTypes]
+                    SimpleType: FunctorK
+                      CodeReferenceElement: FunctorK
+                        PsiElement(identifier)('FunctorK')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: m.MirroredElemTypes
+                        CodeReferenceElement: m.MirroredElemTypes
+                          CodeReferenceElement: m
+                            PsiElement(identifier)('m')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: FunctorK[F]
+            SimpleType: FunctorK
+              CodeReferenceElement: FunctorK
+                PsiElement(identifier)('FunctorK')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: FunctorK[F]
+                    SimpleType: FunctorK
+                      CodeReferenceElement: FunctorK
+                        PsiElement(identifier)('FunctorK')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -8,3 +8,174 @@ class C {
   class DefaultRule[In](f: In => Int) extends Rule[In]
 }
 -----
+ScalaFile
+  ScTrait: Rule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Rule')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: In
+        PsiElement(identifier)('In')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ruleWithName
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ruleWithName')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: In
+              PsiElement(identifier)('In')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: In => Int
+                    SimpleType: In
+                      CodeReferenceElement: In
+                        PsiElement(identifier)('In')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Rule[In]
+            SimpleType: Rule
+              CodeReferenceElement: Rule
+                PsiElement(identifier)('Rule')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: In
+                CodeReferenceElement: In
+                  PsiElement(identifier)('In')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n     ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: DefaultRule
+                      CodeReferenceElement: DefaultRule
+                        PsiElement(identifier)('DefaultRule')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: DefaultRule
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DefaultRule')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: In
+              PsiElement(identifier)('In')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: In => Int
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Rule[In]
+                  SimpleType: Rule
+                    CodeReferenceElement: Rule
+                      PsiElement(identifier)('Rule')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: In
+                      CodeReferenceElement: In
+                        PsiElement(identifier)('In')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -29,3 +29,395 @@ object Logger2 {
   }
 }
 -----
+ScalaFile
+  ScObject: Logger
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Logger')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScVariableDefinition: indent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: indent
+              PsiElement(identifier)('indent')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: log
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('log')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: op
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"  "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: indent
+                        PsiElement(identifier)('indent')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string)('start ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: msg
+                    PsiElement(identifier)('msg')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: indent
+                PsiElement(identifier)('indent')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +=
+                PsiElement(identifier)('+=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: result
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: result
+                  PsiElement(identifier)('result')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: op
+                PsiElement(identifier)('op')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: indent
+                PsiElement(identifier)('indent')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: -=
+                PsiElement(identifier)('-=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"  "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: indent
+                        PsiElement(identifier)('indent')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: msg
+                    PsiElement(identifier)('msg')
+                  PsiElement(interpolated string)(' = ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: result
+                    PsiElement(identifier)('result')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: result
+              PsiElement(identifier)('result')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Logger2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Logger2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScVariableDefinition: indent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: indent
+              PsiElement(identifier)('indent')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('//   def inline$indent: Int = indent')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('//   def inline$indent_=(x$0: Int): Unit = indent = x$0')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: log
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('log')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: op
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"  "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: indent
+                        PsiElement(identifier)('indent')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string)('start ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: msg
+                    PsiElement(identifier)('msg')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: indent
+                PsiElement(identifier)('indent')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +=
+                PsiElement(identifier)('+=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// inline$indent = inline$indent + 1')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: result
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: result
+                  PsiElement(identifier)('result')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: op
+                PsiElement(identifier)('op')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: indent
+                PsiElement(identifier)('indent')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: -=
+                PsiElement(identifier)('-=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// inline$indent = inline$indent - 1')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"  "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: indent
+                        PsiElement(identifier)('indent')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: msg
+                    PsiElement(identifier)('msg')
+                  PsiElement(interpolated string)(' = ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: result
+                    PsiElement(identifier)('result')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: result
+              PsiElement(identifier)('result')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

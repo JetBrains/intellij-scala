@@ -6,3 +6,197 @@ object Test {
   ident(narrow(foo))
 }
 -----
+ScalaFile
+  ScClass: Contra
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Contra')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('D')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: task
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('task')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: narrow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('narrow')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: task
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('task')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Contra[task.type]
+            SimpleType: Contra
+              CodeReferenceElement: Contra
+                PsiElement(identifier)('Contra')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: task.type
+                CodeReferenceElement: task
+                  PsiElement(identifier)('task')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Contra
+                    CodeReferenceElement: Contra
+                      PsiElement(identifier)('Contra')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: task
+                      PsiElement(identifier)('task')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ident
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ident')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Before
+              PsiElement(identifier)('Before')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: elems
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('elems')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Contra[Before]
+                    SimpleType: Contra
+                      CodeReferenceElement: Contra
+                        PsiElement(identifier)('Contra')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Before
+                        CodeReferenceElement: Before
+                          PsiElement(identifier)('Before')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Contra[Before]
+            SimpleType: Contra
+              CodeReferenceElement: Contra
+                PsiElement(identifier)('Contra')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Before
+                CodeReferenceElement: Before
+                  PsiElement(identifier)('Before')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: elems
+            PsiElement(identifier)('elems')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: foo
+              PsiElement(identifier)('foo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: ident
+            PsiElement(identifier)('ident')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: narrow
+                PsiElement(identifier)('narrow')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

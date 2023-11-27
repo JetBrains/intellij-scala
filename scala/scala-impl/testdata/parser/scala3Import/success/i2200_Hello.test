@@ -5,3 +5,160 @@ object DocTree {
   def docTree(s: StreamTree[DocTree]): DocTree = new Fix(s: StreamTree[DocTree])
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bar
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.language.higherKinds
+          CodeReferenceElement: scala.language
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('language')
+          PsiElement(.)('.')
+          PsiElement(identifier)('higherKinds')
+    PsiWhiteSpace('\n')
+    ScClass: Fix
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Fix')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: unfix
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('unfix')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: F[Fix[F]]
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Fix[F]
+                      SimpleType: Fix
+                        CodeReferenceElement: Fix
+                          PsiElement(identifier)('Fix')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiElement())(')')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScObject: DocTree
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DocTree')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: docTree
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('docTree')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: StreamTree[DocTree]
+                      SimpleType: StreamTree
+                        CodeReferenceElement: StreamTree
+                          PsiElement(identifier)('StreamTree')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: DocTree
+                          CodeReferenceElement: DocTree
+                            PsiElement(identifier)('DocTree')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: DocTree
+              CodeReferenceElement: DocTree
+                PsiElement(identifier)('DocTree')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Fix
+                      CodeReferenceElement: Fix
+                        PsiElement(identifier)('Fix')
+                    ArgumentList
+                      PsiElement(()('(')
+                      TypedExpression
+                        ReferenceExpression: s
+                          PsiElement(identifier)('s')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: StreamTree[DocTree]
+                          SimpleType: StreamTree
+                            CodeReferenceElement: StreamTree
+                              PsiElement(identifier)('StreamTree')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: DocTree
+                              CodeReferenceElement: DocTree
+                                PsiElement(identifier)('DocTree')
+                            PsiElement(])(']')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

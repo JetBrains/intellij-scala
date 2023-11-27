@@ -19,3 +19,520 @@ object Works2 {
   def fetch(c : Class[_]) = map(c)
 }
 -----
+ScalaFile
+  ScObject: Broken
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Broken')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: map
+              PsiElement(identifier)('map')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Map
+                PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Class[_]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: addToMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('addToMap')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +=
+              PsiElement(identifier)('+=')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: c
+                  PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ->
+                  PsiElement(identifier)('->')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fetch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fetch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Works
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Works')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: map
+              PsiElement(identifier)('map')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Map
+                PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Class[_]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: addToMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('addToMap')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +=
+              PsiElement(identifier)('+=')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              Tuple
+                PsiElement(()('(')
+                ReferenceExpression: c
+                  PsiElement(identifier)('c')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+                PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fetch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fetch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Works2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Works2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: map
+              PsiElement(identifier)('map')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Map
+                PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Class[_]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: addToMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('addToMap')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +=
+              PsiElement(identifier)('+=')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  TypedExpression
+                    ReferenceExpression: c
+                      PsiElement(identifier)('c')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Class[_]
+                      SimpleType: Class
+                        CodeReferenceElement: Class
+                          PsiElement(identifier)('Class')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ->
+                  PsiElement(identifier)('->')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fetch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fetch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

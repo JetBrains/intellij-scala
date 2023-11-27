@@ -6,3 +6,133 @@ object Formatt:
 
 
 -----
+ScalaFile
+  ScObject: Formatt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Formatt')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ToFormat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToFormat')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+      case EmptyTuple => String
+      case '%' *: 's' *: ts => (String => ToFormat[ts])
+      case Char *: ts => ToFormat[ts]
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: '%' *: 's' *: ts
+                  LiteralType: '%'
+                    CharLiteral
+                      PsiElement(Character)(''%'')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  InfixType: 's' *: ts
+                    LiteralType: 's'
+                      CharLiteral
+                        PsiElement(Character)(''s'')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    TypeVariable: ts
+                      PsiElement(identifier)('ts')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: (String => ToFormat[ts])
+                  PsiElement(()('(')
+                  FunctionalType: String => ToFormat[ts]
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: ToFormat[ts]
+                      SimpleType: ToFormat
+                        CodeReferenceElement: ToFormat
+                          PsiElement(identifier)('ToFormat')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ts
+                          CodeReferenceElement: ts
+                            PsiElement(identifier)('ts')
+                        PsiElement(])(']')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: Char *: ts
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: ts
+                    PsiElement(identifier)('ts')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToFormat[ts]
+                  SimpleType: ToFormat
+                    CodeReferenceElement: ToFormat
+                      PsiElement(identifier)('ToFormat')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: ts
+                      CodeReferenceElement: ts
+                        PsiElement(identifier)('ts')
+                    PsiElement(])(']')

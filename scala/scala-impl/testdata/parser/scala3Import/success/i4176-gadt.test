@@ -35,3 +35,1163 @@ object i4176 {
 
 }
 -----
+ScalaFile
+  ScObject: i4176
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i4176')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TNat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TNat')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: TZero
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TZero')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TNat
+                  CodeReferenceElement: TNat
+                    PsiElement(identifier)('TNat')
+        PsiWhiteSpace('\n  ')
+        ScClass: TSucc
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TSucc')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TNat
+                  CodeReferenceElement: TNat
+                    PsiElement(identifier)('TNat')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: TNatSum
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TNatSum')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTrait: TSum
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(sealed)('sealed')
+                PsiWhiteSpace(' ')
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('TSum')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: M
+                    PsiElement(identifier)('M')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: N
+                    PsiElement(identifier)('N')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: R
+                    PsiElement(identifier)('R')
+                  PsiElement(])(']')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScClass: TSumZero
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('TSumZero')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: N
+                    PsiElement(identifier)('N')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TSum[TZero, N, N]
+                        SimpleType: TSum
+                          CodeReferenceElement: TSum
+                            PsiElement(identifier)('TSum')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: TZero
+                            CodeReferenceElement: TZero
+                              PsiElement(identifier)('TZero')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScClass: TSumM
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('TSumM')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: M
+                    PsiElement(identifier)('M')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TNat
+                      CodeReferenceElement: TNat
+                        PsiElement(identifier)('TNat')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: N
+                    PsiElement(identifier)('N')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: R
+                    PsiElement(identifier)('R')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TNat
+                      CodeReferenceElement: TNat
+                        PsiElement(identifier)('TNat')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      ClassParameter: sum
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('sum')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          ParametrizedType: TSum[M, N, R]
+                            SimpleType: TSum
+                              CodeReferenceElement: TSum
+                                PsiElement(identifier)('TSum')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: M
+                                CodeReferenceElement: M
+                                  PsiElement(identifier)('M')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: N
+                                CodeReferenceElement: N
+                                  PsiElement(identifier)('N')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                              PsiElement(])(']')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TSum[TSucc[M], N, TSucc[R]]
+                        SimpleType: TSum
+                          CodeReferenceElement: TSum
+                            PsiElement(identifier)('TSum')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: TSucc[M]
+                            SimpleType: TSucc
+                              CodeReferenceElement: TSucc
+                                PsiElement(identifier)('TSucc')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: M
+                                CodeReferenceElement: M
+                                  PsiElement(identifier)('M')
+                              PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: TSucc[R]
+                            SimpleType: TSucc
+                              CodeReferenceElement: TSucc
+                                PsiElement(identifier)('TSucc')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: TNatSum
+              PsiElement(identifier)('TNatSum')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: tSumZero
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tSumZero')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TSum[TZero, N, N]
+            SimpleType: TSum
+              CodeReferenceElement: TSum
+                PsiElement(identifier)('TSum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: TZero
+                CodeReferenceElement: TZero
+                  PsiElement(identifier)('TZero')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: TSumZero
+              PsiElement(identifier)('TSumZero')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tSumM
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tSumM')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: sum
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('sum')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TSum[M, N, R]
+                    SimpleType: TSum
+                      CodeReferenceElement: TSum
+                        PsiElement(identifier)('TSum')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TSum[TSucc[M], N, TSucc[R]]
+            SimpleType: TSum
+              CodeReferenceElement: TSum
+                PsiElement(identifier)('TSum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: TSucc[M]
+                SimpleType: TSucc
+                  CodeReferenceElement: TSucc
+                    PsiElement(identifier)('TSucc')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: TSucc[R]
+                SimpleType: TSucc
+                  CodeReferenceElement: TSucc
+                    PsiElement(identifier)('TSucc')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: TSumM
+              PsiElement(identifier)('TSumM')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: sum
+                PsiElement(identifier)('sum')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Vec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Vec')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: VNil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('VNil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Vec[Nothing, TZero]
+                  SimpleType: Vec
+                    CodeReferenceElement: Vec
+                      PsiElement(identifier)('Vec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TZero
+                      CodeReferenceElement: TZero
+                        PsiElement(identifier)('TZero')
+                    PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// fails but in refchecks')
+        PsiWhiteSpace('\n  ')
+        ScClass: VCons
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('VCons')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: xs
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Vec[T, N]
+                      SimpleType: Vec
+                        CodeReferenceElement: Vec
+                          PsiElement(identifier)('Vec')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Vec[T, TSucc[N]]
+                  SimpleType: Vec
+                    CodeReferenceElement: Vec
+                      PsiElement(identifier)('Vec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: TSucc[N]
+                      SimpleType: TSucc
+                        CodeReferenceElement: TSucc
+                          PsiElement(identifier)('TSucc')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: append0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('append0')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: $this
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('$this')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vec[T, M]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vec[T, N]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: tsum
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tsum')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TSum[M, N, R]
+                    SimpleType: TSum
+                      CodeReferenceElement: TSum
+                        PsiElement(identifier)('TSum')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Vec[T, R]
+            SimpleType: Vec
+              CodeReferenceElement: Vec
+                PsiElement(identifier)('Vec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: $this
+                PsiElement(identifier)('$this')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: tsum
+                PsiElement(identifier)('tsum')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    StableElementPattern
+                      ReferenceExpression: VNil
+                        PsiElement(identifier)('VNil')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: TSumZero
+                        PsiElement(identifier)('TSumZero')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: that
+                    PsiElement(identifier)('that')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ConstructorPattern
+                      CodeReferenceElement: VCons
+                        PsiElement(identifier)('VCons')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: x
+                          PsiElement(identifier)('x')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: xs
+                          PsiElement(identifier)('xs')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: TSumM
+                        PsiElement(identifier)('TSumM')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: sum
+                          PsiElement(identifier)('sum')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: VCons
+                      PsiElement(identifier)('VCons')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        MethodCall
+                          ReferenceExpression: append0
+                            PsiElement(identifier)('append0')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: xs
+                              PsiElement(identifier)('xs')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: that
+                              PsiElement(identifier)('that')
+                            PsiElement())(')')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: sum
+                            PsiElement(identifier)('sum')
+                          PsiElement())(')')
+                      PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: append
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('append')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TNat
+                CodeReferenceElement: TNat
+                  PsiElement(identifier)('TNat')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: $this
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('$this')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vec[T, M]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vec[T, N]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: tsum
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tsum')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TSum[M, N, R]
+                    SimpleType: TSum
+                      CodeReferenceElement: TSum
+                        PsiElement(identifier)('TSum')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Vec[T, R]
+            SimpleType: Vec
+              CodeReferenceElement: Vec
+                PsiElement(identifier)('Vec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          MatchStatement
+            ReferenceExpression: tsum
+              PsiElement(identifier)('tsum')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: TSumZero
+                    PsiElement(identifier)('TSumZero')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n          ')
+                BlockOfExpressions
+                  MatchStatement
+                    ReferenceExpression: $this
+                      PsiElement(identifier)('$this')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        StableElementPattern
+                          ReferenceExpression: VNil
+                            PsiElement(identifier)('VNil')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ReferenceExpression: that
+                            PsiElement(identifier)('that')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: TSumM
+                    PsiElement(identifier)('TSumM')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: sum
+                      PsiElement(identifier)('sum')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n          ')
+                BlockOfExpressions
+                  MatchStatement
+                    ReferenceExpression: $this
+                      PsiElement(identifier)('$this')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: VCons
+                            PsiElement(identifier)('VCons')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            ReferencePattern: x
+                              PsiElement(identifier)('x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: xs
+                              PsiElement(identifier)('xs')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: VCons
+                              PsiElement(identifier)('VCons')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: x
+                                PsiElement(identifier)('x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              MethodCall
+                                MethodCall
+                                  ReferenceExpression: append
+                                    PsiElement(identifier)('append')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    ReferenceExpression: xs
+                                      PsiElement(identifier)('xs')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: that
+                                      PsiElement(identifier)('that')
+                                    PsiElement())(')')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: sum
+                                    PsiElement(identifier)('sum')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n      ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

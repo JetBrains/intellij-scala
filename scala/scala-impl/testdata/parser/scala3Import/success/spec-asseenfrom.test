@@ -28,3 +28,321 @@ abstract class Automaton2[@specialized T1, T2] {
   def f = allStates map finalWeight
 }
 -----
+ScalaFile
+  ScClass: Automaton
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Automaton')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: W
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Double
+                    PsiElement(identifier)('Double')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('W')
+      PsiElement(,)(',')
+      TypeParameter: State
+        PsiElement(identifier)('State')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: finalWeight
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('finalWeight')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: State
+                    CodeReferenceElement: State
+                      PsiElement(identifier)('State')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: W
+            CodeReferenceElement: W
+              PsiElement(identifier)('W')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"todo"')
+              PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: allStates
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('allStates')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[State]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: State
+                CodeReferenceElement: State
+                  PsiElement(identifier)('State')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"toodo"')
+              PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: finalStateWeights
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Returns a map from states to its final weight. may expand all nodes.')
+              ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('finalStateWeights')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: Map.empty
+              ReferenceExpression: Map
+                PsiElement(identifier)('Map')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ++
+              PsiElement(identifier)('++')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: allStates.map
+                ReferenceExpression: allStates
+                  PsiElement(identifier)('allStates')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: s
+                          PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      Tuple
+                        PsiElement(()('(')
+                        ReferenceExpression: s
+                          PsiElement(identifier)('s')
+                        PsiElement(,)(',')
+                        MethodCall
+                          ReferenceExpression: finalWeight
+                            PsiElement(identifier)('finalWeight')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: s
+                              PsiElement(identifier)('s')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// This works fine:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(BlockComment)('/*\n  def finalStateWeights() = {\n    val it = allStates.iterator;\n    while(it.hasNext) {\n      finalWeight(it.next);\n    }\n  }\n  */')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Automaton2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Automaton2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('T1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T2
+        PsiElement(identifier)('T2')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: finalWeight
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('finalWeight')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T2
+                    CodeReferenceElement: T2
+                      PsiElement(identifier)('T2')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T1
+            CodeReferenceElement: T1
+              PsiElement(identifier)('T1')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: allStates
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('allStates')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[T2]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T2
+                CodeReferenceElement: T2
+                  PsiElement(identifier)('T2')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: allStates
+              PsiElement(identifier)('allStates')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: finalWeight
+              PsiElement(identifier)('finalWeight')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -3,3 +3,44 @@ object Test {
   Foo.mapEntry().getKey()
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: pack
+              PsiElement(identifier)('pack')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Foo.mapEntry().getKey
+            MethodCall
+              ReferenceExpression: Foo.mapEntry
+                ReferenceExpression: Foo
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('mapEntry')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('getKey')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

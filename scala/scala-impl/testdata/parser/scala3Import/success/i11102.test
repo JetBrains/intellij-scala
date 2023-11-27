@@ -2,3 +2,65 @@ given s: "literal" = "literal" // compile error
 given "foo" = "foo"
 given x: 1 = 1
 -----
+ScalaFile
+  ScGivenAliasDefinition: s
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('s')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    LiteralType: "literal"
+      StringLiteral
+        PsiElement(string content)('"literal"')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"literal"')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// compile error')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    LiteralType: "foo"
+      StringLiteral
+        PsiElement(string content)('"foo"')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"foo"')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('x')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    LiteralType: 1
+      IntegerLiteral
+        PsiElement(integer)('1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('1')

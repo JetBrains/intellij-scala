@@ -25,3 +25,335 @@ object Test:
     this
 
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent
+        CodeReferenceElement: java.util
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('concurrent')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: TimeUnit
+            PsiElement(identifier)('TimeUnit')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: TimeoutException
+            PsiElement(identifier)('TimeoutException')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Future
+            PsiElement(identifier)('Future')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Executors
+            PsiElement(identifier)('Executors')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JExecutors')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: TestSource
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestSource')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: LoggedRunnable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LoggedRunnable')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Runnable
+            CodeReferenceElement: Runnable
+              PsiElement(identifier)('Runnable')
+  PsiWhiteSpace('\n\n\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: filteredSources
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: filteredSources
+              PsiElement(identifier)('filteredSources')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[TestSource]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: TestSource
+                CodeReferenceElement: TestSource
+                  PsiElement(identifier)('TestSource')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: encapsulatedCompilation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('encapsulatedCompilation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: testSource
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('testSource')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: TestSource
+                    CodeReferenceElement: TestSource
+                      PsiElement(identifier)('TestSource')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: LoggedRunnable
+            CodeReferenceElement: LoggedRunnable
+              PsiElement(identifier)('LoggedRunnable')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testSuite
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testSuite')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: this.type
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: pool
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: pool
+                  PsiElement(identifier)('pool')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: JExecutors.newWorkStealingPool
+                  ReferenceExpression: JExecutors
+                    PsiElement(identifier)('JExecutors')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('newWorkStealingPool')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Runtime.getRuntime.availableProcessors
+                      ReferenceExpression: Runtime.getRuntime
+                        ReferenceExpression: Runtime
+                          PsiElement(identifier)('Runtime')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getRuntime')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('availableProcessors')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: eventualResults
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: eventualResults
+                  PsiElement(identifier)('eventualResults')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ForStatement
+                PsiElement(for)('for')
+                PsiWhiteSpace(' ')
+                Enumerators
+                  Generator
+                    ReferencePattern: target
+                      PsiElement(identifier)('target')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<-)('<-')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: filteredSources
+                      PsiElement(identifier)('filteredSources')
+                PsiWhiteSpace(' ')
+                PsiElement(yield)('yield')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: pool.submit
+                    ReferenceExpression: pool
+                      PsiElement(identifier)('pool')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('submit')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: encapsulatedCompilation
+                        PsiElement(identifier)('encapsulatedCompilation')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: target
+                          PsiElement(identifier)('target')
+                        PsiElement())(')')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            ForStatement
+              PsiElement(for)('for')
+              PsiWhiteSpace(' ')
+              Enumerators
+                Generator
+                  ReferencePattern: fut
+                    PsiElement(identifier)('fut')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: eventualResults
+                    PsiElement(identifier)('eventualResults')
+              PsiWhiteSpace(' ')
+              PsiElement(do)('do')
+              PsiWhiteSpace('\n      ')
+              TryStatement
+                PsiElement(try)('try')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: fut.get
+                    ReferenceExpression: fut
+                      PsiElement(identifier)('fut')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('get')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                CatchBlock
+                  PsiElement(catch)('catch')
+                  PsiWhiteSpace(' ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: ex
+                        PsiElement(identifier)('ex')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        SimpleType: Exception
+                          CodeReferenceElement: Exception
+                            PsiElement(identifier)('Exception')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    BlockExpression
+                      PsiWhiteSpace('\n        ')
+                      MethodCall
+                        ReferenceExpression: System.err.println
+                          ReferenceExpression: System.err
+                            ReferenceExpression: System
+                              PsiElement(identifier)('System')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('err')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('println')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: ex.getMessage
+                            ReferenceExpression: ex
+                              PsiElement(identifier)('ex')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('getMessage')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      MethodCall
+                        ReferenceExpression: ex.printStackTrace
+                          ReferenceExpression: ex
+                            PsiElement(identifier)('ex')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('printStackTrace')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            ThisReference
+              PsiElement(this)('this')

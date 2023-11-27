@@ -14,3 +14,140 @@ object A {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.tailrec
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('tailrec')
+  PsiWhiteSpace('\n\n')
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Option("a").map
+              MethodCall
+                ReferenceExpression: Option
+                  PsiElement(identifier)('Option')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: x
+                        PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n    ')
+                  BlockOfExpressions
+                    ScFunctionDefinition: loop
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            ConstructorInvocation
+                              SimpleType: tailrec
+                                CodeReferenceElement: tailrec
+                                  PsiElement(identifier)('tailrec')
+                      Modifiers
+                        <empty list>
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('loop')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n      ')
+                        TryStatement
+                          PsiElement(try)('try')
+                          PsiWhiteSpace('\n        ')
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                          PsiWhiteSpace('\n      ')
+                          CatchBlock
+                            PsiElement(catch)('catch')
+                            PsiWhiteSpace('\n        ')
+                            CaseClauses
+                              CaseClause
+                                PsiElement(case)('case')
+                                PsiWhiteSpace(' ')
+                                Scala3 TypedPattern
+                                  WildcardPattern
+                                    PsiElement(_)('_')
+                                  PsiElement(:)(':')
+                                  PsiWhiteSpace(' ')
+                                  TypePattern
+                                    SimpleType: Throwable
+                                      CodeReferenceElement: Throwable
+                                        PsiElement(identifier)('Throwable')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace('\n          ')
+                                BlockOfExpressions
+                                  MethodCall
+                                    ReferenceExpression: loop
+                                      PsiElement(identifier)('loop')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        PsiElement(})('}')
+                    PsiWhiteSpace('\n    ')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

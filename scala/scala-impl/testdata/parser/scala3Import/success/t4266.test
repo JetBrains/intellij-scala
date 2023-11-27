@@ -26,3 +26,254 @@ object Test {
 }
 
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Tensor2Like
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tensor2Like')
+          TypeParameterClause
+            PsiElement([)('[')
+            PsiWhiteSpace('\n    ')
+            TypeParameter: A1
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: specialized
+                        CodeReferenceElement: specialized
+                          PsiElement(identifier)('specialized')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: Int
+                          PsiElement(identifier)('Int')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            TypeParameter: D1
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('D1')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: DomainLike[A1]
+                SimpleType: DomainLike
+                  CodeReferenceElement: DomainLike
+                    PsiElement(identifier)('DomainLike')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A1
+                    CodeReferenceElement: A1
+                      PsiElement(identifier)('A1')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            TypeParameter: D
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('D')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Product2DomainLike[D1]
+                SimpleType: Product2DomainLike
+                  CodeReferenceElement: Product2DomainLike
+                    PsiElement(identifier)('Product2DomainLike')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: D1
+                    CodeReferenceElement: D1
+                      PsiElement(identifier)('D1')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: domain
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('domain')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: checkKey
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('checkKey')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: k1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('k1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A1
+                          CodeReferenceElement: A1
+                            PsiElement(identifier)('A1')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: domain._1.contains
+                      ReferenceExpression: domain._1
+                        ReferenceExpression: domain
+                          PsiElement(identifier)('domain')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('_1')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('contains')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: k1
+                        PsiElement(identifier)('k1')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: DomainLike
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DomainLike')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: contains
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('contains')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: key
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('key')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// trait DomainLike[@specialized(Int) A] {')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   def contains(key: A): Boolean;')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// }')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Product2DomainLike
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Product2DomainLike')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: D1
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('D1')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: _1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('_1')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: D1
+                  CodeReferenceElement: D1
+                    PsiElement(identifier)('D1')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

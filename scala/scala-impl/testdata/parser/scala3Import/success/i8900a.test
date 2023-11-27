@@ -10,3 +10,240 @@ object Test {
   })
 }
 -----
+ScalaFile
+  ScClass: Inv
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inv')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: elem
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('elem')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unwrap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unwrap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Outer
+              PsiElement(identifier)('Outer')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: inv
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('inv')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Inv[Outer]
+                    SimpleType: Inv
+                      CodeReferenceElement: Inv
+                        PsiElement(identifier)('Inv')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Outer
+                        CodeReferenceElement: Outer
+                          PsiElement(identifier)('Outer')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Outer
+            CodeReferenceElement: Outer
+              PsiElement(identifier)('Outer')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: inv.elem
+            ReferenceExpression: inv
+              PsiElement(identifier)('inv')
+            PsiElement(.)('.')
+            PsiElement(identifier)('elem')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: wrap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('wrap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Inner
+              PsiElement(identifier)('Inner')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Inner
+                    CodeReferenceElement: Inner
+                      PsiElement(identifier)('Inner')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Inv[Inner]
+            SimpleType: Inv
+              CodeReferenceElement: Inv
+                PsiElement(identifier)('Inv')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Inner
+                CodeReferenceElement: Inner
+                  PsiElement(identifier)('Inner')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Inv
+                    CodeReferenceElement: Inv
+                      PsiElement(identifier)('Inv')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: unwrap
+              PsiElement(identifier)('unwrap')
+            ArgumentList
+              PsiElement(()('(')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScClass: Local
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(class)('class')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Local')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      <empty list>
+                  ExtendsBlock
+                    <empty list>
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: local
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: local
+                      PsiElement(identifier)('local')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Local
+                            CodeReferenceElement: Local
+                              PsiElement(identifier)('Local')
+                PsiWhiteSpace('\n    ')
+                MethodCall
+                  ReferenceExpression: wrap
+                    PsiElement(identifier)('wrap')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: local
+                      PsiElement(identifier)('local')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

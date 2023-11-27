@@ -16,3 +16,214 @@ object Main {
 
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.io
+        CodeReferenceElement: java
+          PsiElement(identifier)('java')
+        PsiElement(.)('.')
+        PsiElement(identifier)('io')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: OutputStream
+            PsiElement(identifier)('OutputStream')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: PrintStream
+            PsiElement(identifier)('PrintStream')
+        PsiElement(})('}')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScClass: PromptStream
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PromptStream')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: s
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: OutputStream
+                CodeReferenceElement: OutputStream
+                  PsiElement(identifier)('OutputStream')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: PrintStream
+            CodeReferenceElement: PrintStream
+              PsiElement(identifier)('PrintStream')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: s
+              PsiElement(identifier)('s')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: println
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('println')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: super.println
+              SuperReference
+                PsiElement(super)('super')
+              PsiElement(.)('.')
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n    ')
+        ScPatternDefinition: out
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: out
+              PsiElement(identifier)('out')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: PromptStream
+                    CodeReferenceElement: PromptStream
+                      PsiElement(identifier)('PromptStream')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: java.lang.System.out
+                      ReferenceExpression: java.lang.System
+                        ReferenceExpression: java.lang
+                          ReferenceExpression: java
+                            PsiElement(identifier)('java')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('lang')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('System')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('out')
+                    PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n    ')
+        MethodCall
+          ReferenceExpression: java.lang.System.setOut
+            ReferenceExpression: java.lang.System
+              ReferenceExpression: java.lang
+                ReferenceExpression: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('lang')
+              PsiElement(.)('.')
+              PsiElement(identifier)('System')
+            PsiElement(.)('.')
+            PsiElement(identifier)('setOut')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: out
+              PsiElement(identifier)('out')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n    ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n        ')
+          PsiComment(comment)('//out.println("hello world");')
+          PsiWhiteSpace('\n      ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

@@ -54,3 +54,807 @@ trait ShowPlus extends BasePlus with Show {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: expAbstractData
+      PsiElement(identifier)('expAbstractData')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Base
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A base class consisting of')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScDocList
+          ScPsiDocToken(DOC_WHITESPACE)('   ')
+          ScDocListItem
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
+            ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_DATA)('a root trait (i.e. abstract class) ')
+            DocSyntaxElement 8
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Exp' with an ')
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('eval' function')
+            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+          ScPsiDocToken(DOC_WHITESPACE)('   ')
+          ScDocListItem
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
+            ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_DATA)('an abstract type ')
+            DocSyntaxElement 8
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('exp' bounded by ')
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('Exp'')
+            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+          ScPsiDocToken(DOC_WHITESPACE)('   ')
+          ScDocListItem
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
+            ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_DATA)('a concrete instance class ')
+            DocSyntaxElement 8
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Num' of ')
+              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('Exp' for numeric literals')
+            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Base')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: exp
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('exp')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Exp
+              CodeReferenceElement: Exp
+                PsiElement(identifier)('Exp')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: Exp
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exp')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: eval
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('eval')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScClass: Num
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Num')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: v
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('v')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Exp
+                    CodeReferenceElement: Exp
+                      PsiElement(identifier)('Exp')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: self
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: exp
+                    CodeReferenceElement: exp
+                      PsiElement(identifier)('exp')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: value
+                      PsiElement(identifier)('value')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: v
+                    PsiElement(identifier)('v')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: eval
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('eval')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: testBase
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('testBase')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: App
+              CodeReferenceElement: App
+                PsiElement(identifier)('App')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ConstructorInvocation
+            SimpleType: Base
+              CodeReferenceElement: Base
+                PsiElement(identifier)('Base')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: exp
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('exp')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Exp
+              CodeReferenceElement: Exp
+                PsiElement(identifier)('Exp')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: term
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: term
+                PsiElement(identifier)('term')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Num
+                      CodeReferenceElement: Num
+                        PsiElement(identifier)('Num')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                      PsiElement())(')')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: Console.println
+              ReferenceExpression: Console
+                PsiElement(identifier)('Console')
+              PsiElement(.)('.')
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: term.eval
+                ReferenceExpression: term
+                  PsiElement(identifier)('term')
+                PsiElement(.)('.')
+                PsiElement(identifier)('eval')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: BasePlus
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Data extension: An extension of ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('Base' with ')
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Plus' expressions')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BasePlus')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Base
+              CodeReferenceElement: Base
+                PsiElement(identifier)('Base')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: Plus
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Plus')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: l
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('l')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: exp
+                        CodeReferenceElement: exp
+                          PsiElement(identifier)('exp')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: r
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('r')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: exp
+                        CodeReferenceElement: exp
+                          PsiElement(identifier)('exp')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Exp
+                    CodeReferenceElement: Exp
+                      PsiElement(identifier)('Exp')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: self
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: exp
+                    CodeReferenceElement: exp
+                      PsiElement(identifier)('exp')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: left
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: left
+                      PsiElement(identifier)('left')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: l
+                    PsiElement(identifier)('l')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: right
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: right
+                      PsiElement(identifier)('right')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: r
+                    PsiElement(identifier)('r')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: eval
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('eval')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: left.eval
+                      ReferenceExpression: left
+                        PsiElement(identifier)('left')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('eval')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: right.eval
+                      ReferenceExpression: right
+                        PsiElement(identifier)('right')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('eval')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Show
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('Base' with 'show' methods.')
+            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Show')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Base
+              CodeReferenceElement: Base
+                PsiElement(identifier)('Base')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: exp
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('exp')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Exp1
+              CodeReferenceElement: Exp1
+                PsiElement(identifier)('Exp1')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: Exp1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exp1')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Exp
+                    CodeReferenceElement: Exp
+                      PsiElement(identifier)('Exp')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: show
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('show')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScClass: Num1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Num1')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: v
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('v')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Num
+                    CodeReferenceElement: Num
+                      PsiElement(identifier)('Num')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: v
+                      PsiElement(identifier)('v')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: Exp1
+                    CodeReferenceElement: Exp1
+                      PsiElement(identifier)('Exp1')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: self
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  CompoundType: exp with Num1
+                    SimpleType: exp
+                      CodeReferenceElement: exp
+                        PsiElement(identifier)('exp')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Num1
+                      CodeReferenceElement: Num1
+                        PsiElement(identifier)('Num1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: show
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('show')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: value.toString
+                      ReferenceExpression: value
+                        PsiElement(identifier)('value')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('toString')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ShowPlus
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('BasePlus' with 'show' methods.')
+            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ShowPlus')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: BasePlus
+              CodeReferenceElement: BasePlus
+                PsiElement(identifier)('BasePlus')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ConstructorInvocation
+            SimpleType: Show
+              CodeReferenceElement: Show
+                PsiElement(identifier)('Show')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: Plus1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Plus1')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: l
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('l')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: exp
+                        CodeReferenceElement: exp
+                          PsiElement(identifier)('exp')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: r
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('r')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: exp
+                        CodeReferenceElement: exp
+                          PsiElement(identifier)('exp')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Plus
+                    CodeReferenceElement: Plus
+                      PsiElement(identifier)('Plus')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: l
+                      PsiElement(identifier)('l')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r
+                      PsiElement(identifier)('r')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: Exp1
+                    CodeReferenceElement: Exp1
+                      PsiElement(identifier)('Exp1')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: self
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  CompoundType: exp with Plus1
+                    SimpleType: exp
+                      CodeReferenceElement: exp
+                        PsiElement(identifier)('exp')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Plus1
+                      CodeReferenceElement: Plus1
+                        PsiElement(identifier)('Plus1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: show
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('show')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    InfixExpression
+                      ReferenceExpression: left.show
+                        ReferenceExpression: left
+                          PsiElement(identifier)('left')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('show')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('" + "')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: right.show
+                      ReferenceExpression: right
+                        PsiElement(identifier)('right')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('show')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -14,3 +14,132 @@ object Sub extends Super[Int] {
   override def superb: Int = super.superb // okay
 }
 -----
+ScalaFile
+  ScTrait: Super
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Super')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Int
+                    PsiElement(identifier)('Int')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: superb
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('superb')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Sub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sub')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Super[Int]
+            SimpleType: Super
+              CodeReferenceElement: Super
+                PsiElement(identifier)('Super')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// it is expected that super[Super].superb crashes, since')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// specialization does parent class rewiring, and the super')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// of Sub becomes Super$mcII$sp and not Super. But I consider')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// this normal behavior -- if you want, I can modify duplicatiors')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// to make this work, but I consider it's best to keep this')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// let the user know Super is not the superclass anymore.')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// super[Super].superb - Vlad')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: super.superb
+          SuperReference
+            PsiElement(super)('super')
+          PsiElement(.)('.')
+          PsiElement(identifier)('superb')
+        PsiWhiteSpace('        ')
+        PsiComment(comment)('// okay')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: superb
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('superb')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: super.superb
+            SuperReference
+              PsiElement(super)('super')
+            PsiElement(.)('.')
+            PsiElement(identifier)('superb')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// okay')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

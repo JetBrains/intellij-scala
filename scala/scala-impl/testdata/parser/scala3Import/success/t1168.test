@@ -15,3 +15,176 @@ object Test extends App {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: SpecialException
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SpecialException')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Throwable
+                  CodeReferenceElement: Throwable
+                    PsiElement(identifier)('Throwable')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ThrowStatement
+              PsiElement(throw)('throw')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Exception
+                        CodeReferenceElement: Exception
+                          PsiElement(identifier)('Exception')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: e
+                      PsiElement(identifier)('e')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: SpecialException
+                        CodeReferenceElement: SpecialException
+                          PsiElement(identifier)('SpecialException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      MethodCall
+                        ReferenceExpression: println
+                          PsiElement(identifier)('println')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            StringLiteral
+                              PsiElement(string content)('"matched SpecialException: "')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: e
+                              PsiElement(identifier)('e')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n      ')
+                      MethodCall
+                        ReferenceExpression: assume
+                          PsiElement(identifier)('assume')
+                        ArgumentList
+                          PsiElement(()('(')
+                          GenericCall
+                            ReferenceExpression: e.isInstanceOf
+                              ReferenceExpression: e
+                                PsiElement(identifier)('e')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('isInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: SpecialException
+                                CodeReferenceElement: SpecialException
+                                  PsiElement(identifier)('SpecialException')
+                              PsiElement(])(']')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: e
+                      PsiElement(identifier)('e')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: Exception
+                        CodeReferenceElement: Exception
+                          PsiElement(identifier)('Exception')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      MethodCall
+                        ReferenceExpression: assume
+                          PsiElement(identifier)('assume')
+                        ArgumentList
+                          PsiElement(()('(')
+                          GenericCall
+                            ReferenceExpression: e.isInstanceOf
+                              ReferenceExpression: e
+                                PsiElement(identifier)('e')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('isInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Exception
+                                CodeReferenceElement: Exception
+                                  PsiElement(identifier)('Exception')
+                              PsiElement(])(']')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

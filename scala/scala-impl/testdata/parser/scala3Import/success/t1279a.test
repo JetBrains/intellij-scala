@@ -38,3 +38,603 @@ object Unrelated {
   // one error found
 }
 -----
+ScalaFile
+  ScClass: M
+    PsiComment(comment)('// covariant linked list')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('M')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: M
+            CodeReferenceElement: M
+              PsiElement(identifier)('M')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: selfType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selfType')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: M {type T <: self.T}
+            SimpleType: M
+              CodeReferenceElement: M
+                PsiElement(identifier)('M')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: self.T
+                  CodeReferenceElement: self.T
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('T')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: actualSelfType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('actualSelfType')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: self.type
+            CodeReferenceElement: self
+              PsiElement(identifier)('self')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: selfType
+            CodeReferenceElement: selfType
+              PsiElement(identifier)('selfType')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: next
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('next')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: selfType
+            CodeReferenceElement: selfType
+              PsiElement(identifier)('selfType')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: all2
+          PsiComment(comment)('// I don't understand why this doesn't compile, but that's a separate matter')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// Error: method all2 cannot be accessed in M.this.selfType')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// because its instance type => Stream[M{type T <: M.this.selfType#T}]')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// contains a malformed type: M.this.selfType#T')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('all2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Stream[M {type T <: self.T}]
+            SimpleType: Stream
+              CodeReferenceElement: Stream
+                PsiElement(identifier)('Stream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: M {type T <: self.T}
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScTypeAliasDeclaration: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: self.T
+                      CodeReferenceElement: self.T
+                        CodeReferenceElement: self
+                          PsiElement(identifier)('self')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(})('}')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Stream.cons
+              ReferenceExpression: Stream
+                PsiElement(identifier)('Stream')
+              PsiElement(.)('.')
+              PsiElement(identifier)('cons')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: actualSelfType
+                  CodeReferenceElement: actualSelfType
+                    PsiElement(identifier)('actualSelfType')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: next.all2
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+                PsiElement(.)('.')
+                PsiElement(identifier)('all2')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: all3
+          PsiComment(comment)('// compiles successfully')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('all3')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Stream[M {type T <: self.T}]
+            SimpleType: Stream
+              CodeReferenceElement: Stream
+                PsiElement(identifier)('Stream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: M {type T <: self.T}
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScTypeAliasDeclaration: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: self.T
+                      CodeReferenceElement: self.T
+                        CodeReferenceElement: self
+                          PsiElement(identifier)('self')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(})('}')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: all3Impl
+              PsiElement(identifier)('all3Impl')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: actualSelfType
+                  CodeReferenceElement: actualSelfType
+                    PsiElement(identifier)('actualSelfType')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: all3Impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('all3Impl')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: first
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('first')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  CompoundType: M {type T <: self.T}
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiWhiteSpace(' ')
+                    Refinement
+                      PsiElement({)('{')
+                      ScTypeAliasDeclaration: T
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('T')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: self.T
+                          CodeReferenceElement: self.T
+                            CodeReferenceElement: self
+                              PsiElement(identifier)('self')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('T')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Stream[M {type T <: self.T}]
+            SimpleType: Stream
+              CodeReferenceElement: Stream
+                PsiElement(identifier)('Stream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: M {type T <: self.T}
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScTypeAliasDeclaration: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: self.T
+                      CodeReferenceElement: self.T
+                        CodeReferenceElement: self
+                          PsiElement(identifier)('self')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(})('}')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Stream.cons
+              ReferenceExpression: Stream
+                PsiElement(identifier)('Stream')
+              PsiElement(.)('.')
+              PsiElement(identifier)('cons')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: first
+                PsiElement(identifier)('first')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: all3Impl
+                  PsiElement(identifier)('all3Impl')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: first.next
+                    ReferenceExpression: first
+                      PsiElement(identifier)('first')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('next')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: all4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('all4')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Stream[M {type T <: self.T}]
+            SimpleType: Stream
+              CodeReferenceElement: Stream
+                PsiElement(identifier)('Stream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: M {type T <: self.T}
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScTypeAliasDeclaration: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: self.T
+                      CodeReferenceElement: self.T
+                        CodeReferenceElement: self
+                          PsiElement(identifier)('self')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                  PsiElement(})('}')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Unrelated.all4Impl
+                ReferenceExpression: Unrelated
+                  PsiElement(identifier)('Unrelated')
+                PsiElement(.)('.')
+                PsiElement(identifier)('all4Impl')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: actualSelfType
+                  CodeReferenceElement: actualSelfType
+                    PsiElement(identifier)('actualSelfType')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Unrelated
+    PsiComment(comment)('// TODO!!! fix this bug for real, it compiles successfully, but weird types are inferred')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Unrelated')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: all4Impl
+          PsiComment(comment)('// compiles successfully')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('all4Impl')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: first
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('first')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  CompoundType: M {type T <: U}
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiWhiteSpace(' ')
+                    Refinement
+                      PsiElement({)('{')
+                      ScTypeAliasDeclaration: T
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('T')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: U
+                          CodeReferenceElement: U
+                            PsiElement(identifier)('U')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Stream[M {type T <: U}]
+            SimpleType: Stream
+              CodeReferenceElement: Stream
+                PsiElement(identifier)('Stream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: M {type T <: U}
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScTypeAliasDeclaration: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                  PsiElement(})('}')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Stream.cons
+              ReferenceExpression: Stream
+                PsiElement(identifier)('Stream')
+              PsiElement(.)('.')
+              PsiElement(identifier)('cons')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: first
+                PsiElement(identifier)('first')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: all4Impl
+                    PsiElement(identifier)('all4Impl')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: first.next
+                    ReferenceExpression: first
+                      PsiElement(identifier)('first')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('next')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// should compile successfully without the [U], but:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def all4ImplFail[U](first: M {type T <: U}): Stream[M {type T <: U}] = Stream.cons(first, all4ImplFail(first.next))')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// test/files/pos/t1279a.scala:31: error: type mismatch;')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//  found   : first.selfType')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//     (which expands to)  M{type T <: first.T}')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//  required: M{type T <: Nothing}')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   def all4ImplFail[U](first: M {type T <: U}): Stream[M {type T <: U}] = Stream.cons(first, all4ImplFail(first.next))')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//                                                                                                                ^')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// one error found')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

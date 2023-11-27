@@ -23,3 +23,424 @@ object T {
 
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('collection')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: EmptyHashMap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EmptyHashMap')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: mutable.HashMap[Nothing, Nothing]
+            SimpleType: mutable.HashMap
+              CodeReferenceElement: mutable.HashMap
+                CodeReferenceElement: mutable
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('HashMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: newSymbolMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: newSymbolMap
+              PsiElement(identifier)('newSymbolMap')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: mutable.HashMap[String, mutable.HashMap[Int, Double]]
+            SimpleType: mutable.HashMap
+              CodeReferenceElement: mutable.HashMap
+                CodeReferenceElement: mutable
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('HashMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: mutable.HashMap[Int, Double]
+                SimpleType: mutable.HashMap
+                  CodeReferenceElement: mutable.HashMap
+                    CodeReferenceElement: mutable
+                      PsiElement(identifier)('mutable')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('HashMap')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: mutable.HashMap.empty
+            ReferenceExpression: mutable.HashMap
+              ReferenceExpression: mutable
+                PsiElement(identifier)('mutable')
+              PsiElement(.)('.')
+              PsiElement(identifier)('HashMap')
+            PsiElement(.)('.')
+            PsiElement(identifier)('empty')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: map
+              PsiElement(identifier)('map')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: newSymbolMap.getOrElse
+              ReferenceExpression: newSymbolMap
+                PsiElement(identifier)('newSymbolMap')
+              PsiElement(.)('.')
+              PsiElement(identifier)('getOrElse')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"a"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: mutable.HashMap.empty
+                ReferenceExpression: mutable.HashMap
+                  ReferenceExpression: mutable
+                    PsiElement(identifier)('mutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('HashMap')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: map.put
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiElement(.)('.')
+            PsiElement(identifier)('put')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            DoubleLiteral
+              PsiElement(double)('0.0')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: newSymbolMap.put
+            ReferenceExpression: newSymbolMap
+              PsiElement(identifier)('newSymbolMap')
+            PsiElement(.)('.')
+            PsiElement(identifier)('put')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"a"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: map
+              PsiElement(identifier)('map')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n   ')
+        ScClass: Tree
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('A map storing free variables of functions and classes')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n')
+          PsiComment(comment)('//  type SymSet = Set[Symbol]')
+          PsiWhiteSpace('\n')
+          PsiComment(comment)('//  private val free = new collection.mutable.LinkedHashMap[Symbol, SymSet]')
+          PsiWhiteSpace('\n')
+          PsiComment(comment)('//  def freeVars(sym: Symbol): List[Symbol] = free.getOrElse(sym, Nil).toList')
+          PsiWhiteSpace('\n\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tree')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDefinition: tpe
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('tpe')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                NullLiteral
+                  PsiElement(null)('null')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScClass: Ident
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ident')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Tree[X]
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: Apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Tree[X]
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Ident[Symbol] | Apply[Symbol]
+            ParametrizedType: Ident[Symbol]
+              SimpleType: Ident
+                CodeReferenceElement: Ident
+                  PsiElement(identifier)('Ident')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Apply[Symbol]
+              SimpleType: Apply
+                CodeReferenceElement: Apply
+                  PsiElement(identifier)('Apply')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x.tpe
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tpe')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: z
+              PsiElement(identifier)('z')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Symbol
+            CodeReferenceElement: Symbol
+              PsiElement(identifier)('Symbol')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: y
+            PsiElement(identifier)('y')
+        PsiWhiteSpace('\n\n\n')
+        PsiElement(})('}')

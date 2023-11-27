@@ -1,2 +1,57 @@
 val pf1: PartialFunction[AnyVal, Int] = { case n: Int => n }
 -----
+ScalaFile
+  ScPatternDefinition: pf1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: pf1
+        PsiElement(identifier)('pf1')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: PartialFunction[AnyVal, Int]
+      SimpleType: PartialFunction
+        CodeReferenceElement: PartialFunction
+          PsiElement(identifier)('PartialFunction')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: AnyVal
+          CodeReferenceElement: AnyVal
+            PsiElement(identifier)('AnyVal')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace(' ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: n
+              PsiElement(identifier)('n')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(})('}')

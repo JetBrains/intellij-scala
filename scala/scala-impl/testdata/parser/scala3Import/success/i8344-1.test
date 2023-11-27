@@ -10,3 +10,273 @@ object Datatype {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala
+        PsiElement(identifier)('scala')
+      PsiElement(.)('.')
+      ImportSelectors
+        ImportSelector
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('STuple')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Datatype
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Datatype')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Tuple
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Tuple
+            PsiElement(identifier)('Tuple')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: STuple
+                  CodeReferenceElement: STuple
+                    PsiElement(identifier)('STuple')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: elems
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('elems')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: STuple.Map[T, Datatype]
+                        SimpleType: STuple.Map
+                          CodeReferenceElement: STuple.Map
+                            CodeReferenceElement: STuple
+                              PsiElement(identifier)('STuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Map')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Datatype
+                            CodeReferenceElement: Datatype
+                              PsiElement(identifier)('Datatype')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Datatype[T]
+                    SimpleType: Datatype
+                      CodeReferenceElement: Datatype
+                        PsiElement(identifier)('Datatype')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Datatype
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Datatype')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Datatype_*:
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: STuple
+                CodeReferenceElement: STuple
+                  PsiElement(identifier)('STuple')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: ht
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ht')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Datatype[H]
+                    SimpleType: Datatype
+                      CodeReferenceElement: Datatype
+                        PsiElement(identifier)('Datatype')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: tt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tt')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Datatype[T]
+                    SimpleType: Datatype
+                      CodeReferenceElement: Datatype
+                        PsiElement(identifier)('Datatype')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Datatype[H *: T]
+            SimpleType: Datatype
+              CodeReferenceElement: Datatype
+                PsiElement(identifier)('Datatype')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: H *: T
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: tt
+              PsiElement(identifier)('tt')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Datatype.Tuple
+                    CodeReferenceElement: Datatype
+                      PsiElement(identifier)('Datatype')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Tuple')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: elems
+                      PsiElement(identifier)('elems')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: Datatype.Tuple
+                      ReferenceExpression: Datatype
+                        PsiElement(identifier)('Datatype')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Tuple')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: ht
+                          PsiElement(identifier)('ht')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: elems
+                          PsiElement(identifier)('elems')
+                      PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

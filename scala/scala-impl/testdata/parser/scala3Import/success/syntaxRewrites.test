@@ -72,3 +72,666 @@ object Test {
   println("yes")
 }
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// Compile with -rewrite -pascal-style')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Then compile again with -rewrite c-style')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// The resulting file is the same as the original one, except for some extra spaces')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// at line ends')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: xs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: xs
+              PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: y
+              PsiElement(identifier)('y')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: y
+              PsiElement(identifier)('y')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: y
+              PsiElement(identifier)('y')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n\n')
+        PsiComment(comment)('// +')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            InfixExpression
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+            PsiWhiteSpace('\n     ')
+            ReferenceExpression: &&
+              PsiElement(identifier)('&&')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: xs.length
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiElement(.)('.')
+                PsiElement(identifier)('length')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+          PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        WhileStatement
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        WhileStatement
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: ys
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: ys
+                  PsiElement(identifier)('ys')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: ys.nonEmpty
+              ReferenceExpression: ys
+                PsiElement(identifier)('ys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('nonEmpty')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        WhileStatement
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: ys
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: ys
+                  PsiElement(identifier)('ys')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: ys.nonEmpty
+              ReferenceExpression: ys
+                PsiElement(identifier)('ys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('nonEmpty')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"yes"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

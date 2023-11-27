@@ -34,3 +34,1618 @@ trait BigCast {
   )
 }
 -----
+ScalaFile
+  ScTrait: BigCast
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BigCast')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+              GenericCall
+                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                    GenericCall
+                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                          GenericCall
+                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                GenericCall
+                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                      GenericCall
+                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                            GenericCall
+                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                  GenericCall
+                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                        GenericCall
+                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                              GenericCall
+                                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                    GenericCall
+                                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                          GenericCall
+                                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                GenericCall
+                                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                      GenericCall
+                                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                            GenericCall
+                                                                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                  GenericCall
+                                                                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                        GenericCall
+                                                                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                              GenericCall
+                                                                                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                    GenericCall
+                                                                                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                          GenericCall
+                                                                                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                GenericCall
+                                                                                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                      GenericCall
+                                                                                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                            GenericCall
+                                                                                                                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                  GenericCall
+                                                                                                                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                        GenericCall
+                                                                                                                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                              GenericCall
+                                                                                                                                                                ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                                    GenericCall
+                                                                                                                                                                      ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                                          GenericCall
+                                                                                                                                                                            ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                                              ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                                                GenericCall
+                                                                                                                                                                                  ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                                                    ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                                                      GenericCall
+                                                                                                                                                                                        ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+      .asInstanceOf
+                                                                                                                                                                                          ReferenceExpression: null
+      .asInstanceOf[List[AnyRef]].head
+                                                                                                                                                                                            GenericCall
+                                                                                                                                                                                              ReferenceExpression: null
+      .asInstanceOf
+                                                                                                                                                                                                NullLiteral
+                                                                                                                                                                                                  PsiElement(null)('null')
+                                                                                                                                                                                                PsiWhiteSpace('\n      ')
+                                                                                                                                                                                                PsiElement(.)('.')
+                                                                                                                                                                                                PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                                              TypeArgumentsList
+                                                                                                                                                                                                PsiElement([)('[')
+                                                                                                                                                                                                ParametrizedType: List[AnyRef]
+                                                                                                                                                                                                  SimpleType: List
+                                                                                                                                                                                                    CodeReferenceElement: List
+                                                                                                                                                                                                      PsiElement(identifier)('List')
+                                                                                                                                                                                                  TypeArgumentsList
+                                                                                                                                                                                                    PsiElement([)('[')
+                                                                                                                                                                                                    SimpleType: AnyRef
+                                                                                                                                                                                                      CodeReferenceElement: AnyRef
+                                                                                                                                                                                                        PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                                    PsiElement(])(']')
+                                                                                                                                                                                                PsiElement(])(']')
+                                                                                                                                                                                            PsiElement(.)('.')
+                                                                                                                                                                                            PsiElement(identifier)('head')
+                                                                                                                                                                                          PsiWhiteSpace('\n      ')
+                                                                                                                                                                                          PsiElement(.)('.')
+                                                                                                                                                                                          PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                                        TypeArgumentsList
+                                                                                                                                                                                          PsiElement([)('[')
+                                                                                                                                                                                          ParametrizedType: List[AnyRef]
+                                                                                                                                                                                            SimpleType: List
+                                                                                                                                                                                              CodeReferenceElement: List
+                                                                                                                                                                                                PsiElement(identifier)('List')
+                                                                                                                                                                                            TypeArgumentsList
+                                                                                                                                                                                              PsiElement([)('[')
+                                                                                                                                                                                              SimpleType: AnyRef
+                                                                                                                                                                                                CodeReferenceElement: AnyRef
+                                                                                                                                                                                                  PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                              PsiElement(])(']')
+                                                                                                                                                                                          PsiElement(])(']')
+                                                                                                                                                                                      PsiElement(.)('.')
+                                                                                                                                                                                      PsiElement(identifier)('head')
+                                                                                                                                                                                    PsiWhiteSpace('\n      ')
+                                                                                                                                                                                    PsiElement(.)('.')
+                                                                                                                                                                                    PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                                  TypeArgumentsList
+                                                                                                                                                                                    PsiElement([)('[')
+                                                                                                                                                                                    ParametrizedType: List[AnyRef]
+                                                                                                                                                                                      SimpleType: List
+                                                                                                                                                                                        CodeReferenceElement: List
+                                                                                                                                                                                          PsiElement(identifier)('List')
+                                                                                                                                                                                      TypeArgumentsList
+                                                                                                                                                                                        PsiElement([)('[')
+                                                                                                                                                                                        SimpleType: AnyRef
+                                                                                                                                                                                          CodeReferenceElement: AnyRef
+                                                                                                                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                        PsiElement(])(']')
+                                                                                                                                                                                    PsiElement(])(']')
+                                                                                                                                                                                PsiElement(.)('.')
+                                                                                                                                                                                PsiElement(identifier)('head')
+                                                                                                                                                                              PsiWhiteSpace('\n      ')
+                                                                                                                                                                              PsiElement(.)('.')
+                                                                                                                                                                              PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                            TypeArgumentsList
+                                                                                                                                                                              PsiElement([)('[')
+                                                                                                                                                                              ParametrizedType: List[AnyRef]
+                                                                                                                                                                                SimpleType: List
+                                                                                                                                                                                  CodeReferenceElement: List
+                                                                                                                                                                                    PsiElement(identifier)('List')
+                                                                                                                                                                                TypeArgumentsList
+                                                                                                                                                                                  PsiElement([)('[')
+                                                                                                                                                                                  SimpleType: AnyRef
+                                                                                                                                                                                    CodeReferenceElement: AnyRef
+                                                                                                                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                  PsiElement(])(']')
+                                                                                                                                                                              PsiElement(])(']')
+                                                                                                                                                                          PsiElement(.)('.')
+                                                                                                                                                                          PsiElement(identifier)('head')
+                                                                                                                                                                        PsiWhiteSpace('\n      ')
+                                                                                                                                                                        PsiElement(.)('.')
+                                                                                                                                                                        PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                      TypeArgumentsList
+                                                                                                                                                                        PsiElement([)('[')
+                                                                                                                                                                        ParametrizedType: List[AnyRef]
+                                                                                                                                                                          SimpleType: List
+                                                                                                                                                                            CodeReferenceElement: List
+                                                                                                                                                                              PsiElement(identifier)('List')
+                                                                                                                                                                          TypeArgumentsList
+                                                                                                                                                                            PsiElement([)('[')
+                                                                                                                                                                            SimpleType: AnyRef
+                                                                                                                                                                              CodeReferenceElement: AnyRef
+                                                                                                                                                                                PsiElement(identifier)('AnyRef')
+                                                                                                                                                                            PsiElement(])(']')
+                                                                                                                                                                        PsiElement(])(']')
+                                                                                                                                                                    PsiElement(.)('.')
+                                                                                                                                                                    PsiElement(identifier)('head')
+                                                                                                                                                                  PsiWhiteSpace('\n      ')
+                                                                                                                                                                  PsiElement(.)('.')
+                                                                                                                                                                  PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                                TypeArgumentsList
+                                                                                                                                                                  PsiElement([)('[')
+                                                                                                                                                                  ParametrizedType: List[AnyRef]
+                                                                                                                                                                    SimpleType: List
+                                                                                                                                                                      CodeReferenceElement: List
+                                                                                                                                                                        PsiElement(identifier)('List')
+                                                                                                                                                                    TypeArgumentsList
+                                                                                                                                                                      PsiElement([)('[')
+                                                                                                                                                                      SimpleType: AnyRef
+                                                                                                                                                                        CodeReferenceElement: AnyRef
+                                                                                                                                                                          PsiElement(identifier)('AnyRef')
+                                                                                                                                                                      PsiElement(])(']')
+                                                                                                                                                                  PsiElement(])(']')
+                                                                                                                                                              PsiElement(.)('.')
+                                                                                                                                                              PsiElement(identifier)('head')
+                                                                                                                                                            PsiWhiteSpace('\n      ')
+                                                                                                                                                            PsiElement(.)('.')
+                                                                                                                                                            PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                          TypeArgumentsList
+                                                                                                                                                            PsiElement([)('[')
+                                                                                                                                                            ParametrizedType: List[AnyRef]
+                                                                                                                                                              SimpleType: List
+                                                                                                                                                                CodeReferenceElement: List
+                                                                                                                                                                  PsiElement(identifier)('List')
+                                                                                                                                                              TypeArgumentsList
+                                                                                                                                                                PsiElement([)('[')
+                                                                                                                                                                SimpleType: AnyRef
+                                                                                                                                                                  CodeReferenceElement: AnyRef
+                                                                                                                                                                    PsiElement(identifier)('AnyRef')
+                                                                                                                                                                PsiElement(])(']')
+                                                                                                                                                            PsiElement(])(']')
+                                                                                                                                                        PsiElement(.)('.')
+                                                                                                                                                        PsiElement(identifier)('head')
+                                                                                                                                                      PsiWhiteSpace('\n      ')
+                                                                                                                                                      PsiElement(.)('.')
+                                                                                                                                                      PsiElement(identifier)('asInstanceOf')
+                                                                                                                                                    TypeArgumentsList
+                                                                                                                                                      PsiElement([)('[')
+                                                                                                                                                      ParametrizedType: List[AnyRef]
+                                                                                                                                                        SimpleType: List
+                                                                                                                                                          CodeReferenceElement: List
+                                                                                                                                                            PsiElement(identifier)('List')
+                                                                                                                                                        TypeArgumentsList
+                                                                                                                                                          PsiElement([)('[')
+                                                                                                                                                          SimpleType: AnyRef
+                                                                                                                                                            CodeReferenceElement: AnyRef
+                                                                                                                                                              PsiElement(identifier)('AnyRef')
+                                                                                                                                                          PsiElement(])(']')
+                                                                                                                                                      PsiElement(])(']')
+                                                                                                                                                  PsiElement(.)('.')
+                                                                                                                                                  PsiElement(identifier)('head')
+                                                                                                                                                PsiWhiteSpace('\n      ')
+                                                                                                                                                PsiElement(.)('.')
+                                                                                                                                                PsiElement(identifier)('asInstanceOf')
+                                                                                                                                              TypeArgumentsList
+                                                                                                                                                PsiElement([)('[')
+                                                                                                                                                ParametrizedType: List[AnyRef]
+                                                                                                                                                  SimpleType: List
+                                                                                                                                                    CodeReferenceElement: List
+                                                                                                                                                      PsiElement(identifier)('List')
+                                                                                                                                                  TypeArgumentsList
+                                                                                                                                                    PsiElement([)('[')
+                                                                                                                                                    SimpleType: AnyRef
+                                                                                                                                                      CodeReferenceElement: AnyRef
+                                                                                                                                                        PsiElement(identifier)('AnyRef')
+                                                                                                                                                    PsiElement(])(']')
+                                                                                                                                                PsiElement(])(']')
+                                                                                                                                            PsiElement(.)('.')
+                                                                                                                                            PsiElement(identifier)('head')
+                                                                                                                                          PsiWhiteSpace('\n      ')
+                                                                                                                                          PsiElement(.)('.')
+                                                                                                                                          PsiElement(identifier)('asInstanceOf')
+                                                                                                                                        TypeArgumentsList
+                                                                                                                                          PsiElement([)('[')
+                                                                                                                                          ParametrizedType: List[AnyRef]
+                                                                                                                                            SimpleType: List
+                                                                                                                                              CodeReferenceElement: List
+                                                                                                                                                PsiElement(identifier)('List')
+                                                                                                                                            TypeArgumentsList
+                                                                                                                                              PsiElement([)('[')
+                                                                                                                                              SimpleType: AnyRef
+                                                                                                                                                CodeReferenceElement: AnyRef
+                                                                                                                                                  PsiElement(identifier)('AnyRef')
+                                                                                                                                              PsiElement(])(']')
+                                                                                                                                          PsiElement(])(']')
+                                                                                                                                      PsiElement(.)('.')
+                                                                                                                                      PsiElement(identifier)('head')
+                                                                                                                                    PsiWhiteSpace('\n      ')
+                                                                                                                                    PsiElement(.)('.')
+                                                                                                                                    PsiElement(identifier)('asInstanceOf')
+                                                                                                                                  TypeArgumentsList
+                                                                                                                                    PsiElement([)('[')
+                                                                                                                                    ParametrizedType: List[AnyRef]
+                                                                                                                                      SimpleType: List
+                                                                                                                                        CodeReferenceElement: List
+                                                                                                                                          PsiElement(identifier)('List')
+                                                                                                                                      TypeArgumentsList
+                                                                                                                                        PsiElement([)('[')
+                                                                                                                                        SimpleType: AnyRef
+                                                                                                                                          CodeReferenceElement: AnyRef
+                                                                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                                                                        PsiElement(])(']')
+                                                                                                                                    PsiElement(])(']')
+                                                                                                                                PsiElement(.)('.')
+                                                                                                                                PsiElement(identifier)('head')
+                                                                                                                              PsiWhiteSpace('\n      ')
+                                                                                                                              PsiElement(.)('.')
+                                                                                                                              PsiElement(identifier)('asInstanceOf')
+                                                                                                                            TypeArgumentsList
+                                                                                                                              PsiElement([)('[')
+                                                                                                                              ParametrizedType: List[AnyRef]
+                                                                                                                                SimpleType: List
+                                                                                                                                  CodeReferenceElement: List
+                                                                                                                                    PsiElement(identifier)('List')
+                                                                                                                                TypeArgumentsList
+                                                                                                                                  PsiElement([)('[')
+                                                                                                                                  SimpleType: AnyRef
+                                                                                                                                    CodeReferenceElement: AnyRef
+                                                                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                                                                  PsiElement(])(']')
+                                                                                                                              PsiElement(])(']')
+                                                                                                                          PsiElement(.)('.')
+                                                                                                                          PsiElement(identifier)('head')
+                                                                                                                        PsiWhiteSpace('\n      ')
+                                                                                                                        PsiElement(.)('.')
+                                                                                                                        PsiElement(identifier)('asInstanceOf')
+                                                                                                                      TypeArgumentsList
+                                                                                                                        PsiElement([)('[')
+                                                                                                                        ParametrizedType: List[AnyRef]
+                                                                                                                          SimpleType: List
+                                                                                                                            CodeReferenceElement: List
+                                                                                                                              PsiElement(identifier)('List')
+                                                                                                                          TypeArgumentsList
+                                                                                                                            PsiElement([)('[')
+                                                                                                                            SimpleType: AnyRef
+                                                                                                                              CodeReferenceElement: AnyRef
+                                                                                                                                PsiElement(identifier)('AnyRef')
+                                                                                                                            PsiElement(])(']')
+                                                                                                                        PsiElement(])(']')
+                                                                                                                    PsiElement(.)('.')
+                                                                                                                    PsiElement(identifier)('head')
+                                                                                                                  PsiWhiteSpace('\n      ')
+                                                                                                                  PsiElement(.)('.')
+                                                                                                                  PsiElement(identifier)('asInstanceOf')
+                                                                                                                TypeArgumentsList
+                                                                                                                  PsiElement([)('[')
+                                                                                                                  ParametrizedType: List[AnyRef]
+                                                                                                                    SimpleType: List
+                                                                                                                      CodeReferenceElement: List
+                                                                                                                        PsiElement(identifier)('List')
+                                                                                                                    TypeArgumentsList
+                                                                                                                      PsiElement([)('[')
+                                                                                                                      SimpleType: AnyRef
+                                                                                                                        CodeReferenceElement: AnyRef
+                                                                                                                          PsiElement(identifier)('AnyRef')
+                                                                                                                      PsiElement(])(']')
+                                                                                                                  PsiElement(])(']')
+                                                                                                              PsiElement(.)('.')
+                                                                                                              PsiElement(identifier)('head')
+                                                                                                            PsiWhiteSpace('\n      ')
+                                                                                                            PsiElement(.)('.')
+                                                                                                            PsiElement(identifier)('asInstanceOf')
+                                                                                                          TypeArgumentsList
+                                                                                                            PsiElement([)('[')
+                                                                                                            ParametrizedType: List[AnyRef]
+                                                                                                              SimpleType: List
+                                                                                                                CodeReferenceElement: List
+                                                                                                                  PsiElement(identifier)('List')
+                                                                                                              TypeArgumentsList
+                                                                                                                PsiElement([)('[')
+                                                                                                                SimpleType: AnyRef
+                                                                                                                  CodeReferenceElement: AnyRef
+                                                                                                                    PsiElement(identifier)('AnyRef')
+                                                                                                                PsiElement(])(']')
+                                                                                                            PsiElement(])(']')
+                                                                                                        PsiElement(.)('.')
+                                                                                                        PsiElement(identifier)('head')
+                                                                                                      PsiWhiteSpace('\n      ')
+                                                                                                      PsiElement(.)('.')
+                                                                                                      PsiElement(identifier)('asInstanceOf')
+                                                                                                    TypeArgumentsList
+                                                                                                      PsiElement([)('[')
+                                                                                                      ParametrizedType: List[AnyRef]
+                                                                                                        SimpleType: List
+                                                                                                          CodeReferenceElement: List
+                                                                                                            PsiElement(identifier)('List')
+                                                                                                        TypeArgumentsList
+                                                                                                          PsiElement([)('[')
+                                                                                                          SimpleType: AnyRef
+                                                                                                            CodeReferenceElement: AnyRef
+                                                                                                              PsiElement(identifier)('AnyRef')
+                                                                                                          PsiElement(])(']')
+                                                                                                      PsiElement(])(']')
+                                                                                                  PsiElement(.)('.')
+                                                                                                  PsiElement(identifier)('head')
+                                                                                                PsiWhiteSpace('\n      ')
+                                                                                                PsiElement(.)('.')
+                                                                                                PsiElement(identifier)('asInstanceOf')
+                                                                                              TypeArgumentsList
+                                                                                                PsiElement([)('[')
+                                                                                                ParametrizedType: List[AnyRef]
+                                                                                                  SimpleType: List
+                                                                                                    CodeReferenceElement: List
+                                                                                                      PsiElement(identifier)('List')
+                                                                                                  TypeArgumentsList
+                                                                                                    PsiElement([)('[')
+                                                                                                    SimpleType: AnyRef
+                                                                                                      CodeReferenceElement: AnyRef
+                                                                                                        PsiElement(identifier)('AnyRef')
+                                                                                                    PsiElement(])(']')
+                                                                                                PsiElement(])(']')
+                                                                                            PsiElement(.)('.')
+                                                                                            PsiElement(identifier)('head')
+                                                                                          PsiWhiteSpace('\n      ')
+                                                                                          PsiElement(.)('.')
+                                                                                          PsiElement(identifier)('asInstanceOf')
+                                                                                        TypeArgumentsList
+                                                                                          PsiElement([)('[')
+                                                                                          ParametrizedType: List[AnyRef]
+                                                                                            SimpleType: List
+                                                                                              CodeReferenceElement: List
+                                                                                                PsiElement(identifier)('List')
+                                                                                            TypeArgumentsList
+                                                                                              PsiElement([)('[')
+                                                                                              SimpleType: AnyRef
+                                                                                                CodeReferenceElement: AnyRef
+                                                                                                  PsiElement(identifier)('AnyRef')
+                                                                                              PsiElement(])(']')
+                                                                                          PsiElement(])(']')
+                                                                                      PsiElement(.)('.')
+                                                                                      PsiElement(identifier)('head')
+                                                                                    PsiWhiteSpace('\n      ')
+                                                                                    PsiElement(.)('.')
+                                                                                    PsiElement(identifier)('asInstanceOf')
+                                                                                  TypeArgumentsList
+                                                                                    PsiElement([)('[')
+                                                                                    ParametrizedType: List[AnyRef]
+                                                                                      SimpleType: List
+                                                                                        CodeReferenceElement: List
+                                                                                          PsiElement(identifier)('List')
+                                                                                      TypeArgumentsList
+                                                                                        PsiElement([)('[')
+                                                                                        SimpleType: AnyRef
+                                                                                          CodeReferenceElement: AnyRef
+                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                        PsiElement(])(']')
+                                                                                    PsiElement(])(']')
+                                                                                PsiElement(.)('.')
+                                                                                PsiElement(identifier)('head')
+                                                                              PsiWhiteSpace('\n      ')
+                                                                              PsiElement(.)('.')
+                                                                              PsiElement(identifier)('asInstanceOf')
+                                                                            TypeArgumentsList
+                                                                              PsiElement([)('[')
+                                                                              ParametrizedType: List[AnyRef]
+                                                                                SimpleType: List
+                                                                                  CodeReferenceElement: List
+                                                                                    PsiElement(identifier)('List')
+                                                                                TypeArgumentsList
+                                                                                  PsiElement([)('[')
+                                                                                  SimpleType: AnyRef
+                                                                                    CodeReferenceElement: AnyRef
+                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                  PsiElement(])(']')
+                                                                              PsiElement(])(']')
+                                                                          PsiElement(.)('.')
+                                                                          PsiElement(identifier)('head')
+                                                                        PsiWhiteSpace('\n      ')
+                                                                        PsiElement(.)('.')
+                                                                        PsiElement(identifier)('asInstanceOf')
+                                                                      TypeArgumentsList
+                                                                        PsiElement([)('[')
+                                                                        ParametrizedType: List[AnyRef]
+                                                                          SimpleType: List
+                                                                            CodeReferenceElement: List
+                                                                              PsiElement(identifier)('List')
+                                                                          TypeArgumentsList
+                                                                            PsiElement([)('[')
+                                                                            SimpleType: AnyRef
+                                                                              CodeReferenceElement: AnyRef
+                                                                                PsiElement(identifier)('AnyRef')
+                                                                            PsiElement(])(']')
+                                                                        PsiElement(])(']')
+                                                                    PsiElement(.)('.')
+                                                                    PsiElement(identifier)('head')
+                                                                  PsiWhiteSpace('\n      ')
+                                                                  PsiElement(.)('.')
+                                                                  PsiElement(identifier)('asInstanceOf')
+                                                                TypeArgumentsList
+                                                                  PsiElement([)('[')
+                                                                  ParametrizedType: List[AnyRef]
+                                                                    SimpleType: List
+                                                                      CodeReferenceElement: List
+                                                                        PsiElement(identifier)('List')
+                                                                    TypeArgumentsList
+                                                                      PsiElement([)('[')
+                                                                      SimpleType: AnyRef
+                                                                        CodeReferenceElement: AnyRef
+                                                                          PsiElement(identifier)('AnyRef')
+                                                                      PsiElement(])(']')
+                                                                  PsiElement(])(']')
+                                                              PsiElement(.)('.')
+                                                              PsiElement(identifier)('head')
+                                                            PsiWhiteSpace('\n      ')
+                                                            PsiElement(.)('.')
+                                                            PsiElement(identifier)('asInstanceOf')
+                                                          TypeArgumentsList
+                                                            PsiElement([)('[')
+                                                            ParametrizedType: List[AnyRef]
+                                                              SimpleType: List
+                                                                CodeReferenceElement: List
+                                                                  PsiElement(identifier)('List')
+                                                              TypeArgumentsList
+                                                                PsiElement([)('[')
+                                                                SimpleType: AnyRef
+                                                                  CodeReferenceElement: AnyRef
+                                                                    PsiElement(identifier)('AnyRef')
+                                                                PsiElement(])(']')
+                                                            PsiElement(])(']')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('head')
+                                                      PsiWhiteSpace('\n      ')
+                                                      PsiElement(.)('.')
+                                                      PsiElement(identifier)('asInstanceOf')
+                                                    TypeArgumentsList
+                                                      PsiElement([)('[')
+                                                      ParametrizedType: List[AnyRef]
+                                                        SimpleType: List
+                                                          CodeReferenceElement: List
+                                                            PsiElement(identifier)('List')
+                                                        TypeArgumentsList
+                                                          PsiElement([)('[')
+                                                          SimpleType: AnyRef
+                                                            CodeReferenceElement: AnyRef
+                                                              PsiElement(identifier)('AnyRef')
+                                                          PsiElement(])(']')
+                                                      PsiElement(])(']')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('head')
+                                                PsiWhiteSpace('\n      ')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('asInstanceOf')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                ParametrizedType: List[AnyRef]
+                                                  SimpleType: List
+                                                    CodeReferenceElement: List
+                                                      PsiElement(identifier)('List')
+                                                  TypeArgumentsList
+                                                    PsiElement([)('[')
+                                                    SimpleType: AnyRef
+                                                      CodeReferenceElement: AnyRef
+                                                        PsiElement(identifier)('AnyRef')
+                                                    PsiElement(])(']')
+                                                PsiElement(])(']')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('head')
+                                          PsiWhiteSpace('\n      ')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('asInstanceOf')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          ParametrizedType: List[AnyRef]
+                                            SimpleType: List
+                                              CodeReferenceElement: List
+                                                PsiElement(identifier)('List')
+                                            TypeArgumentsList
+                                              PsiElement([)('[')
+                                              SimpleType: AnyRef
+                                                CodeReferenceElement: AnyRef
+                                                  PsiElement(identifier)('AnyRef')
+                                              PsiElement(])(']')
+                                          PsiElement(])(']')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('head')
+                                    PsiWhiteSpace('\n      ')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('asInstanceOf')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    ParametrizedType: List[AnyRef]
+                                      SimpleType: List
+                                        CodeReferenceElement: List
+                                          PsiElement(identifier)('List')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        SimpleType: AnyRef
+                                          CodeReferenceElement: AnyRef
+                                            PsiElement(identifier)('AnyRef')
+                                        PsiElement(])(']')
+                                    PsiElement(])(']')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('head')
+                              PsiWhiteSpace('\n      ')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('asInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              ParametrizedType: List[AnyRef]
+                                SimpleType: List
+                                  CodeReferenceElement: List
+                                    PsiElement(identifier)('List')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  SimpleType: AnyRef
+                                    CodeReferenceElement: AnyRef
+                                      PsiElement(identifier)('AnyRef')
+                                  PsiElement(])(']')
+                              PsiElement(])(']')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('head')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('asInstanceOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: List[AnyRef]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: AnyRef
+                              CodeReferenceElement: AnyRef
+                                PsiElement(identifier)('AnyRef')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: List[AnyRef]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: AnyRef
+                        CodeReferenceElement: AnyRef
+                          PsiElement(identifier)('AnyRef')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('head')
+            PsiWhiteSpace('\n  ')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -13,3 +13,461 @@ class SeqRule {
   def +(rule: Rule[S, A]) : Rule[S, Seq[A]] = rule ~++ *
 }
 -----
+ScalaFile
+  ScTrait: Rule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Rule')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: In
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('In')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          TypeInParenthesis: (In => A)
+            PsiElement(()('(')
+            FunctionalType: In => A
+              SimpleType: In
+                CodeReferenceElement: In
+                  PsiElement(identifier)('In')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: flatMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('flatMap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: In2
+              PsiElement(identifier)('In2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: In
+                CodeReferenceElement: In
+                  PsiElement(identifier)('In')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fa2ruleb
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fa2ruleb')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => Rule[In2, Seq[B]]
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Rule[In2, Seq[B]]
+                      SimpleType: Rule
+                        CodeReferenceElement: Rule
+                          PsiElement(identifier)('Rule')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: In2
+                          CodeReferenceElement: In2
+                            PsiElement(identifier)('In2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Seq[B]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Rule[In, Seq[B]]
+            SimpleType: Rule
+              CodeReferenceElement: Rule
+                PsiElement(identifier)('Rule')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: In
+                CodeReferenceElement: In
+                  PsiElement(identifier)('In')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[B]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fa2b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fa2b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Rule[In, B]
+            SimpleType: Rule
+              CodeReferenceElement: Rule
+                PsiElement(identifier)('Rule')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: In
+                CodeReferenceElement: In
+                  PsiElement(identifier)('In')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ~++
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('~++')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: In2
+              PsiElement(identifier)('In2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: next
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('next')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Rule[In2, Seq[B]]
+                    SimpleType: Rule
+                      CodeReferenceElement: Rule
+                        PsiElement(identifier)('Rule')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: In2
+                        CodeReferenceElement: In2
+                          PsiElement(identifier)('In2')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Seq[B]
+                        SimpleType: Seq
+                          CodeReferenceElement: Seq
+                            PsiElement(identifier)('Seq')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ForStatement
+            PsiElement(for)('for')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            Enumerators
+              Generator
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(<-)('<-')
+                PsiWhiteSpace(' ')
+                ThisReference
+                  PsiElement(this)('this')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              Generator
+                ReferencePattern: b
+                  PsiElement(identifier)('b')
+                PsiWhiteSpace(' ')
+                PsiElement(<-)('<-')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(yield)('yield')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: b.toList
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toList')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def ~++[In2, B >: A](next: => Rule[In2, Seq[B]]): Rule[In, Seq[B]] = for (a <- this; b <- next) yield a :: b.toList')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: SeqRule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SeqRule')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: S
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('S')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: *
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('*')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Rule[S, List[A]]
+            SimpleType: Rule
+              CodeReferenceElement: Rule
+                PsiElement(identifier)('Rule')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[A]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: +
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: rule
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('rule')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Rule[S, A]
+                    SimpleType: Rule
+                      CodeReferenceElement: Rule
+                        PsiElement(identifier)('Rule')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Rule[S, Seq[A]]
+            SimpleType: Rule
+              CodeReferenceElement: Rule
+                PsiElement(identifier)('Rule')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[A]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: rule
+              PsiElement(identifier)('rule')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ~++
+              PsiElement(identifier)('~++')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

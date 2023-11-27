@@ -49,3 +49,267 @@ object O extends Foo {
 // This *does* match the method in the super class, and type inference
 // chooses the correct type argument.
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.higherKinds
+        CodeReferenceElement: language
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('higherKinds')
+  PsiWhiteSpace('\n\n')
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: coflatMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('coflatMap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: coflatMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('coflatMap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: f2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: f2
+                  PsiElement(identifier)('f2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: coflatMap
+                  PsiElement(identifier)('coflatMap')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: f
+                    PsiElement(identifier)('f')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// inferred in 2.9.2 / 2.10.0 as [Nothing]')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: f2.t
+              ReferenceExpression: f2
+                PsiElement(identifier)('f2')
+              PsiElement(.)('.')
+              PsiElement(identifier)('t')
+            PsiWhiteSpace('                  ')
+            PsiComment(comment)('// so this does't type check.')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: f2
+              PsiElement(identifier)('f2')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// Why? When a return type is inherited, the derived method')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// symbol first gets a preliminary type assigned, based on the')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   1) method type of a unique matching super member')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   2) viewed as a member type of the inheritor (to substitute,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//      e.g. class type parameters)')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   3) substituted to replace the super-method's type parameters')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//      with those of the inheritor')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   4) dissected to take just the return type wrapped in thisMethodType().')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// In Scala 2.10.0 and earlier, this preliminary method type')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   1) [A#11329 <: <empty>#3.this.T#7068](<param> f#11333: A#11329)A#11329')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   2) [A#11329 <: <empty>#3.this.T#7068](<param> f#11333: A#11329)A#11329')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   3) (<param> f#12556: A#11336)A#11336')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   4) [A#11336 <: <empty>#3.this.T#7068](<param> f#12552: A#11337&0)A#11336')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// The type #4 from the old version is problematic: the parameter is typed with')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// a skolem for the type parameter `A`. It won't be considered to match the')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// method it overrides, instead they are seen as being overloaded, and type inference')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// goes awry (Nothing is inferred as the type argument for the recursive call')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// to coflatMap.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// The Namers patch adds one step here: it subsitutes the type parameter symbols')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// for the skolems:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  https://github.com/scala/scala/commit/b74c33eb#L2R1014')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// So we end up with a method symbol info:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   5) [A#11336 <: <empty>#3.this.T#7068](<param> f#12505: A#11336)A#11336')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// This *does* match the method in the super class, and type inference')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// chooses the correct type argument.')

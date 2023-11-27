@@ -11,3 +11,197 @@ object testBuf {
   }
 }
 -----
+ScalaFile
+  ScObject: testBuf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('testBuf')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: mystream
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mystream')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: java.io.BufferedOutputStream
+                  CodeReferenceElement: java.io.BufferedOutputStream
+                    CodeReferenceElement: java.io
+                      CodeReferenceElement: java
+                        PsiElement(identifier)('java')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('io')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('BufferedOutputStream')
+                ArgumentList
+                  PsiElement(()('(')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: java.io.FileOutputStream
+                            CodeReferenceElement: java.io.FileOutputStream
+                              CodeReferenceElement: java.io
+                                CodeReferenceElement: java
+                                  PsiElement(identifier)('java')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('io')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('FileOutputStream')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('"/dev/null"')
+                            PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: w
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('w')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      ParameterType
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: foo
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: foo
+                        PsiElement(identifier)('foo')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: Array[Byte]
+                              SimpleType: Array
+                                CodeReferenceElement: Array
+                                  PsiElement(identifier)('Array')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: Byte
+                                  CodeReferenceElement: Byte
+                                    PsiElement(identifier)('Byte')
+                                PsiElement(])(']')
+                            ArgumentList
+                              PsiElement(()('(')
+                              IntegerLiteral
+                                PsiElement(integer)('2')
+                              PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace('\n\n      ')
+                  PsiComment(comment)('// write( byte[] ) is defined in FilterOutputStream, the superclass of BufferedOutputStream')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: super.write
+                      SuperReference
+                        PsiElement(super)('super')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('write')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: foo
+                        PsiElement(identifier)('foo')
+                      PsiWhiteSpace(' ')
+                      PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// error')
+                  PsiWhiteSpace('\n\n      ')
+                  MethodCall
+                    ReferenceExpression: super.write
+                      SuperReference
+                        PsiElement(super)('super')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('write')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: foo
+                        PsiElement(identifier)('foo')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: foo.length
+                        ReferenceExpression: foo
+                          PsiElement(identifier)('foo')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('length')
+                      PsiWhiteSpace(' ')
+                      PsiElement())(')')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// this works however')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

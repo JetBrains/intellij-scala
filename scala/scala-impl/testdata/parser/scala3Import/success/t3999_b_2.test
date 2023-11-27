@@ -6,3 +6,79 @@ class A {
   val o: Outside = false
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: bar
+        PsiElement(identifier)('bar')
+      PsiWhiteSpace('\n\n')
+      ScClass: A
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            <empty list>
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            ScPatternDefinition: s
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: s
+                  PsiElement(identifier)('s')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Val
+                CodeReferenceElement: Val
+                  PsiElement(identifier)('Val')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+            PsiWhiteSpace('\n  ')
+            ScPatternDefinition: o
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Outside
+                CodeReferenceElement: Outside
+                  PsiElement(identifier)('Outside')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+            PsiWhiteSpace('\n')
+            PsiElement(})('}')

@@ -3,3 +3,49 @@ object A {
 }
 
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ss
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ss')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: P.x
+                ReferenceExpression: P
+                  PsiElement(identifier)('P')
+                PsiElement(.)('.')
+                PsiElement(identifier)('x')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

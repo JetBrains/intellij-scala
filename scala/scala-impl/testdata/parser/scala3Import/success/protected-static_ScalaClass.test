@@ -5,3 +5,74 @@ class Implementor extends JavaClass {
   def getInner: Inner = null
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: bippy.JavaClass
+        CodeReferenceElement: bippy
+          PsiElement(identifier)('bippy')
+        PsiElement(.)('.')
+        PsiElement(identifier)('JavaClass')
+  PsiWhiteSpace('\n\n')
+  ScClass: Implementor
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Implementor')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: JavaClass
+            CodeReferenceElement: JavaClass
+              PsiElement(identifier)('JavaClass')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: JavaClass.Inner
+              CodeReferenceElement: JavaClass
+                PsiElement(identifier)('JavaClass')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Inner')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getInner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getInner')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Inner
+            CodeReferenceElement: Inner
+              PsiElement(identifier)('Inner')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

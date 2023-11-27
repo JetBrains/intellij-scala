@@ -56,3 +56,166 @@ test/files/pos/t1786-cycle.scala:11: error: illegal cyclic reference involving t
 trait LongTraversableLike[+Repr <: LongTraversableLike[Repr]] extends GenT
 */
 -----
+ScalaFile
+  ScTrait: GenTraversableLike
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GenTraversableLike')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Repr
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Repr')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+  PsiWhiteSpace('\n\n')
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: LongTraversableLike[_]
+                    SimpleType: LongTraversableLike
+                      CodeReferenceElement: LongTraversableLike
+                        PsiElement(identifier)('LongTraversableLike')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: LongTraversable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LongTraversable')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: LongTraversableLike[LongTraversable]
+            SimpleType: LongTraversableLike
+              CodeReferenceElement: LongTraversableLike
+                PsiElement(identifier)('LongTraversableLike')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: LongTraversable
+                CodeReferenceElement: LongTraversable
+                  PsiElement(identifier)('LongTraversable')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: LongTraversableLike
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LongTraversableLike')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Repr
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Repr')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: LongTraversableLike[Repr]
+          SimpleType: LongTraversableLike
+            CodeReferenceElement: LongTraversableLike
+              PsiElement(identifier)('LongTraversableLike')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: GenTraversableLike[Any, Repr]
+            SimpleType: GenTraversableLike
+              CodeReferenceElement: GenTraversableLike
+                PsiElement(identifier)('GenTraversableLike')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Repr
+                CodeReferenceElement: Repr
+                  PsiElement(identifier)('Repr')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/*\n% scalac-hash v2.11.0-M8 test/files/pos/t1786-cycle.scala\n[warn] v2.11.0-M8 failed, using closest available\ntest/files/pos/t1786-cycle.scala:11: error: illegal cyclic reference involving trait LongTraversableLike\ntrait LongTraversableLike[+Repr <: LongTraversableLike[Repr]] extends GenTraversableLike[Any, Repr]\n                                                                      ^\none error found\n\nOkay again after SI-1786 was reverted.\n\n\n|-- object O BYVALmode-EXPRmode (site: package <empty>)\n|    |-- super EXPRmode-POLYmode-QUALmode (silent: <init> in O)\n|    |    |-- this EXPRmode (silent: <init> in O)\n|    |    |    \-> O.type\n|    |    \-> O.type\n|    |-- (null: Any) match { case (_: LongTraversableLike[(_ @ <em... BYVALmode-EXPRmode (site: value <local O> in O)\n|    |    |-- (null: Any) BYVALmode-EXPRmode (site: value <local O> in O)\n|    |    |    |-- Any TYPEmode (site: value <local O> in O)\n|    |    |    |    \-> Any\n|    |    |    |-- null : pt=Any EXPRmode (site: value <local O> in O)\n|    |    |    |    \-> Null(null)\n|    |    |    \-> Any\n|    |    |-- (_: LongTraversableLike[(_ @ <empty>)]) : pt=Any PATTERNmode (site: value <local O> in O) enrichment only\n|    |    |    |-- LongTraversableLike[(_ @ <empty>)] TYPEPATmode-TYPEmode (site: value <local O> in O) enrichment only\n|    |    |    |    |--  <: LongTraversableLike[Repr] TYPEmode (site: type Repr in <empty>)\n|    |    |    |    |    |-- LongTraversableLike[Repr] TYPEmode (site: type Repr in <empty>)\n|    |    |    |    |    |    |-- Repr NOmode (site: type Repr in <empty>)\n|    |    |    |    |    |    |    \-> Repr\n|    |    |    |    |    |    \-> LongTraversableLike[Repr]\n|    |    |    |    |    [adapt]  <: LongTraversableLike[Repr] is now a TypeTree( <: LongTraversableLike[Repr])\n|    |    |    |    |    \->  <: LongTraversableLike[Repr]\n|    |    |    |    |-- (_ @ <empty>) TYPEPATmode-TYPEmode (site: value <local O> in O) enrichment only\n|    |    |    |    |    \-> _\n|    |    |    |    |-- GenTraversableLike FUNmode-TYPEmode (site: trait LongTraversableLike)\n|    |    |    |    |    \-> GenTraversableLike\n|    |    |    |    |-- GenTraversableLike[Any, Repr] TYPEmode (site: trait LongTraversableLike)\n|    |    |    |    |    |-- Any TYPEmode (site: trait LongTraversableLike)\n|    |    |    |    |    |    \-> Any\n|    |    |    |    |    |-- Repr TYPEmode (site: trait LongTraversableLike)\n|    |    |    |    |    |    \-> Repr\n|    |    |    |    |    caught scala.reflect.internal.Symbols$CyclicReference: illegal cyclic reference involving trait LongTraversableLike: while typing GenTraversableLike[Any, Repr]\ntest/files/pos/t1786-cycle.scala:11: error: illegal cyclic reference involving trait LongTraversableLike\ntrait LongTraversableLike[+Repr <: LongTraversableLike[Repr]] extends GenT\n*/')

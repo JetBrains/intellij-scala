@@ -40,3 +40,915 @@ object prob {
   println((1 to 5).map(_ => arrived.sample()).toList)
 }
 -----
+ScalaFile
+  ScObject: prob
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('prob')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Probability
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Probability')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Probability
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Probability')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: n
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('n')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Option[Probability]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Probability
+                      CodeReferenceElement: Probability
+                        PsiElement(identifier)('Probability')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  InfixExpression
+                    InfixExpression
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: <=
+                        PsiElement(identifier)('<=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: n
+                        PsiElement(identifier)('n')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: &&
+                      PsiElement(identifier)('&&')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: n
+                        PsiElement(identifier)('n')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: <=
+                        PsiElement(identifier)('<=')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('1.0')
+                  PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: n
+                        PsiElement(identifier)('n')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: unsafe
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('unsafe')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Probability
+                  CodeReferenceElement: Probability
+                    PsiElement(identifier)('Probability')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: require
+                      PsiElement(identifier)('require')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        InfixExpression
+                          DoubleLiteral
+                            PsiElement(double)('0.0')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: <=
+                            PsiElement(identifier)('<=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: p
+                            PsiElement(identifier)('p')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: &&
+                          PsiElement(identifier)('&&')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          ReferenceExpression: p
+                            PsiElement(identifier)('p')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: <=
+                            PsiElement(identifier)('<=')
+                          PsiWhiteSpace(' ')
+                          DoubleLiteral
+                            PsiElement(double)('1.0')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InterpolatedStringLiteral
+                        InterpolatedExpressionPrefix: s
+                          PsiElement(interpolated string id)('s')
+                        PsiElement(interpolated string)('"probabilities lie in [0, 1] (got ')
+                        PsiElement(interpolated string injection)('$')
+                        ReferenceExpression: p
+                          PsiElement(identifier)('p')
+                        PsiElement(interpolated string)(')')
+                        PsiElement(interpolated string end)('"')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: p
+                    PsiElement(identifier)('p')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: asDouble
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('asDouble')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: p
+                  PsiElement(identifier)('p')
+              PsiWhiteSpace('\n\n    ')
+              ScPatternDefinition: Never
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: Never
+                    PsiElement(identifier)('Never')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Probability
+                  CodeReferenceElement: Probability
+                    PsiElement(identifier)('Probability')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                DoubleLiteral
+                  PsiElement(double)('0.0')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: CoinToss
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: CoinToss
+                    PsiElement(identifier)('CoinToss')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Probability
+                  CodeReferenceElement: Probability
+                    PsiElement(identifier)('Probability')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                DoubleLiteral
+                  PsiElement(double)('0.5')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: Certain
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: Certain
+                    PsiElement(identifier)('Certain')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Probability
+                  CodeReferenceElement: Probability
+                    PsiElement(identifier)('Probability')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                DoubleLiteral
+                  PsiElement(double)('1.0')
+              PsiWhiteSpace('\n\n    ')
+              ScPatternDefinition: ordering
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: ordering
+                    PsiElement(identifier)('ordering')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Ordering[Probability]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Probability
+                      CodeReferenceElement: Probability
+                        PsiElement(identifier)('Probability')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                GenericCall
+                  ReferenceExpression: implicitly
+                    PsiElement(identifier)('implicitly')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Ordering[Double]
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: unary_~
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('unary_~')
+                    Parameters
+                      <empty list>
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Probability
+                      CodeReferenceElement: Probability
+                        PsiElement(identifier)('Probability')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: Certain
+                        PsiElement(identifier)('Certain')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: -
+                        PsiElement(identifier)('-')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: p1
+                        PsiElement(identifier)('p1')
+              PsiWhiteSpace('\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: &
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: p2
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('p2')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Probability
+                              CodeReferenceElement: Probability
+                                PsiElement(identifier)('Probability')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Probability
+                      CodeReferenceElement: Probability
+                        PsiElement(identifier)('Probability')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: p1
+                        PsiElement(identifier)('p1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: *
+                        PsiElement(identifier)('*')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: p2
+                        PsiElement(identifier)('p2')
+              PsiWhiteSpace('\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: |
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: p2
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('p2')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Probability
+                              CodeReferenceElement: Probability
+                                PsiElement(identifier)('Probability')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Probability
+                      CodeReferenceElement: Probability
+                        PsiElement(identifier)('Probability')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      InfixExpression
+                        ReferenceExpression: p1
+                          PsiElement(identifier)('p1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: p2
+                          PsiElement(identifier)('p2')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: -
+                        PsiElement(identifier)('-')
+                      PsiWhiteSpace(' ')
+                      ExpressionInParenthesis
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: p1
+                            PsiElement(identifier)('p1')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: *
+                            PsiElement(identifier)('*')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: p2
+                            PsiElement(identifier)('p2')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: isImpossible
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('isImpossible')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: p1
+                        PsiElement(identifier)('p1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: Never
+                        PsiElement(identifier)('Never')
+              PsiWhiteSpace('\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: isCertain
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('isCertain')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: p1
+                        PsiElement(identifier)('p1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: Certain
+                        PsiElement(identifier)('Certain')
+              PsiWhiteSpace('\n\n    ')
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: scala.util.Random
+                    CodeReferenceElement: scala.util
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('util')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Random')
+              PsiWhiteSpace('\n\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: sample
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('sample')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: r
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('r')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Random
+                              CodeReferenceElement: Random
+                                PsiElement(identifier)('Random')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: Random
+                            PsiElement(identifier)('Random')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: r.nextDouble
+                        ReferenceExpression: r
+                          PsiElement(identifier)('r')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nextDouble')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: <=
+                        PsiElement(identifier)('<=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: p1
+                        PsiElement(identifier)('p1')
+              PsiWhiteSpace('\n    ')
+              Extension on Probability
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Probability
+                          CodeReferenceElement: Probability
+                            PsiElement(identifier)('Probability')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: toDouble
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('toDouble')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: p1
+                      PsiElement(identifier)('p1')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: caughtTrain
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: caughtTrain
+              PsiElement(identifier)('caughtTrain')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Probability.unsafe
+              ReferenceExpression: Probability
+                PsiElement(identifier)('Probability')
+              PsiElement(.)('.')
+              PsiElement(identifier)('unsafe')
+            ArgumentList
+              PsiElement(()('(')
+              DoubleLiteral
+                PsiElement(double)('0.3')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: missedTrain
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: missedTrain
+              PsiElement(identifier)('missedTrain')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PrefixExpression
+            ReferenceExpression: ~
+              PsiElement(identifier)('~')
+            ReferenceExpression: caughtTrain
+              PsiElement(identifier)('caughtTrain')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: caughtCab
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: caughtCab
+              PsiElement(identifier)('caughtCab')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Probability.CoinToss
+            ReferenceExpression: Probability
+              PsiElement(identifier)('Probability')
+            PsiElement(.)('.')
+            PsiElement(identifier)('CoinToss')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: arrived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: arrived
+              PsiElement(identifier)('arrived')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: caughtTrain
+              PsiElement(identifier)('caughtTrain')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: missedTrain
+                  PsiElement(identifier)('missedTrain')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: caughtCab
+                  PsiElement(identifier)('caughtCab')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: (1 to 5).map(_ => arrived.sample()).toList
+              MethodCall
+                ReferenceExpression: (1 to 5).map
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    InfixExpression
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: to
+                        PsiElement(identifier)('to')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                    PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: _
+                          PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: arrived.sample
+                        ReferenceExpression: arrived
+                          PsiElement(identifier)('arrived')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('sample')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toList')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

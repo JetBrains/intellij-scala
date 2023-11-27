@@ -3,3 +3,60 @@ object cfcrash {
   def blah = 3 / zero  // this should not crash the compiler
 }
 -----
+ScalaFile
+  ScObject: cfcrash
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('cfcrash')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: zero
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zero
+              PsiElement(identifier)('zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: blah
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('blah')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: /
+              PsiElement(identifier)('/')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: zero
+              PsiElement(identifier)('zero')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// this should not crash the compiler')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
