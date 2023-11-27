@@ -43,11 +43,11 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
     //  It can also detect that the code was parsed incorrectly
     val hasErrorElements = errors.nonEmpty
 
-    lazy val expected = psiToString(lightFile, true).replace(": " + lightFile.name, "")
+    lazy val actualPsiTreeText = psiToString(lightFile, true).replace(": " + lightFile.name, "")
     if (hasErrorElements != shouldHaveErrors) {
       println(fileText)
       println("-------")
-      println(expected)
+      println(actualPsiTreeText)
     }
 
     val msg = s"Found following errors: " + errors.mkString(", ")
@@ -57,6 +57,7 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
 
     if (shouldHaveErrors) {
       assert(hasErrorElements || interlaced.nonEmpty, "Expected to find error elements or interlaced ranges, but found none.")
+      ""
     } else {
       assertFalse(msg, hasErrorElements)
       assert(interlaced.isEmpty, "Following elements have conflicting ranges:\n" + {
@@ -73,10 +74,9 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
           }
           .mkString("\n")
       })
-    }
 
-    // TODO: return real psi tree instead of empty one
-    ""
+      actualPsiTreeText
+    }
   }
 
   def isStringPart(e: PsiElement): Boolean =
