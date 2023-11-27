@@ -530,7 +530,7 @@ class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
     assert2Clashes("new { val a = 1; val a = 2} with AnyRef", "a")
   }
 
-  def testAnonimousClassDefinition(): Unit = {
+  def testAnonymousClassDefinition(): Unit = {
     assertFine("new Object { val a = 1; } ; new Object { val a = 2; }")
     assert2Clashes("new Object { val a = 1; val a = 2 }", "a")
   }
@@ -827,6 +827,22 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
         |}
         |""".stripMargin,
       "name", "name"
+    )
+  }
+
+  def testMultipleAnonymousParameters(): Unit = {
+    assertFine(
+      """case class Company(name: String)
+        |case class SalesRep(name: String)
+        |
+        |case class Invoice(customer: String)(using Company, SalesRep):
+        |  override def toString = s"${summon[Company].name} / ${summon[SalesRep].name} - Customer: $customer"
+        |
+        |@main def test(): Unit =
+        |  given Company = Company("Big Corp")
+        |  given SalesRep = SalesRep("John")
+        |  println(Invoice("Peter LTD"))
+        |""".stripMargin
     )
   }
 }

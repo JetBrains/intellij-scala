@@ -85,7 +85,7 @@ object ScalaAnonymousClassesNodeProvider {
         val valueOrVariableDef = p.parentsInFile.findByType[ScValueOrVariable].filterByType[ScValueOrVariableDefinition]
         for {
           case value <- valueOrVariableDef
-          //If val/var definition body is not a block, we skip it. In that case anonimous classes will be collected
+          //If val/var definition body is not a block, we skip it. In that case anonymous classes will be collected
           //during processing of the parent node, and will be added as a sibling of val/var node (see `getAnonymousClassElements` ScalaDoc)
           case block <- value.expr.filterByType[ScBlockExpr]
         } yield block
@@ -108,12 +108,12 @@ object ScalaAnonymousClassesNodeProvider {
       }
     }
 
-    //Collect anonimous classes in quite a dirty imperative way
+    //Collect anonymous classes in quite a dirty imperative way
     elementToStartFrom.depthFirst { element =>
       val processChildren = element match {
         //Don't stop at "ScTemplateDefinition"
-        //Template body of every type definition starts it's own scope of anonimous
-        //Template definition has constructor invocation, and anonimous class can be inside constructor arguments
+        //Template body of every type definition starts it's own scope of anonymous
+        //Template definition has constructor invocation, and anonymous class can be inside constructor arguments
         //So instead of stopping at template definition node we will stop at template body node
         case _: ScTemplateDefinition => true
         case _: ScTemplateBody => false
@@ -121,7 +121,7 @@ object ScalaAnonymousClassesNodeProvider {
           val isField = v.getParent.is[ScTemplateBody]
           val hasBlockBody = v.expr.exists(_.is[ScBlockExpr])
           val collectAnonymousClassesInside = !(isField && hasBlockBody)
-          //Nodes for val/var fields with block bodies will have their own children and for them anonimous classes
+          //Nodes for val/var fields with block bodies will have their own children and for them anonymous classes
           //will be collected in a separate pass (see `getAnonymousClassElements` ScalaDoc)
           if (collectAnonymousClassesInside) {
             v.depthFirst().foreach(process)

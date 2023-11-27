@@ -49,7 +49,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |new MyClass with MyTrait1 with MyTrait2
         |new MyClass
         |
-        |//new anonimous class instance creation
+        |//new anonymous class instance creation
         |new MyClass with MyTrait1 with MyTrait2 {}
         |new MyClass {}
         |

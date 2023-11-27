@@ -38,12 +38,12 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   })
 
   /**
-   * NOTE: implementors that can be anonimous and who's `nameId` can be null should explicitly override this method<br>
-   * A fails-safe implementation in the base class was added just in case, to avoid unexpected exceptions
+   * NOTE: implementors that can be anonymous and who's `nameId` can be null should explicitly override this method<br>
+   * A fails-safe implementation in the base class was added just in case, to avoid unexpected NPE exceptions
    */
   protected def nameInner: String = {
     val nameId = this.nameId
-    if (nameId != null) nameId.getText else "<anonimous>"
+    if (nameId != null) nameId.getText else "<anonymous>"
   }
 
   def nameContext: PsiElement = _nameContext()
@@ -87,15 +87,15 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
    * PsiElement representing a name identifier
    *
    * @note can be `null` in some cases<br>
-   *       '''Example 1''' - anonimous context parameter {{{
+   *       '''Example 1''' - anonymous context parameter {{{
    *         def foo(using String): Unit = ()
    *       }}}
-   *       '''Example 2''' - anonimous given declaration/definition/structural instance {{{
+   *       '''Example 2''' - anonymous given declaration/definition/structural instance {{{
    *         given String
    *         given String = ???
    *         given MyType with MyTrait with {}
    *       }}}
-   *       '''Example 3''' - anonimous class (new template definition) {{{
+   *       '''Example 3''' - anonymous class (new template definition) {{{
    *         new Object() {
    *         }
    *       }}}

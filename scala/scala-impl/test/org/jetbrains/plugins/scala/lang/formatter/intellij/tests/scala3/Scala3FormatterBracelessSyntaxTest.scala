@@ -647,4 +647,27 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |    2;
       |""".stripMargin
   )
+
+  def testIdentifiersWithDollarSignInName(): Unit = {
+    doTextTest(
+      """val prefix$$suffix, prefix$$, $$suffix, $$inner$$ = null
+        |
+        |prefix$$suffix
+        |prefix$$suffix
+        |prefix$$suffix
+        |
+        |prefix$$
+        |prefix$$
+        |prefix$$
+        |
+        |$$suffix
+        |$$suffix
+        |$$suffix
+        |
+        |$$inner$$
+        |$$inner$$
+        |$$inner$$
+        |""".stripMargin
+    )
+  }
 }
