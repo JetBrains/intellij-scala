@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.startup.ProjectActivity
 private final class ConfigureIncrementalCompilerProjectActivity extends ProjectActivity {
 
   override def execute(project: Project): Unit = {
-    project.subscribeToModuleRootChanged() { _ =>
-      if (!project.isDisposed && project.hasScala) {
+    project.subscribeToModuleRootChanged() { event =>
+      if (event.isCausedByWorkspaceModelChangesOnly && !project.isDisposed && project.hasScala) {
         val fileType = FileTypeRegistry.getInstance().getFileTypeByExtension("kt")
         fileType match {
           case UnknownFileType.INSTANCE =>
