@@ -80,3 +80,2099 @@ object O7 {
   val zero = 0 : @myAttrs.a1
 }
 -----
+ScalaFile
+  ScClass: serializable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('serializable')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.StaticAnnotation
+            CodeReferenceElement: annotation.StaticAnnotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('StaticAnnotation')
+  PsiWhiteSpace('\n\n')
+  ScClass: C1
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScClass: C2
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScClass: C3
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C3')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScClass: C4
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C4')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScTrait: T1
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T1')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScTrait: T2
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T2')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScTrait: T3
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T3')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScTrait: T4
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T4')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScObject: O1
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C1
+            CodeReferenceElement: C1
+              PsiElement(identifier)('C1')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScObject: O2
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C2
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScObject: O3
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('  ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O3')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C3
+            CodeReferenceElement: C3
+              PsiElement(identifier)('C3')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScObject: O4
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: volatile
+              CodeReferenceElement: volatile
+                PsiElement(identifier)('volatile')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: serializable
+              CodeReferenceElement: serializable
+                PsiElement(identifier)('serializable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O4')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C4
+            CodeReferenceElement: C4
+              PsiElement(identifier)('C4')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScObject: O5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O5')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: n
+              PsiElement(identifier)('n')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: n
+                      PsiElement(identifier)('n')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: n
+                      PsiElement(identifier)('n')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C3')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: SerialVersionUID
+                    CodeReferenceElement: SerialVersionUID
+                      PsiElement(identifier)('SerialVersionUID')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: n
+                      PsiElement(identifier)('n')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C4')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: A1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: y1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y1
+              PsiElement(identifier)('y1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C1
+            CodeReferenceElement: C1
+              PsiElement(identifier)('C1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: y2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y2
+              PsiElement(identifier)('y2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C2
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: y3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y3
+              PsiElement(identifier)('y3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C3
+            CodeReferenceElement: C3
+              PsiElement(identifier)('C3')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: y4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y4
+              PsiElement(identifier)('y4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C4
+            CodeReferenceElement: C4
+              PsiElement(identifier)('C4')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: foo1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo1')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C1
+            CodeReferenceElement: C1
+              PsiElement(identifier)('C1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C2
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo3')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C3
+            CodeReferenceElement: C3
+              PsiElement(identifier)('C3')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo4')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C4
+            CodeReferenceElement: C4
+              PsiElement(identifier)('C4')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: O6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O6')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x1
+              PsiElement(identifier)('x1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: C1
+                    CodeReferenceElement: C1
+                      PsiElement(identifier)('C1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x2
+          PsiComment(comment)('// volatile val sensibly disallowed as of r18645')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x2
+              PsiElement(identifier)('x2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: C2
+                    CodeReferenceElement: C2
+                      PsiElement(identifier)('C2')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x3
+              PsiElement(identifier)('x3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: C3
+                    CodeReferenceElement: C3
+                      PsiElement(identifier)('C3')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x4
+              PsiElement(identifier)('x4')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: C4
+                    CodeReferenceElement: C4
+                      PsiElement(identifier)('C4')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScVariableDefinition: y1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y1
+              PsiElement(identifier)('y1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C1
+            CodeReferenceElement: C1
+              PsiElement(identifier)('C1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: y2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y2
+              PsiElement(identifier)('y2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C2
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: y3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y3
+              PsiElement(identifier)('y3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C3
+            CodeReferenceElement: C3
+              PsiElement(identifier)('C3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: y4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y4
+              PsiElement(identifier)('y4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C4
+            CodeReferenceElement: C4
+              PsiElement(identifier)('C4')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          PsiWhiteSpace('  ')
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x1
+            PsiElement(identifier)('x1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          PsiWhiteSpace('  ')
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x2
+            PsiElement(identifier)('x2')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          PsiWhiteSpace('  ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo3')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x3
+            PsiElement(identifier)('x3')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: serializable
+                    CodeReferenceElement: serializable
+                      PsiElement(identifier)('serializable')
+          PsiWhiteSpace('  ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo4')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x4
+            PsiElement(identifier)('x4')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: myAttrs
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('myAttrs')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: a1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: a2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: a3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a3')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: a1
+                      CodeReferenceElement: a1
+                        PsiElement(identifier)('a1')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: a4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a4')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: ns
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('ns')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Array[Int]
+                SimpleType: Array
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.Annotation
+            CodeReferenceElement: scala.annotation.Annotation
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScObject: O7
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O7')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: a1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: a2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: a3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a3')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: a1
+                      CodeReferenceElement: a1
+                        PsiElement(identifier)('a1')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: scala.annotation.Annotation
+                  CodeReferenceElement: scala.annotation.Annotation
+                    CodeReferenceElement: scala.annotation
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: a1
+                    CodeReferenceElement: a1
+                      PsiElement(identifier)('a1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a1
+                    CodeReferenceElement: a1
+                      PsiElement(identifier)('a1')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a1
+                    CodeReferenceElement: a1
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a2
+                    CodeReferenceElement: a2
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('77')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a1
+                    CodeReferenceElement: a1
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a2
+                    CodeReferenceElement: a2
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('88')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C3')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: C4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a1
+                    CodeReferenceElement: a1
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a2
+                    CodeReferenceElement: a2
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('88')
+                    PsiElement())(')')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a3
+                    CodeReferenceElement: a3
+                      PsiElement(identifier)('a3')
+                  ArgumentList
+                    PsiElement(()('(')
+                    NullLiteral
+                      PsiElement(null)('null')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C4')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: A1
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a1
+                    CodeReferenceElement: myAttrs.a1
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a1')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: A2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a1
+                    CodeReferenceElement: myAttrs.a1
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a2
+                    CodeReferenceElement: myAttrs.a2
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('99')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: A3
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a1
+                    CodeReferenceElement: myAttrs.a1
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a2
+                    CodeReferenceElement: myAttrs.a2
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('99')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A3')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: A4
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a1
+                    CodeReferenceElement: myAttrs.a1
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a2
+                    CodeReferenceElement: myAttrs.a2
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('99')
+                    PsiElement())(')')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: myAttrs.a3
+                    CodeReferenceElement: myAttrs.a3
+                      CodeReferenceElement: myAttrs
+                        PsiElement(identifier)('myAttrs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a3')
+                  ArgumentList
+                    PsiElement(()('(')
+                    NullLiteral
+                      PsiElement(null)('null')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('  ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A4')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: A5
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a4
+                    CodeReferenceElement: a4
+                      PsiElement(identifier)('a4')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: Array
+                        PsiElement(identifier)('Array')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        IntegerLiteral
+                          PsiElement(integer)('3')
+                        PsiElement())(')')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A5')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScClass: A6
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a4
+                    CodeReferenceElement: a4
+                      PsiElement(identifier)('a4')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: Array
+                        PsiElement(identifier)('Array')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A6')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: zero
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zero
+              PsiElement(identifier)('zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypedExpression
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: myAttrs.a1
+                      CodeReferenceElement: myAttrs.a1
+                        CodeReferenceElement: myAttrs
+                          PsiElement(identifier)('myAttrs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('a1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

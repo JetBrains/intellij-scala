@@ -48,3 +48,1358 @@ object Test:
       .xxx(a = 1)
       .xxx
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.dynamics
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('dynamics')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Dynamic
+            CodeReferenceElement: Dynamic
+              PsiElement(identifier)('Dynamic')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: applyDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('applyDynamic')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Foo.type
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: applyDynamicNamed
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('applyDynamicNamed')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (String, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Foo.type
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: selectDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selectDynamic')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Foo.type
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Foo.type
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+            MethodCall
+              ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                MethodCall
+                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                    ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                      MethodCall
+                        ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                          MethodCall
+                            ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                              ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                MethodCall
+                                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                    MethodCall
+                                      ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                        ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                          MethodCall
+                                            ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                              MethodCall
+                                                ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                    MethodCall
+                                                      ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                        MethodCall
+                                                          ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                            ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                              MethodCall
+                                                                ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                  MethodCall
+                                                                    ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                      ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                        MethodCall
+                                                                          ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                            MethodCall
+                                                                              ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                  MethodCall
+                                                                                    ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                                      MethodCall
+                                                                                        ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                          ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                            MethodCall
+                                                                                              ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                                                MethodCall
+                                                                                                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                                    ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                                      MethodCall
+                                                                                                        ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                                                          MethodCall
+                                                                                                            ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                                              ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                                                MethodCall
+                                                                                                                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                                                                    MethodCall
+                                                                                                                      ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                                                        ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                                                          MethodCall
+                                                                                                                            ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx()
+      .xxx
+                                                                                                                              MethodCall
+                                                                                                                                ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+      .xxx
+                                                                                                                                  ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx(a = 1)
+      .xxx
+                                                                                                                                    MethodCall
+                                                                                                                                      ReferenceExpression: Foo.xxx
+      .xxx()
+      .xxx
+                                                                                                                                        MethodCall
+                                                                                                                                          ReferenceExpression: Foo.xxx
+      .xxx
+                                                                                                                                            ReferenceExpression: Foo.xxx
+                                                                                                                                              ReferenceExpression: Foo
+                                                                                                                                                PsiElement(identifier)('Foo')
+                                                                                                                                              PsiElement(.)('.')
+                                                                                                                                              PsiElement(identifier)('xxx')
+                                                                                                                                            PsiWhiteSpace('\n      ')
+                                                                                                                                            PsiElement(.)('.')
+                                                                                                                                            PsiElement(identifier)('xxx')
+                                                                                                                                          ArgumentList
+                                                                                                                                            PsiElement(()('(')
+                                                                                                                                            PsiElement())(')')
+                                                                                                                                        PsiWhiteSpace('\n      ')
+                                                                                                                                        PsiElement(.)('.')
+                                                                                                                                        PsiElement(identifier)('xxx')
+                                                                                                                                      ArgumentList
+                                                                                                                                        PsiElement(()('(')
+                                                                                                                                        AssignStatement
+                                                                                                                                          ReferenceExpression: a
+                                                                                                                                            PsiElement(identifier)('a')
+                                                                                                                                          PsiWhiteSpace(' ')
+                                                                                                                                          PsiElement(=)('=')
+                                                                                                                                          PsiWhiteSpace(' ')
+                                                                                                                                          IntegerLiteral
+                                                                                                                                            PsiElement(integer)('1')
+                                                                                                                                        PsiElement())(')')
+                                                                                                                                    PsiWhiteSpace('\n      ')
+                                                                                                                                    PsiElement(.)('.')
+                                                                                                                                    PsiElement(identifier)('xxx')
+                                                                                                                                  PsiWhiteSpace('\n      ')
+                                                                                                                                  PsiElement(.)('.')
+                                                                                                                                  PsiElement(identifier)('xxx')
+                                                                                                                                ArgumentList
+                                                                                                                                  PsiElement(()('(')
+                                                                                                                                  PsiElement())(')')
+                                                                                                                              PsiWhiteSpace('\n      ')
+                                                                                                                              PsiElement(.)('.')
+                                                                                                                              PsiElement(identifier)('xxx')
+                                                                                                                            ArgumentList
+                                                                                                                              PsiElement(()('(')
+                                                                                                                              AssignStatement
+                                                                                                                                ReferenceExpression: a
+                                                                                                                                  PsiElement(identifier)('a')
+                                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                                PsiElement(=)('=')
+                                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                                IntegerLiteral
+                                                                                                                                  PsiElement(integer)('1')
+                                                                                                                              PsiElement())(')')
+                                                                                                                          PsiWhiteSpace('\n      ')
+                                                                                                                          PsiElement(.)('.')
+                                                                                                                          PsiElement(identifier)('xxx')
+                                                                                                                        PsiWhiteSpace('\n      ')
+                                                                                                                        PsiElement(.)('.')
+                                                                                                                        PsiElement(identifier)('xxx')
+                                                                                                                      ArgumentList
+                                                                                                                        PsiElement(()('(')
+                                                                                                                        PsiElement())(')')
+                                                                                                                    PsiWhiteSpace('\n      ')
+                                                                                                                    PsiElement(.)('.')
+                                                                                                                    PsiElement(identifier)('xxx')
+                                                                                                                  ArgumentList
+                                                                                                                    PsiElement(()('(')
+                                                                                                                    AssignStatement
+                                                                                                                      ReferenceExpression: a
+                                                                                                                        PsiElement(identifier)('a')
+                                                                                                                      PsiWhiteSpace(' ')
+                                                                                                                      PsiElement(=)('=')
+                                                                                                                      PsiWhiteSpace(' ')
+                                                                                                                      IntegerLiteral
+                                                                                                                        PsiElement(integer)('1')
+                                                                                                                    PsiElement())(')')
+                                                                                                                PsiWhiteSpace('\n      ')
+                                                                                                                PsiElement(.)('.')
+                                                                                                                PsiElement(identifier)('xxx')
+                                                                                                              PsiWhiteSpace('\n      ')
+                                                                                                              PsiElement(.)('.')
+                                                                                                              PsiElement(identifier)('xxx')
+                                                                                                            ArgumentList
+                                                                                                              PsiElement(()('(')
+                                                                                                              PsiElement())(')')
+                                                                                                          PsiWhiteSpace('\n      ')
+                                                                                                          PsiElement(.)('.')
+                                                                                                          PsiElement(identifier)('xxx')
+                                                                                                        ArgumentList
+                                                                                                          PsiElement(()('(')
+                                                                                                          AssignStatement
+                                                                                                            ReferenceExpression: a
+                                                                                                              PsiElement(identifier)('a')
+                                                                                                            PsiWhiteSpace(' ')
+                                                                                                            PsiElement(=)('=')
+                                                                                                            PsiWhiteSpace(' ')
+                                                                                                            IntegerLiteral
+                                                                                                              PsiElement(integer)('1')
+                                                                                                          PsiElement())(')')
+                                                                                                      PsiWhiteSpace('\n      ')
+                                                                                                      PsiElement(.)('.')
+                                                                                                      PsiElement(identifier)('xxx')
+                                                                                                    PsiWhiteSpace('\n      ')
+                                                                                                    PsiElement(.)('.')
+                                                                                                    PsiElement(identifier)('xxx')
+                                                                                                  ArgumentList
+                                                                                                    PsiElement(()('(')
+                                                                                                    PsiElement())(')')
+                                                                                                PsiWhiteSpace('\n      ')
+                                                                                                PsiElement(.)('.')
+                                                                                                PsiElement(identifier)('xxx')
+                                                                                              ArgumentList
+                                                                                                PsiElement(()('(')
+                                                                                                AssignStatement
+                                                                                                  ReferenceExpression: a
+                                                                                                    PsiElement(identifier)('a')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  PsiElement(=)('=')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  IntegerLiteral
+                                                                                                    PsiElement(integer)('1')
+                                                                                                PsiElement())(')')
+                                                                                            PsiWhiteSpace('\n      ')
+                                                                                            PsiElement(.)('.')
+                                                                                            PsiElement(identifier)('xxx')
+                                                                                          PsiWhiteSpace('\n      ')
+                                                                                          PsiElement(.)('.')
+                                                                                          PsiElement(identifier)('xxx')
+                                                                                        ArgumentList
+                                                                                          PsiElement(()('(')
+                                                                                          PsiElement())(')')
+                                                                                      PsiWhiteSpace('\n      ')
+                                                                                      PsiElement(.)('.')
+                                                                                      PsiElement(identifier)('xxx')
+                                                                                    ArgumentList
+                                                                                      PsiElement(()('(')
+                                                                                      AssignStatement
+                                                                                        ReferenceExpression: a
+                                                                                          PsiElement(identifier)('a')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        PsiElement(=)('=')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        IntegerLiteral
+                                                                                          PsiElement(integer)('1')
+                                                                                      PsiElement())(')')
+                                                                                  PsiWhiteSpace('\n      ')
+                                                                                  PsiElement(.)('.')
+                                                                                  PsiElement(identifier)('xxx')
+                                                                                PsiWhiteSpace('\n      ')
+                                                                                PsiElement(.)('.')
+                                                                                PsiElement(identifier)('xxx')
+                                                                              ArgumentList
+                                                                                PsiElement(()('(')
+                                                                                PsiElement())(')')
+                                                                            PsiWhiteSpace('\n      ')
+                                                                            PsiElement(.)('.')
+                                                                            PsiElement(identifier)('xxx')
+                                                                          ArgumentList
+                                                                            PsiElement(()('(')
+                                                                            AssignStatement
+                                                                              ReferenceExpression: a
+                                                                                PsiElement(identifier)('a')
+                                                                              PsiWhiteSpace(' ')
+                                                                              PsiElement(=)('=')
+                                                                              PsiWhiteSpace(' ')
+                                                                              IntegerLiteral
+                                                                                PsiElement(integer)('1')
+                                                                            PsiElement())(')')
+                                                                        PsiWhiteSpace('\n      ')
+                                                                        PsiElement(.)('.')
+                                                                        PsiElement(identifier)('xxx')
+                                                                      PsiWhiteSpace('\n      ')
+                                                                      PsiElement(.)('.')
+                                                                      PsiElement(identifier)('xxx')
+                                                                    ArgumentList
+                                                                      PsiElement(()('(')
+                                                                      PsiElement())(')')
+                                                                  PsiWhiteSpace('\n      ')
+                                                                  PsiElement(.)('.')
+                                                                  PsiElement(identifier)('xxx')
+                                                                ArgumentList
+                                                                  PsiElement(()('(')
+                                                                  AssignStatement
+                                                                    ReferenceExpression: a
+                                                                      PsiElement(identifier)('a')
+                                                                    PsiWhiteSpace(' ')
+                                                                    PsiElement(=)('=')
+                                                                    PsiWhiteSpace(' ')
+                                                                    IntegerLiteral
+                                                                      PsiElement(integer)('1')
+                                                                  PsiElement())(')')
+                                                              PsiWhiteSpace('\n      ')
+                                                              PsiElement(.)('.')
+                                                              PsiElement(identifier)('xxx')
+                                                            PsiWhiteSpace('\n      ')
+                                                            PsiElement(.)('.')
+                                                            PsiElement(identifier)('xxx')
+                                                          ArgumentList
+                                                            PsiElement(()('(')
+                                                            PsiElement())(')')
+                                                        PsiWhiteSpace('\n      ')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('xxx')
+                                                      ArgumentList
+                                                        PsiElement(()('(')
+                                                        AssignStatement
+                                                          ReferenceExpression: a
+                                                            PsiElement(identifier)('a')
+                                                          PsiWhiteSpace(' ')
+                                                          PsiElement(=)('=')
+                                                          PsiWhiteSpace(' ')
+                                                          IntegerLiteral
+                                                            PsiElement(integer)('1')
+                                                        PsiElement())(')')
+                                                    PsiWhiteSpace('\n      ')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('xxx')
+                                                  PsiWhiteSpace('\n      ')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('xxx')
+                                                ArgumentList
+                                                  PsiElement(()('(')
+                                                  PsiElement())(')')
+                                              PsiWhiteSpace('\n      ')
+                                              PsiElement(.)('.')
+                                              PsiElement(identifier)('xxx')
+                                            ArgumentList
+                                              PsiElement(()('(')
+                                              AssignStatement
+                                                ReferenceExpression: a
+                                                  PsiElement(identifier)('a')
+                                                PsiWhiteSpace(' ')
+                                                PsiElement(=)('=')
+                                                PsiWhiteSpace(' ')
+                                                IntegerLiteral
+                                                  PsiElement(integer)('1')
+                                              PsiElement())(')')
+                                          PsiWhiteSpace('\n      ')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('xxx')
+                                        PsiWhiteSpace('\n      ')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('xxx')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        PsiElement())(')')
+                                    PsiWhiteSpace('\n      ')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('xxx')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    AssignStatement
+                                      ReferenceExpression: a
+                                        PsiElement(identifier)('a')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=)('=')
+                                      PsiWhiteSpace(' ')
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                    PsiElement())(')')
+                                PsiWhiteSpace('\n      ')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('xxx')
+                              PsiWhiteSpace('\n      ')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('xxx')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiWhiteSpace('\n      ')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('xxx')
+                        ArgumentList
+                          PsiElement(()('(')
+                          AssignStatement
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n      ')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('xxx')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('xxx')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('xxx')
+              ArgumentList
+                PsiElement(()('(')
+                AssignStatement
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace('\n      ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('xxx')

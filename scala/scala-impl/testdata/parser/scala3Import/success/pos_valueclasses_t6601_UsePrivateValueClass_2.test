@@ -11,3 +11,116 @@ object Test {
   def bar(v: V) = v == v
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: t6601
+      PsiElement(identifier)('t6601')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: foo
+            PsiComment(comment)('// After the first attempt to make seprately compiled value')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// classes respect the privacy of constructors, we got:')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//   exception when typing v.a().==(v.a())/class scala.reflect.internal.Trees$Apply')
+            PsiWhiteSpace('\n  ')
+            PsiComment(comment)('//   constructor V in class V cannot be accessed in object Test in file test/files/pos/t6601/UsePrivateValueClass_2.scala')
+            PsiWhiteSpace('\n  ')
+            PsiComment(comment)('//   scala.reflect.internal.Types$TypeError: constructor V in class V cannot be accessed in object Test')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: v
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('v')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: v.a
+                ReferenceExpression: v
+                  PsiElement(identifier)('v')
+                PsiElement(.)('.')
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: v.a
+                ReferenceExpression: v
+                  PsiElement(identifier)('v')
+                PsiElement(.)('.')
+                PsiElement(identifier)('a')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('bar')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: v
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('v')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: v
+                PsiElement(identifier)('v')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: v
+                PsiElement(identifier)('v')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

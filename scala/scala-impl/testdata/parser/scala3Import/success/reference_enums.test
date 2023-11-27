@@ -54,3 +54,809 @@ object Planet {
 }
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: enums
+      PsiElement(identifier)('enums')
+    PsiWhiteSpace('\n\n')
+    ScObject: t1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t1')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n')
+          ScEnum: Color
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Color')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Red, Green, Blue
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Red
+                    PsiElement(identifier)('Red')
+                    ExtendsBlock
+                      <empty list>
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Green
+                    PsiElement(identifier)('Green')
+                    ExtendsBlock
+                      <empty list>
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Blue
+                    PsiElement(identifier)('Blue')
+                    ExtendsBlock
+                      <empty list>
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: t2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t2')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n')
+          ScEnum: Color
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Color')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Red
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Red
+                    PsiElement(identifier)('Red')
+                    ExtendsBlock
+                      <empty list>
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Green
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Green
+                    PsiElement(identifier)('Green')
+                    ExtendsBlock
+                      <empty list>
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Blue
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Blue
+                    PsiElement(identifier)('Blue')
+                    ExtendsBlock
+                      <empty list>
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: t3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t3')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n')
+          ScEnum: Color
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Color')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: rgb
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('rgb')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Red
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Red
+                    PsiElement(identifier)('Red')
+                    PsiWhiteSpace('   ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Color
+                            CodeReferenceElement: Color
+                              PsiElement(identifier)('Color')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('0xFF0000')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Green
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Green
+                    PsiElement(identifier)('Green')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Color
+                            CodeReferenceElement: Color
+                              PsiElement(identifier)('Color')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('0x00FF00')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                ScEnumCases: Blue
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: Blue
+                    PsiElement(identifier)('Blue')
+                    PsiWhiteSpace('  ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Color
+                            CodeReferenceElement: Color
+                              PsiElement(identifier)('Color')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('0x0000FF')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n\n')
+    ScEnum: Planet
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(enum)('enum')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Planet')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: mass
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('mass')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ClassParameter: radius
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('radius')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+            PsiElement())(')')
+      PsiWhiteSpace('\n')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: java.lang.Enum[Planet]
+              SimpleType: java.lang.Enum
+                CodeReferenceElement: java.lang.Enum
+                  CodeReferenceElement: java.lang
+                    CodeReferenceElement: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lang')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Enum')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Planet
+                  CodeReferenceElement: Planet
+                    PsiElement(identifier)('Planet')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: G
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+              PsiWhiteSpace(' ')
+              PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: G
+                PsiElement(identifier)('G')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            DoubleLiteral
+              PsiElement(double)('6.67300E-11')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: surfaceGravity
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('surfaceGravity')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              InfixExpression
+                ReferenceExpression: G
+                  PsiElement(identifier)('G')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: mass
+                  PsiElement(identifier)('mass')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: /
+                PsiElement(identifier)('/')
+              PsiWhiteSpace(' ')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: radius
+                    PsiElement(identifier)('radius')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: *
+                    PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: radius
+                    PsiElement(identifier)('radius')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: surfaceWeight
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('surfaceWeight')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: otherMass
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('otherMass')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('  ')
+            InfixExpression
+              ReferenceExpression: otherMass
+                PsiElement(identifier)('otherMass')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *
+                PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: surfaceGravity
+                PsiElement(identifier)('surfaceGravity')
+          PsiWhiteSpace('\n\n  ')
+          ScEnumCases: MERCURY
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: MERCURY
+              PsiElement(identifier)('MERCURY')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('3.303e+23')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('2.4397e6')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: VENUS
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: VENUS
+              PsiElement(identifier)('VENUS')
+              PsiWhiteSpace('   ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('4.869e+24')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('6.0518e6')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: EARTH
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: EARTH
+              PsiElement(identifier)('EARTH')
+              PsiWhiteSpace('   ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('5.976e+24')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('6.37814e6')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: MARS
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: MARS
+              PsiElement(identifier)('MARS')
+              PsiWhiteSpace('    ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('6.421e+23')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('3.3972e6')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: JUPITER
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: JUPITER
+              PsiElement(identifier)('JUPITER')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('1.9e+27')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('   ')
+                      DoubleLiteral
+                        PsiElement(double)('7.1492e7')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: SATURN
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: SATURN
+              PsiElement(identifier)('SATURN')
+              PsiWhiteSpace('  ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('5.688e+26')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('6.0268e7')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: URANUS
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: URANUS
+              PsiElement(identifier)('URANUS')
+              PsiWhiteSpace('  ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('8.686e+25')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('2.5559e7')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: NEPTUNE
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: NEPTUNE
+              PsiElement(identifier)('NEPTUNE')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Planet
+                      CodeReferenceElement: Planet
+                        PsiElement(identifier)('Planet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      DoubleLiteral
+                        PsiElement(double)('1.024e+26')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      DoubleLiteral
+                        PsiElement(double)('2.4746e7')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Planet
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Planet')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: main
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('main')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: args
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[String]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: earthWeight
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: earthWeight
+                    PsiElement(identifier)('earthWeight')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: args(0).toDouble
+                  MethodCall
+                    ReferenceExpression: args
+                      PsiElement(identifier)('args')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toDouble')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: mass
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: mass
+                    PsiElement(identifier)('mass')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: earthWeight
+                    PsiElement(identifier)('earthWeight')
+                  ReferenceExpression: /
+                    PsiElement(identifier)('/')
+                  ReferenceExpression: EARTH.surfaceGravity
+                    ReferenceExpression: EARTH
+                      PsiElement(identifier)('EARTH')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('surfaceGravity')
+              PsiWhiteSpace('\n    ')
+              ForStatement
+                PsiElement(for)('for')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                Enumerators
+                  Generator
+                    ReferencePattern: p
+                      PsiElement(identifier)('p')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<-)('<-')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: values
+                      PsiElement(identifier)('values')
+                PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: println
+                    PsiElement(identifier)('println')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InterpolatedStringLiteral
+                      InterpolatedExpressionPrefix: s
+                        PsiElement(interpolated string id)('s')
+                      PsiElement(interpolated string)('"Your weight on ')
+                      PsiElement(interpolated string injection)('$')
+                      ReferenceExpression: p
+                        PsiElement(identifier)('p')
+                      PsiElement(interpolated string)(' is ')
+                      PsiElement(interpolated string injection)('$')
+                      BlockExpression
+                        PsiElement({)('{')
+                        MethodCall
+                          ReferenceExpression: p.surfaceWeight
+                            ReferenceExpression: p
+                              PsiElement(identifier)('p')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('surfaceWeight')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: mass
+                              PsiElement(identifier)('mass')
+                            PsiElement())(')')
+                        PsiElement(})('}')
+                      PsiElement(interpolated string end)('"')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

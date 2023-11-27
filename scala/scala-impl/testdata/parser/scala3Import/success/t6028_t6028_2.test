@@ -3,3 +3,48 @@ object Test {
     new C().foo(a = 0)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        PsiComment(comment)('// ensure that parameter names are untouched by lambdalift')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: new C().foo
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foo')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

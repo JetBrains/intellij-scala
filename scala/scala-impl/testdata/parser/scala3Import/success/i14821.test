@@ -28,3 +28,379 @@ def transform(tree: Statement): Statement = tree match
     val constructor @ DefDef(_, _) = transform(tree.constructor): @unchecked
     ClassDef.copy(constructor)
 -----
+ScalaFile
+  ScTrait: Statement
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Statement')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Definition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Definition')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Statement
+            CodeReferenceElement: Statement
+              PsiElement(identifier)('Statement')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ClassDef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassDef')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Definition
+            CodeReferenceElement: Definition
+              PsiElement(identifier)('Definition')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: constructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('constructor')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: DefDef
+            CodeReferenceElement: DefDef
+              PsiElement(identifier)('DefDef')
+  PsiWhiteSpace('\n\n')
+  ScObject: ClassDef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassDef')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: copy
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('copy')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: constr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('constr')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: DefDef
+                    CodeReferenceElement: DefDef
+                      PsiElement(identifier)('DefDef')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ClassDef
+            CodeReferenceElement: ClassDef
+              PsiElement(identifier)('ClassDef')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDeclaration: DefDef
+    PsiComment(comment)('// >>> This abstract implementation of DefDef causes a compilation error in transform...')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DefDef')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Definition
+      CodeReferenceElement: Definition
+        PsiElement(identifier)('Definition')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: DefDef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: DefDef
+        PsiElement(identifier)('DefDef')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: DefDefModule
+      CodeReferenceElement: DefDefModule
+        PsiElement(identifier)('DefDefModule')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScTrait: DefDefModule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DefDefModule')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ddef
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ddef')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: DefDef
+                    CodeReferenceElement: DefDef
+                      PsiElement(identifier)('DefDef')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (String, List[AnyRef])
+            PsiElement(()('(')
+            TypesList
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[AnyRef]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+                  PsiElement(])(']')
+            PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_TypeTest_Statement_DefDef
+    PsiComment(comment)('// ...unless this given TypeTest is commented out, in which case we get only a type test warning')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ParametrizedType: scala.reflect.TypeTest[Statement, DefDef]
+      SimpleType: scala.reflect.TypeTest
+        CodeReferenceElement: scala.reflect.TypeTest
+          CodeReferenceElement: scala.reflect
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('reflect')
+          PsiElement(.)('.')
+          PsiElement(identifier)('TypeTest')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Statement
+          CodeReferenceElement: Statement
+            PsiElement(identifier)('Statement')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: DefDef
+          CodeReferenceElement: DefDef
+            PsiElement(identifier)('DefDef')
+        PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// >>> This alternative works')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// trait DefDef extends Definition')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// object DefDef:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   def unapply(ddef: DefDef): (String, List[AnyRef]) = ???')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// >>> This alternative also works')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// case class DefDef(name: String, paramss: List[AnyRef]) extends Definition')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: transform
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('transform')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tree')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Statement
+              CodeReferenceElement: Statement
+                PsiElement(identifier)('Statement')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Statement
+      CodeReferenceElement: Statement
+        PsiElement(identifier)('Statement')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: tree
+        PsiElement(identifier)('tree')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: tree
+              PsiElement(identifier)('tree')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: ClassDef
+                CodeReferenceElement: ClassDef
+                  PsiElement(identifier)('ClassDef')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            ScPatternDefinition: constructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                NamingPattern: constructor
+                  PsiElement(identifier)('constructor')
+                  PsiWhiteSpace(' ')
+                  PsiElement(@)('@')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: DefDef
+                      PsiElement(identifier)('DefDef')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: transform
+                    PsiElement(identifier)('transform')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: tree.constructor
+                      ReferenceExpression: tree
+                        PsiElement(identifier)('tree')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('constructor')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: unchecked
+                          CodeReferenceElement: unchecked
+                            PsiElement(identifier)('unchecked')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: ClassDef.copy
+                ReferenceExpression: ClassDef
+                  PsiElement(identifier)('ClassDef')
+                PsiElement(.)('.')
+                PsiElement(identifier)('copy')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: constructor
+                  PsiElement(identifier)('constructor')
+                PsiElement())(')')

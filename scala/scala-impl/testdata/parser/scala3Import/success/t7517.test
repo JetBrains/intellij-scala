@@ -22,3 +22,610 @@ object Box {
    }
 }
 -----
+ScalaFile
+  ScTrait: Box
+    PsiComment(comment)('// Invalid because nested hk type parameters are no longer allowed')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    TypeParameterClause
+      PsiElement([)('[')
+      PsiWhiteSpace(' ')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: A
+            PsiElement(identifier)('A')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
+                PsiElement(identifier)('x')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n   ')
+        ScTrait: ∙
+          PsiComment(comment)('// type constructor composition')
+          PsiWhiteSpace('\n   ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('∙')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: l
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('l')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: A[B[T]]
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: B[T]
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n   ')
+        ScTypeAliasDefinition: SplitBox
+          PsiComment(comment)('// composes type constructors inside K')
+          PsiWhiteSpace('\n   ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SplitBox')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Box[ ({ type l[A[x]] = K[ (A ∙ B)#l] })#l ]
+            SimpleType: Box
+              CodeReferenceElement: Box
+                PsiElement(identifier)('Box')
+            TypeArgumentsList
+              PsiElement([)('[')
+              PsiWhiteSpace(' ')
+              TypeProjection: ({ type l[A[x]] = K[ (A ∙ B)#l] })#l
+                TypeInParenthesis: ({ type l[A[x]] = K[ (A ∙ B)#l] })
+                  PsiElement(()('(')
+                  CompoundType: { type l[A[x]] = K[ (A ∙ B)#l] }
+                    Refinement
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScTypeAliasDefinition: l
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('l')
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: A
+                            PsiElement(identifier)('A')
+                            TypeParameterClause
+                              PsiElement([)('[')
+                              TypeParameter: x
+                                PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: K[ (A ∙ B)#l]
+                          SimpleType: K
+                            CodeReferenceElement: K
+                              PsiElement(identifier)('K')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            PsiWhiteSpace(' ')
+                            TypeProjection: (A ∙ B)#l
+                              TypeInParenthesis: (A ∙ B)
+                                PsiElement(()('(')
+                                InfixType: A ∙ B
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: ∙
+                                    PsiElement(identifier)('∙')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
+                                PsiElement())(')')
+                              PsiElement(#)('#')
+                              PsiElement(identifier)('l')
+                            PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                  PsiElement())(')')
+                PsiElement(#)('#')
+                PsiElement(identifier)('l')
+              PsiWhiteSpace(' ')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n   ')
+        ScFunctionDefinition: split
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('split')
+          TypeParameterClause
+            PsiElement([)('[')
+            PsiWhiteSpace(' ')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: base
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('base')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Box[K]
+                    SimpleType: Box
+                      CodeReferenceElement: Box
+                        PsiElement(identifier)('Box')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: SplitBox[K,B]
+            SimpleType: SplitBox
+              CodeReferenceElement: SplitBox
+                PsiElement(identifier)('SplitBox')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+              PsiElement(,)(',')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n   ')
+        ScClass: Composed
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Composed')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: L
+              PsiElement(identifier)('L')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: box
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: box
+                    PsiElement(identifier)('box')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Box[L]
+                  SimpleType: Box
+                    CodeReferenceElement: Box
+                      PsiElement(identifier)('Box')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: L
+                      CodeReferenceElement: L
+                        PsiElement(identifier)('L')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n\n      ')
+              ScTypeAliasDefinition: Split
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Split')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: A
+                    PsiElement(identifier)('A')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: x
+                        PsiElement(identifier)('x')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: L[ (A ∙ B)#l ]
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    PsiWhiteSpace(' ')
+                    TypeProjection: (A ∙ B)#l
+                      TypeInParenthesis: (A ∙ B)
+                        PsiElement(()('(')
+                        InfixType: A ∙ B
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ∙
+                            PsiElement(identifier)('∙')
+                          PsiWhiteSpace(' ')
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                        PsiElement())(')')
+                      PsiElement(#)('#')
+                      PsiElement(identifier)('l')
+                    PsiWhiteSpace(' ')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Box[Split]
+                  SimpleType: Box
+                    CodeReferenceElement: Box
+                      PsiElement(identifier)('Box')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Split
+                      CodeReferenceElement: Split
+                        PsiElement(identifier)('Split')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Box.split
+                    ReferenceExpression: Box
+                      PsiElement(identifier)('Box')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('split')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: box
+                      PsiElement(identifier)('box')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n      ')
+              ScPatternDefinition: a1
+                PsiComment(comment)('//Either of these work:')
+                PsiWhiteSpace('\n      ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: a1
+                    PsiElement(identifier)('a1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Box[Split]
+                  SimpleType: Box
+                    CodeReferenceElement: Box
+                      PsiElement(identifier)('Box')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Split
+                      CodeReferenceElement: Split
+                        PsiElement(identifier)('Split')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  GenericCall
+                    ReferenceExpression: Box.split
+                      ReferenceExpression: Box
+                        PsiElement(identifier)('Box')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('split')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: box
+                      PsiElement(identifier)('box')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: a2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: a2
+                    PsiElement(identifier)('a2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Box[ ({ type l[A[x]] = L[ (A ∙ B)#l ] })#l ]
+                  SimpleType: Box
+                    CodeReferenceElement: Box
+                      PsiElement(identifier)('Box')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    PsiWhiteSpace(' ')
+                    TypeProjection: ({ type l[A[x]] = L[ (A ∙ B)#l ] })#l
+                      TypeInParenthesis: ({ type l[A[x]] = L[ (A ∙ B)#l ] })
+                        PsiElement(()('(')
+                        CompoundType: { type l[A[x]] = L[ (A ∙ B)#l ] }
+                          Refinement
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            ScTypeAliasDefinition: l
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('l')
+                              TypeParameterClause
+                                PsiElement([)('[')
+                                TypeParameter: A
+                                  PsiElement(identifier)('A')
+                                  TypeParameterClause
+                                    PsiElement([)('[')
+                                    TypeParameter: x
+                                      PsiElement(identifier)('x')
+                                    PsiElement(])(']')
+                                PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              ParametrizedType: L[ (A ∙ B)#l ]
+                                SimpleType: L
+                                  CodeReferenceElement: L
+                                    PsiElement(identifier)('L')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  PsiWhiteSpace(' ')
+                                  TypeProjection: (A ∙ B)#l
+                                    TypeInParenthesis: (A ∙ B)
+                                      PsiElement(()('(')
+                                      InfixType: A ∙ B
+                                        SimpleType: A
+                                          CodeReferenceElement: A
+                                            PsiElement(identifier)('A')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: ∙
+                                          PsiElement(identifier)('∙')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: B
+                                          CodeReferenceElement: B
+                                            PsiElement(identifier)('B')
+                                      PsiElement())(')')
+                                    PsiElement(#)('#')
+                                    PsiElement(identifier)('l')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
+                        PsiElement())(')')
+                      PsiElement(#)('#')
+                      PsiElement(identifier)('l')
+                    PsiWhiteSpace(' ')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Box.split
+                    ReferenceExpression: Box
+                      PsiElement(identifier)('Box')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('split')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: box
+                      PsiElement(identifier)('box')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n   ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

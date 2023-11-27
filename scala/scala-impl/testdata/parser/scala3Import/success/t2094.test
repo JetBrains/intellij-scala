@@ -30,3 +30,315 @@ case class KnownType(typ: Class[_]) extends Value {
   def getType = Some(typ)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// compiles:')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: Map
+              PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Value
+                CodeReferenceElement: Value
+                  PsiElement(identifier)('Value')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: KnownType
+                  PsiElement(identifier)('KnownType')
+                ArgumentList
+                  PsiElement(()('(')
+                  GenericCall
+                    ReferenceExpression: classOf
+                      PsiElement(identifier)('classOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Object
+                        CodeReferenceElement: Object
+                          PsiElement(identifier)('Object')
+                      PsiElement(])(']')
+                  PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: UnknownValue
+                  PsiElement(identifier)('UnknownValue')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// does not compile:')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Map
+            PsiElement(identifier)('Map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: KnownType
+                  PsiElement(identifier)('KnownType')
+                ArgumentList
+                  PsiElement(()('(')
+                  GenericCall
+                    ReferenceExpression: classOf
+                      PsiElement(identifier)('classOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Object
+                        CodeReferenceElement: Object
+                          PsiElement(identifier)('Object')
+                      PsiElement(])(']')
+                  PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: UnknownValue
+                  PsiElement(identifier)('UnknownValue')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Experiment.scala:10: error: type mismatch;')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//  found   : (Int, KnownType)')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//  required: (Int, Product with Value{def getType: Option[java.lang.Class[_$$2]]}) where type _$$2')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//     0 -> KnownType(classOf[Object]),')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//       ^')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// one error found')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: Value
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Value')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: getType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getType')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Class[_]]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Class[_]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: UnknownValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnknownValue')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Value
+            CodeReferenceElement: Value
+              PsiElement(identifier)('Value')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getType')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: None
+            PsiElement(identifier)('None')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// compiles if changed to:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def getType: Option[Class[_]] = None')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: KnownType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('KnownType')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: typ
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('typ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Class[_]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Value
+            CodeReferenceElement: Value
+              PsiElement(identifier)('Value')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getType')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: typ
+                PsiElement(identifier)('typ')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

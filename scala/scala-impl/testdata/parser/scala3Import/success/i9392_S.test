@@ -19,3 +19,154 @@ object Test {
   // val i3 = s2.i
 }
 -----
+ScalaFile
+  ScClass: S1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('S1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: pkg.J
+            CodeReferenceElement: pkg.J
+              CodeReferenceElement: pkg
+                PsiElement(identifier)('pkg')
+              PsiElement(.)('.')
+              PsiElement(identifier)('J')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('i')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// Unlike Scala 2 this doesn't compile, because this override of `i()`')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// also matches the non-overridable field `i`.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// class S2 extends pkg.J {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   override def i: Int = 2')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// }')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: s1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: s1
+              PsiElement(identifier)('s1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: S1
+                    CodeReferenceElement: S1
+                      PsiElement(identifier)('S1')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: i1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: i1
+              PsiElement(identifier)('i1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: s1.i
+            ReferenceExpression: s1
+              PsiElement(identifier)('s1')
+            PsiElement(.)('.')
+            PsiElement(identifier)('i')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: i2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: i2
+              PsiElement(identifier)('i2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: s1.i
+              ReferenceExpression: s1
+                PsiElement(identifier)('s1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('i')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// val s2 = new S2')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// val i3 = s2.i')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

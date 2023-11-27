@@ -22,3 +22,454 @@ object Test {
   x == y
 }
 -----
+ScalaFile
+  ScClass: One
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('One')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: CanEqual
+          PsiElement(identifier)('CanEqual')
+  PsiWhiteSpace('\n')
+  ScClass: Two
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Two')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: CanEqual
+          PsiElement(identifier)('CanEqual')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_CanEqual_One_Two
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ParametrizedType: CanEqual[One, Two]
+      SimpleType: CanEqual
+        CodeReferenceElement: CanEqual
+          PsiElement(identifier)('CanEqual')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: One
+          CodeReferenceElement: One
+            PsiElement(identifier)('One')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Two
+          CodeReferenceElement: Two
+            PsiElement(identifier)('Two')
+        PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: CanEqual.derived
+      ReferenceExpression: CanEqual
+        PsiElement(identifier)('CanEqual')
+      PsiElement(.)('.')
+      PsiElement(identifier)('derived')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Lst
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Lst')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: CanEqual
+          PsiElement(identifier)('CanEqual')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Cons
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Cons
+            PsiElement(identifier)('Cons')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: xs
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('xs')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Lst[T]
+                        SimpleType: Lst
+                          CodeReferenceElement: Lst
+                            PsiElement(identifier)('Lst')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Nil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Nil
+            PsiElement(identifier)('Nil')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Triple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Triple')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: CanEqual
+          PsiElement(identifier)('CanEqual')
+  PsiWhiteSpace('\n\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: CanEqual[Lst[Lst[One]], Lst[Lst[Two]]]
+              SimpleType: CanEqual
+                CodeReferenceElement: CanEqual
+                  PsiElement(identifier)('CanEqual')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Lst[Lst[One]]
+                  SimpleType: Lst
+                    CodeReferenceElement: Lst
+                      PsiElement(identifier)('Lst')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Lst[One]
+                      SimpleType: Lst
+                        CodeReferenceElement: Lst
+                          PsiElement(identifier)('Lst')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: One
+                          CodeReferenceElement: One
+                            PsiElement(identifier)('One')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Lst[Lst[Two]]
+                  SimpleType: Lst
+                    CodeReferenceElement: Lst
+                      PsiElement(identifier)('Lst')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Lst[Two]
+                      SimpleType: Lst
+                        CodeReferenceElement: Lst
+                          PsiElement(identifier)('Lst')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Two
+                          CodeReferenceElement: Two
+                            PsiElement(identifier)('Two')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: CanEqual[Triple[One, One, One],
+                Triple[Two, Two, Two]]
+              SimpleType: CanEqual
+                CodeReferenceElement: CanEqual
+                  PsiElement(identifier)('CanEqual')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Triple[One, One, One]
+                  SimpleType: Triple
+                    CodeReferenceElement: Triple
+                      PsiElement(identifier)('Triple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: One
+                      CodeReferenceElement: One
+                        PsiElement(identifier)('One')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: One
+                      CodeReferenceElement: One
+                        PsiElement(identifier)('One')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: One
+                      CodeReferenceElement: One
+                        PsiElement(identifier)('One')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n                ')
+                ParametrizedType: Triple[Two, Two, Two]
+                  SimpleType: Triple
+                    CodeReferenceElement: Triple
+                      PsiElement(identifier)('Triple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Two
+                      CodeReferenceElement: Two
+                        PsiElement(identifier)('Two')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Two
+                      CodeReferenceElement: Two
+                        PsiElement(identifier)('Two')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Two
+                      CodeReferenceElement: Two
+                        PsiElement(identifier)('Two')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Triple[Lst[One], One, Two]
+            SimpleType: Triple
+              CodeReferenceElement: Triple
+                PsiElement(identifier)('Triple')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Lst[One]
+                SimpleType: Lst
+                  CodeReferenceElement: Lst
+                    PsiElement(identifier)('Lst')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: One
+                    CodeReferenceElement: One
+                      PsiElement(identifier)('One')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: One
+                CodeReferenceElement: One
+                  PsiElement(identifier)('One')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Two
+                CodeReferenceElement: Two
+                  PsiElement(identifier)('Two')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Triple[Lst[Two], One, Two]
+            SimpleType: Triple
+              CodeReferenceElement: Triple
+                PsiElement(identifier)('Triple')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Lst[Two]
+                SimpleType: Lst
+                  CodeReferenceElement: Lst
+                    PsiElement(identifier)('Lst')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Two
+                    CodeReferenceElement: Two
+                      PsiElement(identifier)('Two')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: One
+                CodeReferenceElement: One
+                  PsiElement(identifier)('One')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Two
+                CodeReferenceElement: Two
+                  PsiElement(identifier)('Two')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ==
+            PsiElement(identifier)('==')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: y
+            PsiElement(identifier)('y')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -7,3 +7,150 @@ trait Vector[+a] { // SLS, Example 4.4.3 b)
   def append[b >: a](x: Vector[b]): Vector[b]
 }
 -----
+ScalaFile
+  ScClass: P
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('P')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('a')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: b
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('b')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// SLS, Example 4.4.2')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fst
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fst')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: a
+            CodeReferenceElement: a
+              PsiElement(identifier)('a')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: snd
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('snd')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: b
+            CodeReferenceElement: b
+              PsiElement(identifier)('b')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Vector
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Vector')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// SLS, Example 4.4.3 b)')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: append
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('append')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: b
+              PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: a
+                CodeReferenceElement: a
+                  PsiElement(identifier)('a')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vector[b]
+                    SimpleType: Vector
+                      CodeReferenceElement: Vector
+                        PsiElement(identifier)('Vector')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: b
+                        CodeReferenceElement: b
+                          PsiElement(identifier)('b')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Vector[b]
+            SimpleType: Vector
+              CodeReferenceElement: Vector
+                PsiElement(identifier)('Vector')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: b
+                CodeReferenceElement: b
+                  PsiElement(identifier)('b')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

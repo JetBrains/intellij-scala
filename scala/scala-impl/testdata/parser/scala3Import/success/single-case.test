@@ -6,3 +6,60 @@ object test:
 
 
 -----
+ScalaFile
+  ScObject: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"hi"')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: ex
+                  PsiElement(identifier)('ex')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: java.io.IOException
+                    CodeReferenceElement: java.io.IOException
+                      CodeReferenceElement: java.io
+                        CodeReferenceElement: java
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('io')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('IOException')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"ho"')
+                  PsiElement())(')')

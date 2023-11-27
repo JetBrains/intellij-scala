@@ -14,3 +14,212 @@ class i4785 {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.Predef.Set
+        CodeReferenceElement: scala.Predef
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Predef')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Set')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// unimport Predef.wrapRefArray')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.nio.file.Paths
+        CodeReferenceElement: java.nio.file
+          CodeReferenceElement: java.nio
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('nio')
+          PsiElement(.)('.')
+          PsiElement(identifier)('file')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Paths')
+  PsiWhiteSpace('\n\n')
+  ScClass: i4785
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i4785')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: xs.length
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('length')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Seq[String]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: ys
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ys')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Paths.get
+                ReferenceExpression: Paths
+                  PsiElement(identifier)('Paths')
+                PsiElement(.)('.')
+                PsiElement(identifier)('get')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"Hello"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypedExpression
+                  ReferenceExpression: xs
+                    PsiElement(identifier)('xs')
+                  SequenceArgumentType
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Paths.get
+                ReferenceExpression: Paths
+                  PsiElement(identifier)('Paths')
+                PsiElement(.)('.')
+                PsiElement(identifier)('get')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"Hello"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypedExpression
+                  ReferenceExpression: ys
+                    PsiElement(identifier)('ys')
+                  SequenceArgumentType
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            MethodCall
+              ReferenceExpression: bar
+                PsiElement(identifier)('bar')
+              ArgumentList
+                PsiElement(()('(')
+                TypedExpression
+                  ReferenceExpression: xs
+                    PsiElement(identifier)('xs')
+                  SequenceArgumentType
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: bar
+                PsiElement(identifier)('bar')
+              ArgumentList
+                PsiElement(()('(')
+                TypedExpression
+                  ReferenceExpression: ys
+                    PsiElement(identifier)('ys')
+                  SequenceArgumentType
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

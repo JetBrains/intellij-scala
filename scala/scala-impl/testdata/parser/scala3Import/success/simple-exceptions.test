@@ -19,3 +19,193 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.io.IOException
+        CodeReferenceElement: java.io
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('io')
+        PsiElement(.)('.')
+        PsiElement(identifier)('IOException')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('//def error[a](x: String):a = new java.lang.RuntimeException(x) throw;')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            TryStatement
+              PsiElement(try)('try')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                TryStatement
+                  PsiElement(try)('try')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Console.println
+                        ReferenceExpression: Console
+                          PsiElement(identifier)('Console')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"hi!"')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: sys.error
+                        ReferenceExpression: sys
+                          PsiElement(identifier)('sys')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('error')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"xx"')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  FinallyBlock
+                    PsiElement(finally)('finally')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Console.println
+                        ReferenceExpression: Console
+                          PsiElement(identifier)('Console')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"ho!"')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              CatchBlock
+                PsiElement(catch)('catch')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: ex
+                          PsiElement(identifier)('ex')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: IOException
+                            CodeReferenceElement: IOException
+                              PsiElement(identifier)('IOException')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: Console.println
+                            ReferenceExpression: Console
+                              PsiElement(identifier)('Console')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('println')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('"io exception!"')
+                            PsiElement())(')')
+                        PsiElement(;)(';')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: ex
+                        PsiElement(identifier)('ex')
+                      PsiWhiteSpace('              ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: Console.println
+                            ReferenceExpression: Console
+                              PsiElement(identifier)('Console')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('println')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: ex
+                              PsiElement(identifier)('ex')
+                            PsiElement())(')')
+                        PsiElement(;)(';')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -20,3 +20,209 @@ trait PriorityTree {
   }
 }
 -----
+ScalaFile
+  ScTrait: PriorityTree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PriorityTree')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: BasicTreeNode
+            CodeReferenceElement: BasicTreeNode
+              PsiElement(identifier)('BasicTreeNode')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: top
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: top
+              PsiElement(identifier)('top')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: initTree
+            PsiElement(identifier)('initTree')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        AssignStatement
+          ReferenceExpression: top.next
+            ReferenceExpression: top
+              PsiElement(identifier)('top')
+            PsiElement(.)('.')
+            PsiElement(identifier)('next')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            ReferenceExpression: initTree
+              PsiElement(identifier)('initTree')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        AssignStatement
+          ReferenceExpression: top.next.prev
+            ReferenceExpression: top.next
+              ReferenceExpression: top
+                PsiElement(identifier)('top')
+              PsiElement(.)('.')
+              PsiElement(identifier)('next')
+            PsiElement(.)('.')
+            PsiElement(identifier)('prev')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            ReferenceExpression: top
+              PsiElement(identifier)('top')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: initTree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('initTree')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n\n\n\n  ')
+        ScTrait: BasicTreeNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BasicTreeNode')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: next
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                    PsiElement([)('[')
+                    PsiElement(identifier)('PriorityTree')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: next
+                    PsiElement(identifier)('next')
+                PsiWhiteSpace('  ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnderscoreSection
+                  PsiElement(_)('_')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: prev
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                    PsiElement([)('[')
+                    PsiElement(identifier)('PriorityTree')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: prev
+                    PsiElement(identifier)('prev')
+                PsiWhiteSpace('  ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnderscoreSection
+                  PsiElement(_)('_')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: chld
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                    PsiElement([)('[')
+                    PsiElement(identifier)('PriorityTree')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: chld
+                    PsiElement(identifier)('chld')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnderscoreSection
+                  PsiElement(_)('_')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('//var next  : Node = _;')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('//var prev  : Node = _;')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('//var chld : Node = _;')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

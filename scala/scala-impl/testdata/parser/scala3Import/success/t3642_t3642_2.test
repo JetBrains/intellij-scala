@@ -2,3 +2,24 @@ object T {
   Tuppel_1.get
 }
 -----
+ScalaFile
+  ScObject: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: Tuppel_1.get
+          ReferenceExpression: Tuppel_1
+            PsiElement(identifier)('Tuppel_1')
+          PsiElement(.)('.')
+          PsiElement(identifier)('get')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

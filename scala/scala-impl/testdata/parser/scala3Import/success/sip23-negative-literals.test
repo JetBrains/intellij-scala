@@ -8,3 +8,148 @@ object Test {
   type neg3 = -2 ~~ -2
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: ~~
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('~~')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: nonNeg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('nonNeg')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: 2 ~~ 2
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ~~
+              PsiElement(identifier)('~~')
+            PsiWhiteSpace(' ')
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: neg0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('neg0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          LiteralType: -2
+            IntegerLiteral
+              PsiElement(identifier)('-')
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: neg1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('neg1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: -2 ~~ 2
+            LiteralType: -2
+              IntegerLiteral
+                PsiElement(identifier)('-')
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ~~
+              PsiElement(identifier)('~~')
+            PsiWhiteSpace(' ')
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: neg2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('neg2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: 2 ~~ -2
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ~~
+              PsiElement(identifier)('~~')
+            PsiWhiteSpace(' ')
+            LiteralType: -2
+              IntegerLiteral
+                PsiElement(identifier)('-')
+                PsiElement(integer)('2')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: neg3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('neg3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: -2 ~~ -2
+            LiteralType: -2
+              IntegerLiteral
+                PsiElement(identifier)('-')
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ~~
+              PsiElement(identifier)('~~')
+            PsiWhiteSpace(' ')
+            LiteralType: -2
+              IntegerLiteral
+                PsiElement(identifier)('-')
+                PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

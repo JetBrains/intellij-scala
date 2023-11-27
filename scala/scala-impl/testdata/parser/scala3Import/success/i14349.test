@@ -18,3 +18,302 @@ trait Expose[
 def test(ms: Seq[Option[Module]]): Seq[Expose[_, _, _]] =
   ms.collect { case Some(module) => module.expose }
 -----
+ScalaFile
+  ScTrait: Module
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Module')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: M
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('M')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: Module {
+    type X = self.X
+    type Y = self.Y
+  }
+            SimpleType: Module
+              CodeReferenceElement: Module
+                PsiElement(identifier)('Module')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: X
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('X')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: self.X
+                  CodeReferenceElement: self.X
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('X')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Y')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: self.Y
+                  CodeReferenceElement: self.Y
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Y')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Y')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: expose
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('expose')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expose[X, Y, M]
+            SimpleType: Expose
+              CodeReferenceElement: Expose
+                PsiElement(identifier)('Expose')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Y
+                CodeReferenceElement: Y
+                  PsiElement(identifier)('Y')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: M
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Expose
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expose')
+    TypeParameterClause
+      PsiElement([)('[')
+      PsiWhiteSpace('\n    ')
+      TypeParameter: X0
+        PsiElement(identifier)('X0')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n    ')
+      TypeParameter: Y0
+        PsiElement(identifier)('Y0')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n    ')
+      TypeParameter: M
+        PsiElement(identifier)('M')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        CompoundType: Module { type X = X0; type Y = Y0 }
+          SimpleType: Module
+            CodeReferenceElement: Module
+              PsiElement(identifier)('Module')
+          PsiWhiteSpace(' ')
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScTypeAliasDefinition: X
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              SimpleType: X0
+                CodeReferenceElement: X0
+                  PsiElement(identifier)('X0')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            ScTypeAliasDefinition: Y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Y')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              SimpleType: Y0
+                CodeReferenceElement: Y0
+                  PsiElement(identifier)('Y0')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ms
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ms')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Seq[Option[Module]]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Option[Module]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Module
+                      CodeReferenceElement: Module
+                        PsiElement(identifier)('Module')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Seq[Expose[_, _, _]]
+      SimpleType: Seq
+        CodeReferenceElement: Seq
+          PsiElement(identifier)('Seq')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Expose[_, _, _]
+          SimpleType: Expose
+            CodeReferenceElement: Expose
+              PsiElement(identifier)('Expose')
+          TypeArgumentsList
+            PsiElement([)('[')
+            WildcardType: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            WildcardType: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            WildcardType: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: ms.collect
+        ReferenceExpression: ms
+          PsiElement(identifier)('ms')
+        PsiElement(.)('.')
+        PsiElement(identifier)('collect')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: Some
+                  PsiElement(identifier)('Some')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: module
+                    PsiElement(identifier)('module')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: module.expose
+                  ReferenceExpression: module
+                    PsiElement(identifier)('module')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('expose')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')

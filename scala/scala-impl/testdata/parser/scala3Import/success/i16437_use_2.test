@@ -1,3 +1,42 @@
 @main def Test =
   new Inventory().NODES.dn
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: new Inventory().NODES.dn
+      ReferenceExpression: new Inventory().NODES
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Inventory
+                  CodeReferenceElement: Inventory
+                    PsiElement(identifier)('Inventory')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('NODES')
+      PsiElement(.)('.')
+      PsiElement(identifier)('dn')

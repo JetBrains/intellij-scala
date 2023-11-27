@@ -37,3 +37,611 @@ object Example extends App {
   println("It compiles!")
 }
 -----
+ScalaFile
+  ScObject: Example
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Example')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Has
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Has')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: ZIO
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ZIO')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: provideLayer
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('provideLayer')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: R0
+                    PsiElement(identifier)('R0')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: R1
+                    PsiElement(identifier)('R1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Has[_]
+                      SimpleType: Has
+                        CodeReferenceElement: Has
+                          PsiElement(identifier)('Has')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n        ')
+                    Parameter: layer
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('layer')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: ZLayer[R0, R1]
+                          SimpleType: ZLayer
+                            CodeReferenceElement: ZLayer
+                              PsiElement(identifier)('ZLayer')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: R0
+                              CodeReferenceElement: R0
+                                PsiElement(identifier)('R0')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: R1
+                              CodeReferenceElement: R1
+                                PsiElement(identifier)('R1')
+                            PsiElement(])(']')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement())(')')
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(implicit)('implicit')
+                    PsiWhiteSpace(' ')
+                    Parameter: ev
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('ev')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        InfixType: R1 <:< R
+                          SimpleType: R1
+                            CodeReferenceElement: R1
+                              PsiElement(identifier)('R1')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: <:<
+                            PsiElement(identifier)('<:<')
+                          PsiWhiteSpace(' ')
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ZIO[R0]
+                  SimpleType: ZIO
+                    CodeReferenceElement: ZIO
+                      PsiElement(identifier)('ZIO')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: R0
+                      CodeReferenceElement: R0
+                        PsiElement(identifier)('R0')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: ZLayer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ZLayer')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: RIn
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('RIn')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ROut
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('ROut')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Has[_]
+                SimpleType: Has
+                  CodeReferenceElement: Has
+                    PsiElement(identifier)('Has')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: ++
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('++')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: RIn2
+                    PsiElement(identifier)('RIn2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: ROut1
+                    PsiElement(identifier)('ROut1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(>:)('>:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ROut
+                      CodeReferenceElement: ROut
+                        PsiElement(identifier)('ROut')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Has[_]
+                      SimpleType: Has
+                        CodeReferenceElement: Has
+                          PsiElement(identifier)('Has')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: ROut2
+                    PsiElement(identifier)('ROut2')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Has[_]
+                      SimpleType: Has
+                        CodeReferenceElement: Has
+                          PsiElement(identifier)('Has')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n        ')
+                    Parameter: that
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('that')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: ZLayer[RIn2, ROut2]
+                          SimpleType: ZLayer
+                            CodeReferenceElement: ZLayer
+                              PsiElement(identifier)('ZLayer')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: RIn2
+                              CodeReferenceElement: RIn2
+                                PsiElement(identifier)('RIn2')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: ROut2
+                              CodeReferenceElement: ROut2
+                                PsiElement(identifier)('ROut2')
+                            PsiElement(])(']')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ZLayer[RIn with RIn2, ROut1 with ROut2]
+                  SimpleType: ZLayer
+                    CodeReferenceElement: ZLayer
+                      PsiElement(identifier)('ZLayer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    CompoundType: RIn with RIn2
+                      SimpleType: RIn
+                        CodeReferenceElement: RIn
+                          PsiElement(identifier)('RIn')
+                      PsiWhiteSpace(' ')
+                      PsiElement(with)('with')
+                      PsiWhiteSpace(' ')
+                      SimpleType: RIn2
+                        CodeReferenceElement: RIn2
+                          PsiElement(identifier)('RIn2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    CompoundType: ROut1 with ROut2
+                      SimpleType: ROut1
+                        CodeReferenceElement: ROut1
+                          PsiElement(identifier)('ROut1')
+                      PsiWhiteSpace(' ')
+                      PsiElement(with)('with')
+                      PsiWhiteSpace(' ')
+                      SimpleType: ROut2
+                        CodeReferenceElement: ROut2
+                          PsiElement(identifier)('ROut2')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: RandomService
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RandomService')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: SizedService
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SizedService')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Random
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Random')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Has[RandomService]
+            SimpleType: Has
+              CodeReferenceElement: Has
+                PsiElement(identifier)('Has')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: RandomService
+                CodeReferenceElement: RandomService
+                  PsiElement(identifier)('RandomService')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Sized
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Sized')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Has[SizedService]
+            SimpleType: Has
+              CodeReferenceElement: Has
+                PsiElement(identifier)('Has')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: SizedService
+                CodeReferenceElement: SizedService
+                  PsiElement(identifier)('SizedService')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: random
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('random')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZLayer[Random, Random]
+            SimpleType: ZLayer
+              CodeReferenceElement: ZLayer
+                PsiElement(identifier)('ZLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Random
+                CodeReferenceElement: Random
+                  PsiElement(identifier)('Random')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Random
+                CodeReferenceElement: Random
+                  PsiElement(identifier)('Random')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: sized
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sized')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZLayer[Any, Sized]
+            SimpleType: ZLayer
+              CodeReferenceElement: ZLayer
+                PsiElement(identifier)('ZLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Sized
+                CodeReferenceElement: Sized
+                  PsiElement(identifier)('Sized')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: zio
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zio
+              PsiElement(identifier)('zio')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZIO[Random with Sized]
+            SimpleType: ZIO
+              CodeReferenceElement: ZIO
+                PsiElement(identifier)('ZIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: Random with Sized
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: Sized
+                  CodeReferenceElement: Sized
+                    PsiElement(identifier)('Sized')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: eliminated
+          PsiComment(comment)('// Okay on Scala 2, does not compile on Dotty')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: eliminated
+              PsiElement(identifier)('eliminated')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZIO[Random]
+            SimpleType: ZIO
+              CodeReferenceElement: ZIO
+                PsiElement(identifier)('ZIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Random
+                CodeReferenceElement: Random
+                  PsiElement(identifier)('Random')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: zio.provideLayer
+              ReferenceExpression: zio
+                PsiElement(identifier)('zio')
+              PsiElement(.)('.')
+              PsiElement(identifier)('provideLayer')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: random
+                  PsiElement(identifier)('random')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: sized
+                  PsiElement(identifier)('sized')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: eliminated2
+          PsiComment(comment)('// Compiles on Dotty with an explicit type annotation')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: eliminated2
+              PsiElement(identifier)('eliminated2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZIO[Random]
+            SimpleType: ZIO
+              CodeReferenceElement: ZIO
+                PsiElement(identifier)('ZIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Random
+                CodeReferenceElement: Random
+                  PsiElement(identifier)('Random')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: zio.provideLayer
+                ReferenceExpression: zio
+                  PsiElement(identifier)('zio')
+                PsiElement(.)('.')
+                PsiElement(identifier)('provideLayer')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                CompoundType: Random with Sized
+                  SimpleType: Random
+                    CodeReferenceElement: Random
+                      PsiElement(identifier)('Random')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Sized
+                    CodeReferenceElement: Sized
+                      PsiElement(identifier)('Sized')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: random
+                  PsiElement(identifier)('random')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: sized
+                  PsiElement(identifier)('sized')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"It compiles!"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

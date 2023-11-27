@@ -13,3 +13,68 @@ class Bar2 extends Bar1 with Two[Foo] // error
   // doesn't detect that due to separate compilation,
   // so this test case fails.
 -----
+ScalaFile
+  PsiComment(comment)('// This test case was supposed to fail when mixin forwarders were generated before erasure,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// but didn't due to separate compilation unlike mixin-forwarder-clash1,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// it's not supposed to fail anymore since the forwarders generated after erasure do not clash,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// the comments are preserved for posterity.')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Bar1
+            CodeReferenceElement: Bar1
+              PsiElement(identifier)('Bar1')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: Two[Foo]
+            SimpleType: Two
+              CodeReferenceElement: Two
+                PsiElement(identifier)('Two')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// We get a mixin forwarder for Two:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//   override def concat[Dummy](suffix: Int): Foo')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// which gets erased to:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//   override def concat(suffix: Int): Foo')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// This clashes with the forwarder generated in Bar1, but')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// unlike with mixin-forwarder-clash1, the compiler')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// doesn't detect that due to separate compilation,')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// so this test case fails.')

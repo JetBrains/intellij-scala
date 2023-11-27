@@ -8,3 +8,97 @@ package B {
     val t: B.T = A.t
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: A
+      PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n    ')
+    ScTypeAliasDefinition: T
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(opaque)('opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace('\n    ')
+    ScFunctionDefinition: t
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('0')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: B
+      PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n    ')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: A.T
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+          PsiElement(.)('.')
+          PsiElement(identifier)('T')
+    PsiWhiteSpace('\n    ')
+    ScPatternDefinition: t
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: t
+          PsiElement(identifier)('t')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: B.T
+        CodeReferenceElement: B.T
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+          PsiElement(.)('.')
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: A.t
+        ReferenceExpression: A
+          PsiElement(identifier)('A')
+        PsiElement(.)('.')
+        PsiElement(identifier)('t')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

@@ -23,3 +23,385 @@ object Test {
   Comp.autoCtor(comp).whyHelloThere(3)
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.implicitConversions
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('implicitConversions')
+  PsiWhiteSpace('\n\n')
+  ScClass: CtorType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CtorType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: CtorType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CtorType')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Props
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Props')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: CtorType[P]
+                  SimpleType: CtorType
+                    CodeReferenceElement: CtorType
+                      PsiElement(identifier)('CtorType')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: whyHelloThere
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('whyHelloThere')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: props
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('props')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Comp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Comp')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: CT
+        PsiElement(identifier)('CT')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: p
+            PsiElement(identifier)('p')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: CtorType[p]
+          SimpleType: CtorType
+            CodeReferenceElement: CtorType
+              PsiElement(identifier)('CtorType')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: p
+              CodeReferenceElement: p
+                PsiElement(identifier)('p')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: ctor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: ctor
+              PsiElement(identifier)('ctor')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CT[P]
+            SimpleType: CT
+              CodeReferenceElement: CT
+                PsiElement(identifier)('CT')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: P
+                CodeReferenceElement: P
+                  PsiElement(identifier)('P')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Comp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Comp')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: autoCtor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('autoCtor')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: P
+              PsiElement(identifier)('P')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: CT
+              PsiElement(identifier)('CT')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: p
+                  PsiElement(identifier)('p')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: CtorType[p]
+                SimpleType: CtorType
+                  CodeReferenceElement: CtorType
+                    PsiElement(identifier)('CtorType')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: p
+                    CodeReferenceElement: p
+                      PsiElement(identifier)('p')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Comp[P, CT]
+                    SimpleType: Comp
+                      CodeReferenceElement: Comp
+                        PsiElement(identifier)('Comp')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: CT
+                        CodeReferenceElement: CT
+                          PsiElement(identifier)('CT')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CT[P]
+            SimpleType: CT
+              CodeReferenceElement: CT
+                PsiElement(identifier)('CT')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: P
+                CodeReferenceElement: P
+                  PsiElement(identifier)('P')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c.ctor
+            ReferenceExpression: c
+              PsiElement(identifier)('c')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ctor')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: comp
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: comp
+              PsiElement(identifier)('comp')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Comp[Int, CtorType.Props]
+            SimpleType: Comp
+              CodeReferenceElement: Comp
+                PsiElement(identifier)('Comp')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: CtorType.Props
+                CodeReferenceElement: CtorType.Props
+                  CodeReferenceElement: CtorType
+                    PsiElement(identifier)('CtorType')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Props')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: comp.whyHelloThere
+            ReferenceExpression: comp
+              PsiElement(identifier)('comp')
+            PsiElement(.)('.')
+            PsiElement(identifier)('whyHelloThere')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: Comp.autoCtor(comp).whyHelloThere
+            MethodCall
+              ReferenceExpression: Comp.autoCtor
+                ReferenceExpression: Comp
+                  PsiElement(identifier)('Comp')
+                PsiElement(.)('.')
+                PsiElement(identifier)('autoCtor')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: comp
+                  PsiElement(identifier)('comp')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('whyHelloThere')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

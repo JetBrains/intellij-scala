@@ -14,3 +14,224 @@ class Test {
   }
 }
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: newComponent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newComponent')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: u
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('u')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Universe
+                    CodeReferenceElement: Universe
+                      PsiElement(identifier)('Universe')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: u.Component
+            CodeReferenceElement: u.Component
+              CodeReferenceElement: u
+                PsiElement(identifier)('u')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Component')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Universe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Universe')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              ScClass: Component
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Component')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n\n    ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: newComponent
+                    PsiElement(identifier)('newComponent')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: this.Component
+                  CodeReferenceElement: this.Component
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Component')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error, but should be fine since this is a stable reference')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: newComponent
+                    PsiElement(identifier)('newComponent')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: self.Component
+                  CodeReferenceElement: self.Component
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Component')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error, but should be fine since this is a stable reference')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: newComponent
+                    PsiElement(identifier)('newComponent')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: this.Component
+                  CodeReferenceElement: this.Component
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Component')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error, but should be fine since this is a stable reference')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: newComponent
+                    PsiElement(identifier)('newComponent')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: self.Component
+                  CodeReferenceElement: self.Component
+                    CodeReferenceElement: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Component')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error, but should be fine since this is a stable reference')
+              PsiWhiteSpace('\n\n    ')
+              ScPatternDefinition: u
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: u
+                    PsiElement(identifier)('u')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ThisReference
+                  PsiElement(this)('this')
+              PsiWhiteSpace('\n    ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: newComponent
+                    PsiElement(identifier)('newComponent')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: u
+                      PsiElement(identifier)('u')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: u.Component
+                  CodeReferenceElement: u.Component
+                    CodeReferenceElement: u
+                      PsiElement(identifier)('u')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Component')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// ok')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

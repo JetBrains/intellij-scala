@@ -4,3 +4,71 @@ class A {
   }
 }
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          MethodCall
+            ReferenceExpression: PartialFunction.condOpt
+              ReferenceExpression: PartialFunction
+                PsiElement(identifier)('PartialFunction')
+              PsiElement(.)('.')
+              PsiElement(identifier)('condOpt')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  NamingPattern: items
+                    PsiElement(identifier)('items')
+                    PsiElement(@)('@')
+                    ConstructorPattern
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        SequenceWildcardPattern: _
+                          PsiElement(_)('_')
+                          PsiElement(identifier)('*')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  Guard
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  BlockOfExpressions
+                    <empty list>
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

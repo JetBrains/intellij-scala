@@ -4,3 +4,32 @@ object Foo {
   // val a: Int = 1
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: outer
+      PsiElement(identifier)('outer')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: inner
+        PsiElement(identifier)('inner')
+      PsiWhiteSpace('\n')
+      ScObject: Foo
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Foo')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            PsiComment(comment)('// val a: Int = 1')
+            PsiWhiteSpace('\n')
+            PsiElement(})('}')

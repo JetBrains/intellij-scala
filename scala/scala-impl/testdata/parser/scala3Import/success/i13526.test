@@ -14,3 +14,331 @@ val builder = BuilderImpl[Int *: String *: EmptyTuple]()
 // builder { (i: Int, s: String) => "test" } // This line compiles
 val _ = builder { (i, s) => "test" } // Does not compile
 -----
+ScalaFile
+  ScTypeAliasDefinition: ~>
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('~>')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Args
+        PsiElement(identifier)('Args')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Return
+        PsiElement(identifier)('Return')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Args match {
+  case (arg1, arg2) => ((arg1, arg2) => Return)
+}
+      SimpleType: Args
+        CodeReferenceElement: Args
+          PsiElement(identifier)('Args')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TupleType: (arg1, arg2)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: arg1
+                CodeReferenceElement: arg1
+                  PsiElement(identifier)('arg1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeVariable: arg2
+                PsiElement(identifier)('arg2')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: ((arg1, arg2) => Return)
+            PsiElement(()('(')
+            FunctionalType: (arg1, arg2) => Return
+              TupleType: (arg1, arg2)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: arg1
+                    CodeReferenceElement: arg1
+                      PsiElement(identifier)('arg1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: arg2
+                    CodeReferenceElement: arg2
+                      PsiElement(identifier)('arg2')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Return
+                CodeReferenceElement: Return
+                  PsiElement(identifier)('Return')
+            PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Builder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Builder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Args
+        PsiElement(identifier)('Args')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NonEmptyTuple
+          CodeReferenceElement: NonEmptyTuple
+            PsiElement(identifier)('NonEmptyTuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Args ~> String
+                    SimpleType: Args
+                      CodeReferenceElement: Args
+                        PsiElement(identifier)('Args')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ~>
+                      PsiElement(identifier)('~>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: BuilderImpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BuilderImpl')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Args
+        PsiElement(identifier)('Args')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NonEmptyTuple
+          CodeReferenceElement: NonEmptyTuple
+            PsiElement(identifier)('NonEmptyTuple')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Builder[Args]
+            SimpleType: Builder
+              CodeReferenceElement: Builder
+                PsiElement(identifier)('Builder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Args
+                CodeReferenceElement: Args
+                  PsiElement(identifier)('Args')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Args ~> String
+                    SimpleType: Args
+                      CodeReferenceElement: Args
+                        PsiElement(identifier)('Args')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ~>
+                      PsiElement(identifier)('~>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: builder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: builder
+        PsiElement(identifier)('builder')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: BuilderImpl
+          PsiElement(identifier)('BuilderImpl')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Int *: String *: EmptyTuple
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            InfixType: String *: EmptyTuple
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    PsiComment(comment)('// builder { (i: Int, s: String) => "test" } // This line compiles')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: builder
+        PsiElement(identifier)('builder')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: i
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('i')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: s
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('s')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              StringLiteral
+                PsiElement(string content)('"test"')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// Does not compile')

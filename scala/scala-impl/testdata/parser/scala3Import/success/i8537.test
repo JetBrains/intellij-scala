@@ -2,3 +2,119 @@ val f: Int => String = _ => "b"
 var g: Int => String = (_) => "b"  // workaround
 var h: Int => String = _ => "b"    // end of statement expected but '=>' found
 -----
+ScalaFile
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Int => String
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: String
+        CodeReferenceElement: String
+          PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          Parameter: _
+            PsiElement(_)('_')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"b"')
+  PsiWhiteSpace('\n')
+  ScVariableDefinition: g
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: g
+        PsiElement(identifier)('g')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Int => String
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: String
+        CodeReferenceElement: String
+          PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: _
+            AnnotationsList
+              <empty list>
+            PsiElement(_)('_')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"b"')
+  PsiWhiteSpace('  ')
+  PsiComment(comment)('// workaround')
+  PsiWhiteSpace('\n')
+  ScVariableDefinition: h
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: h
+        PsiElement(identifier)('h')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Int => String
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: String
+        CodeReferenceElement: String
+          PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          Parameter: _
+            PsiElement(_)('_')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"b"')
+  PsiWhiteSpace('    ')
+  PsiComment(comment)('// end of statement expected but '=>' found')

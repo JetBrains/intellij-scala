@@ -104,3 +104,2445 @@ class X {
   )
 }
 -----
+ScalaFile
+  ScTrait: E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e1
+              PsiElement(identifier)('e1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[Int]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e2
+              PsiElement(identifier)('e2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[String]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e3
+              PsiElement(identifier)('e3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[Int]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[Int]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e4
+              PsiElement(identifier)('e4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[String]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[String]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e5
+              PsiElement(identifier)('e5')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[Double]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e6
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e6
+              PsiElement(identifier)('e6')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e7
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e7
+              PsiElement(identifier)('e7')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, Int)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e8
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e8
+              PsiElement(identifier)('e8')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, List[String])]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, List[String])
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[String]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e9
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e9
+              PsiElement(identifier)('e9')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[Long]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e10
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e10
+              PsiElement(identifier)('e10')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Long, Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Long, Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e11
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e11
+              PsiElement(identifier)('e11')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Long, Long, Int)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Long, Long, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e12
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e12
+              PsiElement(identifier)('e12')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[Long]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[Long]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e13
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e13
+              PsiElement(identifier)('e13')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[Int]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[Int]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e14
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e14
+              PsiElement(identifier)('e14')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e15
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e15
+              PsiElement(identifier)('e15')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e16
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e16
+              PsiElement(identifier)('e16')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e17
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e17
+              PsiElement(identifier)('e17')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, Long, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, Long, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e18
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e18
+              PsiElement(identifier)('e18')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Long, String, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Long, String, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e19
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e19
+              PsiElement(identifier)('e19')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String, Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String, Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e20
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e20
+              PsiElement(identifier)('e20')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, Int, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e21
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e21
+              PsiElement(identifier)('e21')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, String, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e22
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e22
+              PsiElement(identifier)('e22')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String, Int)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e23
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e23
+              PsiElement(identifier)('e23')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, String, Boolean)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, String, Boolean)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e24
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e24
+              PsiElement(identifier)('e24')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Boolean, Boolean, String)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Boolean, Boolean, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e25
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e25
+              PsiElement(identifier)('e25')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, Int, Boolean)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, Int, Boolean)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e26
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e26
+              PsiElement(identifier)('e26')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(String, String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(String, String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (String, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e27
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e27
+              PsiElement(identifier)('e27')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(Int, String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(Int, String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Int, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e28
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e28
+              PsiElement(identifier)('e28')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(String, Int)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(String, Int)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (String, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e29
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e29
+              PsiElement(identifier)('e29')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(Long, String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(Long, String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Long, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e30
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e30
+              PsiElement(identifier)('e30')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(String, Long)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(String, Long)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (String, Long)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e31
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e31
+              PsiElement(identifier)('e31')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(Boolean, String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(Boolean, String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Boolean, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e32
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e32
+              PsiElement(identifier)('e32')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[(String, Boolean)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[(String, Boolean)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (String, Boolean)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e33
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e33
+              PsiElement(identifier)('e33')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, String), String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, String), String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, String), String)
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e34
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e34
+              PsiElement(identifier)('e34')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, Int), String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, Int), String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, Int), String)
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e35
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e35
+              PsiElement(identifier)('e35')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((Long, String), String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((Long, String), String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((Long, String), String)
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (Long, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e36
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e36
+              PsiElement(identifier)('e36')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((Boolean, String), String)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((Boolean, String), String)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((Boolean, String), String)
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (Boolean, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e37
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e37
+              PsiElement(identifier)('e37')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, String), Int)]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, String), Int)]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, String), Int)
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e38
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e38
+              PsiElement(identifier)('e38')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, String), (String, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, String), (String, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, String), (String, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (String, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e39
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e39
+              PsiElement(identifier)('e39')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((Boolean, Long), (String, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((Boolean, Long), (String, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((Boolean, Long), (String, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (Boolean, Long)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (String, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e40
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e40
+              PsiElement(identifier)('e40')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((Int, Long), (Boolean, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((Int, Long), (Boolean, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((Int, Long), (Boolean, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (Int, Long)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (Boolean, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e41
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e41
+              PsiElement(identifier)('e41')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, (Int, String)), (String, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, (Int, String)), (String, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, (Int, String)), (String, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, (Int, String))
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TupleType: (Int, String)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (String, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e42
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e42
+              PsiElement(identifier)('e42')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((Boolean, (Int, String)), (String, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((Boolean, (Int, String)), (String, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((Boolean, (Int, String)), (String, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (Boolean, (Int, String))
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TupleType: (Int, String)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (String, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e43
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e43
+              PsiElement(identifier)('e43')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[List[((String, (Int, String)), (Boolean, Int))]]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[((String, (Int, String)), (Boolean, Int))]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: ((String, (Int, String)), (Boolean, Int))
+                    PsiElement(()('(')
+                    TypesList
+                      TupleType: (String, (Int, String))
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TupleType: (Int, String)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TupleType: (Boolean, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e44
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e44
+              PsiElement(identifier)('e44')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, List[String], Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, List[String], Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[String]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e45
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e45
+              PsiElement(identifier)('e45')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, List[Int], Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, List[Int], Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[Int]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e46
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e46
+              PsiElement(identifier)('e46')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, List[Long], Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, List[Long], Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[Long]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e47
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e47
+              PsiElement(identifier)('e47')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(String, List[String], Long)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, List[String], Long)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[String]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e48
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e48
+              PsiElement(identifier)('e48')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[(Int, List[String], Boolean)]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, List[String], Boolean)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[String]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: e49
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e49
+              PsiElement(identifier)('e49')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: E[Char]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Char
+                CodeReferenceElement: Char
+                  PsiElement(identifier)('Char')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: all
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: all
+              PsiElement(identifier)('all')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e1
+                PsiElement(identifier)('e1')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e2
+                PsiElement(identifier)('e2')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e3
+                PsiElement(identifier)('e3')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e4
+                PsiElement(identifier)('e4')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e5
+                PsiElement(identifier)('e5')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e6
+                PsiElement(identifier)('e6')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e7
+                PsiElement(identifier)('e7')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e8
+                PsiElement(identifier)('e8')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e9
+                PsiElement(identifier)('e9')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e10
+                PsiElement(identifier)('e10')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e11
+                PsiElement(identifier)('e11')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e12
+                PsiElement(identifier)('e12')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e13
+                PsiElement(identifier)('e13')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e14
+                PsiElement(identifier)('e14')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e15
+                PsiElement(identifier)('e15')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e16
+                PsiElement(identifier)('e16')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e17
+                PsiElement(identifier)('e17')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e18
+                PsiElement(identifier)('e18')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e19
+                PsiElement(identifier)('e19')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e20
+                PsiElement(identifier)('e20')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e21
+                PsiElement(identifier)('e21')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e22
+                PsiElement(identifier)('e22')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e23
+                PsiElement(identifier)('e23')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e24
+                PsiElement(identifier)('e24')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e25
+                PsiElement(identifier)('e25')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e26
+                PsiElement(identifier)('e26')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e27
+                PsiElement(identifier)('e27')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e28
+                PsiElement(identifier)('e28')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e29
+                PsiElement(identifier)('e29')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e30
+                PsiElement(identifier)('e30')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e31
+                PsiElement(identifier)('e31')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e32
+                PsiElement(identifier)('e32')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e33
+                PsiElement(identifier)('e33')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e34
+                PsiElement(identifier)('e34')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e35
+                PsiElement(identifier)('e35')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e36
+                PsiElement(identifier)('e36')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e37
+                PsiElement(identifier)('e37')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e38
+                PsiElement(identifier)('e38')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e39
+                PsiElement(identifier)('e39')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e40
+                PsiElement(identifier)('e40')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e41
+                PsiElement(identifier)('e41')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e42
+                PsiElement(identifier)('e42')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e43
+                PsiElement(identifier)('e43')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e44
+                PsiElement(identifier)('e44')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e45
+                PsiElement(identifier)('e45')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e46
+                PsiElement(identifier)('e46')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e47
+                PsiElement(identifier)('e47')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e48
+                PsiElement(identifier)('e48')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: e49
+                PsiElement(identifier)('e49')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

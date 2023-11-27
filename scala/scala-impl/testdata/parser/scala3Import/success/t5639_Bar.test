@@ -6,3 +6,64 @@ object Quux {
   def baz : Baz   = 1
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: pack.age
+      CodeReferenceElement: pack
+        PsiElement(identifier)('pack')
+      PsiElement(.)('.')
+      PsiElement(identifier)('age')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: pack.age.Implicits
+          CodeReferenceElement: pack.age
+            CodeReferenceElement: pack
+              PsiElement(identifier)('pack')
+            PsiElement(.)('.')
+            PsiElement(identifier)('age')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Implicits')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScObject: Quux
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Quux')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: baz
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('baz')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Baz
+              CodeReferenceElement: Baz
+                PsiElement(identifier)('Baz')
+            PsiWhiteSpace('   ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

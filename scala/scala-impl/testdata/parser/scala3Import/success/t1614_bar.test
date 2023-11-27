@@ -3,3 +3,50 @@ object Bar {
   val a = new FooImpl with AbstractOverrideFoo
 }
 -----
+ScalaFile
+  ScObject: Bar
+    PsiComment(comment)('// bar.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: FooImpl
+                    CodeReferenceElement: FooImpl
+                      PsiElement(identifier)('FooImpl')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: AbstractOverrideFoo
+                    CodeReferenceElement: AbstractOverrideFoo
+                      PsiElement(identifier)('AbstractOverrideFoo')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

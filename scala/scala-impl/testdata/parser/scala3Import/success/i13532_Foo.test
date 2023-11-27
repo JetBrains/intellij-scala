@@ -4,3 +4,41 @@ class Foo {
 	TestMacro.call()
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: testcode
+      PsiElement(identifier)('testcode')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\t')
+          MethodCall
+            ReferenceExpression: TestMacro.call
+              ReferenceExpression: TestMacro
+                PsiElement(identifier)('TestMacro')
+              PsiElement(.)('.')
+              PsiElement(identifier)('call')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

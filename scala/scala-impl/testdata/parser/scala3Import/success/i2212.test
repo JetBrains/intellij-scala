@@ -18,3 +18,256 @@ object Money {
   def foo(round: RoundingMode = RoundingMode.HALF_EVEN): Int = ???
 }
 -----
+ScalaFile
+  ScObject: squants
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('squants')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Time
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Time')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: squants.time.Time
+            CodeReferenceElement: squants.time.Time
+              CodeReferenceElement: squants.time
+                CodeReferenceElement: squants
+                  PsiElement(identifier)('squants')
+                PsiElement(.)('.')
+                PsiElement(identifier)('time')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Time')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: squants.time
+      CodeReferenceElement: squants
+        PsiElement(identifier)('squants')
+      PsiElement(.)('.')
+      PsiElement(identifier)('time')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScClass: Time
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Time')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n  ')
+    ScObject: Time
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Time')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          ScFunctionDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('x')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: squants.velocity
+      CodeReferenceElement: squants
+        PsiElement(identifier)('squants')
+      PsiElement(.)('.')
+      PsiElement(identifier)('velocity')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: squants.time
+          CodeReferenceElement: squants
+            PsiElement(identifier)('squants')
+          PsiElement(.)('.')
+          PsiElement(identifier)('time')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('  ')
+    PsiComment(comment)('// <-- imports `Time` value')
+    PsiWhiteSpace('\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: squants.Time
+          CodeReferenceElement: squants
+            PsiElement(identifier)('squants')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Time')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// <-- imports  type alias')
+    PsiWhiteSpace('\n  ')
+    ScObject: Velocity
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Velocity')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Time.x
+            ReferenceExpression: Time
+              PsiElement(identifier)('Time')
+            PsiElement(.)('.')
+            PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.math.BigDecimal.RoundingMode
+        CodeReferenceElement: scala.math.BigDecimal
+          CodeReferenceElement: scala.math
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('math')
+          PsiElement(.)('.')
+          PsiElement(identifier)('BigDecimal')
+        PsiElement(.)('.')
+        PsiElement(identifier)('RoundingMode')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.math.BigDecimal.RoundingMode.RoundingMode
+        CodeReferenceElement: scala.math.BigDecimal.RoundingMode
+          CodeReferenceElement: scala.math.BigDecimal
+            CodeReferenceElement: scala.math
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('math')
+            PsiElement(.)('.')
+            PsiElement(identifier)('BigDecimal')
+          PsiElement(.)('.')
+          PsiElement(identifier)('RoundingMode')
+        PsiElement(.)('.')
+        PsiElement(identifier)('RoundingMode')
+  PsiWhiteSpace('\n\n')
+  ScObject: Money
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Money')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: round
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('round')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: RoundingMode
+                    CodeReferenceElement: RoundingMode
+                      PsiElement(identifier)('RoundingMode')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: RoundingMode.HALF_EVEN
+                  ReferenceExpression: RoundingMode
+                    PsiElement(identifier)('RoundingMode')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('HALF_EVEN')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

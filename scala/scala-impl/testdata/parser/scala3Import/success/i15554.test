@@ -7,3 +7,221 @@ val pongBehavior: [O] => (Unit, PingMessage[O]) => (Unit, O) =
       msg match
         case PingMessage.Ping(from) => ((), s"Pong from $from")
 -----
+ScalaFile
+  ScEnum: PingMessage
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PingMessage')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Response
+        PsiElement(identifier)('Response')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Ping
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Ping
+            PsiElement(identifier)('Ping')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: from
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('from')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: PingMessage[String]
+                    SimpleType: PingMessage
+                      CodeReferenceElement: PingMessage
+                        PsiElement(identifier)('PingMessage')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: pongBehavior
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: pongBehavior
+        PsiElement(identifier)('pongBehavior')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    PolymorhicFunctionType: [O] => (Unit, PingMessage[O]) => (Unit, O)
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: O
+          PsiElement(identifier)('O')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      FunctionalType: (Unit, PingMessage[O]) => (Unit, O)
+        TupleType: (Unit, PingMessage[O])
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ParametrizedType: PingMessage[O]
+              SimpleType: PingMessage
+                CodeReferenceElement: PingMessage
+                  PsiElement(identifier)('PingMessage')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(])(']')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        TupleType: (Unit, O)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: O
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    PolyFunctionExpression
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: P
+          PsiElement(identifier)('P')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace('\n    ')
+      FunctionExpression
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: state
+              AnnotationsList
+                <empty list>
+              PsiElement(identifier)('state')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            Parameter: msg
+              AnnotationsList
+                <empty list>
+              PsiElement(identifier)('msg')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: PingMessage[P]
+                  SimpleType: PingMessage
+                    CodeReferenceElement: PingMessage
+                      PsiElement(identifier)('PingMessage')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace('\n      ')
+        MatchStatement
+          ReferenceExpression: msg
+            PsiElement(identifier)('msg')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace('\n        ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: PingMessage.Ping
+                  CodeReferenceElement: PingMessage
+                    PsiElement(identifier)('PingMessage')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Ping')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: from
+                    PsiElement(identifier)('from')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                Tuple
+                  PsiElement(()('(')
+                  UnitExpression
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"Pong from ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: from
+                      PsiElement(identifier)('from')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')

@@ -39,3 +39,645 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: concurrent.ExecutionContext.Implicits.global
+        CodeReferenceElement: concurrent.ExecutionContext.Implicits
+          CodeReferenceElement: concurrent.ExecutionContext
+            CodeReferenceElement: concurrent
+              PsiElement(identifier)('concurrent')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ExecutionContext')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Implicits')
+        PsiElement(.)('.')
+        PsiElement(identifier)('global')
+  PsiWhiteSpace('\n\n')
+  ScClass: Admin
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Admin')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: javax.swing.JApplet
+            CodeReferenceElement: javax.swing.JApplet
+              CodeReferenceElement: javax.swing
+                CodeReferenceElement: javax
+                  PsiElement(identifier)('javax')
+                PsiElement(.)('.')
+                PsiElement(identifier)('swing')
+              PsiElement(.)('.')
+              PsiElement(identifier)('JApplet')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: jScrollPane
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: jScrollPane
+              PsiElement(identifier)('jScrollPane')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: javax.swing.JScrollPane
+                    CodeReferenceElement: javax.swing.JScrollPane
+                      CodeReferenceElement: javax.swing
+                        CodeReferenceElement: javax
+                          PsiElement(identifier)('javax')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('swing')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('JScrollPane')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    PsiElement(()('(')
+                    NullLiteral
+                      PsiElement(null)('null')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t2484
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t2484')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: scala.concurrent.Future
+                ReferenceExpression: scala.concurrent
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('concurrent')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Future')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  MethodCall
+                    ReferenceExpression: jScrollPane.synchronized
+                      ReferenceExpression: jScrollPane
+                        PsiElement(identifier)('jScrollPane')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('synchronized')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n      ')
+                        ScFunctionDefinition: someFunction
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(def)('def')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('someFunction')
+                          PsiWhiteSpace(' ')
+                          Parameters
+                            ParametersClause
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+                        PsiWhiteSpace('\n      ')
+                        PsiComment(comment)('//scala.concurrent.ops.spawn {someFunction ()}')
+                        PsiWhiteSpace('\n      ')
+                        MethodCall
+                          ReferenceExpression: jScrollPane.addComponentListener
+                            ReferenceExpression: jScrollPane
+                              PsiElement(identifier)('jScrollPane')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('addComponentListener')
+                          PsiWhiteSpace(' ')
+                          ArgumentList
+                            BlockExpression
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n        ')
+                              ScClass: nested
+                                AnnotationsList
+                                  <empty list>
+                                Modifiers
+                                  <empty list>
+                                PsiElement(class)('class')
+                                PsiWhiteSpace(' ')
+                                PsiElement(identifier)('nested')
+                                PrimaryConstructor
+                                  AnnotationsList
+                                    <empty list>
+                                  Modifiers
+                                    <empty list>
+                                  Parameters
+                                    <empty list>
+                                PsiWhiteSpace(' ')
+                                ExtendsBlock
+                                  PsiElement(extends)('extends')
+                                  PsiWhiteSpace(' ')
+                                  TemplateParents
+                                    ConstructorInvocation
+                                      SimpleType: java.awt.event.ComponentAdapter
+                                        CodeReferenceElement: java.awt.event.ComponentAdapter
+                                          CodeReferenceElement: java.awt.event
+                                            CodeReferenceElement: java.awt
+                                              CodeReferenceElement: java
+                                                PsiElement(identifier)('java')
+                                              PsiElement(.)('.')
+                                              PsiElement(identifier)('awt')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('event')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('ComponentAdapter')
+                                  PsiWhiteSpace(' ')
+                                  ScTemplateBody
+                                    PsiElement({)('{')
+                                    PsiWhiteSpace('\n          ')
+                                    ScFunctionDefinition: componentShown
+                                      AnnotationsList
+                                        <empty list>
+                                      Modifiers
+                                        PsiElement(override)('override')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(def)('def')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(identifier)('componentShown')
+                                      PsiWhiteSpace(' ')
+                                      Parameters
+                                        ParametersClause
+                                          PsiElement(()('(')
+                                          Parameter: e
+                                            AnnotationsList
+                                              <empty list>
+                                            Modifiers
+                                              <empty list>
+                                            PsiElement(identifier)('e')
+                                            PsiElement(:)(':')
+                                            PsiWhiteSpace(' ')
+                                            ParameterType
+                                              SimpleType: java.awt.event.ComponentEvent
+                                                CodeReferenceElement: java.awt.event.ComponentEvent
+                                                  CodeReferenceElement: java.awt.event
+                                                    CodeReferenceElement: java.awt
+                                                      CodeReferenceElement: java
+                                                        PsiElement(identifier)('java')
+                                                      PsiElement(.)('.')
+                                                      PsiElement(identifier)('awt')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('event')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('ComponentEvent')
+                                          PsiElement())(')')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=)('=')
+                                      PsiWhiteSpace(' ')
+                                      BlockExpression
+                                        PsiElement({)('{')
+                                        PsiWhiteSpace('\n            ')
+                                        MethodCall
+                                          ReferenceExpression: someFunction
+                                            PsiElement(identifier)('someFunction')
+                                          PsiWhiteSpace(' ')
+                                          ArgumentList
+                                            PsiElement(()('(')
+                                            PsiElement())(')')
+                                        PsiElement(;)(';')
+                                        PsiWhiteSpace('\n            ')
+                                        MethodCall
+                                          ReferenceExpression: jScrollPane.removeComponentListener
+                                            ReferenceExpression: jScrollPane
+                                              PsiElement(identifier)('jScrollPane')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('removeComponentListener')
+                                          PsiWhiteSpace(' ')
+                                          ArgumentList
+                                            PsiElement(()('(')
+                                            ThisReference
+                                              PsiElement(this)('this')
+                                            PsiElement())(')')
+                                        PsiWhiteSpace('\n          ')
+                                        PsiElement(})('}')
+                                    PsiWhiteSpace('\n        ')
+                                    PsiElement(})('}')
+                              PsiWhiteSpace('\n        ')
+                              ScNewTemplateDefinition: <anonymous>
+                                PsiElement(new)('new')
+                                PsiWhiteSpace(' ')
+                                ExtendsBlock
+                                  TemplateParents
+                                    ConstructorInvocation
+                                      SimpleType: nested
+                                        CodeReferenceElement: nested
+                                          PsiElement(identifier)('nested')
+                              PsiWhiteSpace('\n      ')
+                              PsiElement(})('}')
+                        PsiWhiteSpace('\n    ')
+                        PsiElement(})('}')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Admin2
+    PsiComment(comment)('// original version, with anonymous class instead of "nested"')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Admin2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: javax.swing.JApplet
+            CodeReferenceElement: javax.swing.JApplet
+              CodeReferenceElement: javax.swing
+                CodeReferenceElement: javax
+                  PsiElement(identifier)('javax')
+                PsiElement(.)('.')
+                PsiElement(identifier)('swing')
+              PsiElement(.)('.')
+              PsiElement(identifier)('JApplet')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: jScrollPane
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: jScrollPane
+              PsiElement(identifier)('jScrollPane')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: javax.swing.JScrollPane
+                    CodeReferenceElement: javax.swing.JScrollPane
+                      CodeReferenceElement: javax.swing
+                        CodeReferenceElement: javax
+                          PsiElement(identifier)('javax')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('swing')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('JScrollPane')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    PsiElement(()('(')
+                    NullLiteral
+                      PsiElement(null)('null')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t2484
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t2484')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: scala.concurrent.Future
+                ReferenceExpression: scala.concurrent
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('concurrent')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Future')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  MethodCall
+                    ReferenceExpression: jScrollPane.synchronized
+                      ReferenceExpression: jScrollPane
+                        PsiElement(identifier)('jScrollPane')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('synchronized')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n      ')
+                        ScFunctionDefinition: someFunction
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(def)('def')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('someFunction')
+                          PsiWhiteSpace(' ')
+                          Parameters
+                            ParametersClause
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+                        PsiWhiteSpace('\n      ')
+                        PsiComment(comment)('//scala.concurrent.ops.spawn {someFunction ()}')
+                        PsiWhiteSpace('\n      ')
+                        MethodCall
+                          ReferenceExpression: jScrollPane.addComponentListener
+                            ReferenceExpression: jScrollPane
+                              PsiElement(identifier)('jScrollPane')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('addComponentListener')
+                          PsiWhiteSpace(' ')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ScNewTemplateDefinition: <anonymous>
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                TemplateParents
+                                  ConstructorInvocation
+                                    SimpleType: java.awt.event.ComponentAdapter
+                                      CodeReferenceElement: java.awt.event.ComponentAdapter
+                                        CodeReferenceElement: java.awt.event
+                                          CodeReferenceElement: java.awt
+                                            CodeReferenceElement: java
+                                              PsiElement(identifier)('java')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('awt')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('event')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('ComponentAdapter')
+                                PsiWhiteSpace(' ')
+                                ScTemplateBody
+                                  PsiElement({)('{')
+                                  ScFunctionDefinition: componentShown
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      PsiElement(override)('override')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(def)('def')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(identifier)('componentShown')
+                                    PsiWhiteSpace(' ')
+                                    Parameters
+                                      ParametersClause
+                                        PsiElement(()('(')
+                                        Parameter: e
+                                          AnnotationsList
+                                            <empty list>
+                                          Modifiers
+                                            <empty list>
+                                          PsiElement(identifier)('e')
+                                          PsiElement(:)(':')
+                                          PsiWhiteSpace(' ')
+                                          ParameterType
+                                            SimpleType: java.awt.event.ComponentEvent
+                                              CodeReferenceElement: java.awt.event.ComponentEvent
+                                                CodeReferenceElement: java.awt.event
+                                                  CodeReferenceElement: java.awt
+                                                    CodeReferenceElement: java
+                                                      PsiElement(identifier)('java')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('awt')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('event')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('ComponentEvent')
+                                        PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace(' ')
+                                    BlockExpression
+                                      PsiElement({)('{')
+                                      PsiWhiteSpace('\n        ')
+                                      MethodCall
+                                        ReferenceExpression: someFunction
+                                          PsiElement(identifier)('someFunction')
+                                        PsiWhiteSpace(' ')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement(;)(';')
+                                      PsiWhiteSpace(' ')
+                                      MethodCall
+                                        ReferenceExpression: jScrollPane.removeComponentListener
+                                          ReferenceExpression: jScrollPane
+                                            PsiElement(identifier)('jScrollPane')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('removeComponentListener')
+                                        PsiWhiteSpace(' ')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ThisReference
+                                            PsiElement(this)('this')
+                                          PsiElement())(')')
+                                      PsiElement(})('}')
+                                  PsiElement(})('}')
+                            PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        PsiElement(})('}')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    PsiComment(comment)('// t2630.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: meh
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('meh')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[Any]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: map
+                PsiElement(identifier)('map')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: x
+                        PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('  ')
+                  BlockOfExpressions
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
+                          PsiWhiteSpace(' ')
+                          ScTemplateBody
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

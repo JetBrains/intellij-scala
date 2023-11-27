@@ -28,3 +28,399 @@ object MonoidalTest { // Compiles fine here
 }
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: shapeless3.data
+      CodeReferenceElement: shapeless3
+        PsiElement(identifier)('shapeless3')
+      PsiElement(.)('.')
+      PsiElement(identifier)('data')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Monoidal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Monoidal')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: to
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('to')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: length
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('length')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: m
+                PsiElement(identifier)('m')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Monoidal.length[to[m]]
+              SimpleType: Monoidal.length
+                CodeReferenceElement: Monoidal.length
+                  CodeReferenceElement: Monoidal
+                    PsiElement(identifier)('Monoidal')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('length')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: to[m]
+                  SimpleType: to
+                    CodeReferenceElement: to
+                      PsiElement(identifier)('to')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: m
+                      CodeReferenceElement: m
+                        PsiElement(identifier)('m')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Monoidal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Monoidal')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+              PsiElement(.)('.')
+              PsiElement(_)('_')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: length
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('length')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: m
+                PsiElement(identifier)('m')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Size[m]
+              SimpleType: Size
+                CodeReferenceElement: Size
+                  PsiElement(identifier)('Size')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: m
+                  CodeReferenceElement: m
+                    PsiElement(identifier)('m')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: UnboundedMonoidal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('UnboundedMonoidal')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T0
+          PsiElement(identifier)('T0')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: U0
+          PsiElement(identifier)('U0')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Monoidal
+              CodeReferenceElement: Monoidal
+                PsiElement(identifier)('Monoidal')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: to
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('to')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: t
+                PsiElement(identifier)('t')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MatchType: t match {
+    case T0[hd, tl] => hd *: to[tl]
+    case U0 => EmptyTuple
+  }
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCasesImpl(match type cases)
+                ScMatchTypeCaseImpl(match type case)
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: T0[hd, tl]
+                    SimpleType: T0
+                      CodeReferenceElement: T0
+                        PsiElement(identifier)('T0')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: hd
+                        PsiElement(identifier)('hd')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: tl
+                        PsiElement(identifier)('tl')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  InfixType: hd *: to[tl]
+                    SimpleType: hd
+                      CodeReferenceElement: hd
+                        PsiElement(identifier)('hd')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: to[tl]
+                      SimpleType: to
+                        CodeReferenceElement: to
+                          PsiElement(identifier)('to')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: tl
+                          CodeReferenceElement: tl
+                            PsiElement(identifier)('tl')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n    ')
+                ScMatchTypeCaseImpl(match type case)
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  SimpleType: U0
+                    CodeReferenceElement: U0
+                      PsiElement(identifier)('U0')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: pairs
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('pairs')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: UnboundedMonoidal[Tuple2, Unit]
+              SimpleType: UnboundedMonoidal
+                CodeReferenceElement: UnboundedMonoidal
+                  PsiElement(identifier)('UnboundedMonoidal')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Tuple2
+                  CodeReferenceElement: Tuple2
+                    PsiElement(identifier)('Tuple2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScObject: MonoidalTest
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MonoidalTest')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// Compiles fine here')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: p
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('p')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: (Int, (String, (Boolean, Unit)))
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TupleType: (String, (Boolean, Unit))
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TupleType: (Boolean, Unit)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Unit
+                          CodeReferenceElement: Unit
+                            PsiElement(identifier)('Unit')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: pairs.length[p] =:= 3
+                ParametrizedType: pairs.length[p]
+                  SimpleType: pairs.length
+                    CodeReferenceElement: pairs.length
+                      CodeReferenceElement: pairs
+                        PsiElement(identifier)('pairs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: p
+                      CodeReferenceElement: p
+                        PsiElement(identifier)('p')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -3,3 +3,40 @@ package foo.bar
 class Bar extends annotation.StaticAnnotation
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo.bar
+      CodeReferenceElement: foo
+        PsiElement(identifier)('foo')
+      PsiElement(.)('.')
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace('\n\n')
+    ScClass: Bar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: annotation.StaticAnnotation
+              CodeReferenceElement: annotation.StaticAnnotation
+                CodeReferenceElement: annotation
+                  PsiElement(identifier)('annotation')
+                PsiElement(.)('.')
+                PsiElement(identifier)('StaticAnnotation')

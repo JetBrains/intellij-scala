@@ -11,3 +11,354 @@ given [T <: Int] : Conversion[T, Bar[T]] = Bar(_)
   convFail[Bar[1],1](1) //causes error
 }
 -----
+ScalaFile
+  ScFunctionDefinition: convFail
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('convFail')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Of
+        PsiElement(identifier)('Of')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: from
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('from')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: From
+              CodeReferenceElement: From
+                PsiElement(identifier)('From')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// removed inline from parameter to avoid unsound path selection')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: c
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: c
+            PsiElement(identifier)('c')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: compiletime.summonInline
+            ReferenceExpression: compiletime
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('summonInline')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Conversion[from.type, Of]
+              SimpleType: Conversion
+                CodeReferenceElement: Conversion
+                  PsiElement(identifier)('Conversion')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: from.type
+                  CodeReferenceElement: from
+                    PsiElement(identifier)('from')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Of
+                  CodeReferenceElement: Of
+                    PsiElement(identifier)('Of')
+                PsiElement(])(']')
+            PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: convOK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('convOK')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Of
+        PsiElement(identifier)('Of')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: from
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('from')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: From
+              CodeReferenceElement: From
+                PsiElement(identifier)('From')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Conversion[from.type, Of]
+              SimpleType: Conversion
+                CodeReferenceElement: Conversion
+                  PsiElement(identifier)('Conversion')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: from.type
+                  CodeReferenceElement: from
+                    PsiElement(identifier)('from')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Of
+                  CodeReferenceElement: Of
+                    PsiElement(identifier)('Of')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// removed inline from parameter to avoid unsound path selection')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_Conversion_T_Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Conversion[T, Bar[T]]
+      SimpleType: Conversion
+        CodeReferenceElement: Conversion
+          PsiElement(identifier)('Conversion')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Bar[T]
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Bar
+        PsiElement(identifier)('Bar')
+      ArgumentList
+        PsiElement(()('(')
+        UnderscoreSection
+          PsiElement(_)('_')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        GenericCall
+          ReferenceExpression: convOK
+            PsiElement(identifier)('convOK')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Bar[1]
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+              TypeArgumentsList
+                PsiElement([)('[')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(])(']')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        GenericCall
+          ReferenceExpression: convFail
+            PsiElement(identifier)('convFail')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Bar[1]
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+              TypeArgumentsList
+                PsiElement([)('[')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(])(']')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('//causes error')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

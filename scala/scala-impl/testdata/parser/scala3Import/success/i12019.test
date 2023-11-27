@@ -20,3 +20,486 @@ object Eg2 {
   def ko_2(f: (q: Quotes) ?=> q.reflect.ValDef => q.reflect.Term = (_: Quotes) ?=> null) = ()
 }
 -----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: ko1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ko1')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            DependentFunctionType: (q: A) ?=> Int => q.X
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: q
+                  PsiElement(identifier)('q')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              FunctionalType: Int => q.X
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: q.X
+                  CodeReferenceElement: q.X
+                    CodeReferenceElement: q
+                      PsiElement(identifier)('q')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: ko2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ko2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            DependentFunctionType: (q: A) ?=> Int => q.X
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: q
+                  PsiElement(identifier)('q')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              FunctionalType: Int => q.X
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: q.X
+                  CodeReferenceElement: q.X
+                    CodeReferenceElement: q
+                      PsiElement(identifier)('q')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: _
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(?=>)('?=>')
+            PsiWhiteSpace(' ')
+            NullLiteral
+              PsiElement(null)('null')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: ko3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ko3')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            DependentFunctionType: (q: A) => q.X
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: q
+                  PsiElement(identifier)('q')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: q.X
+                CodeReferenceElement: q.X
+                  CodeReferenceElement: q
+                    PsiElement(identifier)('q')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: q
+                    PsiElement(identifier)('q')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              NullLiteral
+                PsiElement(null)('null')
+            PsiElement())(')')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Eg2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Eg2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ok
+          PsiComment(comment)('// no default arg: ok')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ok')
+          PsiWhiteSpace('  ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  DependentFunctionType: (q: Quotes) ?=> q.reflect.ValDef => q.reflect.Term
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: q
+                        PsiElement(identifier)('q')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Quotes
+                          CodeReferenceElement: Quotes
+                            PsiElement(identifier)('Quotes')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(?=>)('?=>')
+                    PsiWhiteSpace(' ')
+                    FunctionalType: q.reflect.ValDef => q.reflect.Term
+                      SimpleType: q.reflect.ValDef
+                        CodeReferenceElement: q.reflect.ValDef
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('ValDef')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: q.reflect.Term
+                        CodeReferenceElement: q.reflect.Term
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Term')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ko_1
+          PsiComment(comment)('// default the function *reference* to null: crash!')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ko_1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  DependentFunctionType: (q: Quotes) ?=> q.reflect.ValDef => q.reflect.Term
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: q
+                        PsiElement(identifier)('q')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Quotes
+                          CodeReferenceElement: Quotes
+                            PsiElement(identifier)('Quotes')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(?=>)('?=>')
+                    PsiWhiteSpace(' ')
+                    FunctionalType: q.reflect.ValDef => q.reflect.Term
+                      SimpleType: q.reflect.ValDef
+                        CodeReferenceElement: q.reflect.ValDef
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('ValDef')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: q.reflect.Term
+                        CodeReferenceElement: q.reflect.Term
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Term')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                NullLiteral
+                  PsiElement(null)('null')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ko_2
+          PsiComment(comment)('// default the function *result* to null: crash!')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ko_2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  DependentFunctionType: (q: Quotes) ?=> q.reflect.ValDef => q.reflect.Term
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: q
+                        PsiElement(identifier)('q')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Quotes
+                          CodeReferenceElement: Quotes
+                            PsiElement(identifier)('Quotes')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(?=>)('?=>')
+                    PsiWhiteSpace(' ')
+                    FunctionalType: q.reflect.ValDef => q.reflect.Term
+                      SimpleType: q.reflect.ValDef
+                        CodeReferenceElement: q.reflect.ValDef
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('ValDef')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: q.reflect.Term
+                        CodeReferenceElement: q.reflect.Term
+                          CodeReferenceElement: q.reflect
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('reflect')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Term')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: _
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(_)('_')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Quotes
+                            CodeReferenceElement: Quotes
+                              PsiElement(identifier)('Quotes')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  NullLiteral
+                    PsiElement(null)('null')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

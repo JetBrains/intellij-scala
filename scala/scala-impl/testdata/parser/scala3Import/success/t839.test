@@ -25,3 +25,315 @@ trait Test {
   file.treeBuilder.set(nsc.get);
 }
 -----
+ScalaFile
+  PsiComment(comment)('// see pending/pos/t112606A.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n')
+    ScTrait: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTrait: Global
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Global')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Tree
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Tree')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: get
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('get')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScTrait: TreeBuilder
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('TreeBuilder')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScValueDeclaration: global
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: global
+                      PsiElement(identifier)('global')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Global
+                    CodeReferenceElement: Global
+                      PsiElement(identifier)('Global')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: set
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('set')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: tree
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('tree')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: global.Tree
+                            CodeReferenceElement: global.Tree
+                              CodeReferenceElement: global
+                                PsiElement(identifier)('global')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Tree')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScValueDeclaration: nsc
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: nsc
+                PsiElement(identifier)('nsc')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Global
+              CodeReferenceElement: Global
+                PsiElement(identifier)('Global')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTrait: FileImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('FileImpl')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScObject: treeBuilder
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(object)('object')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('treeBuilder')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: TreeBuilder
+                          CodeReferenceElement: TreeBuilder
+                            PsiElement(identifier)('TreeBuilder')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      ScPatternDefinition: global
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: global
+                            PsiElement(identifier)('global')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: nsc.type
+                          CodeReferenceElement: nsc
+                            PsiElement(identifier)('nsc')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: nsc
+                          PsiElement(identifier)('nsc')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiComment(comment)('// OK')
+                PsiWhiteSpace('\n    ')
+                MethodCall
+                  ReferenceExpression: treeBuilder.set
+                    ReferenceExpression: treeBuilder
+                      PsiElement(identifier)('treeBuilder')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('set')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: nsc.get
+                      ReferenceExpression: nsc
+                        PsiElement(identifier)('nsc')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScValueDeclaration: file0
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: file0
+                PsiElement(identifier)('file0')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: FileImpl
+              CodeReferenceElement: FileImpl
+                PsiElement(identifier)('FileImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// OK')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: file0.treeBuilder.set
+              ReferenceExpression: file0.treeBuilder
+                ReferenceExpression: file0
+                  PsiElement(identifier)('file0')
+                PsiElement(.)('.')
+                PsiElement(identifier)('treeBuilder')
+              PsiElement(.)('.')
+              PsiElement(identifier)('set')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: nsc.get
+                ReferenceExpression: nsc
+                  PsiElement(identifier)('nsc')
+                PsiElement(.)('.')
+                PsiElement(identifier)('get')
+              PsiElement())(')')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDeclaration: file
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('file')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: FileImpl
+              CodeReferenceElement: FileImpl
+                PsiElement(identifier)('FileImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// type mismatch')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: file.treeBuilder.set
+              ReferenceExpression: file.treeBuilder
+                ReferenceExpression: file
+                  PsiElement(identifier)('file')
+                PsiElement(.)('.')
+                PsiElement(identifier)('treeBuilder')
+              PsiElement(.)('.')
+              PsiElement(identifier)('set')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: nsc.get
+                ReferenceExpression: nsc
+                  PsiElement(identifier)('nsc')
+                PsiElement(.)('.')
+                PsiElement(identifier)('get')
+              PsiElement())(')')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -28,3 +28,265 @@ object Main {
   // typer debug trace: http://rawgit.com/retronym/d5aeaf8e0a4a2e6eef4b/raw/out.html
 }
 -----
+ScalaFile
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: AA
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AA')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: RR
+              PsiElement(identifier)('RR')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: R
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('R')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: RR
+                  CodeReferenceElement: RR
+                    PsiElement(identifier)('RR')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScFunctionDeclaration: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('r')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: AA[_]
+                    SimpleType: AA
+                      CodeReferenceElement: AA
+                        PsiElement(identifier)('AA')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: f
+                  PsiElement(identifier)('f')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a.r
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('r')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// The tree a.r is given the type `a.R` which normalizes')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// to B', where B' is a distinct symbol ("captured existential skolem")')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// to substitute for the reference to an existential skolem of B.')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// inference of the result type of the function computes the')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// packed type of tree `a.r` to make sure that terms and types')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// local to the body of the function don't leak into its result')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// type. The captured existential skolem is considered to be local')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// so it is abstracted to its upper bound, Any.')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// However, the packedType transformation need not have even considered')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// B', as it is clear that the type `a.R` is not local to the function')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// body!')
+            PsiWhiteSpace('\n    ')
+            TypedExpression
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (() => a.R)
+                PsiElement(()('(')
+                FunctionalType: () => a.R
+                  TypeInParenthesis: ()
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: a.R
+                    CodeReferenceElement: a.R
+                      CodeReferenceElement: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('R')
+                PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: g
+              PsiComment(comment)('// The workaround is to annotate the function type, rather than')
+              PsiWhiteSpace('\n    ')
+              PsiComment(comment)('// relying in inference.')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: g
+                  PsiElement(identifier)('g')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (() => a.R)
+                PsiElement(()('(')
+                FunctionalType: () => a.R
+                  TypeInParenthesis: ()
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: a.R
+                    CodeReferenceElement: a.R
+                      CodeReferenceElement: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('R')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a.r
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('r')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: g2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: g2
+                  PsiElement(identifier)('g2')
+              PsiWhiteSpace('  ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a.r
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('r')
+            PsiWhiteSpace('\n\n    ')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// typer debug trace: http://rawgit.com/retronym/d5aeaf8e0a4a2e6eef4b/raw/out.html')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

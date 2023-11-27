@@ -68,3 +68,771 @@ trait TestWildcardBoundInference {
   skinCheckInference: ObjectProperty[Skin[_  <: Skinnable]]
 }
 -----
+ScalaFile
+  PsiComment(comment)('// Tests translated from scalac SI-6189 by @retronym')
+  PsiWhiteSpace('\n\n')
+  ScClass: Exist
+    PsiComment(BlockComment)('/*\npublic class Exist<T extends String> {\n  // java helpfully re-interprets Exist<?> as Exist<? extends String>\n  public Exist<?> foo() { throw new RuntimeException(); }\n}\n*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Exist')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Exist[_]
+            SimpleType: Exist
+              CodeReferenceElement: Exist
+                PsiElement(identifier)('Exist')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/*\npublic class ExistF<T extends ExistF<T>> {\n  // java helpfully re-interprets ExistF<?> as ExistF<?0 extends ExistF<?0>>\n  public ExistF<?> foo() { throw new RuntimeException(); }\n}\n*/')
+  PsiWhiteSpace('\n\n')
+  ScClass: ExistF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ExistF')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: ExistF[T]
+          SimpleType: ExistF
+            CodeReferenceElement: ExistF
+              PsiElement(identifier)('ExistF')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ExistF[_]
+            SimpleType: ExistF
+              CodeReferenceElement: ExistF
+                PsiElement(identifier)('ExistF')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/*\npublic class ExistIndir<T extends String, U extends T> {\n  // java helpfully re-interprets ExistIndir<?> as ExistIndir<? extends String>\n  public ExistIndir<?, ?> foo() { throw new RuntimeException(); }\n}\n*/')
+  PsiWhiteSpace('\n\n')
+  ScClass: ExistIndir
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ExistIndir')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ExistIndir[_, _]
+            SimpleType: ExistIndir
+              CodeReferenceElement: ExistIndir
+                PsiElement(identifier)('ExistIndir')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: MyExist
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MyExist')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: ExistF[MyExist]
+                  SimpleType: ExistF
+                    CodeReferenceElement: ExistF
+                      PsiElement(identifier)('ExistF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: MyExist
+                      CodeReferenceElement: MyExist
+                        PsiElement(identifier)('MyExist')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: stringy
+          PsiComment(comment)('// SI-8197, SI-6169: java infers the bounds of existentials, so we have to as well now that SI-1786 is fixed...')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('stringy')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Exist[_ <: String]
+            SimpleType: Exist
+              CodeReferenceElement: Exist
+                PsiElement(identifier)('Exist')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ <: String
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: (new Exist[String]).foo
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Exist[String]
+                        SimpleType: Exist
+                          CodeReferenceElement: Exist
+                            PsiElement(identifier)('Exist')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(])(']')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foo')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: indir
+          PsiComment(comment)('// def fbounded: (ExistF[t] forSome {type t <: ExistF[t] }) = (new MyExist).foo')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('indir')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ExistIndir[_ <: String, _ <: String]
+            SimpleType: ExistIndir
+              CodeReferenceElement: ExistIndir
+                PsiElement(identifier)('ExistIndir')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ <: String
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _ <: String
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: (new ExistIndir[String, String]).foo
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: ExistIndir[String, String]
+                        SimpleType: ExistIndir
+                          CodeReferenceElement: ExistIndir
+                            PsiElement(identifier)('ExistIndir')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(])(']')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foo')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  ScClass: OP
+    PsiComment(BlockComment)('/*\npublic abstract class OP<T> { }\npublic interface Skin<C extends Skinnable> { }\npublic interface Skinnable {\n  OP<Skin<?>> skinProperty();\n}\n*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OP')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Skin
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Skin')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Skinnable
+          CodeReferenceElement: Skinnable
+            PsiElement(identifier)('Skinnable')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Skinnable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Skinnable')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: skinProperty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('skinProperty')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: OP[Skin[_]]
+            SimpleType: OP
+              CodeReferenceElement: OP
+                PsiElement(identifier)('OP')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Skin[_]
+                SimpleType: Skin
+                  CodeReferenceElement: Skin
+                    PsiElement(identifier)('Skin')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: ObjectProperty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ObjectProperty')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: jfxObjectProperty2sfx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('jfxObjectProperty2sfx')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: OP[T]
+                    SimpleType: OP
+                      CodeReferenceElement: OP
+                        PsiElement(identifier)('OP')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ObjectProperty[T]
+            SimpleType: ObjectProperty
+              CodeReferenceElement: ObjectProperty
+                PsiElement(identifier)('ObjectProperty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: ObjectProperty[T]
+                    SimpleType: ObjectProperty
+                      CodeReferenceElement: ObjectProperty
+                        PsiElement(identifier)('ObjectProperty')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ObjectProperty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ObjectProperty')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: deleg
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('deleg')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: OP[T]
+                SimpleType: OP
+                  CodeReferenceElement: OP
+                    PsiElement(identifier)('OP')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: TestWildcardBoundInference
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestWildcardBoundInference')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: deleg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('deleg')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Skinnable
+            CodeReferenceElement: Skinnable
+              PsiElement(identifier)('Skinnable')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: skin
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('skin')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ObjectProperty[Skin[_ /* inferred: <: Skinnable */]]
+            SimpleType: ObjectProperty
+              CodeReferenceElement: ObjectProperty
+                PsiElement(identifier)('ObjectProperty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Skin[_ /* inferred: <: Skinnable */]
+                SimpleType: Skin
+                  CodeReferenceElement: Skin
+                    PsiElement(identifier)('Skin')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiComment(BlockComment)('/* inferred: <: Skinnable */')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: ObjectProperty.jfxObjectProperty2sfx
+              ReferenceExpression: ObjectProperty
+                PsiElement(identifier)('ObjectProperty')
+              PsiElement(.)('.')
+              PsiElement(identifier)('jfxObjectProperty2sfx')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: deleg.skinProperty
+                ReferenceExpression: deleg
+                  PsiElement(identifier)('deleg')
+                PsiElement(.)('.')
+                PsiElement(identifier)('skinProperty')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        TypedExpression
+          ReferenceExpression: skin
+            PsiElement(identifier)('skin')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ObjectProperty[Skin[_  <: Skinnable]]
+            SimpleType: ObjectProperty
+              CodeReferenceElement: ObjectProperty
+                PsiElement(identifier)('ObjectProperty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Skin[_  <: Skinnable]
+                SimpleType: Skin
+                  CodeReferenceElement: Skin
+                    PsiElement(identifier)('Skin')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _  <: Skinnable
+                    PsiElement(_)('_')
+                    PsiWhiteSpace('  ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Skinnable
+                      CodeReferenceElement: Skinnable
+                        PsiElement(identifier)('Skinnable')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: skinCheckInference
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('skinCheckInference')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: deleg.skinProperty
+            ReferenceExpression: deleg
+              PsiElement(identifier)('deleg')
+            PsiElement(.)('.')
+            PsiElement(identifier)('skinProperty')
+        PsiWhiteSpace('\n  ')
+        TypedExpression
+          ReferenceExpression: skinCheckInference
+            PsiElement(identifier)('skinCheckInference')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ObjectProperty[Skin[_  <: Skinnable]]
+            SimpleType: ObjectProperty
+              CodeReferenceElement: ObjectProperty
+                PsiElement(identifier)('ObjectProperty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Skin[_  <: Skinnable]
+                SimpleType: Skin
+                  CodeReferenceElement: Skin
+                    PsiElement(identifier)('Skin')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _  <: Skinnable
+                    PsiElement(_)('_')
+                    PsiWhiteSpace('  ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Skinnable
+                      CodeReferenceElement: Skinnable
+                        PsiElement(identifier)('Skinnable')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

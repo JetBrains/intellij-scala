@@ -37,3 +37,185 @@ object consistencyError {
   // }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.Stream
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Stream')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: consistencyError
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('consistencyError')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: crash
+          PsiComment(BlockComment)('/* this gives an error:\n  Consistency problem compiling (virtual file)!\n  Trying to call method body%1(List(scala.collection.immutable.Stream[A])) with arguments (List(tp2, temp6, temp5))\n      case (l #:: ls, rs) => None\n                              ^\n  scala.tools.nsc.symtab.Types$TypeError: too many arguments for method body%1: (val rs: scala.collection.immutable.Stream[A])None.type\n\n  two errors found\n  vss(0) =\n  args = List(tp2, temp6, temp5)\n  vss(1) = value rs, value ls, value l\n  args = List(tp2, temp6, temp5)\n  targets(0) = FinalState(,scala.None)\n  targets(1) = FinalState(,scala.None)\n  labels(1) = method body%1\n  labels(0) = method body%0\n  bx = 1\n  label.tpe = (val rs: scala.collection.immutable.Stream[A])None.type\n  */')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('crash')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: lefts
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('lefts')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Stream[A]
+                    SimpleType: Stream
+                      CodeReferenceElement: Stream
+                        PsiElement(identifier)('Stream')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: rights
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('rights')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Stream[A]
+                    SimpleType: Stream
+                      CodeReferenceElement: Stream
+                        PsiElement(identifier)('Stream')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: lefts
+                PsiElement(identifier)('lefts')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: rights
+                PsiElement(identifier)('rights')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    StableElementPattern
+                      ReferenceExpression: Stream.Empty
+                        ReferenceExpression: Stream
+                          PsiElement(identifier)('Stream')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Empty')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: Stream.Empty
+                        ReferenceExpression: Stream
+                          PsiElement(identifier)('Stream')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Empty')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    InfixPattern
+                      ReferencePattern: l
+                        PsiElement(identifier)('l')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: #::
+                        PsiElement(identifier)('#::')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: ls
+                        PsiElement(identifier)('ls')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: rs
+                      PsiElement(identifier)('rs')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// These work')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def works1[A](lefts: Stream[A]) = lefts match {')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   case Stream.Empty => None')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   case l #:: ls => None')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// }')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def works2[A](lefts: Stream[A], rights: Stream[A]) = (lefts, rights) match {')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   case (Stream.Empty, Stream.Empty) => None')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   case (ls, rs) => None')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// }')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -17,3 +17,206 @@ given (A ==> B) = ???
 // was Compile error
 given (A ==> C) = ???
 -----
+ScalaFile
+  ScTrait: Transition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Transition')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: To
+        PsiElement(identifier)('To')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ==>
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(infix)('infix')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('==>')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: To
+        PsiElement(identifier)('To')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Transition[From, To]
+      SimpleType: Transition
+        CodeReferenceElement: Transition
+          PsiElement(identifier)('Transition')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: From
+          CodeReferenceElement: From
+            PsiElement(identifier)('From')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: To
+          CodeReferenceElement: To
+            PsiElement(identifier)('To')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: A.type
+      CodeReferenceElement: A
+        PsiElement(identifier)('A')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+  PsiWhiteSpace('\n')
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: B.type
+      CodeReferenceElement: B
+        PsiElement(identifier)('B')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+  PsiWhiteSpace('\n')
+  ScObject: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: C.type
+      CodeReferenceElement: C
+        PsiElement(identifier)('C')
+      PsiElement(.)('.')
+      PsiElement(type)('type')
+  PsiWhiteSpace('\n')
+  ScObject: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_==>_A_B
+    PsiComment(comment)('// Compiles')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (A ==> B)
+      PsiElement(()('(')
+      InfixType: A ==> B
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: ==>
+          PsiElement(identifier)('==>')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiElement())(')')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_==>_A_C
+    PsiComment(comment)('// was Compile error')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (A ==> C)
+      PsiElement(()('(')
+      InfixType: A ==> C
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: ==>
+          PsiElement(identifier)('==>')
+        PsiWhiteSpace(' ')
+        SimpleType: C
+          CodeReferenceElement: C
+            PsiElement(identifier)('C')
+      PsiElement())(')')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

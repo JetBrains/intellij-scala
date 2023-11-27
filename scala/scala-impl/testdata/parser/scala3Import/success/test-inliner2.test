@@ -56,3 +56,297 @@ class A {
 //    11: iconst_2
 //    12: ireturn
 -----
+ScalaFile
+  ScClass: A
+    PsiComment(comment)('// This isn't actually testing much, because no warning is emitted in versions')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// before the fix which comes with this because the method isn't even considered')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// for inlining due to the bug.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: debug
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: debug
+              PsiElement(identifier)('debug')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(false)('false')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ifelse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ifelse')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: cond
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('cond')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: ifPart
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ifPart')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: elsePart
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('elsePart')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: cond
+              PsiElement(identifier)('cond')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ifPart
+              PsiElement(identifier)('ifPart')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: elsePart
+              PsiElement(identifier)('elsePart')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bob1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bob1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: ifelse
+              PsiElement(identifier)('ifelse')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: debug
+                PsiElement(identifier)('debug')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bob2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bob2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: debug
+              PsiElement(identifier)('debug')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Cool:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// % ls -1 /tmp/2901/')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A$$anonfun$bob1$1.class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A$$anonfun$bob1$2.class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A$$anonfun$bob1$3.class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A.class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// % ls -1 /tmp/trunk')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A.class')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Observations:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (1) The inlined version accesses the field: the explicit one calls the accessor.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (2) The inlined version fails to eliminate boxing.  With reference types it emits')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     an unneeded checkcast.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (3) The private var debug is mangled to A$$debug, but after inlining it is never accessed')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     from outside of the class and doesn't need mangling.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (4) We could forego emitting bytecode for ifelse entirely if it has been')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     inlined at all sites.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Generated bytecode for the above:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// public final int bob1();')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   Code:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    Stack=1, Locals=1, Args_size=1')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    0:  aload_0')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    1:  getfield  #11; //Field A$$debug:Z')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    4:  ifeq  14')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    7:  iconst_1')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    8:  invokestatic  #41; //Method scala/runtime/BoxesRunTime.boxToInteger:(I)Ljava/lang/Integer;')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    11: goto  18')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    14: iconst_2')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    15: invokestatic  #41; //Method scala/runtime/BoxesRunTime.boxToInteger:(I)Ljava/lang/Integer;')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    18: invokestatic  #45; //Method scala/runtime/BoxesRunTime.unboxToInt:(Ljava/lang/Object;)I')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    21: ireturn')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// public final int bob2();')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   Code:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    Stack=1, Locals=1, Args_size=1')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    0:  aload_0')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    1:  invokevirtual #48; //Method A$$debug:()Z')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    4:  ifeq  11')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    7:  iconst_1')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    8:  goto  12')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    11: iconst_2')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//    12: ireturn')

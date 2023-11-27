@@ -11,3 +11,384 @@ def test: Unit =
   val x1: Seq[Int] = Array(1, 2).toSeq
   val x2: Seq[Int] = IArray(1, 2).toSeq
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: IArray(2, 1, 3).toSeq
+        MethodCall
+          ReferenceExpression: IArray
+            PsiElement(identifier)('IArray')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toSeq')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: IArray(2, 1, 3).toSeq.toList
+        ReferenceExpression: IArray(2, 1, 3).toSeq
+          MethodCall
+            ReferenceExpression: IArray
+              PsiElement(identifier)('IArray')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toSeq')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toList')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.updated
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('updated')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.updated
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('updated')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"a"')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: IArray(2, 1, 3).toSeq.sorted
+        ReferenceExpression: IArray(2, 1, 3).toSeq
+          MethodCall
+            ReferenceExpression: IArray
+              PsiElement(identifier)('IArray')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toSeq')
+        PsiElement(.)('.')
+        PsiElement(identifier)('sorted')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.appended
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('appended')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"b"')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.prepended
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('prepended')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"b"')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.appendedAll
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('appendedAll')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: IArray(4,5, "a").toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement(,)(',')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"a"')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IArray(2, 1, 3).toSeq.prependedAll
+          ReferenceExpression: IArray(2, 1, 3).toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('prependedAll')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: IArray(4,5, "a").toSeq
+            MethodCall
+              ReferenceExpression: IArray
+                PsiElement(identifier)('IArray')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement(,)(',')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"a"')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toSeq')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x1
+            PsiElement(identifier)('x1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Seq[Int]
+          SimpleType: Seq
+            CodeReferenceElement: Seq
+              PsiElement(identifier)('Seq')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: Array(1, 2).toSeq
+          MethodCall
+            ReferenceExpression: Array
+              PsiElement(identifier)('Array')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toSeq')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x2
+            PsiElement(identifier)('x2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Seq[Int]
+          SimpleType: Seq
+            CodeReferenceElement: Seq
+              PsiElement(identifier)('Seq')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: IArray(1, 2).toSeq
+          MethodCall
+            ReferenceExpression: IArray
+              PsiElement(identifier)('IArray')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toSeq')

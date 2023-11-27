@@ -6,3 +6,117 @@ object Crash {
        }
 }
 -----
+ScalaFile
+  ScObject: Crash
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Crash')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: crash
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('crash')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          MatchStatement
+            ReferenceExpression: value
+              PsiElement(identifier)('value')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: java.lang.Integer.MAX_VALUE
+                    ReferenceExpression: java.lang.Integer
+                      ReferenceExpression: java.lang
+                        ReferenceExpression: java
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Integer')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MAX_VALUE')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: println
+                      PsiElement(identifier)('println')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"MAX_VALUE"')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: java.lang.Integer.MIN_VALUE
+                    ReferenceExpression: java.lang.Integer
+                      ReferenceExpression: java.lang
+                        ReferenceExpression: java
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Integer')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MIN_VALUE')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: println
+                      PsiElement(identifier)('println')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"MIN_VALUE"')
+                      PsiElement())(')')
+            PsiWhiteSpace('\n       ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -2,3 +2,110 @@ val f = [A] => (a: A) => a
 val x1 = f.apply[Int](4)
 val x2 = f.apply[4](4)
 -----
+ScalaFile
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    PolyFunctionExpression
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      FunctionExpression
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: a
+              AnnotationsList
+                <empty list>
+              PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x1
+        PsiElement(identifier)('x1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: f.apply
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement(.)('.')
+          PsiElement(identifier)('apply')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('4')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x2
+        PsiElement(identifier)('x2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: f.apply
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement(.)('.')
+          PsiElement(identifier)('apply')
+        TypeArgumentsList
+          PsiElement([)('[')
+          LiteralType: 4
+            IntegerLiteral
+              PsiElement(integer)('4')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('4')
+        PsiElement())(')')

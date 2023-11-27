@@ -34,3 +34,257 @@ class Bar2 extends Bar1 with Two[Foo] // error
   // only because of joint compilation, this doesn't work with separate
   // compilation as in mixin-forwarder-clash2.
 -----
+ScalaFile
+  PsiComment(comment)('// This test case used to fail when mixin forwarders were generated before erasure,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// it doesn't anymore since the forwarders generated after erasure do not clash,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// the comments are preserved for posterity.')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: One
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('One')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: concat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('concat')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: suffix
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('suffix')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Two
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Two')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Foo
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: concat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('concat')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Dummy
+              PsiElement(identifier)('Dummy')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: suffix
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('suffix')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Y
+            CodeReferenceElement: Y
+              PsiElement(identifier)('Y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: One[Foo]
+            SimpleType: One
+              CodeReferenceElement: One
+                PsiElement(identifier)('One')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// Because mixin forwarders are generated before erasure, we get:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//  override def concat(suffix: Int): Foo')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Bar1
+            CodeReferenceElement: Bar1
+              PsiElement(identifier)('Bar1')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: Two[Foo]
+            SimpleType: Two
+              CodeReferenceElement: Two
+                PsiElement(identifier)('Two')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// We get a mixin forwarder for Two:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//   override def concat[Dummy](suffix: Int): Foo')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// which gets erased to:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//   override def concat(suffix: Int): Foo')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// This clashes with the forwarder generated in Bar1, and the compiler detects that:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |class Bar2 extends Bar1 with Two[Foo]')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |      ^')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |      Name clash between defined and inherited member:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |      override def concat(suffix: Int): Foo in class Bar1 and')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |      override def concat: [Dummy](suffix: Int): Foo in class Bar2')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// |      have the same type after erasure.')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// But note that the compiler is able to see the mixin forwarder in Bar1')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// only because of joint compilation, this doesn't work with separate')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// compilation as in mixin-forwarder-clash2.')
