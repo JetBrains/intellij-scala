@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.buildtools
 
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
@@ -73,6 +74,7 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
   def testTransitiveDependencyOnKotlinStandardLibrary(): Unit = {
     importProject(false)
 
+    NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
   }
 }
