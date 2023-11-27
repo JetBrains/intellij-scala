@@ -30,6 +30,9 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
   }
 
   override def editorCreated(event: EditorFactoryEvent): Unit = {
+    val file = event.getEditor.getVirtualFile
+    if (file == null || file.getExtension != "scala" && file.getExtension != "sc") return
+
     val component = event.getEditor.getContentComponent
     component.addFocusListener(editorFocusListener)
     component.addKeyListener(editorKeyListener)
