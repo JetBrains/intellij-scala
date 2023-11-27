@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.statistics
 //noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.beans.MetricEvent
 import com.intellij.internal.statistic.eventLog.EventLogGroup
-import com.intellij.internal.statistic.eventLog.events.EventFields.{StringValidatedByRegexp, String => FString}
+import com.intellij.internal.statistic.eventLog.events.EventFields.{StringValidatedByRegexpReference, String => FString}
 //noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.service.fus.collectors.ProjectUsagesCollector
 import com.intellij.openapi.project.Project
@@ -67,18 +67,18 @@ object ScalaProjectStateCollector {
 
   //noinspection UnstableApiUsage
   private final val SbtInfoEvent = Group.registerEvent("sbt.info",
-    StringValidatedByRegexp("version", "version")
+    StringValidatedByRegexpReference("version", "version")
   )
 
   //noinspection UnstableApiUsage
   private final val CompilerPlugin = Group.registerEvent("compiler.plugin",
     FString("name", CompilerPluginsWhiteList.get.toList.asJava),
-    StringValidatedByRegexp("version", "version")
+    StringValidatedByRegexpReference("version", "version")
   )
 
   //noinspection UnstableApiUsage
   private final val ScalaLangLevelEvent = Group.registerEvent("scala.lang.level",
-    StringValidatedByRegexp("value", "version")
+    StringValidatedByRegexpReference("value", "version")
   )
 
   private val CompilerPluginRegex = ".+_\\d+\\.\\d+(\\.\\d+)?-(\\d+\\.\\d+(\\.\\d+)?)\\.jar".r
