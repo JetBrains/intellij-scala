@@ -184,7 +184,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          ClassParameter: <anonimous>
+          ClassParameter: x$1
             ParameterType
               ParametrizedType: Ctx[F]
                 SimpleType: Ctx

@@ -414,7 +414,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: A
                     CodeReferenceElement: A
@@ -443,7 +443,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: B
                     CodeReferenceElement: B
@@ -470,7 +470,7 @@ ScalaFile
                   PsiElement(()('(')
                   PsiElement(using)('using')
                   PsiWhiteSpace(' ')
-                  Parameter: <anonimous>
+                  Parameter: <anonymous>
                     ParameterType
                       SimpleType: C
                         CodeReferenceElement: C
@@ -496,7 +496,7 @@ ScalaFile
                   PsiElement(()('(')
                   PsiElement(using)('using')
                   PsiWhiteSpace(' ')
-                  Parameter: <anonimous>
+                  Parameter: <anonymous>
                     ParameterType
                       SimpleType: D
                         CodeReferenceElement: D
@@ -506,7 +506,7 @@ ScalaFile
                   PsiElement(()('(')
                   PsiElement(using)('using')
                   PsiWhiteSpace(' ')
-                  Parameter: <anonimous>
+                  Parameter: <anonymous>
                     ParameterType
                       SimpleType: F
                         CodeReferenceElement: F

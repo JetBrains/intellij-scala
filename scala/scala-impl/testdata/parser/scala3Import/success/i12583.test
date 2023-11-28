@@ -50,7 +50,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          ClassParameter: <anonimous>
+          ClassParameter: x$2
             ParameterType
               ParametrizedType: ValueOf[A]
                 SimpleType: ValueOf

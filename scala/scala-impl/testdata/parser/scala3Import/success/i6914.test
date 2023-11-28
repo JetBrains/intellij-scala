@@ -97,7 +97,7 @@ ScalaFile
                 PsiElement(()('(')
                 PsiElement(using)('using')
                 PsiWhiteSpace(' ')
-                ClassParameter: <anonimous>
+                ClassParameter: x$1
                   ParameterType
                     ParametrizedType: Liftable[T]
                       SimpleType: Liftable
@@ -204,7 +204,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Liftable[T]
                     SimpleType: Liftable
@@ -422,7 +422,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Liftable[T]
                     SimpleType: Liftable

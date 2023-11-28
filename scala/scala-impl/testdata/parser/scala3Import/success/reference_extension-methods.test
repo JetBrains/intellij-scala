@@ -1092,7 +1092,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Ordering[T]
                     SimpleType: Ordering

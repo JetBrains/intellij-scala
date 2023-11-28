@@ -33,7 +33,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             ParametrizedType: Numeric[T1]
               SimpleType: Numeric
@@ -81,7 +81,7 @@ ScalaFile
             PsiElement(()('(')
             PsiElement(using)('using')
             PsiWhiteSpace(' ')
-            Parameter: <anonimous>
+            Parameter: <anonymous>
               ParameterType
                 ParametrizedType: Numeric[T2]
                   SimpleType: Numeric

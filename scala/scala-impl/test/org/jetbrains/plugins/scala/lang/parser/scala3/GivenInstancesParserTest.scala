@@ -1562,7 +1562,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonimous>
+      |              Parameter: <anonymous>
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1583,7 +1583,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonimous>
+      |              Parameter: <anonymous>
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1607,7 +1607,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonimous>
+      |              Parameter: <anonymous>
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1635,7 +1635,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonimous>
+      |              Parameter: <anonymous>
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1854,7 +1854,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonimous>
+      |              Parameter: <anonymous>
       |                ParameterType
       |                  LiteralType: 3
       |                    IntegerLiteral

@@ -22,7 +22,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             SimpleType: String
               CodeReferenceElement: String
@@ -118,7 +118,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             SimpleType: String
               CodeReferenceElement: String
@@ -166,7 +166,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             SimpleType: String
               CodeReferenceElement: String
