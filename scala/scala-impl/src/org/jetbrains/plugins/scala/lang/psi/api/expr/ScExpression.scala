@@ -328,18 +328,24 @@ object ScExpression {
 
       def success(t: ScType) = Some(Right(t))
 
-      val intLiteralValue: Int = expr match {
-        case ScIntegerLiteral(value) => value
-        case ScPrefixExpr(op, ScIntegerLiteral(value)) if Set("+", "-").contains(op.refName) =>
-          val mult = if (op.refName == "-") -1 else 1
-          mult * value
+      def findIntLiteralValue(expr: ScExpression): Option[Int] = expr match {
+        case ScIntegerLiteral(value) => Some(value)
+        case ScPrefixExpr(op, operand) if Set("+", "-").contains(op.refName) =>
+          findIntLiteralValue(operand).map(v => if (op.refName == "-") -v else v)
+        case ScParenthesisedExpr(inner) => findIntLiteralValue(inner)
+        case _ => None
+      }
+
+
+      val intLiteralValue: Int = findIntLiteralValue(expr) match {
+        case Some(value) => value
         case _ => return None
       }
 
       val stdTypes = StdTypes.instance
       import stdTypes._
 
-      expected.removeAbstracts match {
+      expected.removeAbstracts.removeAliasDefinitions() match {
         case Char if isChar(intLiteralValue)   => success(Char)
         case Byte if isByte(intLiteralValue)   => success(Byte)
         case Short if isShort(intLiteralValue) => success(Short)
