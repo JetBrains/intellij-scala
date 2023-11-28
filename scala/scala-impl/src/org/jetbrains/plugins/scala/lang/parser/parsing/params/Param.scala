@@ -23,6 +23,12 @@ object Param extends ParsingRule {
     }
     modifiersMarker.done(ScalaElementType.MODIFIERS)
 
+    if (builder.getTokenType == ScalaTokenTypes.kVAL || builder.getTokenType == ScalaTokenTypes.kVAR) {
+      // val and var are not allowed here, but to get better parsing experience and error reporting
+      // we parse them nonetheless here and report them in ScParameterAnnotator
+      builder.advanceLexer() //Ate val or var
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate id
