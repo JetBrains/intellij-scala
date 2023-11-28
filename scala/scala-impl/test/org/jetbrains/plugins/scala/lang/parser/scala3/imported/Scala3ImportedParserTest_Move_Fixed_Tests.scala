@@ -54,6 +54,11 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
       ""
     }
 
+    override protected def transformExpectedResult(text: String): String = {
+      assert(text.isEmpty, "Expected result should be empty")
+      text.trim
+    }
+
     override protected def shouldHaveErrors: Boolean = throw new UnsupportedOperationException
   }
 }
