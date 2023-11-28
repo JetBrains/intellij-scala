@@ -88,6 +88,18 @@ class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
       case Error("var b: => B", "'var' parameters may not be call-by-name") :: Nil =>
     }
   }
+
+  def testValInNormalParam(): Unit = {
+    assertMatches(messages("def fn(val x: Int) = x")) {
+      case Error("val", "'val' can only be used in class parameters") :: Nil =>
+    }
+  }
+
+  def testVarInNormalParam(): Unit = {
+    assertMatches(messages("def fn(var x: Int) = x")) {
+      case Error("var", "'var' can only be used in class parameters") :: Nil =>
+    }
+  }
 }
 
 class ParametersAnnotatorTest_without_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
