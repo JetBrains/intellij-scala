@@ -156,16 +156,35 @@ object GivenSig extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val givenSigMarker = builder.mark()
 
-    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+    // let's try to find out if we are parsing a signature, for more graceful error reporting
+    var isSignatureForSure = false
+
+    val hasIdentifier = builder.getTokenType == ScalaTokenTypes.tIDENTIFIER
+    if (hasIdentifier) {
       builder.advanceLexer() // ate id
     }
 
-    TypeParamClause()
+    if (TypeParamClause()) {
+      // Cannot be `given [T] =>> T = ???;` because given only allows AnnotType
+      // But if an identifier was parsed, it could be `given Type[T] = ???;`
+      isSignatureForSure ||= !hasIdentifier
+    }
+
+    if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+      // parsing just a `(` it could be a paranthesised type
+      // but if there is a `using` it cannot be a type so we can assume that this is a parameter clause
+      // except if there was an identifier, then it could be a constructor invocation `given Foo(using 3);`
+      isSignatureForSure ||= !hasIdentifier && builder.predict(_.getTokenText == "using")
+    }
 
     ParamClauses()
 
     if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
       builder.advanceLexer() // ate :
+      givenSigMarker.drop()
+      true
+    } else if (isSignatureForSure) {
+      builder.error(ScalaBundle.message("colon.expected"))
       givenSigMarker.drop()
       true
     } else {
