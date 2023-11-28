@@ -170,7 +170,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          ClassParameter: <anonimous>
+          ClassParameter: x$3
             ParameterType
               ParametrizedType: List[TC]
                 SimpleType: List
@@ -267,7 +267,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: TC
                     CodeReferenceElement: TC
@@ -277,7 +277,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: List[TC]
                     SimpleType: List
@@ -397,7 +397,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          ClassParameter: <anonimous>
+          ClassParameter: x$1
             ParameterType
               SimpleType: TC
                 CodeReferenceElement: TC
@@ -612,7 +612,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: TC
                     CodeReferenceElement: TC

@@ -232,7 +232,7 @@ ScalaFile
                   PsiElement(()('(')
                   PsiElement(using)('using')
                   PsiWhiteSpace(' ')
-                  Parameter: <anonimous>
+                  Parameter: <anonymous>
                     ParameterType
                       ParametrizedType: TokenParser[Char, Position[CharSequence]]
                         SimpleType: TokenParser
@@ -1605,7 +1605,7 @@ ScalaFile
             PsiElement(()('(')
             PsiElement(using)('using')
             PsiWhiteSpace(' ')
-            Parameter: <anonimous>
+            Parameter: <anonymous>
               ParameterType
                 SimpleType: TC
                   CodeReferenceElement: TC

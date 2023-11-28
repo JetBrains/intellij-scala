@@ -77,7 +77,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: TypeTest[S, T]
                     SimpleType: TypeTest

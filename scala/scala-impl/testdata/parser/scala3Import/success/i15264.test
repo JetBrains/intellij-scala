@@ -395,7 +395,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: priority.Prio0
                           CodeReferenceElement: priority.Prio0
@@ -452,7 +452,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: priority.Prio1
                           CodeReferenceElement: priority.Prio1
@@ -509,7 +509,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: priority.Prio2
                           CodeReferenceElement: priority.Prio2

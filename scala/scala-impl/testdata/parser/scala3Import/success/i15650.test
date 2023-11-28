@@ -103,7 +103,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: Quotes
                           CodeReferenceElement: Quotes
@@ -173,7 +173,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: Quotes
                           CodeReferenceElement: Quotes
@@ -183,7 +183,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonimous>
+                    Parameter: <anonymous>
                       ParameterType
                         SimpleType: TC
                           CodeReferenceElement: TC
@@ -241,7 +241,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: Quotes
                     CodeReferenceElement: Quotes
@@ -314,7 +314,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: Quotes
                     CodeReferenceElement: Quotes
@@ -324,7 +324,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: TC
                     CodeReferenceElement: TC

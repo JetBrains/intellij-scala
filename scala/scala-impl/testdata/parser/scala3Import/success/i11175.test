@@ -102,7 +102,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          Parameter: <anonimous>
+          Parameter: <anonymous>
             ParameterType
               ParametrizedType: Printer[T]
                 SimpleType: Printer

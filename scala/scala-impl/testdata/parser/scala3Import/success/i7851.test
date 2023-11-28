@@ -385,7 +385,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             ParametrizedType: Wrapper.Aux[T, WrappedT0]
               SimpleType: Wrapper.Aux

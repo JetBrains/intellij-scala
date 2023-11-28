@@ -112,7 +112,7 @@ ScalaFile
                   PsiElement(()('(')
                   PsiElement(using)('using')
                   PsiWhiteSpace(' ')
-                  Parameter: <anonimous>
+                  Parameter: <anonymous>
                     ParameterType
                       ParametrizedType: Entity[T, M, P]
                         SimpleType: Entity
@@ -331,7 +331,7 @@ ScalaFile
                         PsiElement(()('(')
                         PsiElement(using)('using')
                         PsiWhiteSpace(' ')
-                        Parameter: <anonimous>
+                        Parameter: <anonymous>
                           ParameterType
                             ParametrizedType: Entity[GreetedPerson, GreetingPerson, String]
                               SimpleType: Entity
@@ -584,7 +584,7 @@ ScalaFile
                         PsiElement(()('(')
                         PsiElement(using)('using')
                         PsiWhiteSpace(' ')
-                        Parameter: <anonimous>
+                        Parameter: <anonymous>
                           ParameterType
                             ParametrizedType: Entity[GreetingPerson, GreetedPerson, String]
                               SimpleType: Entity
