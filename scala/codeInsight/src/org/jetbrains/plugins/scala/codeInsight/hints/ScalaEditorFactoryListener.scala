@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.event.{FocusAdapter, FocusEvent, InputEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter, MouseWheelEvent, MouseWheelListener}
 import java.awt.{Component, Toolkit}
@@ -152,6 +153,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
   }
 
+  private var onTime: Long = _
+
   private def xRayMode: Boolean = ScalaHintsSettings.xRayMode
 
   private def xRayMode_=(enabled: Boolean): Unit = {
@@ -174,6 +177,8 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         showImplicitHintsSetting = ImplicitHints.enabled
         ImplicitHints.enabled = true
       }
+
+      onTime = System.currentTimeMillis()
     } else {
       if (ScalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES) {
         EditorSettingsExternalizable.setIndentGuidesShown(indentGuidesShownSetting)
@@ -185,6 +190,12 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
       if (ScalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS) {
         ImplicitHints.enabled = showImplicitHintsSetting
+      }
+
+      keyPressEvent.getSource match {
+        case component: EditorComponentImpl =>
+          ScalaActionUsagesCollector.logXRayMode(component.getEditor.getProject, System.currentTimeMillis() - onTime)
+        case _ =>
       }
     }
 
