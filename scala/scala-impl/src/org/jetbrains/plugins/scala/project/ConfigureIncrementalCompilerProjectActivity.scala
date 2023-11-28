@@ -3,11 +3,14 @@ package org.jetbrains.plugins.scala.project
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.{FileTypeRegistry, UnknownFileType}
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.util.Processor
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -39,7 +42,13 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
                 }.exists { module =>
                   ProgressManager.checkCanceled()
                   val moduleScope = GlobalSearchScope.moduleScope(module)
-                  !FileTypeIndex.processFiles(kotlin, _ => false, moduleScope)
+                  val processor: Processor[VirtualFile] = { vf =>
+                    val debugMessage =
+                      s"Kotlin source file discovered in module ${module.getName} of project ${project.getName}, file path: ${vf.getCanonicalPath}"
+                    Log.debug(debugMessage)
+                    false // Stop processing files
+                  }
+                  !FileTypeIndex.processFiles(kotlin, processor, moduleScope)
                 }
               }
             }
@@ -65,6 +74,8 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
 }
 
 private object ConfigureIncrementalCompilerProjectActivity {
+
+  private val Log: Logger = Logger.getInstance(classOf[ConfigureIncrementalCompilerProjectActivity])
 
   @Service(Array(Service.Level.PROJECT))
   private final class BackgroundService extends Disposable {
