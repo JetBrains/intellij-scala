@@ -4,3 +4,64 @@ class Foo {
   }
 }
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: scala.compiletime.error
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('error')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"some message"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

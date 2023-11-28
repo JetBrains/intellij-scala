@@ -7,3 +7,160 @@ trait IPersonaSharedProps extends HTMLAttributes[PersonaCoinBase]
 trait PersonaCoinBase extends Component[IPersonaCoinProps]
 trait IPersonaCoinProps extends IPersonaSharedProps
 -----
+ScalaFile
+  ScTrait: JsAny
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsAny')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+  PsiWhiteSpace('\n')
+  ScClass: JsObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsObject')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: JsAny
+            CodeReferenceElement: JsAny
+              PsiElement(identifier)('JsAny')
+  PsiWhiteSpace('\n\n')
+  ScTrait: HTMLAttributes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HTMLAttributes')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: JsObject
+            CodeReferenceElement: JsObject
+              PsiElement(identifier)('JsObject')
+  PsiWhiteSpace('\n')
+  ScTrait: Component
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Component')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: JsObject
+            CodeReferenceElement: JsObject
+              PsiElement(identifier)('JsObject')
+  PsiWhiteSpace('\n')
+  ScTrait: IPersonaSharedProps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IPersonaSharedProps')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: HTMLAttributes[PersonaCoinBase]
+            SimpleType: HTMLAttributes
+              CodeReferenceElement: HTMLAttributes
+                PsiElement(identifier)('HTMLAttributes')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: PersonaCoinBase
+                CodeReferenceElement: PersonaCoinBase
+                  PsiElement(identifier)('PersonaCoinBase')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: PersonaCoinBase
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PersonaCoinBase')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Component[IPersonaCoinProps]
+            SimpleType: Component
+              CodeReferenceElement: Component
+                PsiElement(identifier)('Component')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: IPersonaCoinProps
+                CodeReferenceElement: IPersonaCoinProps
+                  PsiElement(identifier)('IPersonaCoinProps')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: IPersonaCoinProps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IPersonaCoinProps')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: IPersonaSharedProps
+            CodeReferenceElement: IPersonaSharedProps
+              PsiElement(identifier)('IPersonaSharedProps')

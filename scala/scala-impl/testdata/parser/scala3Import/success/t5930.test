@@ -3,3 +3,55 @@
   0 match { case x: Int => }
 }
 -----
+ScalaFile
+  ScClass: Test
+    PsiComment(comment)('// should not warn about dead code (`matchEnd(throw new MatchError)`)')
+    PsiWhiteSpace('\n ')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          IntegerLiteral
+            PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

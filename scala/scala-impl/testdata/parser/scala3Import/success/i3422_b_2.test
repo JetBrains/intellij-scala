@@ -2,3 +2,52 @@ object Test {
   def c: Fun[O1.N] = O2.bar
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('c')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fun[O1.N]
+            SimpleType: Fun
+              CodeReferenceElement: Fun
+                PsiElement(identifier)('Fun')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: O1.N
+                CodeReferenceElement: O1.N
+                  CodeReferenceElement: O1
+                    PsiElement(identifier)('O1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('N')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: O2.bar
+            ReferenceExpression: O2
+              PsiElement(identifier)('O2')
+            PsiElement(.)('.')
+            PsiElement(identifier)('bar')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

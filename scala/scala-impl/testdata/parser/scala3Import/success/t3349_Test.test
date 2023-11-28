@@ -4,3 +4,85 @@ object Test {
   table.addColumn( label, label.getClass )
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: label
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: label
+              PsiElement(identifier)('label')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"name"')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: table
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: table
+              PsiElement(identifier)('table')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Table
+            CodeReferenceElement: Table
+              PsiElement(identifier)('Table')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('""')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: table.addColumn
+            ReferenceExpression: table
+              PsiElement(identifier)('table')
+            PsiElement(.)('.')
+            PsiElement(identifier)('addColumn')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: label
+              PsiElement(identifier)('label')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: label.getClass
+              ReferenceExpression: label
+                PsiElement(identifier)('label')
+              PsiElement(.)('.')
+              PsiElement(identifier)('getClass')
+            PsiWhiteSpace(' ')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

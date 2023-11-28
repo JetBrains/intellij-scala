@@ -2,3 +2,34 @@ trait Filter {
   def info: Info
 }
 -----
+ScalaFile
+  ScTrait: Filter
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Filter')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: info
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('info')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Info
+            CodeReferenceElement: Info
+              PsiElement(identifier)('Info')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

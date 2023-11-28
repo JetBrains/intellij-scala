@@ -9,3 +9,202 @@ given (using rec: => Show[String]): Show[Option[String]] = ??? // must be byname
 
 def test = Option("").show
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Show
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Show')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          Extension on A
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              ScFunctionDeclaration: show
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('show')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+    PsiWhiteSpace('\n\n')
+    ScGivenAliasDefinition: given_Show_String
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: rec
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('rec')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Show[String]
+                SimpleType: Show
+                  CodeReferenceElement: Show
+                    PsiElement(identifier)('Show')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Show[String]
+        SimpleType: Show
+          CodeReferenceElement: Show
+            PsiElement(identifier)('Show')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// must be Show[String] as the argument')
+    PsiWhiteSpace('\n\n')
+    ScGivenAliasDefinition: given_Show_Option
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: rec
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('rec')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Show[String]
+                SimpleType: Show
+                  CodeReferenceElement: Show
+                    PsiElement(identifier)('Show')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Show[Option[String]]
+        SimpleType: Show
+          CodeReferenceElement: Show
+            PsiElement(identifier)('Show')
+        TypeArgumentsList
+          PsiElement([)('[')
+          ParametrizedType: Option[String]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// must be byname argument')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('test')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: Option("").show
+        MethodCall
+          ReferenceExpression: Option
+            PsiElement(identifier)('Option')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('""')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('show')

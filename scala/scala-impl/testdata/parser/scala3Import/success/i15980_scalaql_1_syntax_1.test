@@ -5,3 +5,39 @@ import scalaql.*
 @forbiddenInheritance
 trait ScalaqlSyntax
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql.syntax
+      CodeReferenceElement: scalaql
+        PsiElement(identifier)('scalaql')
+      PsiElement(.)('.')
+      PsiElement(identifier)('syntax')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scalaql
+          PsiElement(identifier)('scalaql')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ScalaqlSyntax
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: forbiddenInheritance
+                CodeReferenceElement: forbiddenInheritance
+                  PsiElement(identifier)('forbiddenInheritance')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace('\n')
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ScalaqlSyntax')
+      ExtendsBlock
+        <empty list>

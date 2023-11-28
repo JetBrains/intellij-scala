@@ -5,3 +5,44 @@ trait User {
   type Entry <: ChildContainer#Entry
 }
 -----
+ScalaFile
+  PsiComment(comment)('// User.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n\n')
+    ScTrait: User
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('User')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Entry
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Entry')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            TypeProjection: ChildContainer#Entry
+              SimpleType: ChildContainer
+                CodeReferenceElement: ChildContainer
+                  PsiElement(identifier)('ChildContainer')
+              PsiElement(#)('#')
+              PsiElement(identifier)('Entry')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

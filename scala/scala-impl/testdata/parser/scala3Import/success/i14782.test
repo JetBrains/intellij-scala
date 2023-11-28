@@ -7,3 +7,155 @@ object BugExample {
   for (closure <- closures) closure(())
 }
 -----
+ScalaFile
+  ScObject: BugExample
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BugExample')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: urls
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: urls
+              PsiElement(identifier)('urls')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[String]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"any_url"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: closures
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: closures
+              PsiElement(identifier)('closures')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Unit => Unit]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              FunctionalType: Unit => Unit
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: urls.map
+              ReferenceExpression: urls
+                PsiElement(identifier)('urls')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: url
+                      PsiElement(identifier)('url')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: _
+                        PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: println
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          StringLiteral
+                            PsiElement(string content)('"Scraping "')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: url
+                            PsiElement(identifier)('url')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: closure
+                PsiElement(identifier)('closure')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: closures
+                PsiElement(identifier)('closures')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: closure
+              PsiElement(identifier)('closure')
+            ArgumentList
+              PsiElement(()('(')
+              UnitExpression
+                PsiElement(()('(')
+                PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

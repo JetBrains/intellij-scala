@@ -12,3 +12,116 @@ trait Test {
 
 }
 -----
+ScalaFile
+  ScTrait: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inner')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

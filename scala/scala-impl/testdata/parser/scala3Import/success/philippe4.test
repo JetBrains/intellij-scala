@@ -2,3 +2,77 @@ trait Foo[t <: Foo[t]] { self: t =>
   def foo(that: t): Boolean;
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: t
+        PsiElement(identifier)('t')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Foo[t]
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: t
+              CodeReferenceElement: t
+                PsiElement(identifier)('t')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: t
+            CodeReferenceElement: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

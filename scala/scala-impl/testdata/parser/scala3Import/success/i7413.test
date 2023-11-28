@@ -21,3 +21,429 @@ class MyTest extends TestFramework[MyFixture]:
   }
 
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.implicitConversions
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('implicitConversions')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Fixture
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Fixture')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Conversion[0, A]
+            SimpleType: Conversion
+              CodeReferenceElement: Conversion
+                PsiElement(identifier)('Conversion')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 0
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: TestFramework
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestFramework')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on String
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: testName
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('testName')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScExtensionBody
+            ScFunctionDefinition: in
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('in')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: test
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('test')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: Fixture[A] ?=> Unit
+                        ParametrizedType: Fixture[A]
+                          SimpleType: Fixture
+                            CodeReferenceElement: Fixture
+                              PsiElement(identifier)('Fixture')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(?=>)('?=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Unit
+                          CodeReferenceElement: Unit
+                            PsiElement(identifier)('Unit')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Greeter
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Greeter')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: greet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('greet')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"Hello ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: name
+              PsiElement(identifier)('name')
+            PsiElement(interpolated string end)('"')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyFixture
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyFixture')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: greeter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('greeter')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Greeter
+                CodeReferenceElement: Greeter
+                  PsiElement(identifier)('Greeter')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: conv
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('conv')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Conversion[0, Greeter]
+                  SimpleType: Conversion
+                    CodeReferenceElement: Conversion
+                      PsiElement(identifier)('Conversion')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    LiteralType: 0
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Greeter
+                      CodeReferenceElement: Greeter
+                        PsiElement(identifier)('Greeter')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace('\n    ')
+            ScTemplateBody
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        LiteralType: 0
+                          IntegerLiteral
+                            PsiElement(integer)('0')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Greeter
+                  CodeReferenceElement: Greeter
+                    PsiElement(identifier)('Greeter')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: g
+              PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Greeter
+            CodeReferenceElement: Greeter
+              PsiElement(identifier)('Greeter')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyTest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyTest')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: TestFramework[MyFixture]
+            SimpleType: TestFramework
+              CodeReferenceElement: TestFramework
+                PsiElement(identifier)('TestFramework')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: MyFixture
+                CodeReferenceElement: MyFixture
+                  PsiElement(identifier)('MyFixture')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          StringLiteral
+            PsiElement(string content)('"say hello"')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: in
+            PsiElement(identifier)('in')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  MethodCall
+                    ReferenceExpression: 0.greeter.greet
+                      ReferenceExpression: 0.greeter
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('greeter')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('greet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: 0.name
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('name')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"Hello ')
+                    PsiElement(interpolated string injection)('$')
+                    BlockExpression
+                      PsiElement({)('{')
+                      ReferenceExpression: 0.name
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('name')
+                      PsiElement(})('}')
+                    PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

@@ -12,3 +12,206 @@ object Main {
   def main(args: Array[String]): Unit = ()
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: CC
+        PsiElement(identifier)('CC')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: X
+            PsiElement(identifier)('X')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Foo[X, CC, CC[X]]
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: CC
+              CodeReferenceElement: CC
+                PsiElement(identifier)('CC')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ParametrizedType: CC[X]
+              SimpleType: CC
+                CodeReferenceElement: CC
+                  PsiElement(identifier)('CC')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                PsiElement(])(']')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: CC[A]
+          SimpleType: CC
+            CodeReferenceElement: CC
+              PsiElement(identifier)('CC')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: cc
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cc')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CC[A]
+            SimpleType: CC
+              CodeReferenceElement: CC
+                PsiElement(identifier)('CC')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: cc.foo
+            ReferenceExpression: cc
+              PsiElement(identifier)('cc')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foo')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -15,3 +15,380 @@ object UnitCmp2 extends Cmp[EmptyTuple] {
   def cmp(t: EmptyTuple, b: Boxed[EmptyTuple]): Boolean = true
 }
 -----
+ScalaFile
+  ScClass: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: t
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('t')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Boxed
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Boxed')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Tuple
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: T match {
+  case EmptyTuple => EmptyTuple
+  case h *: t => Box[h] *: Boxed[t]
+}
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: h *: t
+            TypeVariable: h
+              PsiElement(identifier)('h')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            TypeVariable: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: Box[h] *: Boxed[t]
+            ParametrizedType: Box[h]
+              SimpleType: Box
+                CodeReferenceElement: Box
+                  PsiElement(identifier)('Box')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: h
+                  CodeReferenceElement: h
+                    PsiElement(identifier)('h')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Boxed[t]
+              SimpleType: Boxed
+                CodeReferenceElement: Boxed
+                  PsiElement(identifier)('Boxed')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+                PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Cmp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cmp')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScFunctionDeclaration: cmp
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cmp')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Boxed[T]
+                    SimpleType: Boxed
+                      CodeReferenceElement: Boxed
+                        PsiElement(identifier)('Boxed')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: UnitCmp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnitCmp')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Cmp[EmptyTuple]
+            SimpleType: Cmp
+              CodeReferenceElement: Cmp
+                PsiElement(identifier)('Cmp')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: cmp
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cmp')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: UnitCmp2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnitCmp2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Cmp[EmptyTuple]
+            SimpleType: Cmp
+              CodeReferenceElement: Cmp
+                PsiElement(identifier)('Cmp')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: cmp
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cmp')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Boxed[EmptyTuple]
+                    SimpleType: Boxed
+                      CodeReferenceElement: Boxed
+                        PsiElement(identifier)('Boxed')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

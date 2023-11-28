@@ -1,2 +1,68 @@
 def takesId(f: [T] => (t: T) => t.type): Int = f(1)
 -----
+ScalaFile
+  ScFunctionDefinition: takesId
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('takesId')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            PolymorhicFunctionType: [T] => (t: T) => t.type
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: T
+                  PsiElement(identifier)('T')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              DependentFunctionType: (t: T) => t.type
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: t
+                    PsiElement(identifier)('t')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: t.type
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: f
+        PsiElement(identifier)('f')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement())(')')

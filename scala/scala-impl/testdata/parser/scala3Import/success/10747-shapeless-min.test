@@ -11,3 +11,193 @@ object eithers extends Monoidal {
   }
 }
 -----
+ScalaFile
+  ScTrait: Monoidal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Monoidal')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: to
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('to')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: eithers
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('eithers')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Monoidal
+            CodeReferenceElement: Monoidal
+              PsiElement(identifier)('Monoidal')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Wrap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Wrap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: to
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('to')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: t
+              PsiElement(identifier)('t')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Wrap[t] match {
+    case Wrap[Either[hd, tl]] => hd *: to[tl]
+    case Wrap[Nothing] => EmptyTuple
+  }
+            ParametrizedType: Wrap[t]
+              SimpleType: Wrap
+                CodeReferenceElement: Wrap
+                  PsiElement(identifier)('Wrap')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Wrap[Either[hd, tl]]
+                  SimpleType: Wrap
+                    CodeReferenceElement: Wrap
+                      PsiElement(identifier)('Wrap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Either[hd, tl]
+                      SimpleType: Either
+                        CodeReferenceElement: Either
+                          PsiElement(identifier)('Either')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeVariable: hd
+                          PsiElement(identifier)('hd')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeVariable: tl
+                          PsiElement(identifier)('tl')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: hd *: to[tl]
+                  SimpleType: hd
+                    CodeReferenceElement: hd
+                      PsiElement(identifier)('hd')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: to[tl]
+                    SimpleType: to
+                      CodeReferenceElement: to
+                        PsiElement(identifier)('to')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: tl
+                        CodeReferenceElement: tl
+                          PsiElement(identifier)('tl')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Wrap[Nothing]
+                  SimpleType: Wrap
+                    CodeReferenceElement: Wrap
+                      PsiElement(identifier)('Wrap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -11,3 +11,192 @@ object C {
 }
 
 -----
+ScalaFile
+  ScClass: Check
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Check')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: C2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: checks
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('checks')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Check[_]
+                SimpleType: Check
+                  CodeReferenceElement: Check
+                    PsiElement(identifier)('Check')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(identifier)('*')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScObject: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('m')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: C2
+                    CodeReferenceElement: C2
+                      PsiElement(identifier)('C2')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: C2
+                    PsiElement(identifier)('C2')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SequenceWildcardPattern: rest
+                      PsiElement(identifier)('rest')
+                      PsiElement(identifier)('*')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: rest.map
+                        ReferenceExpression: rest
+                          PsiElement(identifier)('rest')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('map')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: _.value
+                          UnderscoreSection
+                            PsiElement(_)('_')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

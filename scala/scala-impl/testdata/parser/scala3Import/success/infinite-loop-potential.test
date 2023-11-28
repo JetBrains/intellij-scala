@@ -9,3 +9,151 @@ object InfiniteSubtypingLoopPossibility {
   }
 }
 -----
+ScalaFile
+  ScObject: InfiniteSubtypingLoopPossibility
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InfiniteSubtypingLoopPossibility')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: A[B]
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Min
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Min')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              CompoundType: B with A[S]
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ParametrizedType: A[S]
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    PsiElement(])(']')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('c')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: pc
+                  PsiElement(identifier)('pc')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: Min[_]
+                    SimpleType: Min
+                      CodeReferenceElement: Min
+                        PsiElement(identifier)('Min')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

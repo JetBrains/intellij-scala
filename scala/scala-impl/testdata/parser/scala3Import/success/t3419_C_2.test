@@ -2,3 +2,84 @@ object F {
   type S = T[Any,Int] {type X[N <: Int, Acc <: Int] = Acc}
 }
 -----
+ScalaFile
+  ScObject: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: S
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('S')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: T[Any,Int] {type X[N <: Int, Acc <: Int] = Acc}
+            ParametrizedType: T[Any,Int]
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(,)(',')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: X
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('X')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: N
+                    PsiElement(identifier)('N')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Acc
+                    PsiElement(identifier)('Acc')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Acc
+                  CodeReferenceElement: Acc
+                    PsiElement(identifier)('Acc')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -10,3 +10,194 @@ class EnumSerializer[E <: Enumeration: ClassTag](enumeration: E) {
   val EnumerationClass = classOf[EnumValue[E]]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.ClassTag
+        CodeReferenceElement: scala.reflect
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('reflect')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ClassTag')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Aux
+    PsiComment(comment)('// https://github.com/json4s/json4s/blob/355d8751391773e0d79d04402a4f9fb7bfc684ec/ext/src/main/scala-3/org/json4s/ext/package.scala#L4-L8')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Aux')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: { type Value = A }
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Value')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: EnumValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumValue')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Enumeration
+          CodeReferenceElement: Enumeration
+            PsiElement(identifier)('Enumeration')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: A match {
+  case Aux[a] => a
+}
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Aux[a]
+            SimpleType: Aux
+              CodeReferenceElement: Aux
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: a
+                PsiElement(identifier)('a')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: a
+            CodeReferenceElement: a
+              PsiElement(identifier)('a')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: EnumSerializer
+    PsiComment(comment)('// https://github.com/json4s/json4s/blob/355d8751391773e0d79d04402a4f9fb7bfc684ec/ext/src/main/scala/org/json4s/ext/EnumSerializer.scala#L25-L26')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumSerializer')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Enumeration
+          CodeReferenceElement: Enumeration
+            PsiElement(identifier)('Enumeration')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: ClassTag
+          CodeReferenceElement: ClassTag
+            PsiElement(identifier)('ClassTag')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: enumeration
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('enumeration')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: EnumerationClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: EnumerationClass
+              PsiElement(identifier)('EnumerationClass')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: classOf
+              PsiElement(identifier)('classOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: EnumValue[E]
+                SimpleType: EnumValue
+                  CodeReferenceElement: EnumValue
+                    PsiElement(identifier)('EnumValue')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

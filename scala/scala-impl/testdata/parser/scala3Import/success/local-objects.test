@@ -8,3 +8,50 @@ object Main {
 }
 
 -----
+ScalaFile
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n   ')
+            ScObject: Boo
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Boo')
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n   ')
+            ReferenceExpression: Boo
+              PsiElement(identifier)('Boo')
+            PsiWhiteSpace('\n ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

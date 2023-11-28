@@ -25,3 +25,567 @@ def test: Unit =
     case MySeqUnapply(a, b) => (a: Int, b: Int)
     case MyWhiteboxUnapply(x) => x: Int
 -----
+ScalaFile
+  ScObject: MyBoooleanUnapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyBoooleanUnapply')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+  PsiWhiteSpace('\n\n')
+  ScObject: MyOptionUnapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyOptionUnapply')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Long]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: MyUnapplyImplicits
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyUnapplyImplicits')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: DummyImplicit
+                    CodeReferenceElement: DummyImplicit
+                      PsiElement(identifier)('DummyImplicit')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Long]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: MyPolyUnapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyPolyUnapply')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[T]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: MySeqUnapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySeqUnapply')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapplySeq
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapplySeq')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Seq[Int]
+            SimpleType: Seq
+              CodeReferenceElement: Seq
+                PsiElement(identifier)('Seq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Seq
+              PsiElement(identifier)('Seq')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: MyWhiteboxUnapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyWhiteboxUnapply')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Any]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MatchStatement
+          IntegerLiteral
+            PsiElement(integer)('5')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MyBoooleanUnapply
+                  PsiElement(identifier)('MyBoooleanUnapply')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MyOptionUnapply
+                  PsiElement(identifier)('MyOptionUnapply')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: y
+                    PsiElement(identifier)('y')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                TypedExpression
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MyUnapplyImplicits
+                  PsiElement(identifier)('MyUnapplyImplicits')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: y
+                    PsiElement(identifier)('y')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                TypedExpression
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MyPolyUnapply
+                  PsiElement(identifier)('MyPolyUnapply')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                TypedExpression
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MySeqUnapply
+                  PsiElement(identifier)('MySeqUnapply')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                Tuple
+                  PsiElement(()('(')
+                  TypedExpression
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypedExpression
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: MyWhiteboxUnapply
+                  PsiElement(identifier)('MyWhiteboxUnapply')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                TypedExpression
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')

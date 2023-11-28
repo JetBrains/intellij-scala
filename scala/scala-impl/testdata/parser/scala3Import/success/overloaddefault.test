@@ -14,3 +14,347 @@ object Test {
   ci.derivedCI(decls = decls1)
 }
 -----
+ScalaFile
+  ScTrait: Scope
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Scope')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: MScope
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MScope')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Scope
+            CodeReferenceElement: Scope
+              PsiElement(identifier)('Scope')
+  PsiWhiteSpace('\n\n')
+  ScClass: CI
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CI')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: pre
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('pre')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: decls
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('decls')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Scope
+                CodeReferenceElement: Scope
+                  PsiElement(identifier)('Scope')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: derivedCI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derivedCI')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: pre
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('pre')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: CI
+                    CodeReferenceElement: CI
+                      PsiElement(identifier)('CI')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: pre
+                      PsiElement(identifier)('pre')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: decls
+                      PsiElement(identifier)('decls')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: derivedCI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derivedCI')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: pre
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('pre')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: this.pre
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: decls
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('decls')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Scope
+                    CodeReferenceElement: Scope
+                      PsiElement(identifier)('Scope')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: this.decls
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('decls')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: CI
+                    CodeReferenceElement: CI
+                      PsiElement(identifier)('CI')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: pre
+                      PsiElement(identifier)('pre')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: decls
+                      PsiElement(identifier)('decls')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ci
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ci')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: CI
+                    CodeReferenceElement: CI
+                      PsiElement(identifier)('CI')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: MScope
+                              CodeReferenceElement: MScope
+                                PsiElement(identifier)('MScope')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: decls1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: decls1
+              PsiElement(identifier)('decls1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: MScope
+                    CodeReferenceElement: MScope
+                      PsiElement(identifier)('MScope')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: ci.derivedCI
+            ReferenceExpression: ci
+              PsiElement(identifier)('ci')
+            PsiElement(.)('.')
+            PsiElement(identifier)('derivedCI')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            AssignStatement
+              ReferenceExpression: decls
+                PsiElement(identifier)('decls')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: decls1
+                PsiElement(identifier)('decls1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: ci.derivedCI
+            ReferenceExpression: ci
+              PsiElement(identifier)('ci')
+            PsiElement(.)('.')
+            PsiElement(identifier)('derivedCI')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: pre
+                PsiElement(identifier)('pre')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: ci.derivedCI
+            ReferenceExpression: ci
+              PsiElement(identifier)('ci')
+            PsiElement(.)('.')
+            PsiElement(identifier)('derivedCI')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: decls
+                PsiElement(identifier)('decls')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: decls1
+                PsiElement(identifier)('decls1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

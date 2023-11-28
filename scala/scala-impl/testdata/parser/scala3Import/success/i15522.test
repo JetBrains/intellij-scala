@@ -12,3 +12,363 @@ object Test:
     case (_, Empty)                     => Empty // was: Unreachable case
     case (Range(a1, b1), Range(a2, b2)) => mkCoverage(a1 max a2, b1 min b2)
 -----
+ScalaFile
+  ScTrait: Coverage
+    PsiComment(comment)('// scalac: -Werror')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Coverage')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Range
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Range')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: min
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('min')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: max
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('max')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Coverage
+            CodeReferenceElement: Coverage
+              PsiElement(identifier)('Coverage')
+  PsiWhiteSpace('\n')
+  ScObject: Empty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Empty')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Coverage
+            CodeReferenceElement: Coverage
+              PsiElement(identifier)('Coverage')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mkCoverage
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mkCoverage')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: min
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('min')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: max
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('max')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Coverage
+            CodeReferenceElement: Coverage
+              PsiElement(identifier)('Coverage')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: min
+                PsiElement(identifier)('min')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: <
+                PsiElement(identifier)('<')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: max
+                PsiElement(identifier)('max')
+            PsiWhiteSpace(' ')
+            PsiElement(then)('then')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Range
+                      CodeReferenceElement: Range
+                        PsiElement(identifier)('Range')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: min
+                        PsiElement(identifier)('min')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: max
+                        PsiElement(identifier)('max')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Empty
+              PsiElement(identifier)('Empty')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: meth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('meth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Coverage
+                    CodeReferenceElement: Coverage
+                      PsiElement(identifier)('Coverage')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Coverage
+                    CodeReferenceElement: Coverage
+                      PsiElement(identifier)('Coverage')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Coverage
+            CodeReferenceElement: Coverage
+              PsiElement(identifier)('Coverage')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: c1
+                PsiElement(identifier)('c1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: c2
+                PsiElement(identifier)('c2')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    StableElementPattern
+                      ReferenceExpression: Empty
+                        PsiElement(identifier)('Empty')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                  PsiElement())(')')
+                PsiWhiteSpace('                     ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: Empty
+                    PsiElement(identifier)('Empty')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: Empty
+                        PsiElement(identifier)('Empty')
+                  PsiElement())(')')
+                PsiWhiteSpace('                     ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: Empty
+                    PsiElement(identifier)('Empty')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// was: Unreachable case')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ConstructorPattern
+                      CodeReferenceElement: Range
+                        PsiElement(identifier)('Range')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: a1
+                          PsiElement(identifier)('a1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: b1
+                          PsiElement(identifier)('b1')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: Range
+                        PsiElement(identifier)('Range')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: a2
+                          PsiElement(identifier)('a2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: b2
+                          PsiElement(identifier)('b2')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: mkCoverage
+                      PsiElement(identifier)('mkCoverage')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: a1
+                          PsiElement(identifier)('a1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: max
+                          PsiElement(identifier)('max')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: a2
+                          PsiElement(identifier)('a2')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: b1
+                          PsiElement(identifier)('b1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: min
+                          PsiElement(identifier)('min')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: b2
+                          PsiElement(identifier)('b2')
+                      PsiElement())(')')

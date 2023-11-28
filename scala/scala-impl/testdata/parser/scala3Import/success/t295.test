@@ -1,3 +1,35 @@
 object Test extends java.rmi.server.UnicastRemoteObject {
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: java.rmi.server.UnicastRemoteObject
+            CodeReferenceElement: java.rmi.server.UnicastRemoteObject
+              CodeReferenceElement: java.rmi.server
+                CodeReferenceElement: java.rmi
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('rmi')
+                PsiElement(.)('.')
+                PsiElement(identifier)('server')
+              PsiElement(.)('.')
+              PsiElement(identifier)('UnicastRemoteObject')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

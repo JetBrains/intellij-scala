@@ -6,3 +6,112 @@ class Foo2 extends Foo1 {
   override def foo: String ?=> Int = 2
 }
 -----
+ScalaFile
+  ScClass: Foo1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: String ?=> Int
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(?=>)('?=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Foo1
+            CodeReferenceElement: Foo1
+              PsiElement(identifier)('Foo1')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: String ?=> Int
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(?=>)('?=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

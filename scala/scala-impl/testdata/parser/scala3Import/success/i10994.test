@@ -1,3 +1,55 @@
 def foo = true match
   case (b: Boolean): Boolean => () // warning
 -----
+ScalaFile
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            PatternInParenthesis
+              PsiElement(()('(')
+              Scala3 TypedPattern
+                ReferencePattern: b
+                  PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// warning')

@@ -2,3 +2,30 @@ object Test {
   Q.passInner(null)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Q.passInner
+            ReferenceExpression: Q
+              PsiElement(identifier)('Q')
+            PsiElement(.)('.')
+            PsiElement(identifier)('passInner')
+          ArgumentList
+            PsiElement(()('(')
+            NullLiteral
+              PsiElement(null)('null')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

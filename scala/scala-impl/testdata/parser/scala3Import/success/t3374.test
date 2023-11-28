@@ -5,3 +5,105 @@ trait Sub extends Parent {
  type Test[AS, HS[B <: AS]] = AS
 }
 -----
+ScalaFile
+  ScTrait: Parent
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Parent')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScTypeAliasDeclaration: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: Sub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sub')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Parent
+            CodeReferenceElement: Parent
+              PsiElement(identifier)('Parent')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScTypeAliasDefinition: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: AS
+              PsiElement(identifier)('AS')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: HS
+              PsiElement(identifier)('HS')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: AS
+                    CodeReferenceElement: AS
+                      PsiElement(identifier)('AS')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: AS
+            CodeReferenceElement: AS
+              PsiElement(identifier)('AS')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

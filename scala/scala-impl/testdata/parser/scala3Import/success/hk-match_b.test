@@ -1,2 +1,23 @@
 trait Bippy[E[X]]
 -----
+ScalaFile
+  ScTrait: Bippy
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bippy')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: X
+            PsiElement(identifier)('X')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>

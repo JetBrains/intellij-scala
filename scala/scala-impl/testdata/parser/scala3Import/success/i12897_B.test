@@ -3,3 +3,34 @@ package TestFoo
 
 val f = "123".foo() //error
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: TestFoo
+      PsiElement(identifier)('TestFoo')
+    PsiWhiteSpace('\n\n')
+    ScPatternDefinition: f
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: f
+          PsiElement(identifier)('f')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: "123".foo
+          StringLiteral
+            PsiElement(string content)('"123"')
+          PsiElement(.)('.')
+          PsiElement(identifier)('foo')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('//error')

@@ -4,3 +4,117 @@ object Test {
   val a: C[AnyRef] = new Foo[AnyRef]
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: C
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Foo[_ <: T]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ <: T
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiWhiteSpace('   ')
+        PsiComment(comment)('// error: parameter type T of type alias does not appear as type argument of the aliased class Foo')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: C[AnyRef]
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Foo[AnyRef]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: AnyRef
+                        CodeReferenceElement: AnyRef
+                          PsiElement(identifier)('AnyRef')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

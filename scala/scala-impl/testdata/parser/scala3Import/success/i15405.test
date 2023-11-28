@@ -3,3 +3,127 @@ class Foo:
   def >(x: Int) = true
 def foo(v: Foo|Validated[Foo]): Unit = v > 10
 -----
+ScalaFile
+  ScTypeAliasDefinition: Validated
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Validated')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: A
+      CodeReferenceElement: A
+        PsiElement(identifier)('A')
+  PsiWhiteSpace('\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: >
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('>')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('v')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            InfixType: Foo|Validated[Foo]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              ParametrizedType: Validated[Foo]
+                SimpleType: Validated
+                  CodeReferenceElement: Validated
+                    PsiElement(identifier)('Validated')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: v
+        PsiElement(identifier)('v')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: >
+        PsiElement(identifier)('>')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('10')

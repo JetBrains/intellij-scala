@@ -10,3 +10,143 @@ def f(x: Int)
   { println(x) }
 
 -----
+ScalaFile
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+      PsiWhiteSpace('\n     ')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: +
+        PsiElement(identifier)('+')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y
+        PsiElement(identifier)('y')
+  PsiWhiteSpace('\n\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement())(')')
+      PsiWhiteSpace('\n    ')
+      InfixExpression
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('2')
+          PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ReferenceExpression: +
+          PsiElement(identifier)('+')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement())(')')
+      PsiWhiteSpace('\n       ')
+      BlockExpression
+        PsiElement({)('{')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

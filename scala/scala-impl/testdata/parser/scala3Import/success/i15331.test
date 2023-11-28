@@ -14,3 +14,564 @@ object Test:
   inline transparent def compose[A, B](a: A, b: B)(using c: Composable[A,B]) = c.compose(a,b)
   val c = compose(arr2,arr1)
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Composable
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Composable')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: compose
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('compose')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Parameter: b
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Arrow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Arrow')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              ScTypeAliasDeclaration: Dom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Dom')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: Codom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Codom')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenDefinition: composeArrows
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('composeArrows')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Arr1
+              PsiElement(identifier)('Arr1')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Arrow
+                CodeReferenceElement: Arrow
+                  PsiElement(identifier)('Arrow')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Arr2
+              PsiElement(identifier)('Arr2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Arrow
+                CodeReferenceElement: Arrow
+                  PsiElement(identifier)('Arrow')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Composable[Arr1 {type Dom = A}, Arr2 {type Codom = A}]
+                  SimpleType: Composable
+                    CodeReferenceElement: Composable
+                      PsiElement(identifier)('Composable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    CompoundType: Arr1 {type Dom = A}
+                      SimpleType: Arr1
+                        CodeReferenceElement: Arr1
+                          PsiElement(identifier)('Arr1')
+                      PsiWhiteSpace(' ')
+                      Refinement
+                        PsiElement({)('{')
+                        ScTypeAliasDefinition: Dom
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('Dom')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(})('}')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    CompoundType: Arr2 {type Codom = A}
+                      SimpleType: Arr2
+                        CodeReferenceElement: Arr2
+                          PsiElement(identifier)('Arr2')
+                      PsiWhiteSpace(' ')
+                      Refinement
+                        PsiElement({)('{')
+                        ScTypeAliasDefinition: Codom
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('Codom')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(})('}')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace('\n    ')
+            ScTemplateBody
+              ScFunctionDefinition: compose
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('compose')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        CompoundType: Arr1 {type Dom = A}
+                          SimpleType: Arr1
+                            CodeReferenceElement: Arr1
+                              PsiElement(identifier)('Arr1')
+                          PsiWhiteSpace(' ')
+                          Refinement
+                            PsiElement({)('{')
+                            ScTypeAliasDefinition: Dom
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Dom')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(})('}')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Parameter: b
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        CompoundType: Arr2 {type Codom = A}
+                          SimpleType: Arr2
+                            CodeReferenceElement: Arr2
+                              PsiElement(identifier)('Arr2')
+                          PsiWhiteSpace(' ')
+                          Refinement
+                            PsiElement({)('{')
+                            ScTypeAliasDefinition: Codom
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Codom')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(})('}')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: Arrow {type Dom = b.Dom; type Codom = a.Codom}
+                  SimpleType: Arrow
+                    CodeReferenceElement: Arrow
+                      PsiElement(identifier)('Arrow')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDefinition: Dom
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Dom')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: b.Dom
+                        CodeReferenceElement: b.Dom
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Dom')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: Codom
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Codom')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: a.Codom
+                        CodeReferenceElement: a.Codom
+                          CodeReferenceElement: a
+                            PsiElement(identifier)('a')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Codom')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: arr1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('arr1')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Arrow
+                  CodeReferenceElement: Arrow
+                    PsiElement(identifier)('Arrow')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Dom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Dom')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Codom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Codom')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScObject: arr2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('arr2')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Arrow
+                  CodeReferenceElement: Arrow
+                    PsiElement(identifier)('Arrow')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              ScTypeAliasDefinition: Dom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Dom')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Codom
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Codom')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: compose
+          PsiComment(comment)('// removing "transparent" alleviates the situation')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(transparent)('transparent')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('compose')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Composable[A,B]
+                    SimpleType: Composable
+                      CodeReferenceElement: Composable
+                        PsiElement(identifier)('Composable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: c.compose
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compose')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: c
+              PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: compose
+              PsiElement(identifier)('compose')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: arr2
+                PsiElement(identifier)('arr2')
+              PsiElement(,)(',')
+              ReferenceExpression: arr1
+                PsiElement(identifier)('arr1')
+              PsiElement())(')')

@@ -2,3 +2,55 @@ class B extends A {
   override def `override`: Boolean = true
 }
 -----
+ScalaFile
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: `override`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`override`')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -14,3 +14,152 @@ object O {
 }
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScObject: O
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('O')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: byname
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('byname')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: xs
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: xs.sum
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sum')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: byval
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('byval')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: xs
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: xs.sum
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sum')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('a')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('b')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace('\n\n  ')
+          MethodCall
+            ReferenceExpression: byval
+              PsiElement(identifier)('byval')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: byname
+              PsiElement(identifier)('byname')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement())(')')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

@@ -27,3 +27,414 @@ def test =
   println(implicitly[Show[S.Permissions]])
 
 -----
+ScalaFile
+  ScObject: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Foo_Unit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Foo[Unit]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test1')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: b.Foo[Unit]
+          SimpleType: b.Foo
+            CodeReferenceElement: b.Foo
+              CodeReferenceElement: b
+                PsiElement(identifier)('b')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('  ')
+  PsiComment(comment)('// no ambiguity between b.given_Foo and a.given_Foo')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: n
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n
+        PsiElement(identifier)('n')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Long
+      CodeReferenceElement: Long
+        PsiElement(identifier)('Long')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('1')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: total
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: total
+        PsiElement(identifier)('total')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: BigInt
+      CodeReferenceElement: BigInt
+        PsiElement(identifier)('BigInt')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: remainder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: remainder
+        PsiElement(identifier)('remainder')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: %
+        PsiElement(identifier)('%')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: identity
+          PsiElement(identifier)('identity')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: total
+            PsiElement(identifier)('total')
+          PsiElement())(')')
+  PsiWhiteSpace('  ')
+  PsiComment(comment)('// object BigInt is in implicit scope of `total.type`')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Show
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Show')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        ScFunctionDeclaration: show
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('show')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: S
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('S')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: LowPriorityInstances
+            CodeReferenceElement: LowPriorityInstances
+              PsiElement(identifier)('LowPriorityInstances')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Permissions
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Permissions')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: LowPriorityInstances
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LowPriorityInstances')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: LowPriorityInstances
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LowPriorityInstances')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Permissions
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          SimpleType: S.Permissions
+            CodeReferenceElement: S.Permissions
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Permissions')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Show_Permissions
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Show[S.Permissions]
+            SimpleType: Show
+              CodeReferenceElement: Show
+                PsiElement(identifier)('Show')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S.Permissions
+                CodeReferenceElement: S.Permissions
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Permissions')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"perms"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          GenericCall
+            ReferenceExpression: implicitly
+              PsiElement(identifier)('implicitly')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S.Permissions
+                CodeReferenceElement: S.Permissions
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Permissions')
+              PsiElement(])(']')
+          PsiElement())(')')
+      PsiWhiteSpace('      ')
+      PsiComment(comment)('// companions of base classes of S are in implicit scope')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          GenericCall
+            ReferenceExpression: implicitly
+              PsiElement(identifier)('implicitly')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Show[S.Permissions]
+                SimpleType: Show
+                  CodeReferenceElement: Show
+                    PsiElement(identifier)('Show')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: S.Permissions
+                    CodeReferenceElement: S.Permissions
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Permissions')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiElement())(')')

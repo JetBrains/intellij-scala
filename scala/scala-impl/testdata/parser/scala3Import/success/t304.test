@@ -4,3 +4,80 @@ object O {
   def f3 = -f1;
 }
 -----
+ScalaFile
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PrefixExpression
+            ReferenceExpression: -
+              PsiElement(identifier)('-')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('0')
+            ReferenceExpression: -
+              PsiElement(identifier)('-')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f3')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PrefixExpression
+            ReferenceExpression: -
+              PsiElement(identifier)('-')
+            ReferenceExpression: f1
+              PsiElement(identifier)('f1')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

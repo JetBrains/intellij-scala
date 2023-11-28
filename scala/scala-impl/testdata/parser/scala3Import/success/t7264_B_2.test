@@ -6,3 +6,63 @@ object Test {
   def foo(f: Foo) = f.bar(0 /* : Foo.Values */)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// if the following line is uncommented, things compile')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// type X = Foo.Values')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f.bar
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              PsiElement(.)('.')
+              PsiElement(identifier)('bar')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              PsiComment(BlockComment)('/* : Foo.Values */')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

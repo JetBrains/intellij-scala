@@ -15,3 +15,253 @@ object UnionMapping {
   }
 }
 -----
+ScalaFile
+  ScObject: UnionMapping
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnionMapping')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: parse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('parse')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: string
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('string')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Int | Double
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Double
+              CodeReferenceElement: Double
+                PsiElement(identifier)('Double')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: string.contains
+                  ReferenceExpression: string
+                    PsiElement(identifier)('string')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"."')
+                  PsiElement())(')')
+              PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ReferenceExpression: string.toDouble
+                ReferenceExpression: string
+                  PsiElement(identifier)('string')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toDouble')
+              PsiWhiteSpace('\n    ')
+              PsiElement(else)('else')
+              PsiWhiteSpace('\n      ')
+              ReferenceExpression: string.toInt
+                ReferenceExpression: string
+                  PsiElement(identifier)('string')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toInt')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test_number
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test_number')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: strings
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: strings
+                  PsiElement(identifier)('strings')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[String]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"123"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"2.0"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"42"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: asdf
+              PsiComment(comment)('// Works')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: asdf
+                  PsiElement(identifier)('asdf')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[AnyVal]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: AnyVal
+                    CodeReferenceElement: AnyVal
+                      PsiElement(identifier)('AnyVal')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: strings.map
+                  ReferenceExpression: strings
+                    PsiElement(identifier)('strings')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: parse
+                      PsiElement(identifier)('parse')
+                    ArgumentList
+                      PsiElement(()('(')
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: union
+              PsiComment(comment)('// Fails to compile')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: union
+                  PsiElement(identifier)('union')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[Int | Double]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: Int | Double
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: strings.map
+                  ReferenceExpression: strings
+                    PsiElement(identifier)('strings')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: parse
+                      PsiElement(identifier)('parse')
+                    ArgumentList
+                      PsiElement(()('(')
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

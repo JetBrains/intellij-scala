@@ -3,3 +3,44 @@ object Test {
   Foo.innerList().isInnerList()
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: pack
+              PsiElement(identifier)('pack')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Foo.innerList().isInnerList
+            MethodCall
+              ReferenceExpression: Foo.innerList
+                ReferenceExpression: Foo
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('innerList')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('isInnerList')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -25,3 +25,414 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScTrait: Arr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Arr')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Arr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Arr')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Arr[T]
+            SimpleType: Arr
+              CodeReferenceElement: Arr
+                PsiElement(identifier)('Arr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace('    ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Arr[Long]
+            SimpleType: Arr
+              CodeReferenceElement: Arr
+                PsiElement(identifier)('Arr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: I
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('I')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: arrToTrav
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('arrToTrav')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Arr[T]
+                    SimpleType: Arr
+                      CodeReferenceElement: Arr
+                        PsiElement(identifier)('Arr')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('   ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Traversable[T]
+            SimpleType: Traversable
+              CodeReferenceElement: Traversable
+                PsiElement(identifier)('Traversable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace('    ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: longArrToTrav
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('longArrToTrav')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Arr[Long]
+                    SimpleType: Arr
+                      CodeReferenceElement: Arr
+                        PsiElement(identifier)('Arr')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Traversable[Long]
+            SimpleType: Traversable
+              CodeReferenceElement: Traversable
+                PsiElement(identifier)('Traversable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Traversable[Any]
+                    SimpleType: Traversable
+                      CodeReferenceElement: Traversable
+                        PsiElement(identifier)('Traversable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Okay
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Okay')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: Arr
+                  PsiElement(identifier)('Arr')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"1"')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+                  PsiElement(.)('.')
+                  ImportSelectors
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ImportSelector
+                      CodeReferenceElement: arrToTrav
+                        PsiElement(identifier)('arrToTrav')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ImportSelector
+                      CodeReferenceElement: longArrToTrav
+                        PsiElement(identifier)('longArrToTrav')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: foo
+                    PsiElement(identifier)('foo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: Arr
+                        PsiElement(identifier)('Arr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"2"')
+                        PsiElement())(')')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Fail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Fail')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: I.arrToTrav
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('arrToTrav')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Arr
+                      PsiElement(identifier)('Arr')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"3"')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// found String, expected Long')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

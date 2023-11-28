@@ -8,3 +8,153 @@ object Test {
   new D(2).inner.apply()
 }
 -----
+ScalaFile
+  ScClass: D
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('D')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: DD
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DD')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: DD
+                          CodeReferenceElement: DD
+                            PsiElement(identifier)('DD')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: inner
+              PsiElement(identifier)('inner')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: DD
+                    CodeReferenceElement: DD
+                      PsiElement(identifier)('DD')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: new D(2).inner.apply
+            ReferenceExpression: new D(2).inner
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('inner')
+            PsiElement(.)('.')
+            PsiElement(identifier)('apply')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

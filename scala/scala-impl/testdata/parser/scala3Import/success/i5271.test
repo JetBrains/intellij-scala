@@ -5,3 +5,257 @@ class Foo {
   }
 }
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace('\n      ')
+              Tuple
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('6')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('7')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('8')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('9')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('10')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('11')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('12')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('13')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('14')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('15')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('16')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('17')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('18')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('19')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('20')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: List
+                    PsiElement(identifier)('List')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('22')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('23')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

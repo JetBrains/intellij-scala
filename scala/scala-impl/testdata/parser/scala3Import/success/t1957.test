@@ -62,3 +62,563 @@ object Test {
     }
 }
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// See comment at end of file.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScClass: Settings
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Settings')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScClass: Grist
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Grist')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace('\n    ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDeclaration: settingsType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('settingsType')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Settings
+                  CodeReferenceElement: Settings
+                    PsiElement(identifier)('Settings')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDeclaration: moduleType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('moduleType')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                CompoundType: Module {type settingsType = self.settingsType}
+                  SimpleType: Module
+                    CodeReferenceElement: Module
+                      PsiElement(identifier)('Module')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDefinition: settingsType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('settingsType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.settingsType
+                        CodeReferenceElement: self.settingsType
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('settingsType')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n        ')
+              ScValueDeclaration: module
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: module
+                    PsiElement(identifier)('module')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: moduleType
+                  CodeReferenceElement: moduleType
+                    PsiElement(identifier)('moduleType')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScClass: Tool
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tool')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace('\n    ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDeclaration: settingsType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('settingsType')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Settings
+                  CodeReferenceElement: Settings
+                    PsiElement(identifier)('Settings')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDefinition: moduleType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('moduleType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: Module { type settingsType = self.settingsType }
+                  SimpleType: Module
+                    CodeReferenceElement: Module
+                      PsiElement(identifier)('Module')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: settingsType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('settingsType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.settingsType
+                        CodeReferenceElement: self.settingsType
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('settingsType')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDefinition: gristType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('gristType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: Grist { type moduleType <: self.moduleType; type settingsType <: self.settingsType }
+                  SimpleType: Grist
+                    CodeReferenceElement: Grist
+                      PsiElement(identifier)('Grist')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDeclaration: moduleType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('moduleType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.moduleType
+                        CodeReferenceElement: self.moduleType
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('moduleType')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDeclaration: settingsType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('settingsType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.settingsType
+                        CodeReferenceElement: self.settingsType
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('settingsType')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n\n        ')
+              ScFunctionDeclaration: inputGrist
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('inputGrist')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[gristType]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: gristType
+                      CodeReferenceElement: gristType
+                        PsiElement(identifier)('gristType')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScClass: Module
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Module')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace('\n    ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDeclaration: settingsType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('settingsType')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Settings
+                  CodeReferenceElement: Settings
+                    PsiElement(identifier)('Settings')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDefinition: commonModuleType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('commonModuleType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: Module {type settingsType = self.settingsType}
+                  SimpleType: Module
+                    CodeReferenceElement: Module
+                      PsiElement(identifier)('Module')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDefinition: settingsType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('settingsType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.settingsType
+                        CodeReferenceElement: self.settingsType
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('settingsType')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDeclaration: selfType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('selfType')
+                PsiWhiteSpace(' ')
+                PsiElement(>:)('>:')
+                PsiWhiteSpace(' ')
+                SimpleType: self.type
+                  CodeReferenceElement: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: commonModuleType
+                  CodeReferenceElement: commonModuleType
+                    PsiElement(identifier)('commonModuleType')
+              PsiWhiteSpace('\n\n        ')
+              PsiComment(comment)('// BTW: if we use the commented out type decls, the code compiles successfully')
+              PsiWhiteSpace('\n        ')
+              PsiComment(comment)('// type gristType = Grist {type settingsType <: self.settingsType; type moduleType <: commonModuleType }')
+              PsiWhiteSpace('\n\n        ')
+              ScValueDeclaration: tools
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: tools
+                    PsiElement(identifier)('tools')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[Tool {type settingsType = self.settingsType}]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    CompoundType: Tool {type settingsType = self.settingsType}
+                      SimpleType: Tool
+                        CodeReferenceElement: Tool
+                          PsiElement(identifier)('Tool')
+                      PsiWhiteSpace(' ')
+                      Refinement
+                        PsiElement({)('{')
+                        ScTypeAliasDefinition: settingsType
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('settingsType')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: self.settingsType
+                            CodeReferenceElement: self.settingsType
+                              CodeReferenceElement: self
+                                PsiElement(identifier)('self')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('settingsType')
+                        PsiElement(})('}')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n        ')
+              ScFunctionDefinition: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(protected)('protected')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('f')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[commonModuleType]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: commonModuleType
+                      CodeReferenceElement: commonModuleType
+                        PsiElement(identifier)('commonModuleType')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n        ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n            ')
+                  ScPatternDefinition: inputGrists
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: inputGrists
+                        PsiElement(identifier)('inputGrists')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: tools.flatMap
+                        ReferenceExpression: tools
+                          PsiElement(identifier)('tools')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('flatMap')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: _.inputGrist
+                          UnderscoreSection
+                            PsiElement(_)('_')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('inputGrist')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// This produces an unhygienic closure for _.inputGrist.')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// Pickling will log:')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// [...] pickling reference to as yet undefined value _$1 in method $anonfun')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// More info can be produced by uncommenting these two lines in')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// Namer#valOrDefDefSig:')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//println(i"lifting $rhsType over $paramss -> $hygienicType = ${tpt.tpe}")')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//println(TypeComparer.explained { implicit ctx => hygienicType <:< tpt.tpe })')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// Tracing the subtype statement (over 1600+ lines!) shows that the TypeComparer thinks that the')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// following subtype judgement is true:')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//    Test.Grist{')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//      moduleType <: Test.Module{settingsType = Module.this.settingsType};')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//      settingsType <: Module.this.settingsType')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//    } <:< Test.Grist{moduleType <: _$1.moduleType; settingsType <: _$1.settingsType}')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('//')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// Therefore, a type variable which has the second type as lower bound does not get')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// the (hygienic) first type as new lower bound. Clearly something is wrong in the subtype')
+                  PsiWhiteSpace('\n              ')
+                  PsiComment(comment)('// derivation here. It would be important to figure out what.')
+                  PsiWhiteSpace('\n\n              ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                  PsiWhiteSpace('\n')
+                  PsiComment(comment)('//            inputGrists.map(_.module)')
+                  PsiWhiteSpace('\n        ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

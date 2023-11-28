@@ -8,3 +8,271 @@ object ImplNotFound:
       case 2 => Seq(INT(1))
     }.flatten
 -----
+ScalaFile
+  ScObject: ImplNotFound
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImplNotFound')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: TOP
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TOP')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: STR
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('STR')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TOP
+                  CodeReferenceElement: TOP
+                    PsiElement(identifier)('TOP')
+        PsiWhiteSpace('\n  ')
+        ScClass: INT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('INT')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TOP
+                  CodeReferenceElement: TOP
+                    PsiElement(identifier)('TOP')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res
+                  PsiElement(identifier)('res')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Seq[STR | INT]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: STR | INT
+                    SimpleType: STR
+                      CodeReferenceElement: STR
+                        PsiElement(identifier)('STR')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: INT
+                      CodeReferenceElement: INT
+                        PsiElement(identifier)('INT')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: (??? : Seq[Int]).collect {
+      case 1 => Seq(STR(""))
+      case 2 => Seq(INT(1))
+    }.flatten
+                MethodCall
+                  ReferenceExpression: (??? : Seq[Int]).collect
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      TypedExpression
+                        ReferenceExpression: ???
+                          PsiElement(identifier)('???')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Seq[Int]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                            PsiElement(])(']')
+                      PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('collect')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          LiteralPattern
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: Seq
+                                PsiElement(identifier)('Seq')
+                              ArgumentList
+                                PsiElement(()('(')
+                                MethodCall
+                                  ReferenceExpression: STR
+                                    PsiElement(identifier)('STR')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    StringLiteral
+                                      PsiElement(string content)('""')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n      ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          LiteralPattern
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: Seq
+                                PsiElement(identifier)('Seq')
+                              ArgumentList
+                                PsiElement(()('(')
+                                MethodCall
+                                  ReferenceExpression: INT
+                                    PsiElement(identifier)('INT')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    IntegerLiteral
+                                      PsiElement(integer)('1')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                PsiElement(.)('.')
+                PsiElement(identifier)('flatten')

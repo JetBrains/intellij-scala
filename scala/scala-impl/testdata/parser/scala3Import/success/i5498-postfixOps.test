@@ -8,3 +8,98 @@ def test() = {
   Seq(1, 2) filter (List(1,2) contains) toList
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.concurrent.duration
+        CodeReferenceElement: scala.concurrent
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('duration')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.postfixOps
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('postfixOps')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      PostfixExpression
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: second
+          PsiElement(identifier)('second')
+      PsiWhiteSpace('\n\n  ')
+      PostfixExpression
+        InfixExpression
+          MethodCall
+            ReferenceExpression: Seq
+              PsiElement(identifier)('Seq')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: filter
+            PsiElement(identifier)('filter')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            PostfixExpression
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: contains
+                PsiElement(identifier)('contains')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: toList
+          PsiElement(identifier)('toList')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -25,3 +25,291 @@ class i321[T >: Null <: AnyRef] {
 
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.tailrec
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('tailrec')
+  PsiWhiteSpace('\n')
+  ScClass: i321
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Illustrates that abstracting over type arguments without triggering Ycheck failure is tricky')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('go1.loop refers to type parameter of i321, and captures value f')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('if go1.loop will abstract over T it will need to cast f or will trigger a Ycheck failure.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('One could decide to not abstract over type parameters in tail calls, but this leads us to go2 example')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('In go2 we should abstract over i321.T, as we need to change it in recursive call.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('For now decision is such - we will abstract for top-level methods, but will not for inner ones.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i321')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(>:)('>:')
+        PsiWhiteSpace(' ')
+        SimpleType: Null
+          CodeReferenceElement: Null
+            PsiElement(identifier)('Null')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: AnyRef
+          CodeReferenceElement: AnyRef
+            PsiElement(identifier)('AnyRef')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: go1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('go1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: T => Int
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: loop
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: tailrec
+                        CodeReferenceElement: tailrec
+                          PsiElement(identifier)('tailrec')
+              Modifiers
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('loop')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: pending
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('pending')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: head1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: head1
+                      PsiElement(identifier)('head1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: f
+                      PsiElement(identifier)('f')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: pending
+                        PsiElement(identifier)('pending')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: loop
+                    PsiElement(identifier)('loop')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: pending
+                      PsiElement(identifier)('pending')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: loop
+                PsiElement(identifier)('loop')
+              ArgumentList
+                PsiElement(()('(')
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: go2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('go2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: i321[U]
+                    SimpleType: i321
+                      CodeReferenceElement: i321
+                        PsiElement(identifier)('i321')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: t.go2
+              ReferenceExpression: t
+                PsiElement(identifier)('t')
+              PsiElement(.)('.')
+              PsiElement(identifier)('go2')
+            ArgumentList
+              PsiElement(()('(')
+              ThisReference
+                PsiElement(this)('this')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

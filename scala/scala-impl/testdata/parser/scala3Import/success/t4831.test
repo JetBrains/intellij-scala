@@ -10,3 +10,122 @@ object test {
   println(a)
 }
 -----
+ScalaFile
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  ScObject: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: O1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: O1
+              PsiElement(identifier)('O1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: O.type
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: O
+            PsiElement(identifier)('O')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: O2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: O2
+              PsiElement(identifier)('O2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: O.type
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: O
+            PsiElement(identifier)('O')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: O1.a
+              CodeReferenceElement: O1
+                PsiElement(identifier)('O1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('a')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: O2.a
+              CodeReferenceElement: O2
+                PsiElement(identifier)('O2')
+              PsiElement(.)('.')
+              PsiElement(identifier)('a')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

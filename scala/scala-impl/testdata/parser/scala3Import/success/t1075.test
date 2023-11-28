@@ -16,3 +16,231 @@ object Test extends Directory("/bab/dkkd//dkkdkd//kdkdk") with App {
   println(dir)
 }
 -----
+ScalaFile
+  ScClass: Directory
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Directory')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: dir_
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('dir_')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          PrefixExpression
+            ReferenceExpression: !
+              PsiElement(identifier)('!')
+            MethodCall
+              ReferenceExpression: dir_.startsWith
+                ReferenceExpression: dir_
+                  PsiElement(identifier)('dir_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('startsWith')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"/"')
+                PsiElement())(')')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ThrowStatement
+              PsiElement(throw)('throw')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: RuntimeException
+                        CodeReferenceElement: RuntimeException
+                          PsiElement(identifier)('RuntimeException')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"Invalid directory"')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        AssignStatement
+          ReferenceExpression: dir_
+            PsiElement(identifier)('dir_')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: dir_.replaceAll
+              ReferenceExpression: dir_
+                PsiElement(identifier)('dir_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('replaceAll')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"/{2,}"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"/"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: this
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(this)('this')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: serialized
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('serialized')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[Byte]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Byte
+                        CodeReferenceElement: Byte
+                          PsiElement(identifier)('Byte')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ConstructorBlock
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            SelfInvocation
+              PsiElement(this)('this')
+              ArgumentList
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: serialized
+                            PsiElement(identifier)('serialized')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('"UTF-8"')
+                          PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: dir
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('dir')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: dir_
+            PsiElement(identifier)('dir_')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Directory
+            CodeReferenceElement: Directory
+              PsiElement(identifier)('Directory')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"/bab/dkkd//dkkdkd//kdkdk"')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: dir
+              PsiElement(identifier)('dir')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -13,3 +13,255 @@ def bar3 = foo(ctx ?=> 123)
 def bar4 = foo((ctx: Ctx) ?=> 123)
 // def bar5 = foo(123)   does not work
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.targetName
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('targetName')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Ctx
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ctx')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Ctx => Int
+              SimpleType: Ctx
+                CodeReferenceElement: Ctx
+                  PsiElement(identifier)('Ctx')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: targetName
+              CodeReferenceElement: targetName
+                PsiElement(identifier)('targetName')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"fooContextual"')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Ctx ?=> Int
+              SimpleType: Ctx
+                CodeReferenceElement: Ctx
+                  PsiElement(identifier)('Ctx')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: bar1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar1')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              Parameter: ctx
+                PsiElement(identifier)('ctx')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('123')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: bar2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar2')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ctx
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('ctx')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Ctx
+                    CodeReferenceElement: Ctx
+                      PsiElement(identifier)('Ctx')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('123')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: bar3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar3')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              Parameter: ctx
+                PsiElement(identifier)('ctx')
+          PsiWhiteSpace(' ')
+          PsiElement(?=>)('?=>')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('123')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: bar4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar4')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ctx
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('ctx')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Ctx
+                    CodeReferenceElement: Ctx
+                      PsiElement(identifier)('Ctx')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(?=>)('?=>')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('123')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// def bar5 = foo(123)   does not work')

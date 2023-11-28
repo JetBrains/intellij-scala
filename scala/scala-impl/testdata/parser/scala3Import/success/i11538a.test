@@ -22,3 +22,288 @@ package b:
     val summoned = summon[Printer[String]]
     val summonedFrom = summonStringPrinter
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: a
+      PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScTrait: Printer
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Printer')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDeclaration: print
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('print')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+    PsiWhiteSpace('\n\n  ')
+    ScGivenDefinition: given_Printer_String
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Printer[String]
+              SimpleType: Printer
+                CodeReferenceElement: Printer
+                  PsiElement(identifier)('Printer')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace('\n    ')
+        ScTemplateBody
+          ScFunctionDefinition: print
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('print')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: b
+      PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: a
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        ImportSelectors
+          PsiElement({)('{')
+          ImportSelector
+            PsiElement(given)('given')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportSelector
+            PsiElement(*)('*')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n  ')
+    ScObject: test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('test')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: scala.compiletime
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              ImportSelectors
+                PsiElement({)('{')
+                ImportSelector
+                  CodeReferenceElement: error
+                    PsiElement(identifier)('error')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ImportSelector
+                  CodeReferenceElement: summonFrom
+                    PsiElement(identifier)('summonFrom')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n    ')
+          ScFunctionDefinition: summonStringPrinter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('summonStringPrinter')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n      ')
+            MethodCall
+              ReferenceExpression: summonFrom
+                PsiElement(identifier)('summonFrom')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ScGivenPatternImpl(given pattern)
+                        PsiElement(given)('given')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Printer[String]
+                          SimpleType: Printer
+                            CodeReferenceElement: Printer
+                              PsiElement(identifier)('Printer')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        UnitExpression
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: error
+                            PsiElement(identifier)('error')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('"Couldn't find a printer"')
+                            PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n\n    ')
+          ScPatternDefinition: summoned
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: summoned
+                PsiElement(identifier)('summoned')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Printer[String]
+                  SimpleType: Printer
+                    CodeReferenceElement: Printer
+                      PsiElement(identifier)('Printer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: summonedFrom
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: summonedFrom
+                PsiElement(identifier)('summonedFrom')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: summonStringPrinter
+              PsiElement(identifier)('summonStringPrinter')

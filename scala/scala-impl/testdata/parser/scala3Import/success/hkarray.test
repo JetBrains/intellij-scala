@@ -4,3 +4,85 @@ class Bip {
   val x = new Foo[Array] { }
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: CC
+        PsiElement(identifier)('CC')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bip
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bip')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Foo[Array]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

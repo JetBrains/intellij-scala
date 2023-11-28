@@ -9,3 +9,241 @@ def test(foo: Foo[Int, Option]): Inv[Int] = foo match
   case bar: Bar[_, _] => bar.inv
   case _              => null
 -----
+ScalaFile
+  ScClass: Inv
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inv')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: M
+        PsiElement(identifier)('M')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Foo[C, N]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: inv
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('inv')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Inv[C]
+            SimpleType: Inv
+              CodeReferenceElement: Inv
+                PsiElement(identifier)('Inv')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('foo')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Foo[Int, Option]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Inv[Int]
+      SimpleType: Inv
+        CodeReferenceElement: Inv
+          PsiElement(identifier)('Inv')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: bar
+              PsiElement(identifier)('bar')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Bar[_, _]
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeVariable: _
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: bar.inv
+              ReferenceExpression: bar
+                PsiElement(identifier)('bar')
+              PsiElement(.)('.')
+              PsiElement(identifier)('inv')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace('              ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            NullLiteral
+              PsiElement(null)('null')

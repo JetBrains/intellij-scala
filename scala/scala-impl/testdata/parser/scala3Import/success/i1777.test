@@ -8,3 +8,202 @@ object Main extends App {
   }
 }
 -----
+ScalaFile
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.collection.immutable
+              CodeReferenceElement: scala.collection
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('collection')
+              PsiElement(.)('.')
+              PsiElement(identifier)('immutable')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScClass: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: orderingS
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: orderingS
+                    PsiElement(identifier)('orderingS')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Ordering[String]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: Ordering
+                    PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// Crash')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: tree
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: tree
+                    PsiElement(identifier)('tree')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: TreeMap.empty
+                    ReferenceExpression: TreeMap
+                      PsiElement(identifier)('TreeMap')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('empty')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ++
+                    PsiElement(identifier)('++')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: (1 to 100).map
+                      ExpressionInParenthesis
+                        PsiElement(()('(')
+                        InfixExpression
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: to
+                            PsiElement(identifier)('to')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('100')
+                        PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('map')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              Parameter: i
+                                PsiElement(identifier)('i')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            InfixExpression
+                              MethodCall
+                                ReferenceExpression: Foo
+                                  PsiElement(identifier)('Foo')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: i.toString
+                                    ReferenceExpression: i
+                                      PsiElement(identifier)('i')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('toString')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: ->
+                                PsiElement(identifier)('->')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: i
+                                PsiElement(identifier)('i')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: tree.getClass
+                    ReferenceExpression: tree
+                      PsiElement(identifier)('tree')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getClass')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

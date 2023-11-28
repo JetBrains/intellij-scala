@@ -14,3 +14,211 @@ trait Right extends Top {
 
 class Bottom extends Left with Right
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Top
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Top')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: F
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Foo[F]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Left
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Left')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Top
+            CodeReferenceElement: Top
+              PsiElement(identifier)('Top')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Right
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Right')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Top
+            CodeReferenceElement: Top
+              PsiElement(identifier)('Top')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: F
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Foo[F]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Foo[F]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bottom
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bottom')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Left
+            CodeReferenceElement: Left
+              PsiElement(identifier)('Left')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Right
+            CodeReferenceElement: Right
+              PsiElement(identifier)('Right')

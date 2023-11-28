@@ -14,3 +14,421 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection.mutable
+        CodeReferenceElement: scala.collection
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collection')
+        PsiElement(.)('.')
+        PsiElement(identifier)('mutable')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Builder
+            PsiElement(identifier)('Builder')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: ListBuffer
+            PsiElement(identifier)('ListBuffer')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Converter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Converter')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: SimpleIntConverter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SimpleIntConverter')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Converter[Int]
+                  SimpleType: Converter
+                    CodeReferenceElement: Converter
+                      PsiElement(identifier)('Converter')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: TraversableConverter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TraversableConverter')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Coll
+              PsiElement(identifier)('Coll')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: X
+                  PsiElement(identifier)('X')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Traversable[X]
+                SimpleType: Traversable
+                  CodeReferenceElement: Traversable
+                    PsiElement(identifier)('Traversable')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: converter
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('converter')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Converter[T]
+                      SimpleType: Converter
+                        CodeReferenceElement: Converter
+                          PsiElement(identifier)('Converter')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: builder
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('builder')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Builder[T, Coll[T]]
+                      SimpleType: Builder
+                        CodeReferenceElement: Builder
+                          PsiElement(identifier)('Builder')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Coll[T]
+                          SimpleType: Coll
+                            CodeReferenceElement: Coll
+                              PsiElement(identifier)('Coll')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Converter[Coll[T]]
+                  SimpleType: Converter
+                    CodeReferenceElement: Converter
+                      PsiElement(identifier)('Converter')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Coll[T]
+                      SimpleType: Coll
+                        CodeReferenceElement: Coll
+                          PsiElement(identifier)('Coll')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: convert
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('convert')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[T]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: List
+                    PsiElement(identifier)('List')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: tc
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: tc
+              PsiElement(identifier)('tc')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Converter[List[Int]]
+            SimpleType: Converter
+              CodeReferenceElement: Converter
+                PsiElement(identifier)('Converter')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[Int]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: TraversableConverter
+                    CodeReferenceElement: TraversableConverter
+                      PsiElement(identifier)('TraversableConverter')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: SimpleIntConverter
+                      PsiElement(identifier)('SimpleIntConverter')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: ListBuffer[Int]
+                              SimpleType: ListBuffer
+                                CodeReferenceElement: ListBuffer
+                                  PsiElement(identifier)('ListBuffer')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: tc2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: tc2
+              PsiElement(identifier)('tc2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: TraversableConverter
+                    CodeReferenceElement: TraversableConverter
+                      PsiElement(identifier)('TraversableConverter')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: SimpleIntConverter
+                      PsiElement(identifier)('SimpleIntConverter')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: ListBuffer[Int]
+                              SimpleType: ListBuffer
+                                CodeReferenceElement: ListBuffer
+                                  PsiElement(identifier)('ListBuffer')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

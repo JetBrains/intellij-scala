@@ -6,3 +6,226 @@ extension (using Bar)(s: String) def bar(using Baz) = ???
 extension [T: B](s: T) def baz [U: B](x: Int) = ???
 
 -----
+ScalaFile
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Baz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Baz')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  Extension on String
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Bar
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Baz
+              CodeReferenceElement: Baz
+                PsiElement(identifier)('Baz')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: foo
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('foo')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  Extension on String
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Bar
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: bar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('bar')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            Parameter: <anonymous>
+              ParameterType
+                SimpleType: Baz
+                  CodeReferenceElement: Baz
+                    PsiElement(identifier)('Baz')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  Extension on T
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: baz
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('baz')
+        PsiWhiteSpace(' ')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: U
+            PsiElement(identifier)('U')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('x')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')

@@ -15,3 +15,303 @@ object Computes {
   def let[V, T : Type](value : Computes[V], body : Computes[Opaque[T]]) : Computes[T] = body(value)
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: towers.computes
+      CodeReferenceElement: towers
+        PsiElement(identifier)('towers')
+      PsiElement(.)('.')
+      PsiElement(identifier)('computes')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: quoted
+          PsiElement(identifier)('quoted')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScClass: Computes
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(sealed)('sealed')
+        PsiWhiteSpace(' ')
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Computes')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: Computes
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Computes')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: Opaque
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(opaque)('opaque')
+            PsiWhiteSpace(' ')
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Opaque')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace('\n\n  ')
+          ScClass: ComputesApplication1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ComputesApplication1')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: fn
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('fn')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Computes[Opaque[T]]
+                        SimpleType: Computes
+                          CodeReferenceElement: Computes
+                            PsiElement(identifier)('Computes')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: Opaque[T]
+                            SimpleType: Opaque
+                              CodeReferenceElement: Opaque
+                                PsiElement(identifier)('Opaque')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: A
+                      PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: arg1
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('arg1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          ParametrizedType: Computes[A]
+                            SimpleType: Computes
+                              CodeReferenceElement: Computes
+                                PsiElement(identifier)('Computes')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Computes[T]
+                    SimpleType: Computes
+                      CodeReferenceElement: Computes
+                        PsiElement(identifier)('Computes')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: let
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('let')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: V
+                PsiElement(identifier)('V')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Computes[V]
+                      SimpleType: Computes
+                        CodeReferenceElement: Computes
+                          PsiElement(identifier)('Computes')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: body
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('body')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Computes[Opaque[T]]
+                      SimpleType: Computes
+                        CodeReferenceElement: Computes
+                          PsiElement(identifier)('Computes')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: Opaque[T]
+                          SimpleType: Opaque
+                            CodeReferenceElement: Opaque
+                              PsiElement(identifier)('Opaque')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Computes[T]
+              SimpleType: Computes
+                CodeReferenceElement: Computes
+                  PsiElement(identifier)('Computes')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: body
+                PsiElement(identifier)('body')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: value
+                  PsiElement(identifier)('value')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

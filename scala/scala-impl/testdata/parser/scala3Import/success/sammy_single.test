@@ -8,3 +8,141 @@ object Test {
   val preservedResult: s.type = ((x => x): T)(s)
 }
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// test that dependent types work')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// TODO: def apply(x: String): x.type does NOT work yet')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: s
+              PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('""')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDeclaration: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: s.type
+                          CodeReferenceElement: s
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: s.type
+                  CodeReferenceElement: s
+                    PsiElement(identifier)('s')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: preservedResult
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: preservedResult
+              PsiElement(identifier)('preservedResult')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: s.type
+            CodeReferenceElement: s
+              PsiElement(identifier)('s')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: x
+                          PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                  PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: s
+                PsiElement(identifier)('s')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

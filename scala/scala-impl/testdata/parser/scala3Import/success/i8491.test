@@ -5,3 +5,188 @@ object Test {
   def qux2[A: Foo](implicit B: Bar = new Bar {}): Bar = B
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: qux1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('qux1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: A
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('A')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Foo[A]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: B
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('B')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Bar
+                          CodeReferenceElement: Bar
+                            PsiElement(identifier)('Bar')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: B
+            PsiElement(identifier)('B')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: qux2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('qux2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: B
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('B')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Bar
+                          CodeReferenceElement: Bar
+                            PsiElement(identifier)('Bar')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: B
+            PsiElement(identifier)('B')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

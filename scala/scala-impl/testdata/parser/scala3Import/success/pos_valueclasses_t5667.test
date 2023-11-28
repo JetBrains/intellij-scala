@@ -5,3 +5,108 @@ object Main {
   implicit class C2(val s: String) extends AnyRef
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: t5667
+      PsiElement(identifier)('t5667')
+    PsiWhiteSpace('\n\n')
+    ScObject: Main
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Main')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: C
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('C')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: s
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('s')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: AnyVal
+                    CodeReferenceElement: AnyVal
+                      PsiElement(identifier)('AnyVal')
+          PsiWhiteSpace('\n  ')
+          ScClass: C2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('C2')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: s
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('s')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

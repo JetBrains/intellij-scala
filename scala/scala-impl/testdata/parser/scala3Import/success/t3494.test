@@ -6,3 +6,89 @@ object Test {
   f[x.type](x)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"abc"')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: x.type
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

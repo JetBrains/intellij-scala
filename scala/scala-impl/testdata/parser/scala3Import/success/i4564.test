@@ -53,3 +53,1158 @@ object NoClashPoly extends BaseNCP[Boolean]
 case class NoClashPoly (x: Int)
 
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: copy
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('copy')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: A
+              PsiElement(identifier)('A')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: NeedsCompanion
+    PsiComment(comment)('// NOTE: the companion inherits a public apply method from Function1!')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NeedsCompanion')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: ClashNoSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashNoSig')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: >
+                PsiElement(identifier)('>')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: ClashNoSig
+                      CodeReferenceElement: ClashNoSig
+                        PsiElement(identifier)('ClashNoSig')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: ClashNoSig
+                    CodeReferenceElement: ClashNoSig
+                      PsiElement(identifier)('ClashNoSig')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace('\n\n  ')
+        MatchStatement
+          MethodCall
+            ReferenceExpression: ClashNoSig
+              PsiElement(identifier)('ClashNoSig')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              NamingPattern: c
+                PsiElement(identifier)('c')
+                PsiWhiteSpace(' ')
+                PsiElement(@)('@')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: ClashNoSig
+                    PsiElement(identifier)('ClashNoSig')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: y
+                      PsiElement(identifier)('y')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: c.copy
+                    ReferenceExpression: c
+                      PsiElement(identifier)('c')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('copy')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: y
+                        PsiElement(identifier)('y')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: c._1
+                        ReferenceExpression: c
+                          PsiElement(identifier)('c')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('_1')
+                    PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: ClashNoSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashNoSig')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: copy
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('copy')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: ClashNoSig
+              PsiElement(identifier)('ClashNoSig')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: y
+                PsiElement(identifier)('y')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Clash
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Clash')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: >
+                PsiElement(identifier)('>')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Clash
+                      CodeReferenceElement: Clash
+                        PsiElement(identifier)('Clash')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: Clash
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Clash')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: ClashSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashSig')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ClashSig
+            CodeReferenceElement: ClashSig
+              PsiElement(identifier)('ClashSig')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: >
+                PsiElement(identifier)('>')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: ClashSig
+                      CodeReferenceElement: ClashSig
+                        PsiElement(identifier)('ClashSig')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: ClashSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashSig')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: ClashOverload
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashOverload')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ClashOverload
+            CodeReferenceElement: ClashOverload
+              PsiElement(identifier)('ClashOverload')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: >
+                PsiElement(identifier)('>')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: ClashOverload
+                      CodeReferenceElement: ClashOverload
+                        PsiElement(identifier)('ClashOverload')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: apply
+                PsiElement(identifier)('apply')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('""')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ClashOverload
+            CodeReferenceElement: ClashOverload
+              PsiElement(identifier)('ClashOverload')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: ClashOverload
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClashOverload')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: NoClashSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashSig')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: NoClashSig
+            CodeReferenceElement: NoClashSig
+              PsiElement(identifier)('NoClashSig')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: NoClashSig
+                PsiElement(identifier)('NoClashSig')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: NoClashSig
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashSig')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: NoClashOverload
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashOverload')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          PsiComment(comment)('// needs full sig')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: NoClashOverload
+            CodeReferenceElement: NoClashOverload
+              PsiElement(identifier)('NoClashOverload')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: NoClashOverload
+                PsiElement(identifier)('NoClashOverload')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: apply
+                PsiElement(identifier)('apply')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('""')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: NoClashOverload
+            CodeReferenceElement: NoClashOverload
+              PsiElement(identifier)('NoClashOverload')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: NoClashOverload
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashOverload')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: BaseNCP
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BaseNCP')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: NoClashPoly
+            CodeReferenceElement: NoClashPoly
+              PsiElement(identifier)('NoClashPoly')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: NoClashPoly
+                PsiElement(identifier)('NoClashPoly')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: NoClashPoly
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashPoly')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: BaseNCP[Boolean]
+            SimpleType: BaseNCP
+              CodeReferenceElement: BaseNCP
+                PsiElement(identifier)('BaseNCP')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScClass: NoClashPoly
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NoClashPoly')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

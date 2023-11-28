@@ -9,3 +9,163 @@ object F {
   }
 }
 -----
+ScalaFile
+  ScObject: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AnyClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AnyClass')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Class[_]
+            SimpleType: Class
+              CodeReferenceElement: Class
+                PsiElement(identifier)('Class')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tryf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tryf')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ignore
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ignore')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[AnyClass]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: AnyClass
+                        CodeReferenceElement: AnyClass
+                          PsiElement(identifier)('AnyClass')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            TryStatement
+              PsiElement(try)('try')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              CatchBlock
+                PsiElement(catch)('catch')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: e
+                        PsiElement(identifier)('e')
+                      PsiWhiteSpace(' ')
+                      Guard
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          InfixExpression
+                            ReferenceExpression: ignore
+                              PsiElement(identifier)('ignore')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: ==
+                              PsiElement(identifier)('==')
+                            PsiWhiteSpace(' ')
+                            NullLiteral
+                              PsiElement(null)('null')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ||
+                            PsiElement(identifier)('||')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ignore.isEmpty
+                            ReferenceExpression: ignore
+                              PsiElement(identifier)('ignore')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('isEmpty')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BlockExpression
+                          PsiElement({)('{')
+                          BooleanLiteral
+                            PsiElement(false)('false')
+                          PsiElement(})('}')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

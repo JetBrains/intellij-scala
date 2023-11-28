@@ -5,3 +5,124 @@ object Foo:
 
 def test = Foo[Int]
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.targetName
+        CodeReferenceElement: annotation
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('targetName')
+  PsiWhiteSpace('\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: targetName
+                    CodeReferenceElement: targetName
+                      PsiElement(identifier)('targetName')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"applyS"')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"0"')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')

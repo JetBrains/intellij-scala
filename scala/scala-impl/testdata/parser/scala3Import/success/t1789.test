@@ -4,3 +4,65 @@ object S {
   finally { while(true) { } }
 }
 -----
+ScalaFile
+  ScObject: S
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('S')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  BlockOfExpressions
+                    <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          FinallyBlock
+            PsiElement(finally)('finally')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              WhileStatement
+                PsiElement(while)('while')
+                PsiElement(()('(')
+                BooleanLiteral
+                  PsiElement(true)('true')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

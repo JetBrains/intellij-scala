@@ -2,3 +2,94 @@ class B(x: Option[A])
 
 val r = new B(Some(A(new B(None))))
 -----
+ScalaFile
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Option[A]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: r
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: r
+        PsiElement(identifier)('r')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Some
+                  PsiElement(identifier)('Some')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: A
+                      PsiElement(identifier)('A')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                              ArgumentList
+                                PsiElement(()('(')
+                                ReferenceExpression: None
+                                  PsiElement(identifier)('None')
+                                PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')

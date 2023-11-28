@@ -3,3 +3,59 @@ val f: Ctx ?=> Int = ???
 type Tpe = f.type
 
 -----
+ScalaFile
+  ScTrait: Ctx
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ctx')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Ctx ?=> Int
+      SimpleType: Ctx
+        CodeReferenceElement: Ctx
+          PsiElement(identifier)('Ctx')
+      PsiWhiteSpace(' ')
+      PsiElement(?=>)('?=>')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Tpe
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tpe')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: f.type
+      CodeReferenceElement: f
+        PsiElement(identifier)('f')
+      PsiElement(.)('.')
+      PsiElement(type)('type')

@@ -4,3 +4,93 @@ object Test:
   def cat1(s1: String)(s2: String) = s1 + s2
   val fcat1 = cat1
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.future
+        CodeReferenceElement: language
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('future')
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: cat1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cat1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: s1
+              PsiElement(identifier)('s1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: s2
+              PsiElement(identifier)('s2')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fcat1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fcat1
+              PsiElement(identifier)('fcat1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: cat1
+            PsiElement(identifier)('cat1')

@@ -17,3 +17,253 @@ object App
 }
 
 -----
+ScalaFile
+  ScObject: App
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('App')
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: exponentiate
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('exponentiate')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: base
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('base')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: exponent
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('exponent')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: base
+                PsiElement(identifier)('base')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: exponent
+                PsiElement(identifier)('exponent')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  DoubleLiteral
+                    PsiElement(double)('1.0')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ReferencePattern: b
+                      PsiElement(identifier)('b')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  DoubleLiteral
+                    PsiElement(double)('1.0')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ReferencePattern: b
+                      PsiElement(identifier)('b')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ReferencePattern: b
+                      PsiElement(identifier)('b')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: e
+                      PsiElement(identifier)('e')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: *
+                      PsiElement(identifier)('*')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: exponentiate
+                        PsiElement(identifier)('exponentiate')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: b
+                          PsiElement(identifier)('b')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          ReferenceExpression: e
+                            PsiElement(identifier)('e')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: -
+                            PsiElement(identifier)('-')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n      ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: System.out.println
+              ReferenceExpression: System.out
+                ReferenceExpression: System
+                  PsiElement(identifier)('System')
+                PsiElement(.)('.')
+                PsiElement(identifier)('out')
+              PsiElement(.)('.')
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: exponentiate
+                  PsiElement(identifier)('exponentiate')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

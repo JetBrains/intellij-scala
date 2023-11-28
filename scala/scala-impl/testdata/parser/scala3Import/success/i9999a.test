@@ -8,3 +8,124 @@ object Test:
 
   y = (??? : Any)
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[List[X]]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: List[X]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScVariableDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('  ')
+            PsiComment(comment)('// inferred type: Any, since `T[?]` is irreducible wildcard application')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              NullLiteral
+                PsiElement(null)('null')
+            PsiWhiteSpace('\n    ')
+            TypedExpression
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: T[x.type]
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: x.type
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        AssignStatement
+          ReferenceExpression: y
+            PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+            PsiElement())(')')

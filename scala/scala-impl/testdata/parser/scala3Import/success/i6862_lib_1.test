@@ -2,3 +2,104 @@ trait Ctx
 inline def foo(): Unit = (x: Ctx) ?=> ()
 def bar[T](b: Ctx ?=> Unit): Unit = ???
 -----
+ScalaFile
+  ScTrait: Ctx
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ctx')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: x
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Ctx
+                CodeReferenceElement: Ctx
+                  PsiElement(identifier)('Ctx')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(?=>)('?=>')
+      PsiWhiteSpace(' ')
+      UnitExpression
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Ctx ?=> Unit
+              SimpleType: Ctx
+                CodeReferenceElement: Ctx
+                  PsiElement(identifier)('Ctx')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

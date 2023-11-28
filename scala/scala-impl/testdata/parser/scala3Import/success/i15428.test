@@ -10,3 +10,230 @@ given Bar[Foo] = ???
 
 def k[Tk, Ptr <: { def f(): Tk }](function: Ptr => Int)(using alloc: Bar[Ptr]): Tk = ???
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: reflect.Selectable.reflectiveSelectable
+        CodeReferenceElement: reflect.Selectable
+          CodeReferenceElement: reflect
+            PsiElement(identifier)('reflect')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Selectable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflectiveSelectable')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Long
+            CodeReferenceElement: Long
+              PsiElement(identifier)('Long')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: h
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('h')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: k
+        PsiElement(identifier)('k')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: _
+                AnnotationsList
+                  <empty list>
+                PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TB
+        PsiElement(identifier)('TB')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_Bar_Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Bar[Foo]
+      SimpleType: Bar
+        CodeReferenceElement: Bar
+          PsiElement(identifier)('Bar')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Foo
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+        PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: k
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('k')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tk
+        PsiElement(identifier)('Tk')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Ptr
+        PsiElement(identifier)('Ptr')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        CompoundType: { def f(): Tk }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScFunctionDeclaration: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('f')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Tk
+                CodeReferenceElement: Tk
+                  PsiElement(identifier)('Tk')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: function
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('function')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Ptr => Int
+              SimpleType: Ptr
+                CodeReferenceElement: Ptr
+                  PsiElement(identifier)('Ptr')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: alloc
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('alloc')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Bar[Ptr]
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Ptr
+                  CodeReferenceElement: Ptr
+                    PsiElement(identifier)('Ptr')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Tk
+      CodeReferenceElement: Tk
+        PsiElement(identifier)('Tk')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

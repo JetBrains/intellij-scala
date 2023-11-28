@@ -11,3 +11,126 @@ object Test extends App {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.dynamics
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('dynamics')
+  PsiWhiteSpace('\n\n')
+  ScObject: MyDynamic
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyDynamic')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Dynamic
+            CodeReferenceElement: Dynamic
+              PsiElement(identifier)('Dynamic')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: selectDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selectDynamic')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: java.lang.String
+                    CodeReferenceElement: java.lang
+                      CodeReferenceElement: java
+                        PsiElement(identifier)('java')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('lang')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: MyDynamic.id
+                ReferenceExpression: MyDynamic
+                  PsiElement(identifier)('MyDynamic')
+                PsiElement(.)('.')
+                PsiElement(identifier)('id')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

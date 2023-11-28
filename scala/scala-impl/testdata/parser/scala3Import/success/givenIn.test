@@ -26,3 +26,189 @@ object Test {
 */
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.compiletime.constValue
+              CodeReferenceElement: scala.compiletime
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('constValue')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Context
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Context')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: givenIn
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('givenIn')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: op
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('op')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        FunctionalType: Context ?=> T
+                          SimpleType: Context
+                            CodeReferenceElement: Context
+                              PsiElement(identifier)('Context')
+                          PsiWhiteSpace(' ')
+                          PsiElement(?=>)('?=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScGivenAliasDefinition: given_Context
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(given)('given')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Context
+                      CodeReferenceElement: Context
+                        PsiElement(identifier)('Context')
+                    Parameters
+                      <empty list>
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ThisReference
+                      PsiElement(this)('this')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: op
+                    PsiElement(identifier)('op')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ctx')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Context
+            CodeReferenceElement: Context
+              PsiElement(identifier)('Context')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Context
+                    CodeReferenceElement: Context
+                      PsiElement(identifier)('Context')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Context
+                    CodeReferenceElement: Context
+                      PsiElement(identifier)('Context')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: ctx.givenIn
+            ReferenceExpression: ctx
+              PsiElement(identifier)('ctx')
+            PsiElement(.)('.')
+            PsiElement(identifier)('givenIn')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: g
+              PsiElement(identifier)('g')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiComment(BlockComment)('/* The last three statements should generate the following code:\n\n    def ctx: Test.Context = new Test.Context()\n    def g(implicit x$1: Test.Context): Unit = ()\n    {\n      val Context_this: Test.Context = Test.ctx\n      {\n        implicit def ctx: Test.Context = Context_this\n        Test.g(ctx)\n      }\n    }\n*/')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -9,3 +9,153 @@ def arr = Array( // same issue
   Array(7, 8, 9)
 )
 -----
+ScalaFile
+  ScFunctionDefinition: iarr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('iarr')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: IArray
+        PsiElement(identifier)('IArray')
+      ArgumentList
+        PsiElement(()('(')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: IArray
+            PsiElement(identifier)('IArray')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: IArray
+            PsiElement(identifier)('IArray')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('4')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('6')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: IArray
+            PsiElement(identifier)('IArray')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('7')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('8')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('9')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: arr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('arr')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Array
+        PsiElement(identifier)('Array')
+      ArgumentList
+        PsiElement(()('(')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// same issue')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: IArray
+            PsiElement(identifier)('IArray')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Array
+            PsiElement(identifier)('Array')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('4')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('6')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Array
+            PsiElement(identifier)('Array')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('7')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('8')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('9')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')

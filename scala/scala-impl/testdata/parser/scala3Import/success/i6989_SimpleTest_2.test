@@ -4,3 +4,51 @@ class SimpleTest extends Container {
   "foo".op(5)
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: mypkg
+      PsiElement(identifier)('mypkg')
+    PsiWhiteSpace('\n\n')
+    ScClass: SimpleTest
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('SimpleTest')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Container
+              CodeReferenceElement: Container
+                PsiElement(identifier)('Container')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: "foo".op
+              StringLiteral
+                PsiElement(string content)('"foo"')
+              PsiElement(.)('.')
+              PsiElement(identifier)('op')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('5')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -4,3 +4,75 @@ object testCQ  {
 
 }
 -----
+ScalaFile
+  ScObject: testCQ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('testCQ')
+    PsiWhiteSpace('  ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Thing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Thing')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace(' ')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: contains
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('contains')
+                  PsiElement(:)(':')
+                  ParameterType
+                    ParametrizedType: List[ Thing ]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Thing
+                          CodeReferenceElement: Thing
+                            PsiElement(identifier)('Thing')
+                        PsiWhiteSpace(' ')
+                        PsiElement(])(']')
+                PsiWhiteSpace('  ')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

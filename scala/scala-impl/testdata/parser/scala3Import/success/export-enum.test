@@ -14,3 +14,168 @@ object Signature {
   def valueOf($name: String): MatchDegree = ???
 }
 -----
+ScalaFile
+  ScObject: Signature
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Signature')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScEnum: MatchDegree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MatchDegree')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: NoMatch, ParamMatch, FullMatch
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: NoMatch
+                  PsiElement(identifier)('NoMatch')
+                  ExtendsBlock
+                    <empty list>
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: ParamMatch
+                  PsiElement(identifier)('ParamMatch')
+                  ExtendsBlock
+                    <empty list>
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: FullMatch
+                  PsiElement(identifier)('FullMatch')
+                  ExtendsBlock
+                    <empty list>
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: MatchDegree
+              PsiElement(identifier)('MatchDegree')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          PsiComment(comment)('// Check that exported values have singeleton types')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MatchDegree.NoMatch.type
+            CodeReferenceElement: MatchDegree.NoMatch
+              CodeReferenceElement: MatchDegree
+                PsiElement(identifier)('MatchDegree')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NoMatch')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: NoMatch
+            PsiElement(identifier)('NoMatch')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: values
+          PsiComment(comment)('// Check that the following two methods are not exported.')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// Exporting them would lead to a double definition.')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('values')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[MatchDegree]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: MatchDegree
+                CodeReferenceElement: MatchDegree
+                  PsiElement(identifier)('MatchDegree')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: valueOf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('valueOf')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: $name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('$name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MatchDegree
+            CodeReferenceElement: MatchDegree
+              PsiElement(identifier)('MatchDegree')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

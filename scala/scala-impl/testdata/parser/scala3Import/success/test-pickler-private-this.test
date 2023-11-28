@@ -2,3 +2,122 @@ class Test:
   def callMeth(test: Test) = test.meth(-1)
   private def meth(foo: Int, bar: Int = 1) = foo + bar
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: callMeth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('callMeth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: test
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('test')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Test
+                    CodeReferenceElement: Test
+                      PsiElement(identifier)('Test')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: test.meth
+              ReferenceExpression: test
+                PsiElement(identifier)('test')
+              PsiElement(.)('.')
+              PsiElement(identifier)('meth')
+            ArgumentList
+              PsiElement(()('(')
+              PrefixExpression
+                ReferenceExpression: -
+                  PsiElement(identifier)('-')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: meth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('meth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('foo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bar')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: bar
+              PsiElement(identifier)('bar')

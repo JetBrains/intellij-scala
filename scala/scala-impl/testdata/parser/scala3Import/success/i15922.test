@@ -13,3 +13,296 @@ object Test:
   val bad1 = withCap(leaking1)
   val bad2 = withCap(leaking2)
 -----
+ScalaFile
+  ScTrait: Cap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cap')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: M
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('M')
+  PsiWhiteSpace('\n')
+  ScClass: Id
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Id')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: withCap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('withCap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: op
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: Cap => X
+                    SimpleType: Cap
+                      CodeReferenceElement: Cap
+                        PsiElement(identifier)('Cap')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: retains1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('retains1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: xs
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: annotation.StaticAnnotation
+                  CodeReferenceElement: annotation.StaticAnnotation
+                    CodeReferenceElement: annotation
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('StaticAnnotation')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: leaking1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('leaking1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Cap
+                    CodeReferenceElement: Cap
+                      PsiElement(identifier)('Cap')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Id[Cap @retains1(c)]
+            SimpleType: Id
+              CodeReferenceElement: Id
+                PsiElement(identifier)('Id')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeWithAnnotation: Cap @retains1(c)
+                SimpleType: Cap
+                  CodeReferenceElement: Cap
+                    PsiElement(identifier)('Cap')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: retains1
+                          CodeReferenceElement: retains1
+                            PsiElement(identifier)('retains1')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: c
+                            PsiElement(identifier)('c')
+                          PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// used to crash with orphan parameter on pickling')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: leaking2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('leaking2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Cap
+                    CodeReferenceElement: Cap
+                      PsiElement(identifier)('Cap')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Id[c.type]
+            SimpleType: Id
+              CodeReferenceElement: Id
+                PsiElement(identifier)('Id')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: c.type
+                CodeReferenceElement: c
+                  PsiElement(identifier)('c')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: bad1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bad1
+              PsiElement(identifier)('bad1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: withCap
+              PsiElement(identifier)('withCap')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: leaking1
+                PsiElement(identifier)('leaking1')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bad2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bad2
+              PsiElement(identifier)('bad2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: withCap
+              PsiElement(identifier)('withCap')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: leaking2
+                PsiElement(identifier)('leaking2')
+              PsiElement())(')')

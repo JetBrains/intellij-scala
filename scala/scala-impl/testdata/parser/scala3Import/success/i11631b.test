@@ -14,3 +14,242 @@ class MyClass:
   mc.myTrait = mt
   mc.printA()
 -----
+ScalaFile
+  ScTrait: MyTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyTrait')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('""')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyClass')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: myTrait
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: myTrait
+              PsiElement(identifier)('myTrait')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: MyTrait|Null
+            SimpleType: MyTrait
+              CodeReferenceElement: MyTrait
+                PsiElement(identifier)('MyTrait')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: printA
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('printA')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: myTrait.nn.a
+                  ReferenceExpression: myTrait.nn
+                    ReferenceExpression: myTrait
+                      PsiElement(identifier)('myTrait')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nn')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('a')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: runTest
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('runTest')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: mt
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: mt
+            PsiElement(identifier)('mt')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: MyTrait
+                  CodeReferenceElement: MyTrait
+                    PsiElement(identifier)('MyTrait')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('a')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"hello world"')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: mc
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: mc
+            PsiElement(identifier)('mc')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: MyClass
+            PsiElement(identifier)('MyClass')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      AssignStatement
+        ReferenceExpression: mc.myTrait
+          ReferenceExpression: mc
+            PsiElement(identifier)('mc')
+          PsiElement(.)('.')
+          PsiElement(identifier)('myTrait')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: mt
+          PsiElement(identifier)('mt')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: mc.printA
+          ReferenceExpression: mc
+            PsiElement(identifier)('mc')
+          PsiElement(.)('.')
+          PsiElement(identifier)('printA')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')

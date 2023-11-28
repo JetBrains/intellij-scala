@@ -13,3 +13,154 @@ object Trait {
   def getImpl(using Quotes): Expr[Trait] = '{ new Trait {} }
 }
 -----
+ScalaFile
+  PsiComment(comment)('// Trait.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: quoted
+          PsiElement(identifier)('quoted')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Trait
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Trait')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: foo
+                PsiElement(identifier)('foo')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('23')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Trait
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Trait')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: get
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('get')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Trait
+              CodeReferenceElement: Trait
+                PsiElement(identifier)('Trait')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SplicedBlock
+              PsiElement($)('$')
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: getImpl
+                PsiElement(identifier)('getImpl')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: getImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('getImpl')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: <anonymous>
+                  ParameterType
+                    SimpleType: Quotes
+                      CodeReferenceElement: Quotes
+                        PsiElement(identifier)('Quotes')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Expr[Trait]
+              SimpleType: Expr
+                CodeReferenceElement: Expr
+                  PsiElement(identifier)('Expr')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Trait
+                  CodeReferenceElement: Trait
+                    PsiElement(identifier)('Trait')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            QuotedBlock
+              PsiElement(')(''')
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Trait
+                        CodeReferenceElement: Trait
+                          PsiElement(identifier)('Trait')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

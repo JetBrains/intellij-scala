@@ -6,3 +6,83 @@ trait Z[A] extends X {
   self: Z[A] => // comment this to compile successfully
 }
 -----
+ScalaFile
+  ScTrait: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//missing requirement: self type Z[?] & X of trait X does not conform to self type Z[X.this.A] of required trait Z')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Z[_]
+            SimpleType: Z
+              CodeReferenceElement: Z
+                PsiElement(identifier)('Z')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Z
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Z')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Z[A]
+            SimpleType: Z
+              CodeReferenceElement: Z
+                PsiElement(identifier)('Z')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// comment this to compile successfully')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

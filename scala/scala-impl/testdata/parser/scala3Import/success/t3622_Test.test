@@ -4,3 +4,86 @@ class Test extends MyAsyncTask {
   protected[test] def doInBackground1(args: Array[String]): String = ""
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: MyAsyncTask
+              CodeReferenceElement: MyAsyncTask
+                PsiElement(identifier)('MyAsyncTask')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: doInBackground1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(protected)('protected')
+                PsiElement([)('[')
+                PsiElement(identifier)('test')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('doInBackground1')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: args
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[String]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('""')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

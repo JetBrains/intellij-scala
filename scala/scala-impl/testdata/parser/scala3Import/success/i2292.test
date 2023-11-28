@@ -2,3 +2,27 @@ package +
 
 class Foo
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: +
+      PsiElement(identifier)('+')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>

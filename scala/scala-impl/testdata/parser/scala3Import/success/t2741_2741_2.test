@@ -4,3 +4,35 @@ object Test {
   Scalaz.a
 }
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// object Test compiles jointly, but not separately.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Scalaz
+              PsiElement(identifier)('Scalaz')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: Scalaz.a
+          ReferenceExpression: Scalaz
+            PsiElement(identifier)('Scalaz')
+          PsiElement(.)('.')
+          PsiElement(identifier)('a')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

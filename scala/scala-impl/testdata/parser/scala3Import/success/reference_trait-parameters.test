@@ -27,3 +27,418 @@ trait ImpliedFormalGreeting extends ImpliedGreeting:
 
 class F(using iname: ImpliedName) extends ImpliedFormalGreeting
 -----
+ScalaFile
+  ScTrait: Greeting
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Greeting')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: msg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('msg')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"How are you, ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: name
+              PsiElement(identifier)('name')
+            PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: FormalGreeting
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FormalGreeting')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Greeting
+            CodeReferenceElement: Greeting
+              PsiElement(identifier)('Greeting')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: msg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('msg')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"How do you do, ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: name
+              PsiElement(identifier)('name')
+            PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Greeting
+            CodeReferenceElement: Greeting
+              PsiElement(identifier)('Greeting')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"Bob"')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: msg
+              PsiElement(identifier)('msg')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: D
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('D')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C
+            CodeReferenceElement: C
+              PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Greeting
+            CodeReferenceElement: Greeting
+              PsiElement(identifier)('Greeting')
+  PsiWhiteSpace('\n\n')
+  ScClass: E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Greeting
+            CodeReferenceElement: Greeting
+              PsiElement(identifier)('Greeting')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"Bob"')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: FormalGreeting
+            CodeReferenceElement: FormalGreeting
+              PsiElement(identifier)('FormalGreeting')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// class D2 extends C with Greeting("Bill") // error')
+  PsiWhiteSpace('\n\n')
+  ScClass: ImpliedName
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImpliedName')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: toString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toString')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: name
+            PsiElement(identifier)('name')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ImpliedGreeting
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImpliedGreeting')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: iname
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('iname')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: ImpliedName
+                CodeReferenceElement: ImpliedName
+                  PsiElement(identifier)('ImpliedName')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: msg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('msg')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"How are you, ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: iname
+              PsiElement(identifier)('iname')
+            PsiElement(interpolated string end)('"')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ImpliedFormalGreeting
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImpliedFormalGreeting')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: ImpliedGreeting
+            CodeReferenceElement: ImpliedGreeting
+              PsiElement(identifier)('ImpliedGreeting')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: msg
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('msg')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"How do you do, ')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: iname
+              PsiElement(identifier)('iname')
+            PsiElement(interpolated string end)('"')
+  PsiWhiteSpace('\n\n')
+  ScClass: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: iname
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('iname')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: ImpliedName
+                CodeReferenceElement: ImpliedName
+                  PsiElement(identifier)('ImpliedName')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: ImpliedFormalGreeting
+            CodeReferenceElement: ImpliedFormalGreeting
+              PsiElement(identifier)('ImpliedFormalGreeting')

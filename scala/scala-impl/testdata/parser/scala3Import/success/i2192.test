@@ -6,3 +6,86 @@ object Test {
     // follow this method with `_' if you want to treat it as a partially applied function
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace('\n\n  ')
+        TypedExpression
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: foo
+                PsiElement(identifier)('foo')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Int => Int]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              FunctionalType: Int => Int
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n    ')
+        PsiComment(comment)('// missing arguments for method foo')
+        PsiWhiteSpace('\n    ')
+        PsiComment(comment)('// follow this method with `_' if you want to treat it as a partially applied function')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

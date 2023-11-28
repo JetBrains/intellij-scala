@@ -4,3 +4,153 @@ extension [T1](x: T1)(using Numeric[T1])
 
 val res = 100.combine(200)
 -----
+ScalaFile
+  Extension on T1
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        PsiElement(identifier)('T1')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T1
+              CodeReferenceElement: T1
+                PsiElement(identifier)('T1')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: Numeric[T1]
+              SimpleType: Numeric
+                CodeReferenceElement: Numeric
+                  PsiElement(identifier)('Numeric')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: combine
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('combine')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: T2
+            PsiElement(identifier)('T2')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+            PsiElement())(')')
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            Parameter: <anonymous>
+              ParameterType
+                ParametrizedType: Numeric[T2]
+                  SimpleType: Numeric
+                    CodeReferenceElement: Numeric
+                      PsiElement(identifier)('Numeric')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: combine
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('combine')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: res
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: res
+        PsiElement(identifier)('res')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: 100.combine
+        IntegerLiteral
+          PsiElement(integer)('100')
+        PsiElement(.)('.')
+        PsiElement(identifier)('combine')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('200')
+        PsiElement())(')')

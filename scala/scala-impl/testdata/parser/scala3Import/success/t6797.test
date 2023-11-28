@@ -3,3 +3,99 @@ object Test extends App /* workaround: don't extend App */ {
   private val stringMatcher = new Matcher
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      PsiComment(BlockComment)('/* workaround: don't extend App */')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Matcher
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Matcher')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: aParam
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('aParam')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Option[String]
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: stringMatcher
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: stringMatcher
+              PsiElement(identifier)('stringMatcher')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Matcher
+                    CodeReferenceElement: Matcher
+                      PsiElement(identifier)('Matcher')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

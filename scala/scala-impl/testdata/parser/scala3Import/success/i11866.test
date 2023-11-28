@@ -20,3 +20,280 @@ final class CallbackTo[+A] { self =>
   }
 }
 -----
+ScalaFile
+  ScTypeAliasDefinition: Callback
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Callback')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: CallbackTo[Unit]
+      SimpleType: CallbackTo
+        CodeReferenceElement: CallbackTo
+          PsiElement(identifier)('CallbackTo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: CallbackTo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CallbackTo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: >>
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('>>')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: CallbackTo[B]
+                    SimpleType: CallbackTo
+                      CodeReferenceElement: CallbackTo
+                        PsiElement(identifier)('CallbackTo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CallbackTo[B]
+            SimpleType: CallbackTo
+              CodeReferenceElement: CallbackTo
+                PsiElement(identifier)('CallbackTo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: *>
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('*>')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: z
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('z')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: CallbackTo[B]
+                    SimpleType: CallbackTo
+                      CodeReferenceElement: CallbackTo
+                        PsiElement(identifier)('CallbackTo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CallbackTo[B]
+            SimpleType: CallbackTo
+              CodeReferenceElement: CallbackTo
+                PsiElement(identifier)('CallbackTo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: >>
+              PsiElement(identifier)('>>')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: z
+                PsiElement(identifier)('z')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: qwe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('qwe')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CallbackTo[A]
+            SimpleType: CallbackTo
+              CodeReferenceElement: CallbackTo
+                PsiElement(identifier)('CallbackTo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('x')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Callback
+                CodeReferenceElement: Callback
+                  PsiElement(identifier)('Callback')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: hmmm
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: hmmm
+                  PsiElement(identifier)('hmmm')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ThisReference
+                PsiElement(this)('this')
+            PsiWhiteSpace('\n\n    ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *>
+                PsiElement(identifier)('*>')
+              PsiWhiteSpace(' ')
+              ThisReference
+                PsiElement(this)('this')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// was error')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *>
+                PsiElement(identifier)('*>')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: self
+                PsiElement(identifier)('self')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// was error')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *>
+                PsiElement(identifier)('*>')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: hmmm
+                PsiElement(identifier)('hmmm')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// ok')
+            PsiWhiteSpace('\n\n    ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

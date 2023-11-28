@@ -40,3 +40,639 @@ val leo = newLion
 //leo.eats(milka) // structural select not supported
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        ScTrait: FoodStuff
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FoodStuff')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n')
+        ScTrait: Meat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Meat')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: FoodStuff
+                  CodeReferenceElement: FoodStuff
+                    PsiElement(identifier)('FoodStuff')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDefinition: IsMeat
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('IsMeat')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScTrait: Grass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Grass')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: FoodStuff
+                  CodeReferenceElement: FoodStuff
+                    PsiElement(identifier)('FoodStuff')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDefinition: IsGrass
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('IsGrass')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScTrait: Animal
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Animal')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDeclaration: Food
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Food')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: FoodStuff
+                  CodeReferenceElement: FoodStuff
+                    PsiElement(identifier)('FoodStuff')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: eats
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eats')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: food
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('food')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Food
+                          CodeReferenceElement: Food
+                            PsiElement(identifier)('Food')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: gets
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('gets')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Food
+                  CodeReferenceElement: Food
+                    PsiElement(identifier)('Food')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScTrait: Cow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Cow')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Animal
+                  CodeReferenceElement: Animal
+                    PsiElement(identifier)('Animal')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDefinition: IsMeat
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('IsMeat')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDeclaration: Food
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Food')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Grass
+                  CodeReferenceElement: Grass
+                    PsiElement(identifier)('Grass')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: eats
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eats')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: food
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('food')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Food
+                          CodeReferenceElement: Food
+                            PsiElement(identifier)('Food')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: gets
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('gets')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Food
+                  CodeReferenceElement: Food
+                    PsiElement(identifier)('Food')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScTrait: Lion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Lion')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Animal
+                  CodeReferenceElement: Animal
+                    PsiElement(identifier)('Animal')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ScTypeAliasDefinition: Food
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Food')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Meat
+                  CodeReferenceElement: Meat
+                    PsiElement(identifier)('Meat')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: eats
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eats')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: food
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('food')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Meat
+                          CodeReferenceElement: Meat
+                            PsiElement(identifier)('Meat')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n  ')
+              ScFunctionDeclaration: gets
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('gets')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Meat
+                  CodeReferenceElement: Meat
+                    PsiElement(identifier)('Meat')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: newMeat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newMeat')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Meat
+            CodeReferenceElement: Meat
+              PsiElement(identifier)('Meat')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Meat
+                    CodeReferenceElement: Meat
+                      PsiElement(identifier)('Meat')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: newGrass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newGrass')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Grass
+            CodeReferenceElement: Grass
+              PsiElement(identifier)('Grass')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Grass
+                    CodeReferenceElement: Grass
+                      PsiElement(identifier)('Grass')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: newCow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newCow')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Cow
+            CodeReferenceElement: Cow
+              PsiElement(identifier)('Cow')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Cow
+                    CodeReferenceElement: Cow
+                      PsiElement(identifier)('Cow')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                ScTypeAliasDefinition: Food
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Food')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Grass
+                    CodeReferenceElement: Grass
+                      PsiElement(identifier)('Grass')
+                PsiWhiteSpace('\n  ')
+                ScFunctionDefinition: eats
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('eats')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: food
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('food')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Grass
+                            CodeReferenceElement: Grass
+                              PsiElement(identifier)('Grass')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  UnitExpression
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                ScFunctionDefinition: gets
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('gets')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: newGrass
+                    PsiElement(identifier)('newGrass')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: newLion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newLion')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Lion
+            CodeReferenceElement: Lion
+              PsiElement(identifier)('Lion')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Lion
+                    CodeReferenceElement: Lion
+                      PsiElement(identifier)('Lion')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n  ')
+                ScFunctionDefinition: eats
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('eats')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: food
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('food')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Meat
+                            CodeReferenceElement: Meat
+                              PsiElement(identifier)('Meat')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  UnitExpression
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                ScFunctionDefinition: gets
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('gets')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: newMeat
+                    PsiElement(identifier)('newMeat')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        ScPatternDefinition: milka
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: milka
+              PsiElement(identifier)('milka')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: newCow
+            PsiElement(identifier)('newCow')
+        PsiWhiteSpace('\n')
+        ScPatternDefinition: leo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: leo
+              PsiElement(identifier)('leo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: newLion
+            PsiElement(identifier)('newLion')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('//leo.eats(milka) // structural select not supported')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

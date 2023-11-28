@@ -1,2 +1,33 @@
 class MyExperimentalAnnot extends scala.annotation.experimental
 -----
+ScalaFile
+  ScClass: MyExperimentalAnnot
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyExperimentalAnnot')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.experimental
+            CodeReferenceElement: scala.annotation.experimental
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('experimental')

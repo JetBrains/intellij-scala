@@ -26,3 +26,441 @@ trait Test {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n')
+    ScTrait: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: BracesImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('BracesImpl')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Singleton
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Singleton')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Brace
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Brace')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: Singleton with BraceImpl
+                    SimpleType: Singleton
+                      CodeReferenceElement: Singleton
+                        PsiElement(identifier)('Singleton')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: BraceImpl
+                      CodeReferenceElement: BraceImpl
+                        PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScTrait: BraceImpl
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('BraceImpl')
+                  ExtendsBlock
+                    <empty list>
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScTrait: ForFile
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('ForFile')
+                  ExtendsBlock
+                    <empty list>
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScClass: ParensImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ParensImpl')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: BracesImpl
+                    CodeReferenceElement: BracesImpl
+                      PsiElement(identifier)('BracesImpl')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Brace
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Brace')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: Singleton with BraceImpl
+                    SimpleType: Singleton
+                      CodeReferenceElement: Singleton
+                        PsiElement(identifier)('Singleton')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: BraceImpl
+                      CodeReferenceElement: BraceImpl
+                        PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScTrait: BraceImpl2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('BraceImpl2')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: super.BraceImpl
+                          CodeReferenceElement: super.BraceImpl
+                            SuperReference
+                              PsiElement(super)('super')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScValueDeclaration: parens
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: parens
+                PsiElement(identifier)('parens')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: ParensImpl
+              CodeReferenceElement: ParensImpl
+                PsiElement(identifier)('ParensImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScClass: BracksImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('BracksImpl')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: BracesImpl
+                    CodeReferenceElement: BracesImpl
+                      PsiElement(identifier)('BracesImpl')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Brace
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Brace')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: Singleton with BraceImpl
+                    SimpleType: Singleton
+                      CodeReferenceElement: Singleton
+                        PsiElement(identifier)('Singleton')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: BraceImpl
+                      CodeReferenceElement: BraceImpl
+                        PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScTrait: BraceImpl2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('BraceImpl2')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: super.BraceImpl
+                          CodeReferenceElement: super.BraceImpl
+                            SuperReference
+                              PsiElement(super)('super')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScValueDeclaration: bracks
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: bracks
+                PsiElement(identifier)('bracks')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: BracksImpl
+              CodeReferenceElement: BracksImpl
+                PsiElement(identifier)('BracksImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTrait: File
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('File')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: parens0
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('parens0')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: parens.BraceImpl
+                    CodeReferenceElement: parens.BraceImpl
+                      CodeReferenceElement: parens
+                        PsiElement(identifier)('parens')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: bracks0
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('bracks0')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: bracks.BraceImpl
+                    CodeReferenceElement: bracks.BraceImpl
+                      CodeReferenceElement: bracks
+                        PsiElement(identifier)('bracks')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('BraceImpl')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: braces
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('braces')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: b
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('b')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: BracesImpl
+                            CodeReferenceElement: BracesImpl
+                              PsiElement(identifier)('BracesImpl')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MatchStatement
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n    ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: b
+                          PsiElement(identifier)('b')
+                        PsiWhiteSpace(' ')
+                        Guard
+                          PsiElement(if)('if')
+                          PsiWhiteSpace(' ')
+                          InfixExpression
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: ==
+                              PsiElement(identifier)('==')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: parens
+                              PsiElement(identifier)('parens')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ReferenceExpression: parens0
+                            PsiElement(identifier)('parens0')
+                          PsiElement(;)(';')
+                      PsiWhiteSpace('\n    ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: b
+                          PsiElement(identifier)('b')
+                        PsiWhiteSpace(' ')
+                        Guard
+                          PsiElement(if)('if')
+                          PsiWhiteSpace(' ')
+                          InfixExpression
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: ==
+                              PsiElement(identifier)('==')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: bracks
+                              PsiElement(identifier)('bracks')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ReferenceExpression: bracks0
+                            PsiElement(identifier)('bracks0')
+                          PsiElement(;)(';')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

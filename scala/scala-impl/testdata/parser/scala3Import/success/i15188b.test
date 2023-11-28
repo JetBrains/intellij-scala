@@ -7,3 +7,161 @@ extension (ctx: C) inline def unapply(input: String): Option[String] = Some("hi"
   val O(x) = "3"
 }
 -----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  Extension on C
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ctx')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: unapply
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('unapply')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: input
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('input')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Option[String]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Some
+            PsiElement(identifier)('Some')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"hi"')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: run
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('run')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: O
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: O
+            PsiElement(identifier)('O')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ConstructorPattern
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"3"')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

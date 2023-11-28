@@ -14,3 +14,184 @@ object Test {
   println(B == x2) // spurious warning: "always returns false"
 }
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x1
+              PsiElement(identifier)('x1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x1
+                PsiElement(identifier)('x1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// no warning')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x1
+                PsiElement(identifier)('x1')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// no warning')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x2
+              PsiElement(identifier)('x2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              CompoundType: A with Product
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: Product
+                  CodeReferenceElement: Product
+                    PsiElement(identifier)('Product')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: x2
+                PsiElement(identifier)('x2')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// no warning')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: B
+                PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x2
+                PsiElement(identifier)('x2')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// spurious warning: "always returns false"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

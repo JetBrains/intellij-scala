@@ -21,3 +21,380 @@ object test {
 
 }
 -----
+ScalaFile
+  ScObject: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: functor
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('def functor(x: A): B { type T ')
+              ScPsiDocToken(DOC_HEADER 256)('=')
+              ScPsiDocToken(DOC_COMMENT_DATA)(' x.T }')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('functor')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScValueDeclaration: arg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: arg
+                    PsiElement(identifier)('arg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: res
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: res
+                    PsiElement(identifier)('res')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: B { type T = arg.T }
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: arg.T
+                        CodeReferenceElement: arg.T
+                          CodeReferenceElement: arg
+                            PsiElement(identifier)('arg')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                BlockExpression
+                  PsiWhiteSpace('\n      ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      ScTemplateBody
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        ScTypeAliasDefinition: T
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: arg.T
+                            CodeReferenceElement: arg.T
+                              CodeReferenceElement: arg
+                                PsiElement(identifier)('arg')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('T')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                  PsiElement(;)(';')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: b
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('val b: B { type T ')
+              ScPsiDocToken(DOC_HEADER 256)('=')
+              ScPsiDocToken(DOC_COMMENT_DATA)(' String } ')
+              ScPsiDocToken(DOC_HEADER 256)('=')
+              ScPsiDocToken(DOC_COMMENT_DATA)(' functor(a)')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: B { type T = String }
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: tmp
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tmp
+                  PsiElement(identifier)('tmp')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: functor
+                        CodeReferenceElement: functor
+                          PsiElement(identifier)('functor')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScPatternDefinition: arg
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: arg
+                          PsiElement(identifier)('arg')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      CompoundType: A { type T = String }
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          PsiWhiteSpace(' ')
+                          ScTypeAliasDefinition: T
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('T')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          PsiElement(})('}')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n      ')
+            PsiComment(comment)('// Dotty deviaton: arg needs an explicit type here, or else the inherited type `A` would be assumed.')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: tmp.res
+              ReferenceExpression: tmp
+                PsiElement(identifier)('tmp')
+              PsiElement(.)('.')
+              PsiElement(identifier)('res')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

@@ -8,3 +8,269 @@ object O extends
   A(b = 0, a = String("")),
   B(b = 0, a = String(""))
 -----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+  PsiWhiteSpace('\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace('\n  ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: C
+            CodeReferenceElement: C
+              PsiElement(identifier)('C')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            AssignStatement
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: String
+                  PsiElement(identifier)('String')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        ConstructorInvocation
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            AssignStatement
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: String
+                  PsiElement(identifier)('String')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        ConstructorInvocation
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            AssignStatement
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: String
+                  PsiElement(identifier)('String')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+            PsiElement())(')')

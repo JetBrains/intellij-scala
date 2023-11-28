@@ -26,3 +26,214 @@ tparams =
   (0)  = {AbstractTypeSymbol@3247}"type F#24451"
 */
 -----
+ScalaFile
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: F1
+                    PsiElement(identifier)('F1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: F1
+                  CodeReferenceElement: F1
+                    PsiElement(identifier)('F1')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: F
+                    PsiElement(identifier)('F')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: a.T[X]
+            SimpleType: a.T
+              CodeReferenceElement: a.T
+                CodeReferenceElement: a
+                  PsiElement(identifier)('a')
+                PsiElement(.)('.')
+                PsiElement(identifier)('T')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: b.ensuring
+            ReferenceExpression: b
+              PsiElement(identifier)('b')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ensuring')
+          ArgumentList
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(true)('true')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// trigger an implicit search')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  PsiComment(BlockComment)('/*\nthis = {AliasArgsTypeRef@3004}"Test#7680.a#14899.T#14823[O#7702.X#7793]"\n  sym = type T#14823\n    info = namer: [F#14824 <: O#7703.X#7793]F#14824\nresult = {AbstractNoArgsTypeRef@3237}"F#24451"\ntp = {PolyType@3235}"[F#14824 <: O#7703.X#7793]F#14824"\ntparams =\n  (0)  = {AbstractTypeSymbol@3247}"type F#24451"\n*/')

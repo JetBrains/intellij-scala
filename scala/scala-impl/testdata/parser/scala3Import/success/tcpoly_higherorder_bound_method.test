@@ -2,3 +2,76 @@ trait SkolemisationOfHigherOrderBoundInMethod {
  def method[A, N[X <: A], M[X <: N[A]]]: Unit
 }
 -----
+ScalaFile
+  ScTrait: SkolemisationOfHigherOrderBoundInMethod
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SkolemisationOfHigherOrderBoundInMethod')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScFunctionDeclaration: method
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('method')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: X
+                  PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: X
+                  PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: N[A]
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

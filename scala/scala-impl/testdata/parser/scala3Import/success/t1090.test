@@ -15,3 +15,212 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Manager
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Manager')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Node')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: iterator
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('iterator')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterator[Node]
+                  SimpleType: Iterator
+                    CodeReferenceElement: Iterator
+                      PsiElement(identifier)('Iterator')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Node
+                      CodeReferenceElement: Node
+                        PsiElement(identifier)('Node')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Core
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Core')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Node')
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ScTrait: NodeImpl
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('NodeImpl')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScTrait: Manager
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Manager')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Test.Manager
+                        CodeReferenceElement: Test.Manager
+                          CodeReferenceElement: Test
+                            PsiElement(identifier)('Test')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Manager')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: Node
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Node')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Core.this.Node
+                        CodeReferenceElement: Core.this.Node
+                          ThisReference
+                            CodeReferenceElement: Core
+                              PsiElement(identifier)('Core')
+                            PsiElement(.)('.')
+                            PsiElement(this)('this')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Node')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('f')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: manager
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('manager')
+                      PsiWhiteSpace(' ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Manager
+                          CodeReferenceElement: Manager
+                            PsiElement(identifier)('Manager')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: manager.iterator.foreach
+                    ReferenceExpression: manager.iterator
+                      ReferenceExpression: manager
+                        PsiElement(identifier)('manager')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('iterator')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('foreach')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          Scala3 TypedPattern
+                            ReferencePattern: node
+                              PsiElement(identifier)('node')
+                            PsiWhiteSpace(' ')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            TypePattern
+                              SimpleType: NodeImpl
+                                CodeReferenceElement: NodeImpl
+                                  PsiElement(identifier)('NodeImpl')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          BlockOfExpressions
+                            <empty list>
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

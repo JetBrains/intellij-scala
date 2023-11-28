@@ -6,3 +6,90 @@ package object packageb {
   def func(a: String) = ()
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bug
+      PsiElement(identifier)('bug')
+    PsiWhiteSpace('\n\n')
+    ScObject: packageb
+      PsiComment(comment)('// goes with t1987b.scala')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('packageb')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: func
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('func')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: func
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('func')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

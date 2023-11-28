@@ -14,3 +14,236 @@ trait OChannel[F[_]:CpsAsyncMonad, A]:
    def addWriter(a:A, f: Try[Unit]=>Unit): Unit
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: gopher
+      PsiElement(identifier)('gopher')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.util.Try
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Try')
+    PsiWhiteSpace('\n\n')
+    ScTrait: OChannel
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('OChannel')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+          PsiElement(:)(':')
+          SimpleType: CpsAsyncMonad
+            CodeReferenceElement: CpsAsyncMonad
+              PsiElement(identifier)('CpsAsyncMonad')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDefinition: awrite
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('awrite')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            ParametrizedType: F[Unit]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n     ')
+            MethodCall
+              ReferenceExpression: summon[CpsAsyncMonad[F]].adoptCallbackStyle
+                GenericCall
+                  ReferenceExpression: summon
+                    PsiElement(identifier)('summon')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: CpsAsyncMonad[F]
+                      SimpleType: CpsAsyncMonad
+                        CodeReferenceElement: CpsAsyncMonad
+                          PsiElement(identifier)('CpsAsyncMonad')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('adoptCallbackStyle')
+              ArgumentList
+                PsiElement(()('(')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: f
+                        PsiElement(identifier)('f')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n         ')
+                  MethodCall
+                    ReferenceExpression: addWriter
+                      PsiElement(identifier)('addWriter')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n     ')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDefinition: write
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('write')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: await
+                PsiElement(identifier)('await')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: awrite
+                    PsiElement(identifier)('awrite')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement())(')')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n   ')
+          ScFunctionDeclaration: addWriter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('addWriter')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: Try[Unit]=>Unit
+                      ParametrizedType: Try[Unit]
+                        SimpleType: Try
+                          CodeReferenceElement: Try
+                            PsiElement(identifier)('Try')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Unit
+                            CodeReferenceElement: Unit
+                              PsiElement(identifier)('Unit')
+                          PsiElement(])(']')
+                      PsiElement(=>)('=>')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')

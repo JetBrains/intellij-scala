@@ -3,3 +3,81 @@ class Bar(val i: Int) {
   def this() = this(0)
 }
 -----
+ScalaFile
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: i
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('i')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Any with AnyRef
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: this
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(this)('this')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SelfInvocation
+            PsiElement(this)('this')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

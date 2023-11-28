@@ -11,3 +11,284 @@ trait HOSeq {
   }
 }
 -----
+ScalaFile
+  ScTrait: HOSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HOSeq')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Accumulator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Accumulator')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: coll
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('coll')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: elT
+              PsiElement(identifier)('elT')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: Iterable
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Iterable')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: t
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('t')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('m')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: accumulator
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('accumulator')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: t
+                    PsiElement(identifier)('t')
+                  PsiElement(])(']')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Accumulator[m, t]
+                  SimpleType: Accumulator
+                    CodeReferenceElement: Accumulator
+                      PsiElement(identifier)('Accumulator')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: m
+                      CodeReferenceElement: m
+                        PsiElement(identifier)('m')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: listAccumulator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('listAccumulator')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: elT
+              PsiElement(identifier)('elT')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Accumulator[List, elT]
+            SimpleType: Accumulator
+              CodeReferenceElement: Accumulator
+                PsiElement(identifier)('Accumulator')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: elT
+                CodeReferenceElement: elT
+                  PsiElement(identifier)('elT')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Accumulator[List, elT]
+                    SimpleType: Accumulator
+                      CodeReferenceElement: Accumulator
+                        PsiElement(identifier)('Accumulator')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: elT
+                        CodeReferenceElement: elT
+                          PsiElement(identifier)('elT')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: List
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('List')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: t
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('t')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Iterable[t]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('m')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[x]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: accumulator
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('accumulator')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: t
+                    PsiElement(identifier)('t')
+                  PsiElement(])(']')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Accumulator[List, t]
+                  SimpleType: Accumulator
+                    CodeReferenceElement: Accumulator
+                      PsiElement(identifier)('Accumulator')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: listAccumulator
+                    PsiElement(identifier)('listAccumulator')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

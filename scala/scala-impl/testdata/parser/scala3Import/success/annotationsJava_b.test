@@ -1,2 +1,52 @@
 @Annot1("foo") @Annot2(classOf[AnyRef]) class Test
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Annot1
+              CodeReferenceElement: Annot1
+                PsiElement(identifier)('Annot1')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"foo"')
+              PsiElement())(')')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Annot2
+              CodeReferenceElement: Annot2
+                PsiElement(identifier)('Annot2')
+            ArgumentList
+              PsiElement(()('(')
+              GenericCall
+                ReferenceExpression: classOf
+                  PsiElement(identifier)('classOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+                  PsiElement(])(']')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

@@ -11,3 +11,232 @@ def include(syntaxProviders: QuerySQLSyntaxProvider[_, _]*) = {
 
 def syntax(resultNames: ResultNameSQLSyntaxProvider[_, _]*) = ???
 -----
+ScalaFile
+  ScTrait: SQLSyntaxSupport
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SQLSyntaxSupport')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: ResultNameSQLSyntaxProvider
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ResultNameSQLSyntaxProvider')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: SQLSyntaxSupport[A]
+          SimpleType: SQLSyntaxSupport
+            CodeReferenceElement: SQLSyntaxSupport
+              PsiElement(identifier)('SQLSyntaxSupport')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: QuerySQLSyntaxProvider
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QuerySQLSyntaxProvider')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: SQLSyntaxSupport[A]
+          SimpleType: SQLSyntaxSupport
+            CodeReferenceElement: SQLSyntaxSupport
+              PsiElement(identifier)('SQLSyntaxSupport')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: resultName
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('resultName')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ResultNameSQLSyntaxProvider[S, A]
+            SimpleType: ResultNameSQLSyntaxProvider
+              CodeReferenceElement: ResultNameSQLSyntaxProvider
+                PsiElement(identifier)('ResultNameSQLSyntaxProvider')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: include
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('include')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: syntaxProviders
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('syntaxProviders')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: QuerySQLSyntaxProvider[_, _]
+              SimpleType: QuerySQLSyntaxProvider
+                CodeReferenceElement: QuerySQLSyntaxProvider
+                  PsiElement(identifier)('QuerySQLSyntaxProvider')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: syntax
+          PsiElement(identifier)('syntax')
+        ArgumentList
+          PsiElement(()('(')
+          TypedExpression
+            MethodCall
+              ReferenceExpression: syntaxProviders.map
+                ReferenceExpression: syntaxProviders
+                  PsiElement(identifier)('syntaxProviders')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: _.resultName
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('resultName')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SequenceArgumentType
+              PsiElement(_)('_')
+              PsiElement(identifier)('*')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: syntax
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('syntax')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: resultNames
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('resultNames')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: ResultNameSQLSyntaxProvider[_, _]
+              SimpleType: ResultNameSQLSyntaxProvider
+                CodeReferenceElement: ResultNameSQLSyntaxProvider
+                  PsiElement(identifier)('ResultNameSQLSyntaxProvider')
+              TypeArgumentsList
+                PsiElement([)('[')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

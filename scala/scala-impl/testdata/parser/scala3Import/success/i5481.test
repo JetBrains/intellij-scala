@@ -18,3 +18,289 @@ object OpaqueType {
 
 }
 -----
+ScalaFile
+  ScObject: TypeAlias
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TypeAlias')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Set
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Set')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionalType: A => Boolean
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Set
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Set')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: singleton
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('singleton')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Set[A]
+                  SimpleType: Set
+                    CodeReferenceElement: Set
+                      PsiElement(identifier)('Set')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: OpaqueType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OpaqueType')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Set
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Set')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionalType: A => Boolean
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Set
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Set')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: singleton
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('singleton')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Set[A]
+                  SimpleType: Set
+                    CodeReferenceElement: Set
+                      PsiElement(identifier)('Set')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: singleton0
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('singleton0')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Set[A]
+                  SimpleType: Set
+                    CodeReferenceElement: Set
+                      PsiElement(identifier)('Set')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    TypedExpression
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

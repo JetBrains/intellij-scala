@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.codeInspection.ProblemHighlightType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
@@ -11,9 +13,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefiniti
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
+  private val isVarOrVal = Set(ScalaTokenTypes.kVAR, ScalaTokenTypes.kVAL)
 
   override def annotate(element: ScParameter, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!element.is[ScClassParameter]) {
+      for {
+        child <- element.children
+        if isVarOrVal(child.getNode.getElementType)
+      } {
+        holder.createErrorAnnotation(
+          child,
+          ScalaBundle.message("val.or.var.can.only.be.used.in.class.parameters", child.getText),
+          ProblemHighlightType.GENERIC_ERROR,
+        )
+      }
+    }
+
     element.owner match {
       case null =>
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)

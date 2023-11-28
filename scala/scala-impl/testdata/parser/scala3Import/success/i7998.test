@@ -5,3 +5,57 @@
       case _: Throwable => 2
   )
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ExpressionInParenthesis
+      PsiElement(()('(')
+      PsiWhiteSpace('\n    ')
+      TryStatement
+        PsiElement(try)('try')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiWhiteSpace('\n    ')
+        CatchBlock
+          PsiElement(catch)('catch')
+          PsiWhiteSpace('\n      ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Throwable
+                    CodeReferenceElement: Throwable
+                      PsiElement(identifier)('Throwable')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                IntegerLiteral
+                  PsiElement(integer)('2')
+      PsiWhiteSpace('\n  ')
+      PsiElement())(')')

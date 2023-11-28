@@ -6,3 +6,84 @@ trait Foo[TroubleSome] {
   }
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TroubleSome
+        PsiElement(identifier)('TroubleSome')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Foo[TroubleSome]
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: TroubleSome
+                CodeReferenceElement: TroubleSome
+                  PsiElement(identifier)('TroubleSome')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        MatchStatement
+          ThisReference
+            PsiElement(this)('this')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: e
+                  PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  TypeProjection: Foo[_]#T
+                    ParametrizedType: Foo[_]
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeVariable: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(#)('#')
+                    PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

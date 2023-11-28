@@ -4,3 +4,103 @@ class Foo {
   foo[String]
 }
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ct
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ct')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  ParametrizedType: scala.reflect.ClassTag[T]
+                    SimpleType: scala.reflect.ClassTag
+                      CodeReferenceElement: scala.reflect.ClassTag
+                        CodeReferenceElement: scala.reflect
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('reflect')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ClassTag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: foo
+            PsiElement(identifier)('foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: foo
+            PsiElement(identifier)('foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -2,3 +2,39 @@ object container:
   object ir:
     sealed trait Foo
 -----
+ScalaFile
+  ScObject: container
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('container')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: ir
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ir')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(sealed)('sealed')
+                PsiWhiteSpace(' ')
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Foo')
+                ExtendsBlock
+                  <empty list>

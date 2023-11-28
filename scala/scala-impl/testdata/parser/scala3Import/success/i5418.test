@@ -13,3 +13,212 @@ class Test {
     }
 }
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Tree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tree')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: fromOrderedKeys
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromOrderedKeys')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Iterator[A]
+                    SimpleType: Iterator
+                      CodeReferenceElement: Iterator
+                        PsiElement(identifier)('Iterator')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tree[A]
+            SimpleType: Tree
+              CodeReferenceElement: Tree
+                PsiElement(identifier)('Tree')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: from
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('from')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: it
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('it')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Iterable[E]
+                    SimpleType: Iterable
+                      CodeReferenceElement: Iterable
+                        PsiElement(identifier)('Iterable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tree[E]
+            SimpleType: Tree
+              CodeReferenceElement: Tree
+                PsiElement(identifier)('Tree')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ReferenceExpression: it
+              PsiElement(identifier)('it')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Range
+                      CodeReferenceElement: Range
+                        PsiElement(identifier)('Range')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  ScPatternDefinition: it
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: it
+                        PsiElement(identifier)('it')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: r.iterator
+                      ReferenceExpression: r
+                        PsiElement(identifier)('r')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('iterator')
+                  PsiWhiteSpace('\n\n        ')
+                  PsiComment(comment)('// instantiation of covariant GADTs is unsound')
+                  PsiWhiteSpace('\n        ')
+                  MethodCall
+                    ReferenceExpression: fromOrderedKeys
+                      PsiElement(identifier)('fromOrderedKeys')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: it
+                        PsiElement(identifier)('it')
+                      PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// error: type mismatch: found: Iterator[Int](it), required Iterator[E]')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

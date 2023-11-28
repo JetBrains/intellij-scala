@@ -2,3 +2,50 @@
   println(A())
   println(B())
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: A
+              PsiElement(identifier)('A')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: B
+              PsiElement(identifier)('B')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')

@@ -8,3 +8,135 @@ trait Impl[Repr[~ <: Txn[~]]] {
 
 trait Extension[Repr[~ <: Txn[~]]]
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: woes
+      PsiElement(identifier)('woes')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Txn
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Txn')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Txn[T]
+            SimpleType: Txn
+              CodeReferenceElement: Txn
+                PsiElement(identifier)('Txn')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: Impl
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Impl')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Repr
+          PsiElement(identifier)('Repr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: ~
+              PsiElement(identifier)('~')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Txn[~]
+                SimpleType: Txn
+                  CodeReferenceElement: Txn
+                    PsiElement(identifier)('Txn')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: ~
+                    CodeReferenceElement: ~
+                      PsiElement(identifier)('~')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: Ext
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ext')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Extension[Repr]
+              SimpleType: Extension
+                CodeReferenceElement: Extension
+                  PsiElement(identifier)('Extension')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Repr
+                  CodeReferenceElement: Repr
+                    PsiElement(identifier)('Repr')
+                PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          PsiComment(comment)('// Huh!')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Extension
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Extension')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Repr
+          PsiElement(identifier)('Repr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: ~
+              PsiElement(identifier)('~')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Txn[~]
+                SimpleType: Txn
+                  CodeReferenceElement: Txn
+                    PsiElement(identifier)('Txn')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: ~
+                    CodeReferenceElement: ~
+                      PsiElement(identifier)('~')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>

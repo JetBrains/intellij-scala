@@ -2,3 +2,30 @@ package util.util
 
 class C
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: util.util
+      CodeReferenceElement: util
+        PsiElement(identifier)('util')
+      PsiElement(.)('.')
+      PsiElement(identifier)('util')
+    PsiWhiteSpace('\n\n')
+    ScClass: C
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('C')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>

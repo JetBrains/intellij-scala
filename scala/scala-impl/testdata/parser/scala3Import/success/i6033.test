@@ -4,3 +4,104 @@ class Test {
   }
 }
 -----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Array[_]|Null
+                    ParametrizedType: Array[_]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        WildcardType: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    SimpleType: Null
+                      CodeReferenceElement: Null
+                        PsiElement(identifier)('Null')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n   ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    ParametrizedType: Array[Int]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -42,3 +42,913 @@ object decorators {
   implicit def mapHasMapOps[CC[X, +Y] <: MapOps[X, Y, ({ type l[X, +Y] = IterableOps[_, AnyConstr, _] })#l, _], K0, V0]: HasMapOps[CC[K0, V0]] { type K = K0; type V = V0 } = ???
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: collections
+      PsiElement(identifier)('collections')
+    PsiWhiteSpace('\n\n')
+    ScObject: collections
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('collections')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: AnyConstr
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('AnyConstr')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: X
+                PsiElement(identifier)('X')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: collections
+          PsiElement(identifier)('collections')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Iterable
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Iterable')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: IterableOps[A, Iterable, Iterable[A]]
+              SimpleType: IterableOps
+                CodeReferenceElement: IterableOps
+                  PsiElement(identifier)('IterableOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Iterable
+                  CodeReferenceElement: Iterable
+                    PsiElement(identifier)('Iterable')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[A]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScTrait: IterableOps
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('IterableOps')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: CC
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('CC')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: C
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('C')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: Map
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Map')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: K
+          PsiElement(identifier)('K')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: V
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('V')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: MapOps[K, V, Map, Map[K, V]]
+              SimpleType: MapOps
+                CodeReferenceElement: MapOps
+                  PsiElement(identifier)('MapOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Map
+                  CodeReferenceElement: Map
+                    PsiElement(identifier)('Map')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Map[K, V]
+                  SimpleType: Map
+                    CodeReferenceElement: Map
+                      PsiElement(identifier)('Map')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScTrait: MapOps
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MapOps')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: K
+          PsiElement(identifier)('K')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: V
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('V')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: CC
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('CC')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IterableOps[_, AnyConstr, _]
+            SimpleType: IterableOps
+              CodeReferenceElement: IterableOps
+                PsiElement(identifier)('IterableOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyConstr
+                CodeReferenceElement: AnyConstr
+                  PsiElement(identifier)('AnyConstr')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: C
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('C')
+        PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: IterableOps[(K, V), Iterable, C]
+              SimpleType: IterableOps
+                CodeReferenceElement: IterableOps
+                  PsiElement(identifier)('IterableOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (K, V)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                  PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Iterable
+                  CodeReferenceElement: Iterable
+                    PsiElement(identifier)('Iterable')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: view
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('view')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: MapView[K, V]
+              SimpleType: MapView
+                CodeReferenceElement: MapView
+                  PsiElement(identifier)('MapView')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: View
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('View')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Iterable[A]
+              SimpleType: Iterable
+                CodeReferenceElement: Iterable
+                  PsiElement(identifier)('Iterable')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ConstructorInvocation
+            ParametrizedType: IterableOps[A, View, View[A]]
+              SimpleType: IterableOps
+                CodeReferenceElement: IterableOps
+                  PsiElement(identifier)('IterableOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: View
+                  CodeReferenceElement: View
+                    PsiElement(identifier)('View')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: View[A]
+                  SimpleType: View
+                    CodeReferenceElement: View
+                      PsiElement(identifier)('View')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScTrait: MapView
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MapView')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: K
+          PsiElement(identifier)('K')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: V
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('V')
+        PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: MapOps[K, V, ({ type l[X, Y] = View[(X, Y)] })#l, View[(K, V)]]
+              SimpleType: MapOps
+                CodeReferenceElement: MapOps
+                  PsiElement(identifier)('MapOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeProjection: ({ type l[X, Y] = View[(X, Y)] })#l
+                  TypeInParenthesis: ({ type l[X, Y] = View[(X, Y)] })
+                    PsiElement(()('(')
+                    CompoundType: { type l[X, Y] = View[(X, Y)] }
+                      Refinement
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        ScTypeAliasDefinition: l
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('l')
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: X
+                              PsiElement(identifier)('X')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeParameter: Y
+                              PsiElement(identifier)('Y')
+                            PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: View[(X, Y)]
+                            SimpleType: View
+                              CodeReferenceElement: View
+                                PsiElement(identifier)('View')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TupleType: (X, Y)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: X
+                                    CodeReferenceElement: X
+                                      PsiElement(identifier)('X')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Y
+                                    CodeReferenceElement: Y
+                                      PsiElement(identifier)('Y')
+                                PsiElement())(')')
+                              PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('l')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: View[(K, V)]
+                  SimpleType: View
+                    CodeReferenceElement: View
+                      PsiElement(identifier)('View')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TupleType: (K, V)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: K
+                          CodeReferenceElement: K
+                            PsiElement(identifier)('K')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement())(')')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ConstructorInvocation
+            ParametrizedType: View[(K, V)]
+              SimpleType: View
+                CodeReferenceElement: View
+                  PsiElement(identifier)('View')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (K, V)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                  PsiElement())(')')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScClass: MapDecorator
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MapDecorator')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: C
+          PsiElement(identifier)('C')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: M
+          PsiElement(identifier)('M')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HasMapOps[C]
+            SimpleType: HasMapOps
+              CodeReferenceElement: HasMapOps
+                PsiElement(identifier)('HasMapOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              PsiElement(])(']')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: HasMapOps
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('HasMapOps')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: C
+          PsiElement(identifier)('C')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDeclaration: K
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('The type of keys')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('K')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDeclaration: V
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('The type of values')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('V')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: A
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: (K, V)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: decorators
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('decorators')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: MapDecorator
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('MapDecorator')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: C
+                PsiElement(identifier)('C')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: coll
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('coll')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                PsiElement())(')')
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                Parameter: map
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('map')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: HasMapOps[C]
+                      SimpleType: HasMapOps
+                        CodeReferenceElement: HasMapOps
+                          PsiElement(identifier)('HasMapOps')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: MapDecorator[C, map.type]
+              SimpleType: MapDecorator
+                CodeReferenceElement: MapDecorator
+                  PsiElement(identifier)('MapDecorator')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: map.type
+                  CodeReferenceElement: map
+                    PsiElement(identifier)('map')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: mapHasMapOps
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('mapHasMapOps')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: CC
+                PsiElement(identifier)('CC')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Y
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('Y')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: MapOps[X, Y, ({ type l[X, +Y] = IterableOps[_, AnyConstr, _] })#l, _]
+                  SimpleType: MapOps
+                    CodeReferenceElement: MapOps
+                      PsiElement(identifier)('MapOps')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Y
+                      CodeReferenceElement: Y
+                        PsiElement(identifier)('Y')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeProjection: ({ type l[X, +Y] = IterableOps[_, AnyConstr, _] })#l
+                      TypeInParenthesis: ({ type l[X, +Y] = IterableOps[_, AnyConstr, _] })
+                        PsiElement(()('(')
+                        CompoundType: { type l[X, +Y] = IterableOps[_, AnyConstr, _] }
+                          Refinement
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            ScTypeAliasDefinition: l
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('l')
+                              TypeParameterClause
+                                PsiElement([)('[')
+                                TypeParameter: X
+                                  PsiElement(identifier)('X')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeParameter: Y
+                                  PsiElement(identifier)('+')
+                                  PsiElement(identifier)('Y')
+                                PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              ParametrizedType: IterableOps[_, AnyConstr, _]
+                                SimpleType: IterableOps
+                                  CodeReferenceElement: IterableOps
+                                    PsiElement(identifier)('IterableOps')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  WildcardType: _
+                                    PsiElement(_)('_')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: AnyConstr
+                                    CodeReferenceElement: AnyConstr
+                                      PsiElement(identifier)('AnyConstr')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  WildcardType: _
+                                    PsiElement(_)('_')
+                                  PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
+                        PsiElement())(')')
+                      PsiElement(#)('#')
+                      PsiElement(identifier)('l')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: K0
+                PsiElement(identifier)('K0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: V0
+                PsiElement(identifier)('V0')
+              PsiElement(])(']')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            CompoundType: HasMapOps[CC[K0, V0]] { type K = K0; type V = V0 }
+              ParametrizedType: HasMapOps[CC[K0, V0]]
+                SimpleType: HasMapOps
+                  CodeReferenceElement: HasMapOps
+                    PsiElement(identifier)('HasMapOps')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: CC[K0, V0]
+                    SimpleType: CC
+                      CodeReferenceElement: CC
+                        PsiElement(identifier)('CC')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: K0
+                        CodeReferenceElement: K0
+                          PsiElement(identifier)('K0')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: V0
+                        CodeReferenceElement: V0
+                          PsiElement(identifier)('V0')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              Refinement
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: K
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('K')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: K0
+                    CodeReferenceElement: K0
+                      PsiElement(identifier)('K0')
+                PsiElement(;)(';')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: V
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('V')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: V0
+                    CodeReferenceElement: V0
+                      PsiElement(identifier)('V0')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -9,3 +9,358 @@ trait OrderedSet[T <: Ordered[T]] extends Iterable[T, Ordered] {
   type MyType[x <: Ordered[x]] = OrderedSet[x]
 }
 -----
+ScalaFile
+  ScTrait: Iterable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Iterable')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Bound[A]
+          SimpleType: Bound
+            CodeReferenceElement: Bound
+              PsiElement(identifier)('Bound')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Bound
+        PsiElement(identifier)('Bound')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: MyType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MyType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: x
+              PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Bound[x]
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: x
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Iterable[x, Bound]
+            SimpleType: Iterable
+              CodeReferenceElement: Iterable
+                PsiElement(identifier)('Iterable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Bound
+                CodeReferenceElement: Bound
+                  PsiElement(identifier)('Bound')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Bound[B]
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyType[B]
+            SimpleType: MyType
+              CodeReferenceElement: MyType
+                PsiElement(identifier)('MyType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: flatMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('flatMap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Bound[B]
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => MyType[B]
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: MyType[B]
+                      SimpleType: MyType
+                        CodeReferenceElement: MyType
+                          PsiElement(identifier)('MyType')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyType[B]
+            SimpleType: MyType
+              CodeReferenceElement: MyType
+                PsiElement(identifier)('MyType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: filter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('filter')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => Boolean
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyType[A]
+            SimpleType: MyType
+              CodeReferenceElement: MyType
+                PsiElement(identifier)('MyType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: OrderedSet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OrderedSet')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Ordered[T]
+          SimpleType: Ordered
+            CodeReferenceElement: Ordered
+              PsiElement(identifier)('Ordered')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Iterable[T, Ordered]
+            SimpleType: Iterable
+              CodeReferenceElement: Iterable
+                PsiElement(identifier)('Iterable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Ordered
+                CodeReferenceElement: Ordered
+                  PsiElement(identifier)('Ordered')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: MyType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MyType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: x
+              PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Ordered[x]
+                SimpleType: Ordered
+                  CodeReferenceElement: Ordered
+                    PsiElement(identifier)('Ordered')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: x
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: OrderedSet[x]
+            SimpleType: OrderedSet
+              CodeReferenceElement: OrderedSet
+                PsiElement(identifier)('OrderedSet')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

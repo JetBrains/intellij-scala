@@ -148,3 +148,220 @@ class Test3C extends Test3B with Test3M;
 
 //############################################################################
 -----
+ScalaFile
+  PsiComment(comment)('//############################################################################')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Compile Time Bugs & Test Cases')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//############################################################################')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.lang.System
+        CodeReferenceElement: java.lang
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('lang')
+        PsiElement(.)('.')
+        PsiElement(identifier)('System')
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// to avoid name clash with .NET's library')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('//############################################################################')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Test 0')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/*\nclass Test0Foo[X];\n\nobject Test0Test {\n  type Gen[A] = Test0Foo[A];\n  class Tic(g: Test0Test.Gen[Int]);\n  class Tac(g:           Gen[Int]);\n}\n\n//############################################################################\n// Test 1 - Single types in lambda lift\n\nobject Test1 {\n  def main(args: Array[String]): Unit = {\n    List[args.type](args);\n  }\n  def foo[X]: Any = {\n    def bar(x: X) = List(x);\n    0\n  }\n}\n\n//############################################################################\n// Test 2 - Local variables owned by other local variables\n\nclass Test2_1(i: Int) {\n  val t = {\n    val x = {\n      val y = {\n        val z = i;\n        z;\n      };\n    };\n  };\n  val x = {\n    val y = {\n      val z = i;\n      z;\n    };\n  };\n  val y = {\n    val z = i;\n    z;\n  };\n  val z2_1 = i;\n}\n\nclass Test2_2(i: Int) {\n  {\n    val t = {\n      val x = {\n        val y = {\n          val z = i;\n          z;\n        };\n      };\n    };\n    val x = {\n      val y = {\n        val z = i;\n        z;\n      };\n    };\n    val y = {\n      val z = i;\n      z;\n    };\n    val z2_2 = i;\n    0\n  }\n}\n\nclass Test2_3() {\n\n  def this(i: Int) = {\n    this();\n    val t = {\n      val x = {\n        val y = {\n          val z = i;\n          z;\n        };\n      };\n    };\n    val x = {\n      val y = {\n        val z = i;\n        z;\n      };\n    };\n    val y = {\n      val z = i;\n      z;\n    };\n    val z2_3 = i;\n  }\n\n  def test(i: Int): Int = {\n    val t = {\n      val x = {\n        val y = {\n          val z = i;\n          z;\n        };\n      };\n    };\n    val x = {\n      val y = {\n        val z = i;\n        z;\n      };\n    };\n    val y = {\n      val z = i;\n      z;\n    };\n    val z_test = i;\n    0\n  }\n\n}\n*/')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//############################################################################')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Test 3 - Super Calls with Mixins')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test3Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Test3A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3A')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fun
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fun')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: fun
+            PsiElement(identifier)('fun')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test3B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Test3A[Test3Foo]
+            SimpleType: Test3A
+              CodeReferenceElement: Test3A
+                PsiElement(identifier)('Test3A')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Test3Foo
+                CodeReferenceElement: Test3Foo
+                  PsiElement(identifier)('Test3Foo')
+              PsiElement(])(']')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Test3M
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3M')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Test3A[Test3Foo]
+            SimpleType: Test3A
+              CodeReferenceElement: Test3A
+                PsiElement(identifier)('Test3A')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Test3Foo
+                CodeReferenceElement: Test3Foo
+                  PsiElement(identifier)('Test3Foo')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fun
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fun')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Test3Foo
+            CodeReferenceElement: Test3Foo
+              PsiElement(identifier)('Test3Foo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: super.fun
+            SuperReference
+              PsiElement(super)('super')
+            PsiElement(.)('.')
+            PsiElement(identifier)('fun')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test3C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Test3B
+            CodeReferenceElement: Test3B
+              PsiElement(identifier)('Test3B')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Test3M
+            CodeReferenceElement: Test3M
+              PsiElement(identifier)('Test3M')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('//############################################################################')

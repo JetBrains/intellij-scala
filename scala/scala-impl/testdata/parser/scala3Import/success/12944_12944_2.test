@@ -4,3 +4,65 @@ object Test2 {
   val fails = summon[Bar[2] =:= "2"]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Test1
+        PsiElement(identifier)('Test1')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fails
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fails
+              PsiElement(identifier)('fails')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: Bar[2] =:= "2"
+                ParametrizedType: Bar[2]
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    LiteralType: 2
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: "2"
+                  StringLiteral
+                    PsiElement(string content)('"2"')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

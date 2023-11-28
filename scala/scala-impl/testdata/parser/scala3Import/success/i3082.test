@@ -6,3 +6,130 @@ object Test {
   assert(foo(11) == 0)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: arg1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('arg1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: bar
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('bar')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: arg1
+                  PsiElement(identifier)('arg1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ==
+                  PsiElement(identifier)('==')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: bar
+                PsiElement(identifier)('bar')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: assert
+            PsiElement(identifier)('assert')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              MethodCall
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('11')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

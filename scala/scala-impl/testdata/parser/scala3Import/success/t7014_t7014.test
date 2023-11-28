@@ -2,3 +2,21 @@ package t7014
 
 import ThreadSafetyLevel.COMPLETELY_THREADSAFE // refer to annotation so it gets parsed
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: t7014
+      PsiElement(identifier)('t7014')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: ThreadSafetyLevel.COMPLETELY_THREADSAFE
+          CodeReferenceElement: ThreadSafetyLevel
+            PsiElement(identifier)('ThreadSafetyLevel')
+          PsiElement(.)('.')
+          PsiElement(identifier)('COMPLETELY_THREADSAFE')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// refer to annotation so it gets parsed')

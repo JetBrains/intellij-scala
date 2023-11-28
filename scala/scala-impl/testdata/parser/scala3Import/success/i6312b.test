@@ -5,3 +5,86 @@ class Foo {
   }
 }
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: scala.annotation.compileTimeOnly
+                        CodeReferenceElement: scala.annotation.compileTimeOnly
+                          CodeReferenceElement: scala.annotation
+                            CodeReferenceElement: scala
+                              PsiElement(identifier)('scala')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('annotation')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('compileTimeOnly')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"some message"')
+                        PsiElement())(')')
+              Modifiers
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res
+                  PsiElement(identifier)('res')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: res
+              PsiElement(identifier)('res')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

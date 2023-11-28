@@ -8,3 +8,174 @@ def test =
   !x = 10
   println(!x)
 -----
+ScalaFile
+  ScClass: Ptr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ptr')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: `unary_!`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`unary_!`')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: value
+            PsiElement(identifier)('value')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: `unary_!_=`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`unary_!_=`')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          AssignStatement
+            ReferenceExpression: this.value
+              ThisReference
+                PsiElement(this)('this')
+              PsiElement(.)('.')
+              PsiElement(identifier)('value')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: value
+              PsiElement(identifier)('value')
+        PsiWhiteSpace('\n')
+        End: Ptr
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ptr')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Ptr
+            PsiElement(identifier)('Ptr')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('9')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      AssignStatement
+        PrefixExpression
+          ReferenceExpression: !
+            PsiElement(identifier)('!')
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('10')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          PrefixExpression
+            ReferenceExpression: !
+              PsiElement(identifier)('!')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+          PsiElement())(')')

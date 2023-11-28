@@ -10,3 +10,87 @@ $ javac -cp .:$SCALA_HOME/lib/scala-library.jar  -Xprint 'A$X$1'
   }
 */
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScClass: X
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('X')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: A[T]
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  PsiComment(BlockComment)('/*\n$ scalac a.scala\n$ javac -cp .:$SCALA_HOME/lib/scala-library.jar  -Xprint 'A$X$1'\n\n  public class X$1 extends A<java.lang.Object> implements scala.ScalaObject {\n    public X$1(A<U> null);\n  }\n*/')

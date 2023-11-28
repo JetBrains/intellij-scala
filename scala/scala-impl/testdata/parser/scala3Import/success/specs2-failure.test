@@ -19,3 +19,418 @@ object Test:
       s.replaceAll(tag, (s: String) => java.util.regex.Matcher.quoteReplacement(s.replaceAll(p*)))
 
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: util.matching.Regex
+        CodeReferenceElement: util.matching
+          CodeReferenceElement: util
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('matching')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Regex')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: util.matching.Regex.Match
+        CodeReferenceElement: util.matching.Regex
+          CodeReferenceElement: util.matching
+            CodeReferenceElement: util
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(identifier)('matching')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Regex')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Match')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    PsiComment(comment)('// Demonstrate what used to be a failure in specs2, before we refined')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// the scheme when not to typecheck a function argument again.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        Extension on String
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace('\n\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: replaceAll
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('replaceAll')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: pairs
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('pairs')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      TupleType: (String, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(identifier)('*')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                MethodCall
+                  ReferenceExpression: pairs.foldLeft
+                    ReferenceExpression: pairs
+                      PsiElement(identifier)('pairs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('foldLeft')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: s
+                      PsiElement(identifier)('s')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ArgumentList
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: res
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('res')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Parameter: cur
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('cur')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace('\n        ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: res.replaceAll
+                            ReferenceExpression: res
+                              PsiElement(identifier)('res')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('replaceAll')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: cur._1
+                              ReferenceExpression: cur
+                                PsiElement(identifier)('cur')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('_1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: cur._2
+                              ReferenceExpression: cur
+                                PsiElement(identifier)('cur')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('_2')
+                            PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: replaceAll
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('replaceAll')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: exp
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('exp')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: f
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('f')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: String => String
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                ReferenceExpression: new Regex(exp).replaceAllIn
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Regex
+                            CodeReferenceElement: Regex
+                              PsiElement(identifier)('Regex')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: exp
+                              PsiElement(identifier)('exp')
+                            PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('replaceAllIn')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: s
+                    PsiElement(identifier)('s')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: m
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('m')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Match
+                              CodeReferenceElement: Match
+                                PsiElement(identifier)('Match')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: m.group(0).replace
+                            MethodCall
+                              ReferenceExpression: m.group
+                                ReferenceExpression: m
+                                  PsiElement(identifier)('m')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('group')
+                              ArgumentList
+                                PsiElement(()('(')
+                                IntegerLiteral
+                                  PsiElement(integer)('0')
+                                PsiElement())(')')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('replace')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('"\\"')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            StringLiteral
+                              PsiElement(string content)('"\\\\"')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: replaceInsideTag
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('replaceInsideTag')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: tag
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('tag')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: p
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('p')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      TupleType: (String, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                      PsiElement(identifier)('*')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                ReferenceExpression: s.replaceAll
+                  ReferenceExpression: s
+                    PsiElement(identifier)('s')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('replaceAll')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: tag
+                    PsiElement(identifier)('tag')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: s
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('s')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: java.util.regex.Matcher.quoteReplacement
+                        ReferenceExpression: java.util.regex.Matcher
+                          ReferenceExpression: java.util.regex
+                            ReferenceExpression: java.util
+                              ReferenceExpression: java
+                                PsiElement(identifier)('java')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('util')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('regex')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Matcher')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('quoteReplacement')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: s.replaceAll
+                            ReferenceExpression: s
+                              PsiElement(identifier)('s')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('replaceAll')
+                          ArgumentList
+                            PsiElement(()('(')
+                            TypedExpression
+                              ReferenceExpression: p
+                                PsiElement(identifier)('p')
+                              SequenceArgumentType
+                                PsiElement(identifier)('*')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                  PsiElement())(')')

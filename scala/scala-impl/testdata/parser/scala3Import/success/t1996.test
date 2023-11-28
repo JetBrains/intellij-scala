@@ -18,3 +18,269 @@ class A {
 case class ValDef(a: A)
 
 -----
+ScalaFile
+  ScObject: forbug
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('forbug')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l1
+              PsiElement(identifier)('l1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: ValDef
+                      PsiElement(identifier)('ValDef')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: ValDef
+                      PsiElement(identifier)('ValDef')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: e1s
+                    PsiElement(identifier)('e1s')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: e2s
+                    PsiElement(identifier)('e2s')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: l1.zip
+                  ReferenceExpression: l1
+                    PsiElement(identifier)('l1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('zip')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: l1
+                    PsiElement(identifier)('l1')
+                  PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n       ')
+            Generator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: e1
+                    PsiElement(identifier)('e1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: e2
+                    PsiElement(identifier)('e2')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: e1s.zip
+                  ReferenceExpression: e1s
+                    PsiElement(identifier)('e1s')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('zip')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: e2s
+                    PsiElement(identifier)('e2s')
+                  PsiElement())(')')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: e1.a.doSome
+                ReferenceExpression: e1.a
+                  ReferenceExpression: e1
+                    PsiElement(identifier)('e1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('a')
+                PsiElement(.)('.')
+                PsiElement(identifier)('doSome')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('20')
+                PsiElement())(')')
+            PsiWhiteSpace('\n')
+            PsiComment(comment)('//    ()')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: doSome
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('doSome')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: this.type
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ThisReference
+              PsiElement(this)('this')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ValDef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ValDef')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

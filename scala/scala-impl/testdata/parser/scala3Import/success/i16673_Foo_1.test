@@ -1,2 +1,47 @@
 final class Foo(_that: Foo) extends FooStub(_that)
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: _that
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('_that')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: FooStub
+            CodeReferenceElement: FooStub
+              PsiElement(identifier)('FooStub')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _that
+              PsiElement(identifier)('_that')
+            PsiElement())(')')

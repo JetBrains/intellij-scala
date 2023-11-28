@@ -21,3 +21,297 @@ trait Blox { self: MyCodes =>
 abstract class MyCodes extends AnyRef with Ops with Blox {
 }
 -----
+ScalaFile
+  ScTrait: Ops
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ops')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MyCodes
+            CodeReferenceElement: MyCodes
+              PsiElement(identifier)('MyCodes')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScClass: Instru
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Instru')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: opcodes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('opcodes')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScClass: SWITCH
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('SWITCH')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      ClassParameter: i
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('i')
+                        PsiElement(:)(':')
+                        ParameterType
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Instru
+                        CodeReferenceElement: Instru
+                          PsiElement(identifier)('Instru')
+              PsiWhiteSpace('\n    ')
+              ScObject: EmptyInstr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('EmptyInstr')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Instru
+                        CodeReferenceElement: Instru
+                          PsiElement(identifier)('Instru')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Blox
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Blox')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MyCodes
+            CodeReferenceElement: MyCodes
+              PsiElement(identifier)('MyCodes')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: opcodes
+              PsiElement(identifier)('opcodes')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScClass: Basick
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Basick')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: foo
+                    PsiElement(identifier)('foo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Instru
+                  CodeReferenceElement: Instru
+                    PsiElement(identifier)('Instru')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                NullLiteral
+                  PsiElement(null)('null')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('bar')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchStatement
+                  ReferenceExpression: foo
+                    PsiElement(identifier)('foo')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: SWITCH
+                          PsiElement(identifier)('SWITCH')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: i
+                            PsiElement(identifier)('i')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        ReferenceExpression: i
+                          PsiElement(identifier)('i')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      StableElementPattern
+                        ReferenceExpression: EmptyInstr
+                          PsiElement(identifier)('EmptyInstr')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyCodes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyCodes')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Ops
+            CodeReferenceElement: Ops
+              PsiElement(identifier)('Ops')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Blox
+            CodeReferenceElement: Blox
+              PsiElement(identifier)('Blox')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -8,3 +8,168 @@ object Test {
   loaded.foo("")
 }
 -----
+ScalaFile
+  ScTrait: LoadedOver
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LoadedOver')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Int
+                    PsiElement(identifier)('Int')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: loaded
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('loaded')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: AnyRef with LoadedOver[Int]
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: LoadedOver[Int]
+              SimpleType: LoadedOver
+                CodeReferenceElement: LoadedOver
+                  PsiElement(identifier)('LoadedOver')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('""')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: loaded.foo
+            ReferenceExpression: loaded
+              PsiElement(identifier)('loaded')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foo')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('""')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

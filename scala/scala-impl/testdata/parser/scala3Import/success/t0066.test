@@ -6,3 +6,227 @@ class GBTree[A, B] {
 
 }
 -----
+ScalaFile
+  ScClass: GBTree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GBTree')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScClass: Tree
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tree')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n    ')
+        ScClass: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                PsiElement(,)(',')
+                ClassParameter: smaller
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('smaller')
+                  PsiElement(:)(':')
+                  ParameterType
+                    ParametrizedType: Node[A,B]
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                ClassParameter: bigger
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('bigger')
+                  PsiElement(:)(':')
+                  ParameterType
+                    ParametrizedType: Node[A,B]
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Tree[A,B]
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(])(']')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n    ')
+        ScClass: Nil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Nil')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Tree[A,B]
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(])(']')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

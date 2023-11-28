@@ -23,3 +23,508 @@ object InfiniteLoopMatchType {
     }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int.S
+        CodeReferenceElement: scala.compiletime.ops.int
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('int')
+        PsiElement(.)('.')
+        PsiElement(identifier)('S')
+  PsiWhiteSpace('\n\n')
+  ScObject: InfiniteLoopMatchType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InfiniteLoopMatchType')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            MethodCall
+              ReferenceExpression: testProd
+                PsiElement(identifier)('testProd')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('10')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScFunctionDefinition: testProd
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testProd')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: ev
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ev')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: (a.type * b.type) =:= (b.type * a.type)
+                    TypeInParenthesis: (a.type * b.type)
+                      PsiElement(()('(')
+                      InfixType: a.type * b.type
+                        SimpleType: a.type
+                          CodeReferenceElement: a
+                            PsiElement(identifier)('a')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *
+                          PsiElement(identifier)('*')
+                        PsiWhiteSpace(' ')
+                        SimpleType: b.type
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    TypeInParenthesis: (b.type * a.type)
+                      PsiElement(()('(')
+                      InfixType: b.type * a.type
+                        SimpleType: b.type
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *
+                          PsiElement(identifier)('*')
+                        PsiWhiteSpace(' ')
+                        SimpleType: a.type
+                          CodeReferenceElement: a
+                            PsiElement(identifier)('a')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n\n    ')
+        ScTypeAliasDefinition: *
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('*')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: A match {
+        case 0 => 0
+        case _ => MultiplyLoop[A, B, 0]
+    }
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+              PsiWhiteSpace('\n        ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: MultiplyLoop[A, B, 0]
+                  SimpleType: MultiplyLoop
+                    CodeReferenceElement: MultiplyLoop
+                      PsiElement(identifier)('MultiplyLoop')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 0
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScTypeAliasDefinition: MultiplyLoop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MultiplyLoop')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Acc
+              PsiElement(identifier)('Acc')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: A match {
+        case 0 => Acc
+        case S[aMinusOne] => MultiplyLoop[aMinusOne, B, B + Acc]
+    }
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Acc
+                  CodeReferenceElement: Acc
+                    PsiElement(identifier)('Acc')
+              PsiWhiteSpace('\n        ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: S[aMinusOne]
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: aMinusOne
+                      PsiElement(identifier)('aMinusOne')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: MultiplyLoop[aMinusOne, B, B + Acc]
+                  SimpleType: MultiplyLoop
+                    CodeReferenceElement: MultiplyLoop
+                      PsiElement(identifier)('MultiplyLoop')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: aMinusOne
+                      CodeReferenceElement: aMinusOne
+                        PsiElement(identifier)('aMinusOne')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    InfixType: B + Acc
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Acc
+                        CodeReferenceElement: Acc
+                          PsiElement(identifier)('Acc')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n    ')
+        ScTypeAliasDefinition: +
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: A match {
+        case 0 => B
+        case S[aMinusOne] => aMinusOne + S[B]
+    }
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiWhiteSpace('\n        ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: S[aMinusOne]
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: aMinusOne
+                      PsiElement(identifier)('aMinusOne')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: aMinusOne + S[B]
+                  SimpleType: aMinusOne
+                    CodeReferenceElement: aMinusOne
+                      PsiElement(identifier)('aMinusOne')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: S[B]
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -16,3 +16,414 @@ class Inliner:
 
 object Inliner
 -----
+ScalaFile
+  ScClass: Tree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tree')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Inlined
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inlined')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: call
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('call')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Tree
+                CodeReferenceElement: Tree
+                  PsiElement(identifier)('Tree')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: bindings
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('bindings')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: List[String]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: expr
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('expr')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Tree
+                CodeReferenceElement: Tree
+                  PsiElement(identifier)('Tree')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Tree
+            CodeReferenceElement: Tree
+              PsiElement(identifier)('Tree')
+  PsiWhiteSpace('\n')
+  ScObject: EmptyTree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EmptyTree')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Tree
+            CodeReferenceElement: Tree
+              PsiElement(identifier)('Tree')
+  PsiWhiteSpace('\n')
+  ScClass: Context
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Context')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Transform
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Transform')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: transform
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('transform')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tree
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tree')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Tree
+                    CodeReferenceElement: Tree
+                      PsiElement(identifier)('Tree')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Context
+                    CodeReferenceElement: Context
+                      PsiElement(identifier)('Context')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Tree
+            CodeReferenceElement: Tree
+              PsiElement(identifier)('Tree')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: tree
+            PsiElement(identifier)('tree')
+  PsiWhiteSpace('\n\n')
+  ScClass: Inliner
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inliner')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: enclosingInlineds
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: enclosingInlineds
+              PsiElement(identifier)('enclosingInlineds')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[String]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Nil
+            PsiElement(identifier)('Nil')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: expandMacro
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('expandMacro')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Context
+                    CodeReferenceElement: Context
+                      PsiElement(identifier)('Context')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: inlinedNormalizer
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: inlinedNormalizer
+                  PsiElement(identifier)('inlinedNormalizer')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Transform
+                        CodeReferenceElement: Transform
+                          PsiElement(identifier)('Transform')
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScFunctionDefinition: transform
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(override)('override')
+                      PsiWhiteSpace(' ')
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('transform')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: tree
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('tree')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                          PsiElement())(')')
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement(using)('using')
+                          PsiWhiteSpace(' ')
+                          Parameter: <anonymous>
+                            ParameterType
+                              SimpleType: Context
+                                CodeReferenceElement: Context
+                                  PsiElement(identifier)('Context')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MatchStatement
+                        ReferenceExpression: tree
+                          PsiElement(identifier)('tree')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            ConstructorPattern
+                              CodeReferenceElement: Inlined
+                                PsiElement(identifier)('Inlined')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                StableElementPattern
+                                  ReferenceExpression: EmptyTree
+                                    PsiElement(identifier)('EmptyTree')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                StableElementPattern
+                                  ReferenceExpression: Nil
+                                    PsiElement(identifier)('Nil')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: expr
+                                  PsiElement(identifier)('expr')
+                                PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            Guard
+                              PsiElement(if)('if')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: enclosingInlineds.isEmpty
+                                ReferenceExpression: enclosingInlineds
+                                  PsiElement(identifier)('enclosingInlineds')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('isEmpty')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              MethodCall
+                                ReferenceExpression: transform
+                                  PsiElement(identifier)('transform')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: expr
+                                    PsiElement(identifier)('expr')
+                                  PsiElement())(')')
+                          PsiWhiteSpace('\n        ')
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              MethodCall
+                                ReferenceExpression: super.transform
+                                  SuperReference
+                                    PsiElement(super)('super')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('transform')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: tree
+                                    PsiElement(identifier)('tree')
+                                  PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: Inliner
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inliner')
+    ExtendsBlock
+      <empty list>

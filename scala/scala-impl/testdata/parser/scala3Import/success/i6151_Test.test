@@ -2,3 +2,42 @@ import Expect.*
 @Outcome(ExpectVal)
 class SimpleTest
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Expect
+        PsiElement(identifier)('Expect')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScClass: SimpleTest
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Outcome
+              CodeReferenceElement: Outcome
+                PsiElement(identifier)('Outcome')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: ExpectVal
+                PsiElement(identifier)('ExpectVal')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SimpleTest')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

@@ -17,3 +17,480 @@ object PL {
     plensFamily(_.fold(z => Some(IndexedStore(lazySome(_), z)), None))
 }
 -----
+ScalaFile
+  PsiComment(comment)('// Minimized from PLens.scala in scalaz')
+  PsiWhiteSpace('\n\n')
+  ScClass: PLensFamily
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PLensFamily')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A1
+        PsiElement(identifier)('A1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A2
+        PsiElement(identifier)('A2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B1
+        PsiElement(identifier)('B1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B2
+        PsiElement(identifier)('B2')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: LazyOption
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LazyOption')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A3
+        PsiElement(identifier)('A3')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fold
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fold')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: some
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('some')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (=> A3) => X
+                    TypeInParenthesis: (=> A3)
+                      PsiElement(()('(')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A3
+                        CodeReferenceElement: A3
+                          PsiElement(identifier)('A3')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: none
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('none')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: IndexedStore
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IndexedStore')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A4
+        PsiElement(identifier)('A4')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B4
+        PsiElement(identifier)('B4')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: run
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('run')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TupleType: (A4 => B4, I)
+                PsiElement(()('(')
+                TypesList
+                  FunctionalType: A4 => B4
+                    SimpleType: A4
+                      CodeReferenceElement: A4
+                        PsiElement(identifier)('A4')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B4
+                      CodeReferenceElement: B4
+                        PsiElement(identifier)('B4')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: I
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
+                PsiElement())(')')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: PL
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PL')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: plensFamily
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('plensFamily')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1x
+              PsiElement(identifier)('A1x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2x
+              PsiElement(identifier)('A2x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B1x
+              PsiElement(identifier)('B1x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B2x
+              PsiElement(identifier)('B2x')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A1x => Option[IndexedStore[B1x, B2x, A2x]]
+                    SimpleType: A1x
+                      CodeReferenceElement: A1x
+                        PsiElement(identifier)('A1x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Option[IndexedStore[B1x, B2x, A2x]]
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: IndexedStore[B1x, B2x, A2x]
+                          SimpleType: IndexedStore
+                            CodeReferenceElement: IndexedStore
+                              PsiElement(identifier)('IndexedStore')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: B1x
+                              CodeReferenceElement: B1x
+                                PsiElement(identifier)('B1x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: B2x
+                              CodeReferenceElement: B2x
+                                PsiElement(identifier)('B2x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: A2x
+                              CodeReferenceElement: A2x
+                                PsiElement(identifier)('A2x')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: PLensFamily[A1x, A2x, B1x, B2x]
+            SimpleType: PLensFamily
+              CodeReferenceElement: PLensFamily
+                PsiElement(identifier)('PLensFamily')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A1x
+                CodeReferenceElement: A1x
+                  PsiElement(identifier)('A1x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A2x
+                CodeReferenceElement: A2x
+                  PsiElement(identifier)('A2x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B1x
+                CodeReferenceElement: B1x
+                  PsiElement(identifier)('B1x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B2x
+                CodeReferenceElement: B2x
+                  PsiElement(identifier)('B2x')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: lazySome
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('lazySome')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: LazyOption[T]
+            SimpleType: LazyOption
+              CodeReferenceElement: LazyOption
+                PsiElement(identifier)('LazyOption')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: lazySomePLensFamily
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('lazySomePLensFamily')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1y
+              PsiElement(identifier)('A1y')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2y
+              PsiElement(identifier)('A2y')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: PLensFamily[LazyOption[A1y], LazyOption[A2y], A1y, A2y]
+            SimpleType: PLensFamily
+              CodeReferenceElement: PLensFamily
+                PsiElement(identifier)('PLensFamily')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: LazyOption[A1y]
+                SimpleType: LazyOption
+                  CodeReferenceElement: LazyOption
+                    PsiElement(identifier)('LazyOption')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A1y
+                    CodeReferenceElement: A1y
+                      PsiElement(identifier)('A1y')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: LazyOption[A2y]
+                SimpleType: LazyOption
+                  CodeReferenceElement: LazyOption
+                    PsiElement(identifier)('LazyOption')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A2y
+                    CodeReferenceElement: A2y
+                      PsiElement(identifier)('A2y')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A1y
+                CodeReferenceElement: A1y
+                  PsiElement(identifier)('A1y')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A2y
+                CodeReferenceElement: A2y
+                  PsiElement(identifier)('A2y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: plensFamily
+              PsiElement(identifier)('plensFamily')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: _.fold
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('fold')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: z
+                          PsiElement(identifier)('z')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Some
+                        PsiElement(identifier)('Some')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: IndexedStore
+                            PsiElement(identifier)('IndexedStore')
+                          ArgumentList
+                            PsiElement(()('(')
+                            MethodCall
+                              ReferenceExpression: lazySome
+                                PsiElement(identifier)('lazySome')
+                              ArgumentList
+                                PsiElement(()('(')
+                                UnderscoreSection
+                                  PsiElement(_)('_')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: z
+                              PsiElement(identifier)('z')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

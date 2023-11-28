@@ -54,3 +54,809 @@ def outer3Local = {
 @main def Test =
   outer3Local
 -----
+ScalaFile
+  ScTrait: Mirr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mirr')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: MirroredTp
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MirroredTp')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Elems
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Elems')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: MirrP
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MirrP')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Mirr
+            CodeReferenceElement: Mirr
+              PsiElement(identifier)('Mirr')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fromProduct
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromProduct')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Product
+                    CodeReferenceElement: Product
+                      PsiElement(identifier)('Product')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MirroredTp
+            CodeReferenceElement: MirroredTp
+              PsiElement(identifier)('MirroredTp')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: MirrS
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MirrS')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Mirr
+            CodeReferenceElement: Mirr
+              PsiElement(identifier)('Mirr')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: outer3Local
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('outer3Local')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScClass: Wrapper
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Wrapper')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            <empty list>
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScObject: Nested
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Nested')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScTrait: Color
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(sealed)('sealed')
+                    PsiWhiteSpace(' ')
+                    PsiElement(trait)('trait')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('Color')
+                    ExtendsBlock
+                      <empty list>
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: wrapper
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: wrapper
+            PsiElement(identifier)('wrapper')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Wrapper
+                  CodeReferenceElement: Wrapper
+                    PsiElement(identifier)('Wrapper')
+      PsiWhiteSpace('\n  ')
+      ScImportStatement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        ImportExpression
+          CodeReferenceElement: wrapper.Nested.Color
+            CodeReferenceElement: wrapper.Nested
+              CodeReferenceElement: wrapper
+                PsiElement(identifier)('wrapper')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Nested')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Color')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: Inner
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Inner')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScObject: Red
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Red')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+            PsiWhiteSpace('\n    ')
+            ScObject: Green
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Green')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+            PsiWhiteSpace('\n    ')
+            ScObject: Blue
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Blue')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+            PsiWhiteSpace('\n    ')
+            ScClass: Rgb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Rgb')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    ClassParameter: hex
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('hex')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+            PsiWhiteSpace('\n    ')
+            ScObject: Rgb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Rgb')
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: CallSite
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('CallSite')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: run
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('run')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              BlockExpression
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: Inner
+                      PsiElement(identifier)('Inner')
+                    PsiElement(.)('.')
+                    PsiElement(*)('*')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: M
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: M
+                      PsiElement(identifier)('M')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (MirrS { type MirroredTp = Color; type Elems = (Inner.Red.type, Inner.Green.type, Inner.Blue.type, Inner.Rgb) })
+                    PsiElement(()('(')
+                    CompoundType: MirrS { type MirroredTp = Color; type Elems = (Inner.Red.type, Inner.Green.type, Inner.Blue.type, Inner.Rgb) }
+                      SimpleType: MirrS
+                        CodeReferenceElement: MirrS
+                          PsiElement(identifier)('MirrS')
+                      PsiWhiteSpace(' ')
+                      Refinement
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        ScTypeAliasDefinition: MirroredTp
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('MirroredTp')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Color
+                            CodeReferenceElement: Color
+                              PsiElement(identifier)('Color')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        ScTypeAliasDefinition: Elems
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('Elems')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          TupleType: (Inner.Red.type, Inner.Green.type, Inner.Blue.type, Inner.Rgb)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Inner.Red.type
+                                CodeReferenceElement: Inner.Red
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Red')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Green.type
+                                CodeReferenceElement: Inner.Green
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Green')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Blue.type
+                                CodeReferenceElement: Inner.Blue
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Blue')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Rgb
+                                CodeReferenceElement: Inner.Rgb
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Rgb')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace('\n        ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: MirrS
+                            CodeReferenceElement: MirrS
+                              PsiElement(identifier)('MirrS')
+                      PsiWhiteSpace(' ')
+                      ScTemplateBody
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n          ')
+                        ScTypeAliasDefinition: MirroredTp
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('MirroredTp')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Color
+                            CodeReferenceElement: Color
+                              PsiElement(identifier)('Color')
+                        PsiWhiteSpace('\n          ')
+                        ScTypeAliasDefinition: Elems
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('Elems')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          TupleType: (Inner.Red.type, Inner.Green.type, Inner.Blue.type, Inner.Rgb)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Inner.Red.type
+                                CodeReferenceElement: Inner.Red
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Red')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Green.type
+                                CodeReferenceElement: Inner.Green
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Green')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Blue.type
+                                CodeReferenceElement: Inner.Blue
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Blue')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Inner.Rgb
+                                CodeReferenceElement: Inner.Rgb
+                                  CodeReferenceElement: Inner
+                                    PsiElement(identifier)('Inner')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Rgb')
+                            PsiElement())(')')
+                        PsiWhiteSpace('\n        ')
+                        PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                ScPatternDefinition: M_Rgb
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: M_Rgb
+                      PsiElement(identifier)('M_Rgb')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  BlockExpression
+                    PsiWhiteSpace('\n        ')
+                    ScTypeAliasDefinition: TRgb
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('TRgb')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Tuple.Elem[M.Elems, 3]
+                        SimpleType: Tuple.Elem
+                          CodeReferenceElement: Tuple.Elem
+                            CodeReferenceElement: Tuple
+                              PsiElement(identifier)('Tuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Elem')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: M.Elems
+                            CodeReferenceElement: M.Elems
+                              CodeReferenceElement: M
+                                PsiElement(identifier)('M')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Elems')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 3
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n        ')
+                    TypedExpression
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              SimpleType: MirrP
+                                CodeReferenceElement: MirrP
+                                  PsiElement(identifier)('MirrP')
+                          PsiWhiteSpace(' ')
+                          ScTemplateBody
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n          ')
+                            ScTypeAliasDefinition: MirroredTp
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('MirroredTp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: TRgb
+                                CodeReferenceElement: TRgb
+                                  PsiElement(identifier)('TRgb')
+                            PsiWhiteSpace('\n          ')
+                            ScTypeAliasDefinition: Elems
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Elems')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              InfixType: Int *: EmptyTuple
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                SimpleType: EmptyTuple
+                                  CodeReferenceElement: EmptyTuple
+                                    PsiElement(identifier)('EmptyTuple')
+                            PsiWhiteSpace('\n\n          ')
+                            ScFunctionDefinition: fromProduct
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(def)('def')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('fromProduct')
+                              Parameters
+                                ParametersClause
+                                  PsiElement(()('(')
+                                  Parameter: x
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      <empty list>
+                                    PsiElement(identifier)('x')
+                                    PsiElement(:)(':')
+                                    PsiWhiteSpace(' ')
+                                    ParameterType
+                                      SimpleType: Product
+                                        CodeReferenceElement: Product
+                                          PsiElement(identifier)('Product')
+                                  PsiElement())(')')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              SimpleType: MirroredTp
+                                CodeReferenceElement: MirroredTp
+                                  PsiElement(identifier)('MirroredTp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace('\n            ')
+                              ScNewTemplateDefinition: <anonymous>
+                                PsiElement(new)('new')
+                                PsiWhiteSpace(' ')
+                                ExtendsBlock
+                                  TemplateParents
+                                    ConstructorInvocation
+                                      SimpleType: TRgb
+                                        CodeReferenceElement: TRgb
+                                          PsiElement(identifier)('TRgb')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        GenericCall
+                                          ReferenceExpression: x.productElement(0).asInstanceOf
+                                            MethodCall
+                                              ReferenceExpression: x.productElement
+                                                ReferenceExpression: x
+                                                  PsiElement(identifier)('x')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('productElement')
+                                              ArgumentList
+                                                PsiElement(()('(')
+                                                IntegerLiteral
+                                                  PsiElement(integer)('0')
+                                                PsiElement())(')')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('asInstanceOf')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            SimpleType: Int
+                                              CodeReferenceElement: Int
+                                                PsiElement(identifier)('Int')
+                                            PsiElement(])(']')
+                                        PsiElement())(')')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(})('}')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (MirrP {
+          type MirroredTp = TRgb
+          type Elems = Int *: EmptyTuple
+        })
+                        PsiElement(()('(')
+                        CompoundType: MirrP {
+          type MirroredTp = TRgb
+          type Elems = Int *: EmptyTuple
+        }
+                          SimpleType: MirrP
+                            CodeReferenceElement: MirrP
+                              PsiElement(identifier)('MirrP')
+                          PsiWhiteSpace(' ')
+                          Refinement
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n          ')
+                            ScTypeAliasDefinition: MirroredTp
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('MirroredTp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: TRgb
+                                CodeReferenceElement: TRgb
+                                  PsiElement(identifier)('TRgb')
+                            PsiWhiteSpace('\n          ')
+                            ScTypeAliasDefinition: Elems
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Elems')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              InfixType: Int *: EmptyTuple
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                SimpleType: EmptyTuple
+                                  CodeReferenceElement: EmptyTuple
+                                    PsiElement(identifier)('EmptyTuple')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(})('}')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ReferenceExpression: CallSite.run
+        ReferenceExpression: CallSite
+          PsiElement(identifier)('CallSite')
+        PsiElement(.)('.')
+        PsiElement(identifier)('run')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: outer3Local
+      PsiElement(identifier)('outer3Local')

@@ -2,3 +2,35 @@ import bar.J_1._ //<--- illegal cyclic reference involving
 
 class X
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: bar.J_1
+        CodeReferenceElement: bar
+          PsiElement(identifier)('bar')
+        PsiElement(.)('.')
+        PsiElement(identifier)('J_1')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('//<--- illegal cyclic reference involving')
+  PsiWhiteSpace('\n\n')
+  ScClass: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

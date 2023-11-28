@@ -2,3 +2,48 @@ object Test {
   warmup.Warmup.filter[Any](x => false)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: warmup.Warmup.filter
+              ReferenceExpression: warmup.Warmup
+                ReferenceExpression: warmup
+                  PsiElement(identifier)('warmup')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Warmup')
+              PsiElement(.)('.')
+              PsiElement(identifier)('filter')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -15,3 +15,266 @@ object Test:
   // flip(m)
   // flip(flip(n))
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: flip
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('flip')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          DependentFunctionType: (x: 0 | 1) => x.type match { case 0 => 1 case 1 => 0 }
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                InfixType: 0 | 1
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            MatchType: x.type match { case 0 => 1 case 1 => 0 }
+              SimpleType: x.type
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScMatchTypeCasesImpl(match type cases)
+                ScMatchTypeCaseImpl(match type case)
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ScMatchTypeCaseImpl(match type case)
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        TypedExpression
+          MethodCall
+            ReferenceExpression: flip
+              PsiElement(identifier)('flip')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        TypedExpression
+          MethodCall
+            ReferenceExpression: flip
+              PsiElement(identifier)('flip')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: flip
+            PsiElement(identifier)('flip')
+          ArgumentList
+            PsiElement(()('(')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: n
+              PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: 0 | 1
+            LiteralType: 0
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiWhiteSpace(' ')
+            PsiElement(then)('then')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: flip
+            PsiElement(identifier)('flip')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          MatchType: n.type match { case 0 => 1 case 1 => 0 }
+            SimpleType: n.type
+              CodeReferenceElement: n
+                PsiElement(identifier)('n')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: flip
+              PsiElement(identifier)('flip')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: n
+                PsiElement(identifier)('n')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n  ')
+  PsiComment(comment)('// The following do not work, see discussion in https://github.com/lampepfl/dotty/pull/7835/files/6e60814e69be5c8d60265d4ce4bc1758863c23d8#r361741296:')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// flip(m)')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// flip(flip(n))')

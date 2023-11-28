@@ -5,3 +5,50 @@ trait i0 {
 //  trait I1 extends Throwable { val I1 = () }
 //}
 -----
+ScalaFile
+  ScTrait: i0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i0')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: i1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('i1')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Throwable
+                  CodeReferenceElement: Throwable
+                    PsiElement(identifier)('Throwable')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//trait i0 {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  trait I1 extends Throwable { val I1 = () }')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//}')

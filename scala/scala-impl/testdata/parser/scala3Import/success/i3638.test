@@ -11,3 +11,121 @@ package p {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: p
+      PsiElement(identifier)('p')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n    ')
+      ScClass: JavaInteraction
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('JavaInteraction')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              ClassParameter: arr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('arr')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[Char]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
+                      PsiElement(])(']')
+              PsiElement())(')')
+        PsiWhiteSpace('\n        ')
+        ExtendsBlock
+          PsiElement(extends)('extends')
+          PsiWhiteSpace(' ')
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: java.io.CharArrayReader
+                CodeReferenceElement: java.io.CharArrayReader
+                  CodeReferenceElement: java.io
+                    CodeReferenceElement: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('io')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('CharArrayReader')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: arr
+                  PsiElement(identifier)('arr')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            ScClass: Inner
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Inner')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n          ')
+                    AssignStatement
+                      ReferenceExpression: count
+                        PsiElement(identifier)('count')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: count
+                        PsiElement(identifier)('count')
+                    PsiWhiteSpace('\n        ')
+                    PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

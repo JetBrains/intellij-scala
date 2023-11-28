@@ -6,3 +6,204 @@ enum Foo[T](val foo: Any) {
   case Case3 extends Foo(new T)
 }
 -----
+ScalaFile
+  ScClass: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Case1
+            PsiElement(identifier)('Case1')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Case2
+            PsiElement(identifier)('Case2')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: U
+                PsiElement(identifier)('U')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Case3
+            PsiElement(identifier)('Case3')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

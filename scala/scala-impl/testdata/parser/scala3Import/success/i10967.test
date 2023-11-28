@@ -8,3 +8,148 @@ trait Coll[A <: SomeTrait] extends CollBase[A, Coll]
 
 trait CollCompanion[+CC2[A <: SomeTrait]]
 -----
+ScalaFile
+  ScTrait: SomeTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SomeTrait')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: CollBase
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CollBase')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: SomeTrait
+          CodeReferenceElement: SomeTrait
+            PsiElement(identifier)('SomeTrait')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: CC1
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('CC1')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: A2
+            PsiElement(identifier)('A2')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: SomeTrait
+              CodeReferenceElement: SomeTrait
+                PsiElement(identifier)('SomeTrait')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: companion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: companion
+              PsiElement(identifier)('companion')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CollCompanion[CC1]
+            SimpleType: CollCompanion
+              CodeReferenceElement: CollCompanion
+                PsiElement(identifier)('CollCompanion')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: CC1
+                CodeReferenceElement: CC1
+                  PsiElement(identifier)('CC1')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Coll
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Coll')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: SomeTrait
+          CodeReferenceElement: SomeTrait
+            PsiElement(identifier)('SomeTrait')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: CollBase[A, Coll]
+            SimpleType: CollBase
+              CodeReferenceElement: CollBase
+                PsiElement(identifier)('CollBase')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Coll
+                CodeReferenceElement: Coll
+                  PsiElement(identifier)('Coll')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: CollCompanion
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CollCompanion')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: CC2
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('CC2')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: A
+            PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: SomeTrait
+              CodeReferenceElement: SomeTrait
+                PsiElement(identifier)('SomeTrait')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>

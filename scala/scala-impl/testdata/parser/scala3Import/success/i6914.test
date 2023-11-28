@@ -28,3 +28,566 @@ object test2 {
   def a: Expr[String] = "abc"
 }
 -----
+ScalaFile
+  ScTrait: Expr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expr')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Liftable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Liftable')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: ToExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToExpr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                ClassParameter: x$1
+                  ParameterType
+                    ParametrizedType: Liftable[T]
+                      SimpleType: Liftable
+                        CodeReferenceElement: Liftable
+                          PsiElement(identifier)('Liftable')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Conversion[T, Expr[T]]
+                  SimpleType: Conversion
+                    CodeReferenceElement: Conversion
+                      PsiElement(identifier)('Conversion')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Expr[T]
+                      SimpleType: Expr
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Expr[T]
+                  SimpleType: Expr
+                    CodeReferenceElement: Expr
+                      PsiElement(identifier)('Expr')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: toExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toExpr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: Liftable[T]
+                    SimpleType: Liftable
+                      CodeReferenceElement: Liftable
+                        PsiElement(identifier)('Liftable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: ToExpr[T]
+                  SimpleType: ToExpr
+                    CodeReferenceElement: ToExpr
+                      PsiElement(identifier)('ToExpr')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_Liftable_Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Liftable[Int]
+            SimpleType: Liftable
+              CodeReferenceElement: Liftable
+                PsiElement(identifier)('Liftable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Liftable_String
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Liftable[String]
+            SimpleType: Liftable
+              CodeReferenceElement: Liftable
+                PsiElement(identifier)('Liftable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: ToExpr[String]
+                SimpleType: ToExpr
+                  CodeReferenceElement: ToExpr
+                    PsiElement(identifier)('ToExpr')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('y')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Conversion[String, Expr[String]]
+                SimpleType: Conversion
+                  CodeReferenceElement: Conversion
+                    PsiElement(identifier)('Conversion')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Expr[String]
+                    SimpleType: Expr
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[String]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"abc"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenDefinition: autoToExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('autoToExpr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: Liftable[T]
+                    SimpleType: Liftable
+                      CodeReferenceElement: Liftable
+                        PsiElement(identifier)('Liftable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Conversion[T, Expr[T]]
+                  SimpleType: Conversion
+                    CodeReferenceElement: Conversion
+                      PsiElement(identifier)('Conversion')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Expr[T]
+                      SimpleType: Expr
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Expr[T]
+                  SimpleType: Expr
+                    CodeReferenceElement: Expr
+                      PsiElement(identifier)('Expr')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_Liftable_Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Liftable[Int]
+            SimpleType: Liftable
+              CodeReferenceElement: Liftable
+                PsiElement(identifier)('Liftable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Liftable_String
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Liftable[String]
+            SimpleType: Liftable
+              CodeReferenceElement: Liftable
+                PsiElement(identifier)('Liftable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[String]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"abc"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

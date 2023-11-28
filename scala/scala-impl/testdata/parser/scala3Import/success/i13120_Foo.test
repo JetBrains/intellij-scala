@@ -7,3 +7,89 @@ object Foo:
 
 export Foo.*
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: container.ir
+        CodeReferenceElement: container
+          PsiElement(identifier)('container')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ir')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: ir.Foo
+      CodeReferenceElement: ir.Foo
+        CodeReferenceElement: ir
+          PsiElement(identifier)('ir')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Foo')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('foo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScExportStatement
+    PsiElement(export)('export')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Foo
+        PsiElement(identifier)('Foo')
+      PsiElement(.)('.')
+      PsiElement(*)('*')

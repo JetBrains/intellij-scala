@@ -6,3 +6,57 @@ import foo.bar.Bar
 class Foo extends annotation.StaticAnnotation
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: foo.bar.Bar
+          CodeReferenceElement: foo.bar
+            CodeReferenceElement: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('bar')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Bar')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace('\n')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: annotation.StaticAnnotation
+              CodeReferenceElement: annotation.StaticAnnotation
+                CodeReferenceElement: annotation
+                  PsiElement(identifier)('annotation')
+                PsiElement(.)('.')
+                PsiElement(identifier)('StaticAnnotation')

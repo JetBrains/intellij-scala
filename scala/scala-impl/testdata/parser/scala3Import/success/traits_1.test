@@ -39,3 +39,637 @@ object Test {
   Console.println(bcs1 == bcs2)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Color
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Color')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: equals
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('equals')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BooleanLiteral
+                  PsiElement(true)('true')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Bordered
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bordered')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScValueDeclaration: thickness
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: thickness
+                    PsiElement(identifier)('thickness')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: equals
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('equals')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchStatement
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: that
+                          PsiElement(identifier)('that')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Bordered
+                            CodeReferenceElement: Bordered
+                              PsiElement(identifier)('Bordered')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        InfixExpression
+                          ReferenceExpression: this.thickness
+                            ThisReference
+                              PsiElement(this)('this')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('thickness')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: that.thickness
+                            ReferenceExpression: that
+                              PsiElement(identifier)('that')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('thickness')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BooleanLiteral
+                          PsiElement(false)('false')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Colored
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Colored')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScValueDeclaration: color
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: color
+                    PsiElement(identifier)('color')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Color
+                  CodeReferenceElement: Color
+                    PsiElement(identifier)('Color')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: equals
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('equals')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchStatement
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: that
+                          PsiElement(identifier)('that')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Colored
+                            CodeReferenceElement: Colored
+                              PsiElement(identifier)('Colored')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        InfixExpression
+                          ReferenceExpression: this.color
+                            ThisReference
+                              PsiElement(this)('this')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('color')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: that.color
+                            ReferenceExpression: that
+                              PsiElement(identifier)('that')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('color')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BooleanLiteral
+                          PsiElement(false)('false')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: BorderedColoredShape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BorderedColoredShape')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ConstructorInvocation
+                SimpleType: Bordered
+                  CodeReferenceElement: Bordered
+                    PsiElement(identifier)('Bordered')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ConstructorInvocation
+                SimpleType: Colored
+                  CodeReferenceElement: Colored
+                    PsiElement(identifier)('Colored')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: equals
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('equals')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchStatement
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: that
+                          PsiElement(identifier)('that')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: BorderedColoredShape
+                            CodeReferenceElement: BorderedColoredShape
+                              PsiElement(identifier)('BorderedColoredShape')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        ExpressionInParenthesis
+                          PsiElement(()('(')
+                          PsiWhiteSpace('\n        ')
+                          InfixExpression
+                            InfixExpression
+                              MethodCall
+                                ReferenceExpression: super.equals
+                                  SuperReference
+                                    PsiElement(super)('super')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('equals')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: that
+                                    PsiElement(identifier)('that')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: &&
+                                PsiElement(identifier)('&&')
+                              PsiWhiteSpace('\n        ')
+                              MethodCall
+                                ReferenceExpression: super[Bordered].equals
+                                  SuperReference
+                                    PsiElement(super)('super')
+                                    PsiElement([)('[')
+                                    PsiElement(identifier)('Bordered')
+                                    PsiElement(])(']')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('equals')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: that
+                                    PsiElement(identifier)('that')
+                                  PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: &&
+                              PsiElement(identifier)('&&')
+                            PsiWhiteSpace('\n        ')
+                            MethodCall
+                              ReferenceExpression: super[Colored].equals
+                                SuperReference
+                                  PsiElement(super)('super')
+                                  PsiElement([)('[')
+                                  PsiElement(identifier)('Colored')
+                                  PsiElement(])(']')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('equals')
+                              ArgumentList
+                                PsiElement(()('(')
+                                ReferenceExpression: that
+                                  PsiElement(identifier)('that')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BooleanLiteral
+                          PsiElement(false)('false')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: bcs1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bcs1
+              PsiElement(identifier)('bcs1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: BorderedColoredShape
+                    CodeReferenceElement: BorderedColoredShape
+                      PsiElement(identifier)('BorderedColoredShape')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: thickness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: thickness
+                      PsiElement(identifier)('thickness')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: color
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: color
+                      PsiElement(identifier)('color')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bcs2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bcs2
+              PsiElement(identifier)('bcs2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: BorderedColoredShape
+                    CodeReferenceElement: BorderedColoredShape
+                      PsiElement(identifier)('BorderedColoredShape')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: thickness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: thickness
+                      PsiElement(identifier)('thickness')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: color
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: color
+                      PsiElement(identifier)('color')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Console.println
+            ReferenceExpression: Console
+              PsiElement(identifier)('Console')
+            PsiElement(.)('.')
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: bcs1
+                PsiElement(identifier)('bcs1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: bcs1
+                PsiElement(identifier)('bcs1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Console.println
+            ReferenceExpression: Console
+              PsiElement(identifier)('Console')
+            PsiElement(.)('.')
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: bcs1
+                PsiElement(identifier)('bcs1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: bcs2
+                PsiElement(identifier)('bcs2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

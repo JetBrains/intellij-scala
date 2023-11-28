@@ -16,3 +16,519 @@ def argument[Ta](argumentType: InputType[Ta])(implicit fromInput: FromInput[Ta],
 
 def test = argument(OptionInputType(??? : InputType[WithTag[Boolean, Int]])) :: Nil // error
 -----
+ScalaFile
+  ScTrait: Tagged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tagged')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: WithTag
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WithTag')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TT
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('TT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: UU
+        PsiElement(identifier)('UU')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: TT & Tagged[UU]
+      SimpleType: TT
+        CodeReferenceElement: TT
+          PsiElement(identifier)('TT')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Tagged[UU]
+        SimpleType: Tagged
+          CodeReferenceElement: Tagged
+            PsiElement(identifier)('Tagged')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: UU
+            CodeReferenceElement: UU
+              PsiElement(identifier)('UU')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: FromInput
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FromInput')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Val
+        PsiElement(identifier)('Val')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: coercedScalaInput
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('coercedScalaInput')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tc1
+        PsiElement(identifier)('Tc1')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: FromInput[WithTag[Tc1, Int]]
+      SimpleType: FromInput
+        CodeReferenceElement: FromInput
+          PsiElement(identifier)('FromInput')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: WithTag[Tc1, Int]
+          SimpleType: WithTag
+            CodeReferenceElement: WithTag
+              PsiElement(identifier)('WithTag')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Tc1
+              CodeReferenceElement: Tc1
+                PsiElement(identifier)('Tc1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: optionInput
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('optionInput')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: To
+        PsiElement(identifier)('To')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(implicit)('implicit')
+        PsiWhiteSpace(' ')
+        Parameter: ev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ev')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: FromInput[To]
+              SimpleType: FromInput
+                CodeReferenceElement: FromInput
+                  PsiElement(identifier)('FromInput')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: To
+                  CodeReferenceElement: To
+                    PsiElement(identifier)('To')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: FromInput[Option[To]]
+      SimpleType: FromInput
+        CodeReferenceElement: FromInput
+          PsiElement(identifier)('FromInput')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Option[To]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: To
+              CodeReferenceElement: To
+                PsiElement(identifier)('To')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: WithoutInputTypeTags
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WithoutInputTypeTags')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TW
+        PsiElement(identifier)('TW')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: coercedOptArgTpe
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('coercedOptArgTpe')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tc
+        PsiElement(identifier)('Tc')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: WithoutInputTypeTags[Option[WithTag[Tc, Int]]]
+      SimpleType: WithoutInputTypeTags
+        CodeReferenceElement: WithoutInputTypeTags
+          PsiElement(identifier)('WithoutInputTypeTags')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Option[WithTag[Tc, Int]]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: WithTag[Tc, Int]
+              SimpleType: WithTag
+                CodeReferenceElement: WithTag
+                  PsiElement(identifier)('WithTag')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Tc
+                  CodeReferenceElement: Tc
+                    PsiElement(identifier)('Tc')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: InputType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InputType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TI
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('TI')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: OptionInputType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OptionInputType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TO
+        PsiElement(identifier)('TO')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: ofType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('ofType')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: InputType[TO]
+                SimpleType: InputType
+                  CodeReferenceElement: InputType
+                    PsiElement(identifier)('InputType')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: TO
+                    CodeReferenceElement: TO
+                      PsiElement(identifier)('TO')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: InputType[Option[TO]]
+            SimpleType: InputType
+              CodeReferenceElement: InputType
+                PsiElement(identifier)('InputType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Option[TO]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: TO
+                    CodeReferenceElement: TO
+                      PsiElement(identifier)('TO')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDeclaration: Argument
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Argument')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: TA
+        PsiElement(identifier)('TA')
+      PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: argument
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('argument')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Ta
+        PsiElement(identifier)('Ta')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: argumentType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('argumentType')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: InputType[Ta]
+              SimpleType: InputType
+                CodeReferenceElement: InputType
+                  PsiElement(identifier)('InputType')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Ta
+                  CodeReferenceElement: Ta
+                    PsiElement(identifier)('Ta')
+                PsiElement(])(']')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(implicit)('implicit')
+        PsiWhiteSpace(' ')
+        Parameter: fromInput
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('fromInput')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: FromInput[Ta]
+              SimpleType: FromInput
+                CodeReferenceElement: FromInput
+                  PsiElement(identifier)('FromInput')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Ta
+                  CodeReferenceElement: Ta
+                    PsiElement(identifier)('Ta')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: res
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('res')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: WithoutInputTypeTags[Ta]
+              SimpleType: WithoutInputTypeTags
+                CodeReferenceElement: WithoutInputTypeTags
+                  PsiElement(identifier)('WithoutInputTypeTags')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Ta
+                  CodeReferenceElement: Ta
+                    PsiElement(identifier)('Ta')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Argument[Option[Ta]]
+      SimpleType: Argument
+        CodeReferenceElement: Argument
+          PsiElement(identifier)('Argument')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Option[Ta]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Ta
+              CodeReferenceElement: Ta
+                PsiElement(identifier)('Ta')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      MethodCall
+        ReferenceExpression: argument
+          PsiElement(identifier)('argument')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: OptionInputType
+              PsiElement(identifier)('OptionInputType')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: InputType[WithTag[Boolean, Int]]
+                  SimpleType: InputType
+                    CodeReferenceElement: InputType
+                      PsiElement(identifier)('InputType')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: WithTag[Boolean, Int]
+                      SimpleType: WithTag
+                        CodeReferenceElement: WithTag
+                          PsiElement(identifier)('WithTag')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ::
+        PsiElement(identifier)('::')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: Nil
+        PsiElement(identifier)('Nil')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')

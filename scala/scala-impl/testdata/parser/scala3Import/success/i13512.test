@@ -6,3 +6,90 @@ def f = List(new NotEquatable) match
   case Nil => ???
   case _ =>
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.strictEquality
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('strictEquality')
+  PsiWhiteSpace('\n\n')
+  ScClass: NotEquatable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NotEquatable')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      MethodCall
+        ReferenceExpression: List
+          PsiElement(identifier)('List')
+        ArgumentList
+          PsiElement(()('(')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: NotEquatable
+                    CodeReferenceElement: NotEquatable
+                      PsiElement(identifier)('NotEquatable')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>

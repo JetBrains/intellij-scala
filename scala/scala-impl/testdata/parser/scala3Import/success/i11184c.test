@@ -5,3 +5,105 @@ object Foo:
 inline def oneOf: String = inline if Foo.isTrue then "foo" else "bar"
 def test1 = oneOf
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: isTrue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('isTrue')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: oneOf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('oneOf')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: Foo.isTrue
+        ReferenceExpression: Foo
+          PsiElement(identifier)('Foo')
+        PsiElement(.)('.')
+        PsiElement(identifier)('isTrue')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"foo"')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"bar"')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test1')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: oneOf
+      PsiElement(identifier)('oneOf')

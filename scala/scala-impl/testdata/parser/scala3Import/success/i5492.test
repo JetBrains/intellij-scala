@@ -12,3 +12,175 @@ class Test {
   val x = foo.A.f(4)
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScObject: A
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: B.f
+                ReferenceExpression: B
+                  PsiElement(identifier)('B')
+                PsiElement(.)('.')
+                PsiElement(identifier)('f')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n  ')
+    ScObject: B
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+          PsiElement([)('[')
+          PsiElement(identifier)('foo')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('B')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: *
+                PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('5')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: foo.A.f
+              ReferenceExpression: foo.A
+                ReferenceExpression: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('A')
+              PsiElement(.)('.')
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('4')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

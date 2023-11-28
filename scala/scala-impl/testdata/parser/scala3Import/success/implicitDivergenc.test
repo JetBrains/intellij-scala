@@ -12,3 +12,379 @@ object Test {
   implicitly[C[C[C[C[C[C[String]]]]]]]
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: C
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fGen
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fGen')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ev
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ev')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: C[T]
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fString')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ev
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ev')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: C[Int]
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: C[String]
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fInt')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: C[Int]
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[String]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[C[String]]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[String]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[C[C[String]]]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[C[String]]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: C[String]
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[C[C[C[String]]]]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[C[C[String]]]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: C[C[String]]
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: C[String]
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[C[C[C[C[String]]]]]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[C[C[C[String]]]]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: C[C[C[String]]]
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: C[C[String]]
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: C[String]
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: C[C[C[C[C[C[String]]]]]]
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[C[C[C[C[String]]]]]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: C[C[C[C[String]]]]
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: C[C[C[String]]]
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: C[C[String]]
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                ParametrizedType: C[String]
+                                  SimpleType: C
+                                    CodeReferenceElement: C
+                                      PsiElement(identifier)('C')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: String
+                                      CodeReferenceElement: String
+                                        PsiElement(identifier)('String')
+                                    PsiElement(])(']')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

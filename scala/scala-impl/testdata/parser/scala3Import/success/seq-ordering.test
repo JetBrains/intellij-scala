@@ -8,3 +8,141 @@ class A {
   ?[Ordering[Seq[Seq[Int]]]]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Ordering.Implicits
+        CodeReferenceElement: Ordering
+          PsiElement(identifier)('Ordering')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Implicits')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Predef
+              PsiElement(identifier)('Predef')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                CodeReferenceElement: implicitly
+                  PsiElement(identifier)('implicitly')
+                PsiWhiteSpace(' ')
+                PsiElement(as)('as')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('?')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: ?
+            PsiElement(identifier)('?')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Ordering[List[Int]]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: List[Int]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: ?
+            PsiElement(identifier)('?')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Ordering[IndexedSeq[(Int, String)]]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: IndexedSeq[(Int, String)]
+                  SimpleType: IndexedSeq
+                    CodeReferenceElement: IndexedSeq
+                      PsiElement(identifier)('IndexedSeq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TupleType: (Int, String)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: ?
+            PsiElement(identifier)('?')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Ordering[Seq[Seq[Int]]]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Seq[Seq[Int]]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Seq[Int]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

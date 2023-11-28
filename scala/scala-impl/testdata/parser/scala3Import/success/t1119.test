@@ -9,3 +9,64 @@ trait B
 
 
 -----
+ScalaFile
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n     ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: this.type
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
+        PsiWhiteSpace('\n\n\n     ')
+        ScFunctionDefinition: test
+          PsiComment(comment)('// compile-time check: have we achieved our objective?')
+          PsiWhiteSpace('\n     ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

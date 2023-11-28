@@ -27,3 +27,301 @@ package P { // `X' bound by package clause
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: P
+      PsiElement(identifier)('P')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// `X' bound by package clause')
+    PsiWhiteSpace('\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: Console
+          PsiElement(identifier)('Console')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// `println' bound by wildcard import')
+    PsiWhiteSpace('\n  ')
+    ScObject: A
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                StringLiteral
+                  PsiElement(string content)('"L4: "')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: X
+                  PsiElement(identifier)('X')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// `X' refers to `P.X' here')
+          PsiWhiteSpace('\n    ')
+          ScObject: B
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: Q
+                      PsiElement(identifier)('Q')
+                    PsiElement(.)('.')
+                    PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// `X' bound by wildcard import')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: println
+                    PsiElement(identifier)('println')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"L7: "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: X
+                        PsiElement(identifier)('X')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// `X' refers to `Q.X' here')
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                    PsiElement(.)('.')
+                    PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// `x' and `y' bound by wildcard import')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: println
+                    PsiElement(identifier)('println')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"L8: "')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// `x' refers to `Q.X.x' here')
+                PsiWhiteSpace('\n      ')
+                ScObject: C
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(object)('object')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('C')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n        ')
+                      ScPatternDefinition: x
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('3')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// `x' bound by local definition')
+                      PsiWhiteSpace('\n        ')
+                      MethodCall
+                        ReferenceExpression: println
+                          PsiElement(identifier)('println')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            StringLiteral
+                              PsiElement(string content)('"L12: "')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// `x' refers to constant `3' here')
+                      PsiWhiteSpace('\n        ')
+                      MethodCall
+                        ReferenceExpression: locally
+                          PsiElement(identifier)('locally')
+                        PsiWhiteSpace(' ')
+                        ArgumentList
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n          ')
+                            ScImportStatement
+                              PsiElement(import)('import')
+                              PsiWhiteSpace(' ')
+                              ImportExpression
+                                CodeReferenceElement: Q.X
+                                  CodeReferenceElement: Q
+                                    PsiElement(identifier)('Q')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('X')
+                                PsiElement(.)('.')
+                                PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiComment(comment)('// `x' and `y' bound by wildcard import')
+                            PsiWhiteSpace('\n          ')
+                            PsiComment(comment)('// println("L14: " + x)   // reference to `x' is ambiguous here')
+                            PsiWhiteSpace('\n          ')
+                            ScImportStatement
+                              PsiElement(import)('import')
+                              PsiWhiteSpace(' ')
+                              ImportExpression
+                                CodeReferenceElement: X.y
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('y')
+                            PsiWhiteSpace(' ')
+                            PsiComment(comment)('// `y' bound by explicit import')
+                            PsiWhiteSpace('\n          ')
+                            MethodCall
+                              ReferenceExpression: println
+                                PsiElement(identifier)('println')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  StringLiteral
+                                    PsiElement(string content)('"L16: "')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: +
+                                    PsiElement(identifier)('+')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: y
+                                    PsiElement(identifier)('y')
+                                PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            PsiComment(comment)('// `y' refers to `Q.X.y' here')
+                            PsiWhiteSpace('\n          ')
+                            MethodCall
+                              ReferenceExpression: locally
+                                PsiElement(identifier)('locally')
+                              PsiWhiteSpace(' ')
+                              ArgumentList
+                                BlockExpression
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace('\n            ')
+                                  ScPatternDefinition: x
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      <empty list>
+                                    PsiElement(val)('val')
+                                    PsiWhiteSpace(' ')
+                                    ListOfPatterns
+                                      ReferencePattern: x
+                                        PsiElement(identifier)('x')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace(' ')
+                                    StringLiteral
+                                      PsiElement(string content)('"abc"')
+                                  PsiWhiteSpace(' ')
+                                  PsiComment(comment)('// `x' bound by local definition')
+                                  PsiWhiteSpace('\n            ')
+                                  ScImportStatement
+                                    PsiElement(import)('import')
+                                    PsiWhiteSpace(' ')
+                                    ImportExpression
+                                      CodeReferenceElement: P.X
+                                        CodeReferenceElement: P
+                                          PsiElement(identifier)('P')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('X')
+                                      PsiElement(.)('.')
+                                      PsiElement(_)('_')
+                                  PsiWhiteSpace(' ')
+                                  PsiComment(comment)('// `x' and `y' bound by wildcard import')
+                                  PsiWhiteSpace('\n            ')
+                                  PsiComment(comment)('// println("L19: " + y) // reference to `y' is ambiguous here')
+                                  PsiWhiteSpace('\n            ')
+                                  MethodCall
+                                    ReferenceExpression: println
+                                      PsiElement(identifier)('println')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      InfixExpression
+                                        StringLiteral
+                                          PsiElement(string content)('"L20: "')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: +
+                                          PsiElement(identifier)('+')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: x
+                                          PsiElement(identifier)('x')
+                                      PsiElement())(')')
+                                  PsiWhiteSpace(' ')
+                                  PsiComment(comment)('// `x' refers to string ``abc'' here')
+                                  PsiWhiteSpace('\n          ')
+                                  PsiElement(})('}')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(})('}')
+                      PsiWhiteSpace('\n      ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

@@ -21,3 +21,180 @@ class A {
   // }
 }
 -----
+ScalaFile
+  ScClass: A
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('All of these should work, some don't yet.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('!!!')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScClass: Bob
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Bob')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              ExtendsBlock
+                <empty list>
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Bob
+              PsiElement(identifier)('Bob')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: quux0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: quux0
+              PsiElement(identifier)('quux0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: quux1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('quux1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// lazy val quux2 = f()')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def quux3 = {')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   lazy val quux3a = f()')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   quux3a')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// }')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: bippy0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bippy0
+              PsiElement(identifier)('bippy0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            PsiWhiteSpace(' ')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bippy1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bippy1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            PsiWhiteSpace(' ')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// lazy val bippy2 = f _')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// val bippy3 = {')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   lazy val bippy3a = f _')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   bippy3a')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// }')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

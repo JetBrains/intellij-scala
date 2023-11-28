@@ -23,3 +23,413 @@ object Test extends App {
 }
 
 -----
+ScalaFile
+  ScTrait: Matrix
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Matrix')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Repr
+        PsiElement(identifier)('Repr')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: C
+            PsiElement(identifier)('C')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Matrix[C, Repr]
+          SimpleType: Matrix
+            CodeReferenceElement: Matrix
+              PsiElement(identifier)('Matrix')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// crash goes away if @specialize is removed')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: duplicate
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('duplicate')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: mb
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('mb')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: MatrixBuilder[A, Repr]
+                    SimpleType: MatrixBuilder
+                      CodeReferenceElement: MatrixBuilder
+                        PsiElement(identifier)('MatrixBuilder')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Repr
+                        CodeReferenceElement: Repr
+                          PsiElement(identifier)('Repr')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Repr[A]
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: mb.zeros
+              ReferenceExpression: mb
+                PsiElement(identifier)('mb')
+              PsiElement(.)('.')
+              PsiElement(identifier)('zeros')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: DenseMatrix
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseMatrix')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Matrix[A, DenseMatrix]
+            SimpleType: Matrix
+              CodeReferenceElement: Matrix
+                PsiElement(identifier)('Matrix')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: DenseMatrix
+                CodeReferenceElement: DenseMatrix
+                  PsiElement(identifier)('DenseMatrix')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: DenseMatrixFlt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseMatrixFlt')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: DenseMatrix[Float]
+            SimpleType: DenseMatrix
+              CodeReferenceElement: DenseMatrix
+                PsiElement(identifier)('DenseMatrix')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MatrixBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MatrixBuilder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Repr
+        PsiElement(identifier)('Repr')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: C
+            PsiElement(identifier)('C')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Matrix[C, Repr]
+          SimpleType: Matrix
+            CodeReferenceElement: Matrix
+              PsiElement(identifier)('Matrix')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: zeros
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('zeros')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Repr[A]
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: DenseFloatBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseFloatBuilder')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: MatrixBuilder[Float, DenseMatrix]
+            SimpleType: MatrixBuilder
+              CodeReferenceElement: MatrixBuilder
+                PsiElement(identifier)('MatrixBuilder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: DenseMatrix
+                CodeReferenceElement: DenseMatrix
+                  PsiElement(identifier)('DenseMatrix')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: zeros
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zeros
+              PsiElement(identifier)('zeros')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Object
+                    CodeReferenceElement: Object
+                      PsiElement(identifier)('Object')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: DenseMatrixFlt
+                    CodeReferenceElement: DenseMatrixFlt
+                      PsiElement(identifier)('DenseMatrixFlt')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// Note:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// - in 2.9 crash goes away if the explicit type "DenseMatrixFlt" is assigned to "zeros"')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// - in 2.9 crash goes away if DenseMatrixFlt is a class instead of a trait:')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//        val zeros = new DenseMatrixFlt')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m1
+              PsiElement(identifier)('m1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: DenseFloatBuilder.zeros
+            ReferenceExpression: DenseFloatBuilder
+              PsiElement(identifier)('DenseFloatBuilder')
+            PsiElement(.)('.')
+            PsiElement(identifier)('zeros')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// in 2.9 crash goes away if explicit type "DenseMatrixFlt" is assigned to m1')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m2
+              PsiElement(identifier)('m2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: m1.duplicate
+              ReferenceExpression: m1
+                PsiElement(identifier)('m1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('duplicate')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: DenseFloatBuilder
+                PsiElement(identifier)('DenseFloatBuilder')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

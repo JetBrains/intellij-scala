@@ -18,3 +18,255 @@ trait Test {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Node
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Node')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: NodeImpl
+              CodeReferenceElement: NodeImpl
+                PsiElement(identifier)('NodeImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTrait: NodeImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('NodeImpl')
+            ExtendsBlock
+              <empty list>
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Expression
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Expression')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            CompoundType: Node with ExpressionImpl
+              SimpleType: Node
+                CodeReferenceElement: Node
+                  PsiElement(identifier)('Node')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              SimpleType: ExpressionImpl
+                CodeReferenceElement: ExpressionImpl
+                  PsiElement(identifier)('ExpressionImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTrait: ExpressionImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ExpressionImpl')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: NodeImpl
+                    CodeReferenceElement: NodeImpl
+                      PsiElement(identifier)('NodeImpl')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('self')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Expression
+                    CodeReferenceElement: Expression
+                      PsiElement(identifier)('Expression')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Named
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Named')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            CompoundType: Node with NamedImpl
+              SimpleType: Node
+                CodeReferenceElement: Node
+                  PsiElement(identifier)('Node')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              SimpleType: NamedImpl
+                CodeReferenceElement: NamedImpl
+                  PsiElement(identifier)('NamedImpl')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n  ')
+          ScTrait: NamedImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('NamedImpl')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: NodeImpl
+                    CodeReferenceElement: NodeImpl
+                      PsiElement(identifier)('NodeImpl')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('self')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Named
+                    CodeReferenceElement: Named
+                      PsiElement(identifier)('Named')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: asExpression
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('asExpression')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: e
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('e')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: ExpressionImpl
+                      CodeReferenceElement: ExpressionImpl
+                        PsiElement(identifier)('ExpressionImpl')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Named
+              CodeReferenceElement: Named
+                PsiElement(identifier)('Named')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              MatchStatement
+                ReferenceExpression: e
+                  PsiElement(identifier)('e')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: f
+                        PsiElement(identifier)('f')
+                      PsiWhiteSpace(' ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        SimpleType: NamedImpl
+                          CodeReferenceElement: NamedImpl
+                            PsiElement(identifier)('NamedImpl')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: f.self
+                        ReferenceExpression: f
+                          PsiElement(identifier)('f')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('self')
+                      PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

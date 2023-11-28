@@ -7,3 +7,117 @@ trait AbsM {
   type AM[_] // to trigger the bug, this must be an abstract type member that comes after the reference to it
 }
 -----
+ScalaFile
+  ScTrait: AbsM
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbsM')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: MonadCompanion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MonadCompanion')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: AbsMonadCompanion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AbsMonadCompanion')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: MonadCompanion[AM]
+                  SimpleType: MonadCompanion
+                    CodeReferenceElement: MonadCompanion
+                      PsiElement(identifier)('MonadCompanion')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: AM
+                      CodeReferenceElement: AM
+                        PsiElement(identifier)('AM')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: newTag
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('newTag')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: AM
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AM')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// to trigger the bug, this must be an abstract type member that comes after the reference to it')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

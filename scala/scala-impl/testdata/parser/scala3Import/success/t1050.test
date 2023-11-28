@@ -9,3 +9,117 @@ abstract class A {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: t1050
+      PsiElement(identifier)('t1050')
+    PsiWhiteSpace('\n\n')
+    ScClass: A
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: T
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: scala.AnyRef
+              CodeReferenceElement: scala.AnyRef
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace('\n  ')
+          ScClass: A
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('A')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: this
+                  PsiElement(this)('this')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('b')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: c
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('c')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                PsiWhiteSpace('\n    ')
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

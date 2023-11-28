@@ -4,3 +4,72 @@ object Test {
   new R.attr1
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: r
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: r
+              PsiElement(identifier)('r')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+        PsiWhiteSpace('\n  ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: r.attr
+                  CodeReferenceElement: r.attr
+                    CodeReferenceElement: r
+                      PsiElement(identifier)('r')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('attr')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// Was: error while loading attr, class file '.../t7532-pos.obj/R$attr.class' has location not matching its contents: contains class')
+        PsiWhiteSpace('\n  ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: R.attr1
+                  CodeReferenceElement: R.attr1
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('attr1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

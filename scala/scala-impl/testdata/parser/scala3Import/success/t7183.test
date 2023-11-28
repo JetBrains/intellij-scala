@@ -12,3 +12,150 @@ object Test {
 //  case _ => false // this is dead code, but it's compiler generated.
 // }))
 -----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Some[A]
+            SimpleType: Some
+              CodeReferenceElement: Some
+                PsiElement(identifier)('Some')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// Change return type to Option[A] and the warning is gone')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ConstructorPattern
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                  PsiElement())(')')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// spurious dead code warning.')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// List(new A()).withFilter(((check$ifrefutable$2) => check$ifrefutable$2: @scala.unchecked match {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  case A((a @ _)) => true')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  case _ => false // this is dead code, but it's compiler generated.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// }))')

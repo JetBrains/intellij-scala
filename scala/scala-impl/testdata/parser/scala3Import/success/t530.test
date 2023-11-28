@@ -29,3 +29,112 @@ object Test {
 
 }
 -----
+ScalaFile
+  PsiComment(comment)('// scala.tools.nsc.Main.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('The main class for NSC, a compiler for the programming')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+          ScPsiDocToken(DOC_WHITESPACE)('  ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('language Scala.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n')
+          ScFunctionDefinition: process1
+            PsiComment(BlockComment)('/*\n  def process(): AnyRef = {\n    class Compiler;\n    var compiler$module: Compiler = new Compiler;\n    def compiler() = compiler$module;\n    class Generator {\n      val c : Compiler = compiler()\n    }\n    var generator$module: Generator = new Generator;\n    def generator() = generator$module;\n    generator()\n  }\n*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('process1')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScObject: generator
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('generator')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScPatternDefinition: c
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: c
+                          PsiElement(identifier)('c')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: compiler
+                        PsiElement(identifier)('compiler')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScObject: compiler
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('compiler')
+                ExtendsBlock
+                  <empty list>
+              PsiElement(;)(';')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: generator
+                PsiElement(identifier)('generator')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n\n')
+          PsiElement(})('}')

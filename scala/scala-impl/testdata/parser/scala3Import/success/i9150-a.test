@@ -3,3 +3,88 @@ import scala.compiletime.erasedValue
 inline def fooErased[T] = inline erasedValue[T] match { case _ => }
 val f = fooErased[EmptyTuple]
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.erasedValue
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('erasedValue')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: fooErased
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fooErased')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      GenericCall
+        ReferenceExpression: erasedValue
+          PsiElement(identifier)('erasedValue')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace(' ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: fooErased
+        PsiElement(identifier)('fooErased')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')

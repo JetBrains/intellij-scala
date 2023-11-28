@@ -27,3 +27,527 @@ object ABug:
       case _ => ![--[N]] × (N)
       case ? :: ? => ![--[N]] × (N)
 -----
+ScalaFile
+  ScObject: ABug
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ABug')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Bit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bit')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: B0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B0')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Bit
+                  CodeReferenceElement: Bit
+                    PsiElement(identifier)('Bit')
+        PsiWhiteSpace('\n  ')
+        ScTrait: B1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B1')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Bit
+                  CodeReferenceElement: Bit
+                    PsiElement(identifier)('Bit')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Bin
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bin')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: Nil
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Bin
+                  CodeReferenceElement: Bin
+                    PsiElement(identifier)('Bin')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ::
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('::')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bit
+                CodeReferenceElement: Bit
+                  PsiElement(identifier)('Bit')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: D
+              PsiElement(identifier)('D')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bin
+                CodeReferenceElement: Bin
+                  PsiElement(identifier)('Bin')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Bin
+                  CodeReferenceElement: Bin
+                    PsiElement(identifier)('Bin')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Zero
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: B0 :: Nil
+            SimpleType: B0
+              CodeReferenceElement: B0
+                PsiElement(identifier)('B0')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            SimpleType: Nil
+              CodeReferenceElement: Nil
+                PsiElement(identifier)('Nil')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: One
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('One')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: B1 :: Nil
+            SimpleType: B1
+              CodeReferenceElement: B1
+                PsiElement(identifier)('B1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            SimpleType: Nil
+              CodeReferenceElement: Nil
+                PsiElement(identifier)('Nil')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: --
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('--')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bin
+                CodeReferenceElement: Bin
+                  PsiElement(identifier)('Bin')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: B match
+      case B1 :: d => B0 :: d
+      case B0 :: B1 :: Nil => B1 :: Nil
+      case B0 :: d => B1 :: --[d]
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: B1 :: d
+                  SimpleType: B1
+                    CodeReferenceElement: B1
+                      PsiElement(identifier)('B1')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: d
+                    PsiElement(identifier)('d')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: B0 :: d
+                  SimpleType: B0
+                    CodeReferenceElement: B0
+                      PsiElement(identifier)('B0')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  SimpleType: d
+                    CodeReferenceElement: d
+                      PsiElement(identifier)('d')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: B0 :: B1 :: Nil
+                  SimpleType: B0
+                    CodeReferenceElement: B0
+                      PsiElement(identifier)('B0')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixType: B1 :: Nil
+                    SimpleType: B1
+                      CodeReferenceElement: B1
+                        PsiElement(identifier)('B1')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nil
+                      CodeReferenceElement: Nil
+                        PsiElement(identifier)('Nil')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: B1 :: Nil
+                  SimpleType: B1
+                    CodeReferenceElement: B1
+                      PsiElement(identifier)('B1')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nil
+                    CodeReferenceElement: Nil
+                      PsiElement(identifier)('Nil')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: B0 :: d
+                  SimpleType: B0
+                    CodeReferenceElement: B0
+                      PsiElement(identifier)('B0')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: d
+                    PsiElement(identifier)('d')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: B1 :: --[d]
+                  SimpleType: B1
+                    CodeReferenceElement: B1
+                      PsiElement(identifier)('B1')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: --[d]
+                    SimpleType: --
+                      CodeReferenceElement: --
+                        PsiElement(identifier)('--')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: d
+                        CodeReferenceElement: d
+                          PsiElement(identifier)('d')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ×
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('×')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bin
+                CodeReferenceElement: Bin
+                  PsiElement(identifier)('Bin')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bin
+                CodeReferenceElement: Bin
+                  PsiElement(identifier)('Bin')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: (N, M) match
+      case (Zero, ?) => Zero
+            TupleType: (N, M)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TupleType: (Zero, ?)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Zero
+                      CodeReferenceElement: Zero
+                        PsiElement(identifier)('Zero')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    WildcardType: ?
+                      PsiElement(?)('?')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Zero
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: !
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('!')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Bin
+                CodeReferenceElement: Bin
+                  PsiElement(identifier)('Bin')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: N match
+      case Zero => One
+      case One => One
+      case _ => ![--[N]] × (N)
+      case ? :: ? => ![--[N]] × (N)
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Zero
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: One
+                  CodeReferenceElement: One
+                    PsiElement(identifier)('One')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: One
+                  CodeReferenceElement: One
+                    PsiElement(identifier)('One')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: One
+                  CodeReferenceElement: One
+                    PsiElement(identifier)('One')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: ![--[N]] × (N)
+                  ParametrizedType: ![--[N]]
+                    SimpleType: !
+                      CodeReferenceElement: !
+                        PsiElement(identifier)('!')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: --[N]
+                        SimpleType: --
+                          CodeReferenceElement: --
+                            PsiElement(identifier)('--')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ×
+                    PsiElement(identifier)('×')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (N)
+                    PsiElement(()('(')
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: ? :: ?
+                  WildcardType: ?
+                    PsiElement(?)('?')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  WildcardType: ?
+                    PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: ![--[N]] × (N)
+                  ParametrizedType: ![--[N]]
+                    SimpleType: !
+                      CodeReferenceElement: !
+                        PsiElement(identifier)('!')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: --[N]
+                        SimpleType: --
+                          CodeReferenceElement: --
+                            PsiElement(identifier)('--')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ×
+                    PsiElement(identifier)('×')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (N)
+                    PsiElement(()('(')
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                    PsiElement())(')')

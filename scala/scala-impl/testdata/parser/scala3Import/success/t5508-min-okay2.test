@@ -3,3 +3,79 @@ trait TopTrait { // must be nested and a trait
   val escape = { () => _st }
 }
 -----
+ScalaFile
+  ScTrait: TopTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TopTrait')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// must be nested and a trait')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _st
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+              PsiElement([)('[')
+              PsiElement(this)('this')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _st
+              PsiElement(identifier)('_st')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// crashes if TopTrait is not top level')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: escape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: escape
+              PsiElement(identifier)('escape')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: _st
+                  PsiElement(identifier)('_st')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

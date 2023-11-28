@@ -6,3 +6,153 @@ inline def m = inline n match { case null => 0; case _ => 1 }
   println(f) // error
   println(m)
 -----
+ScalaFile
+  ScFunctionDefinition: n
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('n')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NullLiteral
+      PsiElement(null)('null')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      InfixExpression
+        ReferenceExpression: n
+          PsiElement(identifier)('n')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ==
+          PsiElement(identifier)('==')
+        PsiWhiteSpace(' ')
+        NullLiteral
+          PsiElement(null)('null')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('0')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('1')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: m
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('m')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace(' ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralPattern
+            NullLiteral
+              PsiElement(null)('null')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('1')
+      PsiWhiteSpace(' ')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// error')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: m
+            PsiElement(identifier)('m')
+          PsiElement())(')')

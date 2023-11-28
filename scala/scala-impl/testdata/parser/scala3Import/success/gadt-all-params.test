@@ -8,3 +8,159 @@ object `gadt-all-params` {
   }
 }
 -----
+ScalaFile
+  ScObject: `gadt-all-params`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('`gadt-all-params`')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnum: Expr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Expr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: UnitLit
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: UnitLit
+                  PsiElement(identifier)('UnitLit')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: Expr[Unit]
+                          SimpleType: Expr
+                            CodeReferenceElement: Expr
+                              PsiElement(identifier)('Expr')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: Unit
+                              CodeReferenceElement: Unit
+                                PsiElement(identifier)('Unit')
+                            PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: TT
+                CodeReferenceElement: TT
+                  PsiElement(identifier)('TT')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: TT
+                CodeReferenceElement: TT
+                  PsiElement(identifier)('TT')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: TT
+              PsiElement(identifier)('TT')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Expr[T]
+                    SimpleType: Expr
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: e
+              PsiElement(identifier)('e')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: Expr.UnitLit
+                    ReferenceExpression: Expr
+                      PsiElement(identifier)('Expr')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('UnitLit')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  UnitExpression
+                    PsiElement(()('(')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

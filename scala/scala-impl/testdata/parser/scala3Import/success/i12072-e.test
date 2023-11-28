@@ -2,3 +2,82 @@ def test: Boolean = nn(42) == 42
 
 def nn(x: Int): x.type & Int = ???
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      MethodCall
+        ReferenceExpression: nn
+          PsiElement(identifier)('nn')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('42')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ==
+        PsiElement(identifier)('==')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('42')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: nn
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('nn')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: x.type & Int
+      SimpleType: x.type
+        CodeReferenceElement: x
+          PsiElement(identifier)('x')
+        PsiElement(.)('.')
+        PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

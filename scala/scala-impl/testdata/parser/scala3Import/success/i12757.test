@@ -7,3 +7,91 @@ def f =
    else
       println("No")
 -----
+ScalaFile
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Some
+        PsiElement(identifier)('Some')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('10')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n   ')
+    IfStatement
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: x.exists
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          PsiElement(.)('.')
+          PsiElement(identifier)('exists')
+        PsiWhiteSpace('\n         ')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: x
+                  PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('10')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace('\n      ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"Yes"')
+          PsiElement())(')')
+      PsiWhiteSpace('\n   ')
+      PsiElement(else)('else')
+      PsiWhiteSpace('\n      ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"No"')
+          PsiElement())(')')

@@ -9,3 +9,216 @@ object Lie:
 val x  = summon[Lie.TC[Lie[7]]]
 val works = summon[x.Out =:= 7]
 -----
+ScalaFile
+  ScTypeAliasDefinition: Lie
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Lie')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: W
+        PsiElement(identifier)('W')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+  PsiWhiteSpace('\n')
+  ScObject: Lie
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Lie')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TC')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Out
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Out')
+        PsiWhiteSpace('\n  ')
+        ScObject: TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TC')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScGivenDefinition: given_TC_Lie
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: W
+                    PsiElement(identifier)('W')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TC[Lie[W]]
+                        SimpleType: TC
+                          CodeReferenceElement: TC
+                            PsiElement(identifier)('TC')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: Lie[W]
+                            SimpleType: Lie
+                              CodeReferenceElement: Lie
+                                PsiElement(identifier)('Lie')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: W
+                                CodeReferenceElement: W
+                                  PsiElement(identifier)('W')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace('\n      ')
+                  ScTemplateBody
+                    ScTypeAliasDefinition: Out
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Out')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: W
+                        CodeReferenceElement: W
+                          PsiElement(identifier)('W')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace('  ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: Lie.TC[Lie[7]]
+          SimpleType: Lie.TC
+            CodeReferenceElement: Lie.TC
+              CodeReferenceElement: Lie
+                PsiElement(identifier)('Lie')
+              PsiElement(.)('.')
+              PsiElement(identifier)('TC')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Lie[7]
+              SimpleType: Lie
+                CodeReferenceElement: Lie
+                  PsiElement(identifier)('Lie')
+              TypeArgumentsList
+                PsiElement([)('[')
+                LiteralType: 7
+                  IntegerLiteral
+                    PsiElement(integer)('7')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: works
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: works
+        PsiElement(identifier)('works')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: x.Out =:= 7
+          SimpleType: x.Out
+            CodeReferenceElement: x.Out
+              CodeReferenceElement: x
+                PsiElement(identifier)('x')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Out')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: =:=
+            PsiElement(identifier)('=:=')
+          PsiWhiteSpace(' ')
+          LiteralType: 7
+            IntegerLiteral
+              PsiElement(integer)('7')
+        PsiElement(])(']')

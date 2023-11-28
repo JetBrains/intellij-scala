@@ -4,3 +4,114 @@ given myFoo1: (Foo { type X = Int }) = ???
 type Bar = Foo { type X = Int }
 given myFoo2: Bar = ???
 -----
+ScalaFile
+  ScTypeAliasDeclaration: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: myFoo1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('myFoo1')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (Foo { type X = Int })
+      PsiElement(()('(')
+      CompoundType: Foo { type X = Int }
+        SimpleType: Foo
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+        PsiWhiteSpace(' ')
+        Refinement
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          ScTypeAliasDefinition: X
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: Foo { type X = Int }
+      SimpleType: Foo
+        CodeReferenceElement: Foo
+          PsiElement(identifier)('Foo')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: myFoo2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('myFoo2')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Bar
+      CodeReferenceElement: Bar
+        PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

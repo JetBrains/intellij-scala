@@ -46,3 +46,1103 @@ def p( chanA: More[Test1|Test2], chanB: More[Test3|Test4], chanC: More[Test5|Tes
       }
    }
 -----
+ScalaFile
+  ScClass: Test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScClass: Test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScClass: Test3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test3')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScClass: Test4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test4')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScClass: Test5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test5')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScClass: Test6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test6')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScClass: DSL
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DSL')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: cont
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('cont')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: P1
+              PsiElement(identifier)('P1')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: this.type
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: DSL
+                CodeReferenceElement: DSL
+                  PsiElement(identifier)('DSL')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: P2
+              PsiElement(identifier)('P2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: DSL
+                CodeReferenceElement: DSL
+                  PsiElement(identifier)('DSL')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: continuation
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('continuation')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: P2
+                    CodeReferenceElement: P2
+                      PsiElement(identifier)('P2')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Continue
+                PsiElement(identifier)('Continue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: P1
+                  CodeReferenceElement: P1
+                    PsiElement(identifier)('P1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: P2
+                  CodeReferenceElement: P2
+                    PsiElement(identifier)('P2')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ThisReference
+                  PsiElement(this)('this')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: continuation
+                  PsiElement(identifier)('continuation')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: Continue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Continue')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P1
+        PsiElement(identifier)('P1')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: DSL
+          CodeReferenceElement: DSL
+            PsiElement(identifier)('DSL')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: P2
+        PsiElement(identifier)('P2')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: DSL
+          CodeReferenceElement: DSL
+            PsiElement(identifier)('DSL')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: p1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('p1')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: () => P1
+                TypeInParenthesis: ()
+                  PsiElement(()('(')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: P1
+                  CodeReferenceElement: P1
+                    PsiElement(identifier)('P1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: p2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('p2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: () => P2
+                TypeInParenthesis: ()
+                  PsiElement(()('(')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: P2
+                  CodeReferenceElement: P2
+                    PsiElement(identifier)('P2')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: DSL
+            CodeReferenceElement: DSL
+              PsiElement(identifier)('DSL')
+  PsiWhiteSpace('\n\n')
+  ScTrait: More
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('More')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: Out
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Out')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: More[A]
+          SimpleType: More
+            CodeReferenceElement: More
+              PsiElement(identifier)('More')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: c
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('c')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: v
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('v')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: DSL
+            CodeReferenceElement: DSL
+              PsiElement(identifier)('DSL')
+  PsiWhiteSpace('\n')
+  ScClass: Nop
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Nop')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: DSL
+            CodeReferenceElement: DSL
+              PsiElement(identifier)('DSL')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: decision1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: decision1
+        PsiElement(identifier)('decision1')
+    PsiElement(:)(':')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BooleanLiteral
+      PsiElement(true)('true')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: decision2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: decision2
+        PsiElement(identifier)('decision2')
+    PsiElement(:)(':')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BooleanLiteral
+      PsiElement(false)('false')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: P
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('P')
+    TypeParameterClause
+      PsiElement([)('[')
+      PsiWhiteSpace('\n')
+      TypeParameter: ChanA
+        PsiElement(identifier)('ChanA')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: More[Test1|Test2]
+          SimpleType: More
+            CodeReferenceElement: More
+              PsiElement(identifier)('More')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Test1|Test2
+              SimpleType: Test1
+                CodeReferenceElement: Test1
+                  PsiElement(identifier)('Test1')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              SimpleType: Test2
+                CodeReferenceElement: Test2
+                  PsiElement(identifier)('Test2')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n')
+      TypeParameter: ChanB
+        PsiElement(identifier)('ChanB')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: More[Test3|Test4]
+          SimpleType: More
+            CodeReferenceElement: More
+              PsiElement(identifier)('More')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Test3|Test4
+              SimpleType: Test3
+                CodeReferenceElement: Test3
+                  PsiElement(identifier)('Test3')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              SimpleType: Test4
+                CodeReferenceElement: Test4
+                  PsiElement(identifier)('Test4')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n')
+      TypeParameter: ChanC
+        PsiElement(identifier)('ChanC')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: More[Test5|Test6]
+          SimpleType: More
+            CodeReferenceElement: More
+              PsiElement(identifier)('More')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: Test5|Test6
+              SimpleType: Test5
+                CodeReferenceElement: Test5
+                  PsiElement(identifier)('Test5')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              SimpleType: Test6
+                CodeReferenceElement: Test6
+                  PsiElement(identifier)('Test6')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n ')
+    TypeInParenthesis: ((Out[ChanA,Test1] Continue ((Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop))) //works if remove first 'Continue Nop'
+ | (Out[ChanA,Test2] Continue ((Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop))))
+      PsiElement(()('(')
+      InfixType: (Out[ChanA,Test1] Continue ((Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop))) //works if remove first 'Continue Nop'
+ | (Out[ChanA,Test2] Continue ((Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop)))
+        TypeInParenthesis: (Out[ChanA,Test1] Continue ((Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop)))
+          PsiElement(()('(')
+          InfixType: Out[ChanA,Test1] Continue ((Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop))
+            ParametrizedType: Out[ChanA,Test1]
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ChanA
+                  CodeReferenceElement: ChanA
+                    PsiElement(identifier)('ChanA')
+                PsiElement(,)(',')
+                SimpleType: Test1
+                  CodeReferenceElement: Test1
+                    PsiElement(identifier)('Test1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: Continue
+              PsiElement(identifier)('Continue')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ((Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop))
+              PsiElement(()('(')
+              InfixType: (Out[ChanB,Test3] Continue Nop)|(Out[ChanB,Test4] Continue Nop)
+                TypeInParenthesis: (Out[ChanB,Test3] Continue Nop)
+                  PsiElement(()('(')
+                  InfixType: Out[ChanB,Test3] Continue Nop
+                    ParametrizedType: Out[ChanB,Test3]
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ChanB
+                          CodeReferenceElement: ChanB
+                            PsiElement(identifier)('ChanB')
+                        PsiElement(,)(',')
+                        SimpleType: Test3
+                          CodeReferenceElement: Test3
+                            PsiElement(identifier)('Test3')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: Continue
+                      PsiElement(identifier)('Continue')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nop
+                      CodeReferenceElement: Nop
+                        PsiElement(identifier)('Nop')
+                  PsiElement())(')')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                TypeInParenthesis: (Out[ChanB,Test4] Continue Nop)
+                  PsiElement(()('(')
+                  InfixType: Out[ChanB,Test4] Continue Nop
+                    ParametrizedType: Out[ChanB,Test4]
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ChanB
+                          CodeReferenceElement: ChanB
+                            PsiElement(identifier)('ChanB')
+                        PsiElement(,)(',')
+                        SimpleType: Test4
+                          CodeReferenceElement: Test4
+                            PsiElement(identifier)('Test4')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: Continue
+                      PsiElement(identifier)('Continue')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nop
+                      CodeReferenceElement: Nop
+                        PsiElement(identifier)('Nop')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//works if remove first 'Continue Nop'')
+        PsiWhiteSpace('\n ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        TypeInParenthesis: (Out[ChanA,Test2] Continue ((Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop)))
+          PsiElement(()('(')
+          InfixType: Out[ChanA,Test2] Continue ((Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop))
+            ParametrizedType: Out[ChanA,Test2]
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ChanA
+                  CodeReferenceElement: ChanA
+                    PsiElement(identifier)('ChanA')
+                PsiElement(,)(',')
+                SimpleType: Test2
+                  CodeReferenceElement: Test2
+                    PsiElement(identifier)('Test2')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: Continue
+              PsiElement(identifier)('Continue')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ((Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop))
+              PsiElement(()('(')
+              InfixType: (Out[ChanC,Test5] Continue Nop)|(Out[ChanC,Test6] Continue Nop)
+                TypeInParenthesis: (Out[ChanC,Test5] Continue Nop)
+                  PsiElement(()('(')
+                  InfixType: Out[ChanC,Test5] Continue Nop
+                    ParametrizedType: Out[ChanC,Test5]
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ChanC
+                          CodeReferenceElement: ChanC
+                            PsiElement(identifier)('ChanC')
+                        PsiElement(,)(',')
+                        SimpleType: Test5
+                          CodeReferenceElement: Test5
+                            PsiElement(identifier)('Test5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: Continue
+                      PsiElement(identifier)('Continue')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nop
+                      CodeReferenceElement: Nop
+                        PsiElement(identifier)('Nop')
+                  PsiElement())(')')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                TypeInParenthesis: (Out[ChanC,Test6] Continue Nop)
+                  PsiElement(()('(')
+                  InfixType: Out[ChanC,Test6] Continue Nop
+                    ParametrizedType: Out[ChanC,Test6]
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ChanC
+                          CodeReferenceElement: ChanC
+                            PsiElement(identifier)('ChanC')
+                        PsiElement(,)(',')
+                        SimpleType: Test6
+                          CodeReferenceElement: Test6
+                            PsiElement(identifier)('Test6')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: Continue
+                      PsiElement(identifier)('Continue')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nop
+                      CodeReferenceElement: Nop
+                        PsiElement(identifier)('Nop')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n\n')
+  ScFunctionDefinition: p
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('p')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace(' ')
+        Parameter: chanA
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('chanA')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: More[Test1|Test2]
+              SimpleType: More
+                CodeReferenceElement: More
+                  PsiElement(identifier)('More')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: Test1|Test2
+                  SimpleType: Test1
+                    CodeReferenceElement: Test1
+                      PsiElement(identifier)('Test1')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  SimpleType: Test2
+                    CodeReferenceElement: Test2
+                      PsiElement(identifier)('Test2')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: chanB
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('chanB')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: More[Test3|Test4]
+              SimpleType: More
+                CodeReferenceElement: More
+                  PsiElement(identifier)('More')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: Test3|Test4
+                  SimpleType: Test3
+                    CodeReferenceElement: Test3
+                      PsiElement(identifier)('Test3')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  SimpleType: Test4
+                    CodeReferenceElement: Test4
+                      PsiElement(identifier)('Test4')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: chanC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('chanC')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: More[Test5|Test6]
+              SimpleType: More
+                CodeReferenceElement: More
+                  PsiElement(identifier)('More')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: Test5|Test6
+                  SimpleType: Test5
+                    CodeReferenceElement: Test5
+                      PsiElement(identifier)('Test5')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  SimpleType: Test6
+                    CodeReferenceElement: Test6
+                      PsiElement(identifier)('Test6')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n ')
+    PsiElement(:)(':')
+    ParametrizedType: P[chanA.type,chanB.type,chanC.type]
+      SimpleType: P
+        CodeReferenceElement: P
+          PsiElement(identifier)('P')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: chanA.type
+          CodeReferenceElement: chanA
+            PsiElement(identifier)('chanA')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(,)(',')
+        SimpleType: chanB.type
+          CodeReferenceElement: chanB
+            PsiElement(identifier)('chanB')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(,)(',')
+        SimpleType: chanC.type
+          CodeReferenceElement: chanC
+            PsiElement(identifier)('chanC')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n      ')
+      IfStatement
+        PsiElement(if)('if')
+        PsiElement(()('(')
+        ReferenceExpression: decision1
+          PsiElement(identifier)('decision1')
+        PsiElement())(')')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n         ')
+          InfixExpression
+            MethodCall
+              ReferenceExpression: Out
+                PsiElement(identifier)('Out')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: chanA
+                  PsiElement(identifier)('chanA')
+                PsiElement(,)(',')
+                MethodCall
+                  ReferenceExpression: Test1
+                    PsiElement(identifier)('Test1')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: cont
+              PsiElement(identifier)('cont')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n            ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiElement(()('(')
+                ReferenceExpression: decision2
+                  PsiElement(identifier)('decision2')
+                PsiElement())(')')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n               ')
+                  InfixExpression
+                    MethodCall
+                      ReferenceExpression: Out
+                        PsiElement(identifier)('Out')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: chanB
+                          PsiElement(identifier)('chanB')
+                        PsiElement(,)(',')
+                        MethodCall
+                          ReferenceExpression: Test3
+                            PsiElement(identifier)('Test3')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cont
+                      PsiElement(identifier)('cont')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Nop
+                        PsiElement(identifier)('Nop')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('//works if replace with 'Out(chanB,Test3())'')
+                  PsiWhiteSpace('\n            ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n            ')
+                PsiElement(else)('else')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n               ')
+                  InfixExpression
+                    MethodCall
+                      ReferenceExpression: Out
+                        PsiElement(identifier)('Out')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: chanB
+                          PsiElement(identifier)('chanB')
+                        PsiElement(,)(',')
+                        MethodCall
+                          ReferenceExpression: Test4
+                            PsiElement(identifier)('Test4')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cont
+                      PsiElement(identifier)('cont')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Nop
+                        PsiElement(identifier)('Nop')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n            ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n         ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n      ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n      ')
+        PsiElement(else)('else')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n         ')
+          InfixExpression
+            MethodCall
+              ReferenceExpression: Out
+                PsiElement(identifier)('Out')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: chanA
+                  PsiElement(identifier)('chanA')
+                PsiElement(,)(',')
+                MethodCall
+                  ReferenceExpression: Test2
+                    PsiElement(identifier)('Test2')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: cont
+              PsiElement(identifier)('cont')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n            ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiElement(()('(')
+                ReferenceExpression: decision2
+                  PsiElement(identifier)('decision2')
+                PsiElement())(')')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n               ')
+                  InfixExpression
+                    MethodCall
+                      ReferenceExpression: Out
+                        PsiElement(identifier)('Out')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: chanC
+                          PsiElement(identifier)('chanC')
+                        PsiElement(,)(',')
+                        MethodCall
+                          ReferenceExpression: Test5
+                            PsiElement(identifier)('Test5')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cont
+                      PsiElement(identifier)('cont')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Nop
+                        PsiElement(identifier)('Nop')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n            ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n            ')
+                PsiElement(else)('else')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n               ')
+                  InfixExpression
+                    MethodCall
+                      ReferenceExpression: Out
+                        PsiElement(identifier)('Out')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: chanC
+                          PsiElement(identifier)('chanC')
+                        PsiElement(,)(',')
+                        MethodCall
+                          ReferenceExpression: Test6
+                            PsiElement(identifier)('Test6')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cont
+                      PsiElement(identifier)('cont')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Nop
+                        PsiElement(identifier)('Nop')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n            ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n         ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n      ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n   ')
+      PsiElement(})('}')

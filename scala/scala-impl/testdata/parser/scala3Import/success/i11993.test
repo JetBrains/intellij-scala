@@ -14,3 +14,229 @@ object test2:
 
   class Bar extends Foo("bar", Some("bar"))
 -----
+ScalaFile
+  ScObject: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n    ')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n    ')
+                ClassParameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Option[x.type]
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: x.type
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"bar"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"bar"')
+                      PsiElement())(')')
+                  PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test2')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n    ')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n    ')
+                ClassParameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Option[x.type]
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: x.type
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"bar"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      StringLiteral
+                        PsiElement(string content)('"bar"')
+                      PsiElement())(')')
+                  PsiElement())(')')

@@ -4,3 +4,105 @@ object Test {
   val i: Int = f("")
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: f
+              PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: java.util.function.Function[_ >: String, _ <: Int]
+            SimpleType: java.util.function.Function
+              CodeReferenceElement: java.util.function.Function
+                CodeReferenceElement: java.util.function
+                  CodeReferenceElement: java.util
+                    CodeReferenceElement: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('util')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('function')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Function')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ >: String
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(>:)('>:')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _ <: Int
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: str
+                  PsiElement(identifier)('str')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: i
+              PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('""')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

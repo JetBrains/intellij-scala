@@ -27,3 +27,443 @@ object arrays3 {
   def apply2[X](xs : X*) : java.util.List[X] = java.util.Arrays.asList(xs*)
 }
 -----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: arrays2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('arrays2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Array[Array[C]]
+                SimpleType: Array
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Array[C]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Array[Array[C]]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: Array[C]
+                            SimpleType: Array
+                              CodeReferenceElement: Array
+                                PsiElement(identifier)('Array')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            AssignStatement
+              MethodCall
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Array[C]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            AssignStatement
+              MethodCall
+                MethodCall
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: arrays4
+    PsiComment(comment)('// #2422')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('arrays4')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: args
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: args
+              PsiElement(identifier)('args')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Array
+                PsiElement(identifier)('Array')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"World"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: "Hello %1$s".format
+            StringLiteral
+              PsiElement(string content)('"Hello %1$s"')
+            PsiElement(.)('.')
+            PsiElement(identifier)('format')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              ReferenceExpression: args
+                PsiElement(identifier)('args')
+              SequenceArgumentType
+                PsiElement(identifier)('*')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(BlockComment)('/*\ntest/files/pos/arrays2.scala:15: warning: Passing an explicit array value to a Scala varargs method is deprecated (since 2.13.0) and will result in a defensive copy; Use the more efficient non-copying ArraySeq.unsafeWrapArray or an explicit toIndexedSeq call\n  "Hello %1$s".format(args*)\n                      ^\none warning found\n*/')
+  PsiWhiteSpace('\n\n')
+  ScObject: arrays3
+    PsiComment(comment)('// #2461')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('arrays3')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: java.util.List[X]
+            SimpleType: java.util.List
+              CodeReferenceElement: java.util.List
+                CodeReferenceElement: java.util
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: java.util.Arrays.asList
+              ReferenceExpression: java.util.Arrays
+                ReferenceExpression: java.util
+                  ReferenceExpression: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Arrays')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asList')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                SequenceArgumentType
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: java.util.List[X]
+            SimpleType: java.util.List
+              CodeReferenceElement: java.util.List
+                CodeReferenceElement: java.util
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: java.util.Arrays.asList
+              ReferenceExpression: java.util.Arrays
+                ReferenceExpression: java.util
+                  ReferenceExpression: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Arrays')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asList')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                SequenceArgumentType
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

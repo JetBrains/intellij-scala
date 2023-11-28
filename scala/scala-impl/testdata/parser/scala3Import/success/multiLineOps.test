@@ -25,3 +25,274 @@ val b2: Boolean = {
   ???
 }
 -----
+ScalaFile
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      InfixExpression
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: +
+          PsiElement(identifier)('+')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('2')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: +
+        PsiElement(identifier)('+')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+  PsiWhiteSpace('\n\n')
+  ScClass: Channel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Channel')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: !
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('!')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Channel
+            CodeReferenceElement: Channel
+              PsiElement(identifier)('Channel')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: send_!
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('send_!')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Channel
+            CodeReferenceElement: Channel
+              PsiElement(identifier)('Channel')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: c
+        PsiElement(identifier)('c')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Channel
+        PsiElement(identifier)('Channel')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: send
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('send')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixExpression
+      InfixExpression
+        InfixExpression
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: !
+            PsiElement(identifier)('!')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"hello"')
+        PsiWhiteSpace('\n    ')
+        ReferenceExpression: !
+          PsiElement(identifier)('!')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"world"')
+      PsiWhiteSpace('\n    ')
+      ReferenceExpression: send_!
+        PsiElement(identifier)('send_!')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"!"')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixExpression
+      InfixExpression
+        ReferenceExpression: "hello".isEmpty
+          StringLiteral
+            PsiElement(string content)('"hello"')
+          PsiElement(.)('.')
+          PsiElement(identifier)('isEmpty')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: &&
+          PsiElement(identifier)('&&')
+        PsiWhiteSpace(' ')
+        BooleanLiteral
+          PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: &&
+        PsiElement(identifier)('&&')
+      PsiWhiteSpace('\n  ')
+      PrefixExpression
+        ReferenceExpression: !
+          PsiElement(identifier)('!')
+        ReferenceExpression: "hello".isEmpty
+          StringLiteral
+            PsiElement(string content)('"hello"')
+          PsiElement(.)('.')
+          PsiElement(identifier)('isEmpty')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: b2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b2
+        PsiElement(identifier)('b2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      PrefixExpression
+        ReferenceExpression: !
+          PsiElement(identifier)('!')
+        ReferenceExpression: "hello".isEmpty
+          StringLiteral
+            PsiElement(string content)('"hello"')
+          PsiElement(.)('.')
+          PsiElement(identifier)('isEmpty')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

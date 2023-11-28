@@ -16,3 +16,221 @@ object Test {
   }).sum))
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// okay')
+        PsiWhiteSpace('\n  ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              ReferenceExpression: List[BigInt]().map(((x0) => x0 match {
+    case x => x
+  })).sum
+                MethodCall
+                  ReferenceExpression: List[BigInt]().map
+                    MethodCall
+                      GenericCall
+                        ReferenceExpression: List
+                          PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: BigInt
+                            CodeReferenceElement: BigInt
+                              PsiElement(identifier)('BigInt')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      FunctionExpression
+                        Parameters
+                          ParametersClause
+                            PsiElement(()('(')
+                            Parameter: x0
+                              AnnotationsList
+                                <empty list>
+                              PsiElement(identifier)('x0')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        MatchStatement
+                          ReferenceExpression: x0
+                            PsiElement(identifier)('x0')
+                          PsiWhiteSpace(' ')
+                          PsiElement(match)('match')
+                          PsiWhiteSpace(' ')
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n    ')
+                          CaseClauses
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              ReferencePattern: x
+                                PsiElement(identifier)('x')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                ReferenceExpression: x
+                                  PsiElement(identifier)('x')
+                          PsiWhiteSpace('\n  ')
+                          PsiElement(})('}')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('sum')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// okay')
+        PsiWhiteSpace('\n  ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: BigInt
+                  CodeReferenceElement: BigInt
+                    PsiElement(identifier)('BigInt')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              ReferenceExpression: List[BigInt]().map({
+    case x => x
+  }).sum
+                MethodCall
+                  ReferenceExpression: List[BigInt]().map
+                    MethodCall
+                      GenericCall
+                        ReferenceExpression: List
+                          PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: BigInt
+                            CodeReferenceElement: BigInt
+                              PsiElement(identifier)('BigInt')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n    ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                      PsiWhiteSpace('\n  ')
+                      PsiElement(})('}')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('sum')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// fail')
+        PsiWhiteSpace('\n  ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              ReferenceExpression: List[BigInt]().map({
+    case x => x
+  }).sum
+                MethodCall
+                  ReferenceExpression: List[BigInt]().map
+                    MethodCall
+                      GenericCall
+                        ReferenceExpression: List
+                          PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: BigInt
+                            CodeReferenceElement: BigInt
+                              PsiElement(identifier)('BigInt')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n    ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                      PsiWhiteSpace('\n  ')
+                      PsiElement(})('}')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('sum')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

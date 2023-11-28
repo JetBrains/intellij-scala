@@ -10,3 +10,199 @@ object testImplicit {
 // mentioned before: http://thread.gmane.org/gmane.comp.lang.scala/2038,
 // but couldn't find a bug report
 -----
+ScalaFile
+  ScObject: testImplicit
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('testImplicit')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo2bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo2bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('foo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: foo.bar
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('bar')
+        PsiWhiteSpace('\n  ')
+        ScClass: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: bar
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('bar')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: testCoercion
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('testCoercion')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  ScPatternDefinition: a
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: a
+                        PsiElement(identifier)('a')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ThisReference
+                      PsiElement(this)('this')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a.baz
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('baz')
+                  PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// here, foo2bar is inferred by the compiler, as expected')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: testCoercionThisExplicit
+                PsiComment(comment)('//def testCoercionThisImplicit = baz  // --> error: not found: value baz')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('testCoercionThisExplicit')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: this.baz
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('baz')
+              PsiWhiteSpace('  ')
+              PsiComment(comment)('// --> error: value baz is not a  member of Foo')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDeclaration: baz
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('baz')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// mentioned before: http://thread.gmane.org/gmane.comp.lang.scala/2038,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// but couldn't find a bug report')

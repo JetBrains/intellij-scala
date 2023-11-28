@@ -7,3 +7,72 @@ abstract class T {
   def t4: Test.Baz
 }
 -----
+ScalaFile
+  ScClass: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: t2
+          PsiComment(comment)('// see: SI-6109')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// def t1: Test$Bar')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeProjection: Test#Bar
+            SimpleType: Test
+              CodeReferenceElement: Test
+                PsiElement(identifier)('Test')
+            PsiElement(#)('#')
+            PsiElement(identifier)('Bar')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: t4
+          PsiComment(comment)('// see: SI-6109')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// def t3: Test$Baz')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t4')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Test.Baz
+            CodeReferenceElement: Test.Baz
+              CodeReferenceElement: Test
+                PsiElement(identifier)('Test')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Baz')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

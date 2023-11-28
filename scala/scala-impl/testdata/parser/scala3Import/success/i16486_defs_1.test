@@ -16,3 +16,248 @@ object Json{
 }
 
 -----
+ScalaFile
+  PsiComment(comment)('// defs_1.scala')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.time
+        CodeReferenceElement: java
+          PsiElement(identifier)('java')
+        PsiElement(.)('.')
+        PsiElement(identifier)('time')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Temporal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Temporal')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixType: java.sql.Date |
+  LocalDateTime | LocalDate | LocalTime |
+  Instant
+      InfixType: java.sql.Date |
+  LocalDateTime | LocalDate | LocalTime
+        InfixType: java.sql.Date |
+  LocalDateTime | LocalDate
+          InfixType: java.sql.Date |
+  LocalDateTime
+            SimpleType: java.sql.Date
+              CodeReferenceElement: java.sql.Date
+                CodeReferenceElement: java.sql
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('sql')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Date')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace('\n  ')
+            SimpleType: LocalDateTime
+              CodeReferenceElement: LocalDateTime
+                PsiElement(identifier)('LocalDateTime')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: LocalDate
+            CodeReferenceElement: LocalDate
+              PsiElement(identifier)('LocalDate')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        SimpleType: LocalTime
+          CodeReferenceElement: LocalTime
+            PsiElement(identifier)('LocalTime')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace('\n  ')
+      SimpleType: Instant
+        CodeReferenceElement: Instant
+          PsiElement(identifier)('Instant')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_Conversion_|_JsValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Conversion[String | Temporal, JsValue]
+      SimpleType: Conversion
+        CodeReferenceElement: Conversion
+          PsiElement(identifier)('Conversion')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: String | Temporal
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: Temporal
+            CodeReferenceElement: Temporal
+              PsiElement(identifier)('Temporal')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: JsValue
+          CodeReferenceElement: JsValue
+            PsiElement(identifier)('JsValue')
+        PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('  ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: JsValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsValue')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: JsObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsObject')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Map[String, JsValue]
+                SimpleType: Map
+                  CodeReferenceElement: Map
+                    PsiElement(identifier)('Map')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: JsValue
+                    CodeReferenceElement: JsValue
+                      PsiElement(identifier)('JsValue')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Json
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Json')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: obj
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('obj')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fields
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fields')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tuple2[String,  JsValue | Option[JsValue]]
+                    SimpleType: Tuple2
+                      CodeReferenceElement: Tuple2
+                        PsiElement(identifier)('Tuple2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('  ')
+                      InfixType: JsValue | Option[JsValue]
+                        SimpleType: JsValue
+                          CodeReferenceElement: JsValue
+                            PsiElement(identifier)('JsValue')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Option[JsValue]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: JsValue
+                              CodeReferenceElement: JsValue
+                                PsiElement(identifier)('JsValue')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiElement(identifier)('*')
+              PsiWhiteSpace(' ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: JsObject
+            CodeReferenceElement: JsObject
+              PsiElement(identifier)('JsObject')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

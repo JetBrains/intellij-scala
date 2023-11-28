@@ -9,3 +9,220 @@ class Fun[|*|[_, _]] {
     }
 }
 -----
+ScalaFile
+  ScClass: Fun
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Fun')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: |*|
+        PsiElement(identifier)('|*|')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnum: -->
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('-->')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: BiId
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumClassCase: BiId
+                  PsiElement(identifier)('BiId')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: X
+                      PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: Y
+                      PsiElement(identifier)('Y')
+                    PsiElement(])(']')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        TypeInParenthesis: ((X |*| Y) --> (X |*| Y))
+                          PsiElement(()('(')
+                          InfixType: (X |*| Y) --> (X |*| Y)
+                            TypeInParenthesis: (X |*| Y)
+                              PsiElement(()('(')
+                              InfixType: X |*| Y
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |*|
+                                  PsiElement(identifier)('|*|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                              PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: -->
+                              PsiElement(identifier)('-->')
+                            PsiWhiteSpace(' ')
+                            TypeInParenthesis: (X |*| Y)
+                              PsiElement(()('(')
+                              InfixType: X |*| Y
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |*|
+                                  PsiElement(identifier)('|*|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                              PsiElement())(')')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: go
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('go')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: A --> B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: -->
+                      PsiElement(identifier)('-->')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: -->.BiId
+                    CodeReferenceElement: -->
+                      PsiElement(identifier)('-->')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('BiId')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  UnitExpression
+                    PsiElement(()('(')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

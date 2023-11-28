@@ -10,3 +10,161 @@ object Test {
   def main(args : Array[String]): Unit = (new Editor).f
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: Editor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Editor')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScObject: extraListener
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    AccessModifier
+                      PsiElement(private)('private')
+                  PsiWhiteSpace(' ')
+                  PsiElement(object)('object')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('extraListener')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      ScFunctionDefinition: h
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('h')
+                        Parameters
+                          <empty list>
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: AnyRef
+                          CodeReferenceElement: AnyRef
+                            PsiElement(identifier)('AnyRef')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: extraListener
+                          PsiElement(identifier)('extraListener')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('f')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: extraListener.h
+                    ReferenceExpression: extraListener
+                      PsiElement(identifier)('extraListener')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('h')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: main
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('main')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: args
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[String]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: (new Editor).f
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Editor
+                          CodeReferenceElement: Editor
+                            PsiElement(identifier)('Editor')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('f')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

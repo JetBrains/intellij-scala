@@ -17,3 +17,263 @@ object Foo {
   }
 }
 -----
+ScalaFile
+  ScClass: Tasty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tasty')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Term
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Term')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Select
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Select')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Term
+            CodeReferenceElement: Term
+              PsiElement(identifier)('Term')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_ClassTag_Term
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.reflect.ClassTag[Term]
+            SimpleType: scala.reflect.ClassTag
+              CodeReferenceElement: scala.reflect.ClassTag
+                CodeReferenceElement: scala.reflect
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reflect')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ClassTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Term
+                CodeReferenceElement: Term
+                  PsiElement(identifier)('Term')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_ClassTag_Select
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.reflect.ClassTag[Select]
+            SimpleType: scala.reflect.ClassTag
+              CodeReferenceElement: scala.reflect.ClassTag
+                CodeReferenceElement: scala.reflect
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reflect')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ClassTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Select
+                CodeReferenceElement: Select
+                  PsiElement(identifier)('Select')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScObject: Select
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Select')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: unapply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('unapply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Select
+                          CodeReferenceElement: Select
+                            PsiElement(identifier)('Select')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('impl')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: tasty
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tasty')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Tasty
+                    CodeReferenceElement: Tasty
+                      PsiElement(identifier)('Tasty')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: tasty
+                  PsiElement(identifier)('tasty')
+                PsiElement(.)('.')
+                ImportSelectors
+                  PsiElement({)('{')
+                  ImportSelector
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ImportSelector
+                    PsiElement(given)('given')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ConstructorPattern
+                  CodeReferenceElement: Select
+                    PsiElement(identifier)('Select')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Term
+                    CodeReferenceElement: Term
+                      PsiElement(identifier)('Term')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

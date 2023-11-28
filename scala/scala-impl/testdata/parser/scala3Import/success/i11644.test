@@ -1,2 +1,31 @@
 @main def hello = println("hello, world")
 -----
+ScalaFile
+  ScFunctionDefinition: hello
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('hello')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        StringLiteral
+          PsiElement(string content)('"hello, world"')
+        PsiElement())(')')

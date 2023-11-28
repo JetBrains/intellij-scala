@@ -4,3 +4,74 @@ def test =
   ("A" == "A": true)
   ("A" == "B": false)
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        TypedExpression
+          InfixExpression
+            StringLiteral
+              PsiElement(string content)('"A"')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"B"')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: "AB"
+            StringLiteral
+              PsiElement(string content)('"AB"')
+        PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        TypedExpression
+          InfixExpression
+            StringLiteral
+              PsiElement(string content)('"A"')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"A"')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: true
+            BooleanLiteral
+              PsiElement(true)('true')
+        PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        TypedExpression
+          InfixExpression
+            StringLiteral
+              PsiElement(string content)('"A"')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"B"')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: false
+            BooleanLiteral
+              PsiElement(false)('false')
+        PsiElement())(')')

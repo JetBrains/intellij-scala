@@ -22,3 +22,345 @@ class Baz(using DFC):
 
 val top = new Baz
 -----
+ScalaFile
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Bar
+      CodeReferenceElement: Bar
+        PsiElement(identifier)('Bar')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Bar
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: j
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('j')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: i
+              PsiElement(identifier)('i')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: bar
+              PsiElement(identifier)('bar')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: DFC
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DFC')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_DFC
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    SimpleType: DFC
+      CodeReferenceElement: DFC
+        PsiElement(identifier)('DFC')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: DFC
+              CodeReferenceElement: DFC
+                PsiElement(identifier)('DFC')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: TC
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TC')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: TC
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TC')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: DFC
+                    CodeReferenceElement: DFC
+                      PsiElement(identifier)('DFC')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: DFC
+                    CodeReferenceElement: DFC
+                      PsiElement(identifier)('DFC')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: TC
+            CodeReferenceElement: TC
+              PsiElement(identifier)('TC')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: TC
+                    CodeReferenceElement: TC
+                      PsiElement(identifier)('TC')
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                MethodCall
+                  ReferenceExpression: foo
+                    PsiElement(identifier)('foo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: Baz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Baz')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: x$1
+            ParameterType
+              SimpleType: DFC
+                CodeReferenceElement: DFC
+                  PsiElement(identifier)('DFC')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: TC
+              CodeReferenceElement: TC
+                PsiElement(identifier)('TC')
+            PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: top
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: top
+        PsiElement(identifier)('top')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Baz
+              CodeReferenceElement: Baz
+                PsiElement(identifier)('Baz')

@@ -8,3 +8,285 @@ object Qu:
   def f[A](array: Array[AnyRef], start: Int, end: Int) = 1
   def f[A](initialSize: Int = 1) = 2
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala.collection.mutable
+      CodeReferenceElement: scala.collection
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('collection')
+      PsiElement(.)('.')
+      PsiElement(identifier)('mutable')
+    PsiWhiteSpace('\n\n')
+    ScClass: Qu
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Qu')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(protected)('protected')
+        PsiWhiteSpace(' ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: array
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('array')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: Array[AnyRef]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: AnyRef
+                      CodeReferenceElement: AnyRef
+                        PsiElement(identifier)('AnyRef')
+                    PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ClassParameter: start
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('start')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ClassParameter: end
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('end')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: this
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(this)('this')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: initialSize
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('initialSize')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ArrayDeque.DefaultInitialSize
+                    ReferenceExpression: ArrayDeque
+                      PsiElement(identifier)('ArrayDeque')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('DefaultInitialSize')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            SelfInvocation
+              PsiElement(this)('this')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: ArrayDeque.alloc
+                    ReferenceExpression: ArrayDeque
+                      PsiElement(identifier)('ArrayDeque')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('alloc')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: initialSize
+                      PsiElement(identifier)('initialSize')
+                    PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                AssignStatement
+                  ReferenceExpression: start
+                    PsiElement(identifier)('start')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                AssignStatement
+                  ReferenceExpression: end
+                    PsiElement(identifier)('end')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiElement())(')')
+    PsiWhiteSpace('\n\n')
+    ScObject: Qu
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Qu')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: array
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('array')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[AnyRef]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: AnyRef
+                          CodeReferenceElement: AnyRef
+                            PsiElement(identifier)('AnyRef')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: start
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('start')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: end
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('end')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: initialSize
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('initialSize')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')

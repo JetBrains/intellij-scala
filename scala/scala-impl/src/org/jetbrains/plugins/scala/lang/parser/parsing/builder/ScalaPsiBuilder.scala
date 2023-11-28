@@ -48,6 +48,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def currentIndentationWidth: IndentationWidth
 
+  def previousIndentationWidth: Option[IndentationWidth]
+
   def pushIndentationWidth(width: IndentationWidth): Unit
 
   def popIndentationWidth(): IndentationWidth

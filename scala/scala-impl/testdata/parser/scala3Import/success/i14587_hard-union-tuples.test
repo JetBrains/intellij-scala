@@ -10,3 +10,198 @@ class Test:
     ): @unchecked
     foo2
 -----
+ScalaFile
+  ScClass: Test
+    PsiComment(comment)('// scalac: -Werror')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Option[String] | Option[Int]
+            ParametrizedType: Option[String]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Option[Int]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('foo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: foo2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: foo2
+                        PsiElement(identifier)('foo2')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        SimpleType: Foo
+                          CodeReferenceElement: Foo
+                            PsiElement(identifier)('Foo')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              TypedExpression
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// was: the type test for Test.this.Foo cannot be checked at runtime')
+                  PsiWhiteSpace('\n      ')
+                  MatchStatement
+                    ReferenceExpression: foo
+                      PsiElement(identifier)('foo')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n        ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: Some
+                            PsiElement(identifier)('Some')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            Scala3 TypedPattern
+                              ReferencePattern: s
+                                PsiElement(identifier)('s')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          Tuple
+                            PsiElement(()('(')
+                            UnitExpression
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: s
+                              PsiElement(identifier)('s')
+                            PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace('               ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          Tuple
+                            PsiElement(()('(')
+                            UnitExpression
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('0')
+                            PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: unchecked
+                          CodeReferenceElement: unchecked
+                            PsiElement(identifier)('unchecked')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: foo2
+              PsiElement(identifier)('foo2')

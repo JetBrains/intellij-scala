@@ -16,3 +16,348 @@ abstract class ImplicitRepeated {
     // ImplicitRepeated.this.f[Int, Nothing](ImplicitRepeated.this.anyToN[Int](1), ImplicitRepeated.this.anyToN[Int](2))
 }
 -----
+ScalaFile
+  ScClass: ImplicitRepeated
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImplicitRepeated')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('X')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[_]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: elems
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('elems')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: T[N, R]
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('                ')
+        PsiComment(comment)('// alternative a)')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[_]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: props
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('props')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: elems
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('elems')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: T[N, R]
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// alternative b)')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: xToRight
+          PsiComment(comment)('// the following implicit causes "cannot be applied" errors')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('xToRight')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: r
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('r')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: T[Nothing, X]
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: anyToN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('anyToN')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: N
+                    CodeReferenceElement: N
+                      PsiElement(identifier)('N')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: T[N, Nothing]
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n\n\n  ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"A"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// should be implicitly resolved to alternative b)')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            PsiElement())(')')
+        PsiWhiteSpace('    ')
+        PsiComment(comment)('// should be implicitly resolved to alternative a)')
+        PsiWhiteSpace('\n    ')
+        PsiComment(comment)('// ImplicitRepeated.this.f[Int, Nothing]("A", ImplicitRepeated.this.anyToN[Int](1), ImplicitRepeated.this.anyToN[Int](2));')
+        PsiWhiteSpace('\n    ')
+        PsiComment(comment)('// ImplicitRepeated.this.f[Int, Nothing](ImplicitRepeated.this.anyToN[Int](1), ImplicitRepeated.this.anyToN[Int](2))')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

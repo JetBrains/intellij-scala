@@ -2,3 +2,37 @@ package ohmy
 
 class A extends other.Bar
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: ohmy
+      PsiElement(identifier)('ohmy')
+    PsiWhiteSpace('\n\n')
+    ScClass: A
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: other.Bar
+              CodeReferenceElement: other.Bar
+                CodeReferenceElement: other
+                  PsiElement(identifier)('other')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Bar')

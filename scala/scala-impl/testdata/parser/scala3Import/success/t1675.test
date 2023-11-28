@@ -10,3 +10,141 @@ package pack {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace('\n')
+    ScObject: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: pack.Bar
+              CodeReferenceElement: pack.Bar
+                CodeReferenceElement: pack
+                  PsiElement(identifier)('pack')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Bar')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n ')
+          ForStatement
+            PsiElement(for)('for')
+            PsiElement(()('(')
+            Enumerators
+              Generator
+                ReferencePattern: i
+                  PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                PsiElement(<-)('<-')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: to
+                    PsiElement(identifier)('to')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('10')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n   ')
+              MethodCall
+                ReferenceExpression: test
+                  PsiElement(identifier)('test')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: pack
+        PsiElement(identifier)('pack')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScClass: Bar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Bar')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            <empty list>
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: test
+              AnnotationsList
+                <empty list>
+              Modifiers
+                AccessModifier
+                  PsiElement(protected)('protected')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('test')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: s
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('s')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(identifier)('*')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

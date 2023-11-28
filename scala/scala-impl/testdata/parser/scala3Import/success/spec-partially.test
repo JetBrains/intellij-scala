@@ -4,3 +4,75 @@ class Arc[State, @specialized T](label: T, to: State)
 
 
 -----
+ScalaFile
+  ScClass: Arc
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Test case for partially specialized classes. see #2880.')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Arc')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: State
+        PsiElement(identifier)('State')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: label
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('label')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: to
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('to')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: State
+                CodeReferenceElement: State
+                  PsiElement(identifier)('State')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

@@ -35,3 +35,710 @@ object Test {
   for ((x, y, z) <- xs.lazyZip(xs).lazyZip(xs)) yield x + y + z
 }
 -----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// This test shows some un-intuitive behavior of the `zipped` method.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: xs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: xs
+              PsiElement(identifier)('xs')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Int]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// 1. This works, since withFilter is not defined on Tuple3zipped. Instead,')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// an implicit conversion from Tuple3zipped to Traversable[(Int, Int, Int)] is inserted.')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// The subsequent map operation has the right type for this Traversable.')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+    .withFilter( (x: (Int, Int, Int)) => x match { case (x, y, z) => true } )  // OK
+    .map
+            MethodCall
+              ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+    .withFilter
+                MethodCall
+                  ReferenceExpression: xs.lazyZip(xs).lazyZip
+                    MethodCall
+                      ReferenceExpression: xs.lazyZip
+                        ReferenceExpression: xs
+                          PsiElement(identifier)('xs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lazyZip')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: xs
+                          PsiElement(identifier)('xs')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lazyZip')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('withFilter')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          TupleType: (Int, Int, Int)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  MatchStatement
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ReferencePattern: x
+                              PsiElement(identifier)('x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: y
+                              PsiElement(identifier)('y')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: z
+                              PsiElement(identifier)('z')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          BooleanLiteral
+                            PsiElement(true)('true')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement())(')')
+            PsiWhiteSpace('  ')
+            PsiComment(comment)('// OK')
+            PsiWhiteSpace('\n    ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      TupleType: (Int, Int, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        ReferencePattern: x
+                          PsiElement(identifier)('x')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: y
+                          PsiElement(identifier)('y')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: z
+                          PsiElement(identifier)('z')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      InfixExpression
+                        InfixExpression
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: y
+                            PsiElement(identifier)('y')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: z
+                          PsiElement(identifier)('z')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+            PsiElement())(')')
+        PsiWhiteSpace('     ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n\n\n  ')
+        PsiComment(comment)('// 2. This works as well, because of auto untupling i.e. `case` is inserted.')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// But it does not work in Scala2.')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+  .withFilter( (x: (Int, Int, Int)) => x match { case (x, y, z) => true } )  // OK
+  .map
+            MethodCall
+              ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+  .withFilter
+                MethodCall
+                  ReferenceExpression: xs.lazyZip(xs).lazyZip
+                    MethodCall
+                      ReferenceExpression: xs.lazyZip
+                        ReferenceExpression: xs
+                          PsiElement(identifier)('xs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lazyZip')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: xs
+                          PsiElement(identifier)('xs')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lazyZip')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('withFilter')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          TupleType: (Int, Int, Int)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  MatchStatement
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ReferencePattern: x
+                              PsiElement(identifier)('x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: y
+                              PsiElement(identifier)('y')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: z
+                              PsiElement(identifier)('z')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          BooleanLiteral
+                            PsiElement(true)('true')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement())(')')
+            PsiWhiteSpace('  ')
+            PsiComment(comment)('// OK')
+            PsiWhiteSpace('\n  ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: y
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('y')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: z
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('z')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                InfixExpression
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: z
+                  PsiElement(identifier)('z')
+            PsiWhiteSpace(' ')
+            PsiElement())(')')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n      ')
+        PsiComment(comment)('// works, because of auto untupling i.e. `case` is inserted')
+        PsiWhiteSpace('\n      ')
+        PsiComment(comment)('// does not work in Scala2')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// 3. Now, without withFilter, it's the opposite, we need the 3 parameter map.')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+    .map
+            MethodCall
+              ReferenceExpression: xs.lazyZip(xs).lazyZip
+                MethodCall
+                  ReferenceExpression: xs.lazyZip
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lazyZip')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('lazyZip')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: y
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('y')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: z
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('z')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                InfixExpression
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: z
+                  PsiElement(identifier)('z')
+            PsiWhiteSpace(' ')
+            PsiElement())(')')
+        PsiWhiteSpace('     ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// 4. The single parameter map works through an inserted conversion')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.lazyZip(xs).lazyZip(xs)
+    .map
+            MethodCall
+              ReferenceExpression: xs.lazyZip(xs).lazyZip
+                MethodCall
+                  ReferenceExpression: xs.lazyZip
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lazyZip')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('lazyZip')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      TupleType: (Int, Int, Int)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        ReferencePattern: x
+                          PsiElement(identifier)('x')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: y
+                          PsiElement(identifier)('y')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: z
+                          PsiElement(identifier)('z')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      InfixExpression
+                        InfixExpression
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: y
+                            PsiElement(identifier)('y')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: z
+                          PsiElement(identifier)('z')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+            PsiElement())(')')
+        PsiWhiteSpace('     ')
+        PsiComment(comment)('// now also OK')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// 5. But if that pone is deeper nested, it does not work since we don't retypecheck')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//    arguments deeply.')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//xs.lazyZip(xs).lazyZip(xs)')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//  .map( x => x match { case (x, y, z) => x + y + z })     // now also OK')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// This means that the following works in Dotty 3.0 as well as 3.x')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: y
+                    PsiElement(identifier)('y')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: z
+                    PsiElement(identifier)('z')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: xs.lazyZip(xs).lazyZip
+                  MethodCall
+                    ReferenceExpression: xs.lazyZip
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('lazyZip')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('lazyZip')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: xs
+                    PsiElement(identifier)('xs')
+                  PsiElement())(')')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y
+                PsiElement(identifier)('y')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: z
+              PsiElement(identifier)('z')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

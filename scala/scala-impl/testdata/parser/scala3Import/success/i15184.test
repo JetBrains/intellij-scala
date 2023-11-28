@@ -13,3 +13,249 @@ object JsonFormat{
 
 case class Box[A1: JsonFormat](elem: A1)
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: func
+          PsiElement(identifier)('func')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Box
+                PsiElement(identifier)('Box')
+              ArgumentList
+                PsiElement(()('(')
+                GenericCall
+                  ReferenceExpression: Seq.empty
+                    ReferenceExpression: Seq
+                      PsiElement(identifier)('Seq')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('empty')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: func
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('func')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R0
+        PsiElement(identifier)('R0')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: to0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('to0')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Unit => R0
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: R0
+                CodeReferenceElement: R0
+                  PsiElement(identifier)('R0')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: JsonFormat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsonFormat')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: JsonFormat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsonFormat')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: immSeqFormat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('immSeqFormat')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: JsonFormat[Seq[String]]
+            SimpleType: JsonFormat
+              CodeReferenceElement: JsonFormat
+                PsiElement(identifier)('JsonFormat')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Seq[String]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: iterableFormat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('iterableFormat')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: JsonFormat[Iterable[String]]
+            SimpleType: JsonFormat
+              CodeReferenceElement: JsonFormat
+                PsiElement(identifier)('JsonFormat')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Iterable[String]
+                SimpleType: Iterable
+                  CodeReferenceElement: Iterable
+                    PsiElement(identifier)('Iterable')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace('   ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A1
+        PsiElement(identifier)('A1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: JsonFormat
+          CodeReferenceElement: JsonFormat
+            PsiElement(identifier)('JsonFormat')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: elem
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('elem')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A1
+                CodeReferenceElement: A1
+                  PsiElement(identifier)('A1')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

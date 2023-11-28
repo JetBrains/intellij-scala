@@ -10,3 +10,142 @@ object State {
   case class Info(cfg: AnyRef, allTypes: Seq[AnyRef])
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: config
+      PsiElement(identifier)('config')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: state
+          PsiElement(identifier)('state')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n\n')
+    ScObject: State
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('State')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Info
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Info')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Info
+                    CodeReferenceElement: Info
+                      PsiElement(identifier)('Info')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Info
+                      PsiElement(identifier)('Info')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Config
+                          PsiElement(identifier)('Config')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: Seq.empty
+                        ReferenceExpression: Seq
+                          PsiElement(identifier)('Seq')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('empty')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScClass: Info
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Info')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: cfg
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('cfg')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: AnyRef
+                        CodeReferenceElement: AnyRef
+                          PsiElement(identifier)('AnyRef')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: allTypes
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('allTypes')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Seq[AnyRef]
+                        SimpleType: Seq
+                          CodeReferenceElement: Seq
+                            PsiElement(identifier)('Seq')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: AnyRef
+                            CodeReferenceElement: AnyRef
+                              PsiElement(identifier)('AnyRef')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

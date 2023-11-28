@@ -8,3 +8,157 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScTrait: Functor
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Functor')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScTypeAliasDeclaration: MyType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MyType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: a
+              PsiElement(identifier)('a')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: listFunctor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('listFunctor')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: a
+              PsiElement(identifier)('a')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Functor[a]{type MyType[x]=List[x]}
+            ParametrizedType: Functor[a]
+              SimpleType: Functor
+                CodeReferenceElement: Functor
+                  PsiElement(identifier)('Functor')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
+                PsiElement(])(']')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: MyType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MyType')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiElement(=)('=')
+                ParametrizedType: List[x]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Functor[a]
+                    SimpleType: Functor
+                      CodeReferenceElement: Functor
+                        PsiElement(identifier)('Functor')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: a
+                        CodeReferenceElement: a
+                          PsiElement(identifier)('a')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: MyType
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('MyType')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: t
+                      PsiElement(identifier)('t')
+                    PsiElement(])(']')
+                  PsiElement(=)('=')
+                  ParametrizedType: List[t]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

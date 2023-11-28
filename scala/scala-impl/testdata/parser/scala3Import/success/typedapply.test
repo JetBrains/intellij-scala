@@ -10,3 +10,147 @@ object typedapply {
 
 }
 -----
+ScalaFile
+  ScObject: typedapply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('typedapply')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: y
+              PsiElement(identifier)('y')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: foo
+            PsiElement(identifier)('foo')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"abc"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"abc"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            GenericCall
+              ReferenceExpression: foo
+                PsiElement(identifier)('foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

@@ -4,3 +4,46 @@ export X._
 object X:
   val A = 42
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: p
+      PsiElement(identifier)('p')
+    PsiWhiteSpace('\n')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n\n')
+    ScObject: X
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('X')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: A
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('42')

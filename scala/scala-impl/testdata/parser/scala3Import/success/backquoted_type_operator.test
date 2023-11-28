@@ -3,3 +3,70 @@ object Test {
   val x: Int `&` String = 10
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: `&`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`&`')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: L
+              PsiElement(identifier)('L')
+            PsiElement(,)(',')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: L
+            CodeReferenceElement: L
+              PsiElement(identifier)('L')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Int `&` String
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: `&`
+              PsiElement(identifier)('`&`')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('10')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

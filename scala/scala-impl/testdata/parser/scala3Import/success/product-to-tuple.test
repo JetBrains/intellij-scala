@@ -7,3 +7,265 @@ case class Bar[I <: Int, S <: String](x: I, y: S)
 val a: Bar[1, "2"] = Bar(1, "2")
 val b: (1, "2") = Tuple.fromProductTyped(a)
 -----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"2"')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y
+        PsiElement(identifier)('y')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (Int, String)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Tuple.fromProductTyped
+        ReferenceExpression: Tuple
+          PsiElement(identifier)('Tuple')
+        PsiElement(.)('.')
+        PsiElement(identifier)('fromProductTyped')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: I
+                CodeReferenceElement: I
+                  PsiElement(identifier)('I')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Bar[1, "2"]
+      SimpleType: Bar
+        CodeReferenceElement: Bar
+          PsiElement(identifier)('Bar')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 1
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        LiteralType: "2"
+          StringLiteral
+            PsiElement(string content)('"2"')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Bar
+        PsiElement(identifier)('Bar')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"2"')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (1, "2")
+      PsiElement(()('(')
+      TypesList
+        LiteralType: 1
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        LiteralType: "2"
+          StringLiteral
+            PsiElement(string content)('"2"')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Tuple.fromProductTyped
+        ReferenceExpression: Tuple
+          PsiElement(identifier)('Tuple')
+        PsiElement(.)('.')
+        PsiElement(identifier)('fromProductTyped')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiElement())(')')

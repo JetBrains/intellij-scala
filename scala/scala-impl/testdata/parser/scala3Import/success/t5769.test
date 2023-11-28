@@ -8,3 +8,124 @@ class A {
   def f2 = classTag[AI]
 }
 -----
+ScalaFile
+  PsiComment(comment)('// a.scala')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflect')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: ClassTag
+            PsiElement(identifier)('ClassTag')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: classTag
+            PsiElement(identifier)('classTag')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AI')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[Int]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: classTag
+              PsiElement(identifier)('classTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Array[Int]
+                SimpleType: Array
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: classTag
+              PsiElement(identifier)('classTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: AI
+                CodeReferenceElement: AI
+                  PsiElement(identifier)('AI')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

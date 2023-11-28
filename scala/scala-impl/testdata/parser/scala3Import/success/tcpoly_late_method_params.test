@@ -4,3 +4,94 @@ trait Foo {
                                    // bounds for x = >: scala.this.Nothing <: RBound&[x]
 }
 -----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: flatMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('flatMap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: RT
+              PsiElement(identifier)('RT')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: RBound[RT]
+                SimpleType: RBound
+                  CodeReferenceElement: RBound
+                    PsiElement(identifier)('RBound')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: RT
+                    CodeReferenceElement: RT
+                      PsiElement(identifier)('RT')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: RBound
+              PsiElement(identifier)('RBound')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Result
+              PsiElement(identifier)('Result')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: RBound[x]
+                    SimpleType: RBound
+                      CodeReferenceElement: RBound
+                        PsiElement(identifier)('RBound')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Result[RT]
+            SimpleType: Result
+              CodeReferenceElement: Result
+                PsiElement(identifier)('Result')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: RT
+                CodeReferenceElement: RT
+                  PsiElement(identifier)('RT')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('// bounds for RT& = >: scala.this.Nothing <: RBound&[RT&]')
+        PsiWhiteSpace('\n                                   ')
+        PsiComment(comment)('// bounds for x = >: scala.this.Nothing <: RBound&[x]')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -8,3 +8,153 @@
   text stripPrefix "adgg"
 
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: myregex_r
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: myregex_r
+            PsiElement(identifier)('myregex_r')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: "\\s+".r
+          StringLiteral
+            PsiElement(string content)('"\\s+"')
+          PsiElement(.)('.')
+          PsiElement(identifier)('r')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: text
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: text
+            PsiElement(identifier)('text')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"adggfgf dfg"')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: myregex_r
+          PsiElement(identifier)('myregex_r')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: findFirstMatchIn
+          PsiElement(identifier)('findFirstMatchIn')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: text
+          PsiElement(identifier)('text')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: text
+          PsiElement(identifier)('text')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: takeRight
+          PsiElement(identifier)('takeRight')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('5')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: func
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: func
+            PsiElement(identifier)('func')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: map
+          PsiElement(identifier)('map')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: func
+          PsiElement(identifier)('func')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: text
+          PsiElement(identifier)('text')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: stripPrefix
+          PsiElement(identifier)('stripPrefix')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"adgg"')

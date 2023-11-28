@@ -2,3 +2,72 @@ object Foo {
   def bar = { var x = (); def foo() = x }
 }
 -----
+ScalaFile
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScVariableDefinition: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              UnitExpression
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            ScFunctionDefinition: foo
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('foo')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

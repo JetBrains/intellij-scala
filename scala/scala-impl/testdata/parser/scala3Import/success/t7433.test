@@ -9,3 +9,117 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            TryStatement
+              PsiElement(try)('try')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ForStatement
+                  PsiElement(for)('for')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  Enumerators
+                    Generator
+                      ReferencePattern: i
+                        PsiElement(identifier)('i')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<-)('<-')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: until
+                          PsiElement(identifier)('until')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('5')
+                  PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReturnStatement
+                    PsiElement(return)('return')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              CatchBlock
+                PsiElement(catch)('catch')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      CompositePattern
+                        Scala3 TypedPattern
+                          WildcardPattern
+                            PsiElement(_)('_')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          TypePattern
+                            SimpleType: NullPointerException
+                              CodeReferenceElement: NullPointerException
+                                PsiElement(identifier)('NullPointerException')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        Scala3 TypedPattern
+                          WildcardPattern
+                            PsiElement(_)('_')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          TypePattern
+                            SimpleType: RuntimeException
+                              CodeReferenceElement: RuntimeException
+                                PsiElement(identifier)('RuntimeException')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                  PsiWhiteSpace('\n        ')
+                  PsiComment(comment)('// was: "catch block may intercept non-local return from method check"')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -14,3 +14,385 @@ inline given ok2[X]: T = new T:
 inline given ok3(using DummyImplicit): T = new T:
   val cs = scala.compiletime.summonAll[EmptyTuple]
 -----
+ScalaFile
+  ScClass: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: fail1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fail1')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace('\n  ')
+      ScTemplateBody
+        ScPatternDefinition: cs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: cs
+              PsiElement(identifier)('cs')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: scala.compiletime.summonAll
+              ReferenceExpression: scala.compiletime
+                ReferenceExpression: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('summonAll')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScGivenDefinition: fail2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fail2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace('\n  ')
+      ScTemplateBody
+        ScPatternDefinition: cs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: cs
+              PsiElement(identifier)('cs')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: scala.compiletime.summonAll
+              ReferenceExpression: scala.compiletime
+                ReferenceExpression: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('summonAll')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScGivenDefinition: fail3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fail3')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: DummyImplicit
+              CodeReferenceElement: DummyImplicit
+                PsiElement(identifier)('DummyImplicit')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace('\n  ')
+      ScTemplateBody
+        ScPatternDefinition: cs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: cs
+              PsiElement(identifier)('cs')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: scala.compiletime.summonAll
+              ReferenceExpression: scala.compiletime
+                ReferenceExpression: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('summonAll')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: ok1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ok1')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: cs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: cs
+                PsiElement(identifier)('cs')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: scala.compiletime.summonAll
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('summonAll')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: ok2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ok2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: cs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: cs
+                PsiElement(identifier)('cs')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: scala.compiletime.summonAll
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('summonAll')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: ok3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ok3')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: DummyImplicit
+              CodeReferenceElement: DummyImplicit
+                PsiElement(identifier)('DummyImplicit')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: cs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: cs
+                PsiElement(identifier)('cs')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: scala.compiletime.summonAll
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('summonAll')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiElement(])(']')

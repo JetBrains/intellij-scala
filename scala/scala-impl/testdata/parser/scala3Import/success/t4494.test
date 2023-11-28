@@ -2,3 +2,27 @@ object A {
   List(1)
 }
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

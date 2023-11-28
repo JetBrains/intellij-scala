@@ -21,3 +21,383 @@ trait BCodeSkelBuilder extends BCodeIdiomatic {
   def getPlainClass(cd: ClassDef) = bTypes.isRemote(null: Symbol)
 }
 -----
+ScalaFile
+  ScClass: BackendInterface
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BackendInterface')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Symbol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Symbol')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: ClassDef
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ClassDef')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: BTypesFromSymbols
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BTypesFromSymbols')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: BackendInterface
+          CodeReferenceElement: BackendInterface
+            PsiElement(identifier)('BackendInterface')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: int
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('int')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: I
+                CodeReferenceElement: I
+                  PsiElement(identifier)('I')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: isRemote
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('isRemote')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: int.Symbol
+                    CodeReferenceElement: int.Symbol
+                      CodeReferenceElement: int
+                        PsiElement(identifier)('int')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Symbol')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"might've been remote"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: BCodeIdiomatic
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BCodeIdiomatic')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: int
+              PsiElement(identifier)('int')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: BackendInterface
+            CodeReferenceElement: BackendInterface
+              PsiElement(identifier)('BackendInterface')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bTypes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bTypes
+              PsiElement(identifier)('bTypes')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: BTypesFromSymbols[int.type]
+                    SimpleType: BTypesFromSymbols
+                      CodeReferenceElement: BTypesFromSymbols
+                        PsiElement(identifier)('BTypesFromSymbols')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: int.type
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: int
+                      PsiElement(identifier)('int')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: BCodeSkelBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BCodeSkelBuilder')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: BCodeIdiomatic
+            CodeReferenceElement: BCodeIdiomatic
+              PsiElement(identifier)('BCodeIdiomatic')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: int
+              PsiElement(identifier)('int')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: bTypes
+              PsiElement(identifier)('bTypes')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: BTypesFromSymbols[int.type]
+            SimpleType: BTypesFromSymbols
+              CodeReferenceElement: BTypesFromSymbols
+                PsiElement(identifier)('BTypesFromSymbols')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: int.type
+                CodeReferenceElement: int
+                  PsiElement(identifier)('int')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bTypes
+            PsiElement(identifier)('bTypes')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: int.type
+            CodeReferenceElement: int
+              PsiElement(identifier)('int')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bTypes.int
+            ReferenceExpression: bTypes
+              PsiElement(identifier)('bTypes')
+            PsiElement(.)('.')
+            PsiElement(identifier)('int')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y
+              PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: bTypes.int.type
+            CodeReferenceElement: bTypes.int
+              CodeReferenceElement: bTypes
+                PsiElement(identifier)('bTypes')
+              PsiElement(.)('.')
+              PsiElement(identifier)('int')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: int
+            PsiElement(identifier)('int')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getPlainClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getPlainClass')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: cd
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('cd')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: ClassDef
+                    CodeReferenceElement: ClassDef
+                      PsiElement(identifier)('ClassDef')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: bTypes.isRemote
+              ReferenceExpression: bTypes
+                PsiElement(identifier)('bTypes')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isRemote')
+            ArgumentList
+              PsiElement(()('(')
+              TypedExpression
+                NullLiteral
+                  PsiElement(null)('null')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -10,3 +10,144 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScClass: Context
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Context')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: transform
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('transform')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ctx
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ctx')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Context
+                    CodeReferenceElement: Context
+                      PsiElement(identifier)('Context')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: withLocalOwner
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('withLocalOwner')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: T
+                  PsiElement(identifier)('T')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: op
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('op')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: Context ?=> T
+                        SimpleType: Context
+                          CodeReferenceElement: Context
+                            PsiElement(identifier)('Context')
+                        PsiWhiteSpace(' ')
+                        PsiElement(?=>)('?=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: op
+                  PsiElement(identifier)('op')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement(using)('using')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ctx
+                    PsiElement(identifier)('ctx')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            MethodCall
+              ReferenceExpression: withLocalOwner
+                PsiElement(identifier)('withLocalOwner')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: ctx
+                          PsiElement(identifier)('ctx')
+                    PsiWhiteSpace(' ')
+                    PsiElement(?=>)('?=>')
+                    BlockOfExpressions
+                      <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
