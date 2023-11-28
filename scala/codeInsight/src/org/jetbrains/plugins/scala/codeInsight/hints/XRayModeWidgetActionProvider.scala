@@ -16,8 +16,8 @@ import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
 
-import java.awt.Insets
-import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.event.{InputEvent, MouseAdapter, MouseEvent}
+import java.awt.{Component, Insets, Toolkit}
 import java.util.function.Consumer
 import javax.swing.JComponent
 import javax.swing.plaf.FontUIResource
@@ -34,6 +34,21 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
       override def createCustomComponent(presentation: Presentation, place: String): JComponent = new ActionButtonWithText(this, presentation, place, JBUI.size(18)) {
+        addMouseListener(new MouseAdapter {
+          override def mousePressed(e: MouseEvent): Unit = {
+            val isModifierKeyDown = if (SystemInfo.isMac) e.isMetaDown else e.isControlDown
+            if (isModifierKeyDown) {
+              e.consume()
+              val modifierKeyMask = if (SystemInfo.isMac) InputEvent.META_DOWN_MASK else InputEvent.CTRL_DOWN_MASK
+              val event = new MouseEvent(e.getSource.asInstanceOf[Component],
+                e.getID, e.getWhen, e.getModifiersEx & ~modifierKeyMask,
+                e.getX, e.getY, e.getXOnScreen, e.getYOnScreen, e.getClickCount, e.isPopupTrigger,
+                e.getButton)
+              Toolkit.getDefaultToolkit.getSystemEventQueue.postEvent(event)
+            }
+          }
+        })
+
         setForeground(LazyJBColor { () =>
           val IconTextForegroundKey = ColorKey.createColorKey("ActionButton.iconTextForeground", UIUtil.getContextHelpForeground)
           Option(editor.getColorsScheme.getColor(IconTextForegroundKey)).orElse(Option(IconTextForegroundKey.getDefaultColor)).getOrElse(UIUtil.getInactiveTextColor)
