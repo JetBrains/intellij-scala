@@ -61,7 +61,7 @@ ScalaFile
             PsiElement(()('(')
             PsiElement(using)('using')
             PsiWhiteSpace(' ')
-            Parameter: <anonimous>
+            Parameter: <anonymous>
               ParameterType
                 SimpleType: Int
                   CodeReferenceElement: Int

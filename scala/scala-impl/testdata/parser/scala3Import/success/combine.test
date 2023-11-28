@@ -127,7 +127,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             ParametrizedType: Semigroup[A]
               SimpleType: Semigroup
@@ -141,7 +141,7 @@ ScalaFile
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             ParametrizedType: Semigroup[B]
               SimpleType: Semigroup

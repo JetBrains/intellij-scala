@@ -54,7 +54,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace('    ')
-        Parameter: <anonimous>
+        Parameter: <anonymous>
           ParameterType
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

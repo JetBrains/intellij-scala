@@ -4522,7 +4522,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4599,7 +4599,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4675,7 +4675,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4742,7 +4742,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4810,7 +4810,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4887,7 +4887,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -4963,7 +4963,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -5030,7 +5030,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Ordering[B]
                             SimpleType: math.Ordering
@@ -5793,7 +5793,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Numeric[B]
                             SimpleType: math.Numeric
@@ -6491,7 +6491,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: Ordering[B]
                             SimpleType: Ordering
@@ -6591,7 +6591,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: Ordering[B]
                             SimpleType: Ordering
@@ -7527,7 +7527,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: StepperShape[A, S]
                             SimpleType: StepperShape
@@ -7590,7 +7590,7 @@ ScalaFile
                       PsiElement(()('(')
                       PsiElement(using)('using')
                       PsiWhiteSpace(' ')
-                      Parameter: <anonimous>
+                      Parameter: <anonymous>
                         ParameterType
                           ParametrizedType: math.Numeric[B]
                             SimpleType: math.Numeric

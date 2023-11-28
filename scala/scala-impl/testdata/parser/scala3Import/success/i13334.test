@@ -238,7 +238,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: DFC
                     CodeReferenceElement: DFC
@@ -271,7 +271,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   SimpleType: DFC
                     CodeReferenceElement: DFC
@@ -322,7 +322,7 @@ ScalaFile
           PsiElement(()('(')
           PsiElement(using)('using')
           PsiWhiteSpace(' ')
-          ClassParameter: <anonimous>
+          ClassParameter: x$1
             ParameterType
               SimpleType: DFC
                 CodeReferenceElement: DFC

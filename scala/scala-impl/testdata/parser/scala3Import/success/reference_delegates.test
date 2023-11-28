@@ -1172,7 +1172,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Ord[T]
                     SimpleType: Ord
@@ -2092,7 +2092,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Ord[T]
                     SimpleType: Ord
@@ -2341,7 +2341,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonimous>
+              Parameter: <anonymous>
                 ParameterType
                   ParametrizedType: Ord[T]
                     SimpleType: Ord
@@ -3198,7 +3198,7 @@ ScalaFile
                               PsiElement(()('(')
                               PsiElement(using)('using')
                               PsiWhiteSpace(' ')
-                              Parameter: <anonimous>
+                              Parameter: <anonymous>
                                 ParameterType
                                   SimpleType: Context
                                     CodeReferenceElement: Context
