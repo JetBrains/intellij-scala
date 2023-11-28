@@ -3,3 +3,108 @@
   implicitly[("k" | "v") =:= ("k" | "v")]
 }
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: implicitly
+          PsiElement(identifier)('implicitly')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: ("k" | "v") <:< ("k" | "v")
+            TypeInParenthesis: ("k" | "v")
+              PsiElement(()('(')
+              InfixType: "k" | "v"
+                LiteralType: "k"
+                  StringLiteral
+                    PsiElement(string content)('"k"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "v"
+                  StringLiteral
+                    PsiElement(string content)('"v"')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("k" | "v")
+              PsiElement(()('(')
+              InfixType: "k" | "v"
+                LiteralType: "k"
+                  StringLiteral
+                    PsiElement(string content)('"k"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "v"
+                  StringLiteral
+                    PsiElement(string content)('"v"')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: implicitly
+          PsiElement(identifier)('implicitly')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: ("k" | "v") =:= ("k" | "v")
+            TypeInParenthesis: ("k" | "v")
+              PsiElement(()('(')
+              InfixType: "k" | "v"
+                LiteralType: "k"
+                  StringLiteral
+                    PsiElement(string content)('"k"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "v"
+                  StringLiteral
+                    PsiElement(string content)('"v"')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("k" | "v")
+              PsiElement(()('(')
+              InfixType: "k" | "v"
+                LiteralType: "k"
+                  StringLiteral
+                    PsiElement(string content)('"k"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "v"
+                  StringLiteral
+                    PsiElement(string content)('"v"')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

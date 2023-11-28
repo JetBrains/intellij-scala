@@ -17,3 +17,259 @@ object wrap {
 
 }
 -----
+ScalaFile
+  ScObject: wrap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('wrap')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: DomainLike
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DomainLike')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: specialized
+                        CodeReferenceElement: specialized
+                          PsiElement(identifier)('specialized')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: Int
+                          PsiElement(identifier)('Int')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: This
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('This')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Domain[A]
+                SimpleType: Domain
+                  CodeReferenceElement: Domain
+                    PsiElement(identifier)('Domain')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Domain
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Domain')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: specialized
+                        CodeReferenceElement: specialized
+                          PsiElement(identifier)('specialized')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: Int
+                          PsiElement(identifier)('Int')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: DomainLike[B, Domain[B]]
+                  SimpleType: DomainLike
+                    CodeReferenceElement: DomainLike
+                      PsiElement(identifier)('DomainLike')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Domain[B]
+                      SimpleType: Domain
+                        CodeReferenceElement: Domain
+                          PsiElement(identifier)('Domain')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: IterableDomainLike
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IterableDomainLike')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: C
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: specialized
+                        CodeReferenceElement: specialized
+                          PsiElement(identifier)('specialized')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: Int
+                          PsiElement(identifier)('Int')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: This
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('This')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: IterableDomain[C]
+                SimpleType: IterableDomain
+                  CodeReferenceElement: IterableDomain
+                    PsiElement(identifier)('IterableDomain')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: DomainLike[C, This]
+                  SimpleType: DomainLike
+                    CodeReferenceElement: DomainLike
+                      PsiElement(identifier)('DomainLike')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: This
+                      CodeReferenceElement: This
+                        PsiElement(identifier)('This')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: IterableDomain
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IterableDomain')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: D
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: specialized
+                        CodeReferenceElement: specialized
+                          PsiElement(identifier)('specialized')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: Int
+                          PsiElement(identifier)('Int')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('D')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Domain[D]
+                  SimpleType: Domain
+                    CodeReferenceElement: Domain
+                      PsiElement(identifier)('Domain')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: D
+                      CodeReferenceElement: D
+                        PsiElement(identifier)('D')
+                    PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              ConstructorInvocation
+                ParametrizedType: IterableDomainLike[D, IterableDomain[D]]
+                  SimpleType: IterableDomainLike
+                    CodeReferenceElement: IterableDomainLike
+                      PsiElement(identifier)('IterableDomainLike')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: D
+                      CodeReferenceElement: D
+                        PsiElement(identifier)('D')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: IterableDomain[D]
+                      SimpleType: IterableDomain
+                        CodeReferenceElement: IterableDomain
+                          PsiElement(identifier)('IterableDomain')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: D
+                          CodeReferenceElement: D
+                            PsiElement(identifier)('D')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

@@ -3,3 +3,52 @@
 case class Bug12973():
   def check = s"$productPrefix is fixed"
 -----
+ScalaFile
+  ScClass: Bug12973
+    PsiComment(comment)('// Compiled and placed on the REPL classpath in the bootstrappedOnlyCmdTests script')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// to test that launching the REPL with `scala -cp <path>` works (issue #12973)')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug12973')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: check
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('check')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: s
+              PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"')
+            PsiElement(interpolated string injection)('$')
+            ReferenceExpression: productPrefix
+              PsiElement(identifier)('productPrefix')
+            PsiElement(interpolated string)(' is fixed')
+            PsiElement(interpolated string end)('"')

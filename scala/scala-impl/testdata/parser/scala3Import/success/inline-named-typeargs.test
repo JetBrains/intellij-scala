@@ -3,3 +3,86 @@ object t1 {
   transparent inline def construct[Elem, Coll[_]](xs: List[Elem]): Coll[Elem] = ???
 }
 -----
+ScalaFile
+  ScObject: t1
+    PsiComment(comment)('// Working version of inline-named-typedargs, the original is currently disabled')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: construct
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('construct')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Elem
+              PsiElement(identifier)('Elem')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Coll
+              PsiElement(identifier)('Coll')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[Elem]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Coll[Elem]
+            SimpleType: Coll
+              CodeReferenceElement: Coll
+                PsiElement(identifier)('Coll')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Elem
+                CodeReferenceElement: Elem
+                  PsiElement(identifier)('Elem')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

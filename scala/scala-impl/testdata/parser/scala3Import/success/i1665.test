@@ -6,3 +6,64 @@ object Test {
   !=(this)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: !=
+            PsiElement(identifier)('!=')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: !=
+            PsiElement(identifier)('!=')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"abc"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: !=
+            PsiElement(identifier)('!=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              ThisReference
+                PsiElement(this)('this')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: !=
+            PsiElement(identifier)('!=')
+          ArgumentList
+            PsiElement(()('(')
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

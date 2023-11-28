@@ -18,3 +18,235 @@ object Bug1565 {
   }
 }
 -----
+ScalaFile
+  ScObject: Bug1565
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug1565')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n')
+        PsiComment(comment)('//  object X0 { 0;  (a : Int, b : Int, c : Int) => println(List(a, b))   }  // can't parse in Dotty')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('//  def x() = { 0; (a : Int, b : Int) => println(List(a, b)) ; 0  }     // can't parse in Dotty')
+        PsiWhiteSpace('\n\n')
+        PsiComment(comment)('//  (a : Int, b : Int) => println(List(a, b))  not legal as a template statement')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: xs
+          PsiComment(comment)('// various function syntaxes to exercise the parser')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: xs
+              PsiElement(identifier)('xs')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.filter
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('filter')
+          ArgumentList
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.filter
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('filter')
+          ArgumentList
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.filter
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('filter')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: x
+                      PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.filter
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('filter')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.filter
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('filter')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: <
+                PsiElement(identifier)('<')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: xs.foreach
+            ReferenceExpression: xs
+              PsiElement(identifier)('xs')
+            PsiElement(.)('.')
+            PsiElement(identifier)('foreach')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: e
+                      PsiElement(identifier)('e')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                BlockOfExpressions
+                  ScPatternDefinition: buf0
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: buf0
+                        PsiElement(identifier)('buf0')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: e
+                        PsiElement(identifier)('e')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                  PsiWhiteSpace('\n    ')
+                  ReferenceExpression: buf0
+                    PsiElement(identifier)('buf0')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

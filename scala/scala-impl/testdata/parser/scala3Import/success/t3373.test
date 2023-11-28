@@ -10,3 +10,219 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScClass: Entry
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Entry')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: time
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('time')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScFunctionDefinition: getTime
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getTime')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Long
+            CodeReferenceElement: Long
+              PsiElement(identifier)('Long')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: time
+            PsiElement(identifier)('time')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: extractTime
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('extractTime')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Entry
+                    CodeReferenceElement: Entry
+                      PsiElement(identifier)('Entry')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: e.getTime
+            ReferenceExpression: e
+              PsiElement(identifier)('e')
+            PsiElement(.)('.')
+            PsiElement(identifier)('getTime')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: orderEntries
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: orderEntries
+              PsiElement(identifier)('orderEntries')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Ordering[Entry]
+            SimpleType: Ordering
+              CodeReferenceElement: Ordering
+                PsiElement(identifier)('Ordering')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Entry
+                CodeReferenceElement: Entry
+                  PsiElement(identifier)('Entry')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Ordering[Entry]
+                    SimpleType: Ordering
+                      CodeReferenceElement: Ordering
+                        PsiElement(identifier)('Ordering')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Entry
+                        CodeReferenceElement: Entry
+                          PsiElement(identifier)('Entry')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n   ')
+                ScFunctionDefinition: compare
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('compare')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: first
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('first')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Entry
+                            CodeReferenceElement: Entry
+                              PsiElement(identifier)('Entry')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      Parameter: second
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('second')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Entry
+                            CodeReferenceElement: Entry
+                              PsiElement(identifier)('Entry')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    MethodCall
+                      ReferenceExpression: extractTime
+                        PsiElement(identifier)('extractTime')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: first
+                          PsiElement(identifier)('first')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: compare
+                      PsiElement(identifier)('compare')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: extractTime
+                        PsiElement(identifier)('extractTime')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: second
+                          PsiElement(identifier)('second')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

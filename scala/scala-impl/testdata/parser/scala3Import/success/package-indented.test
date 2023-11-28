@@ -7,3 +7,78 @@ package q:
 
 def Test = p.f + q.g
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: p
+      PsiElement(identifier)('p')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: f
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('10')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: q
+      PsiElement(identifier)('q')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: g
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('g')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('20')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: p.f
+        ReferenceExpression: p
+          PsiElement(identifier)('p')
+        PsiElement(.)('.')
+        PsiElement(identifier)('f')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: +
+        PsiElement(identifier)('+')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: q.g
+        ReferenceExpression: q
+          PsiElement(identifier)('q')
+        PsiElement(.)('.')
+        PsiElement(identifier)('g')

@@ -10,3 +10,270 @@ class MyClass3 extends AnyRef @MyAnnotation(Name="Foo", foBaskaLi = Array(1,2,3)
   def method = ???
 }
 -----
+ScalaFile
+  ScClass: MyClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyClass')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: method
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: MyAnnotation
+                    CodeReferenceElement: MyAnnotation
+                      PsiElement(identifier)('MyAnnotation')
+                  ArgumentList
+                    PsiElement(()('(')
+                    AssignStatement
+                      ReferenceExpression: Name
+                        PsiElement(identifier)('Name')
+                      PsiElement(=)('=')
+                      StringLiteral
+                        PsiElement(string content)('"Blah"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    AssignStatement
+                      ReferenceExpression: foBaskaLi
+                        PsiElement(identifier)('foBaskaLi')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: Array
+                          PsiElement(identifier)('Array')
+                        ArgumentList
+                          PsiElement(()('(')
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                          PsiElement(,)(',')
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                          PsiElement())(')')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('method')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyClass2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyClass2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          TypeWithAnnotation: AnyRef @MyAnnotation(Name="Foo", foBaskaLi = Array(1,2,3))
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: MyAnnotation
+                      CodeReferenceElement: MyAnnotation
+                        PsiElement(identifier)('MyAnnotation')
+                    ArgumentList
+                      PsiElement(()('(')
+                      AssignStatement
+                        ReferenceExpression: Name
+                          PsiElement(identifier)('Name')
+                        PsiElement(=)('=')
+                        StringLiteral
+                          PsiElement(string content)('"Foo"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: foBaskaLi
+                          PsiElement(identifier)('foBaskaLi')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: Array
+                            PsiElement(identifier)('Array')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                            PsiElement(,)(',')
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                            PsiElement(,)(',')
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                            PsiElement())(')')
+                      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyClass3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyClass3')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          TypeWithAnnotation: AnyRef @MyAnnotation(Name="Foo", foBaskaLi = Array(1,2,3))
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: MyAnnotation
+                      CodeReferenceElement: MyAnnotation
+                        PsiElement(identifier)('MyAnnotation')
+                    ArgumentList
+                      PsiElement(()('(')
+                      AssignStatement
+                        ReferenceExpression: Name
+                          PsiElement(identifier)('Name')
+                        PsiElement(=)('=')
+                        StringLiteral
+                          PsiElement(string content)('"Foo"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: foBaskaLi
+                          PsiElement(identifier)('foBaskaLi')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: Array
+                            PsiElement(identifier)('Array')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                            PsiElement(,)(',')
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                            PsiElement(,)(',')
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                            PsiElement())(')')
+                      PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: method
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: MyAnnotation
+                    CodeReferenceElement: MyAnnotation
+                      PsiElement(identifier)('MyAnnotation')
+                  ArgumentList
+                    PsiElement(()('(')
+                    AssignStatement
+                      ReferenceExpression: Name
+                        PsiElement(identifier)('Name')
+                      PsiElement(=)('=')
+                      StringLiteral
+                        PsiElement(string content)('"Blah"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    AssignStatement
+                      ReferenceExpression: foBaskaLi
+                        PsiElement(identifier)('foBaskaLi')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: Array
+                          PsiElement(identifier)('Array')
+                        ArgumentList
+                          PsiElement(()('(')
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                          PsiElement(,)(',')
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                          PsiElement())(')')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('method')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

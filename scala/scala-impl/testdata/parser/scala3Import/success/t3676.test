@@ -4,3 +4,95 @@ trait Seq extends SeqLike[Seq]
 trait MySeq extends Seq with SeqLike[MySub]
 trait MySub extends MySeq
 -----
+ScalaFile
+  ScTrait: SeqLike
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SeqLike')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Repr
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Repr')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Seq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Seq')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: SeqLike[Seq]
+            SimpleType: SeqLike
+              CodeReferenceElement: SeqLike
+                PsiElement(identifier)('SeqLike')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MySeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySeq')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Seq
+            CodeReferenceElement: Seq
+              PsiElement(identifier)('Seq')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: SeqLike[MySub]
+            SimpleType: SeqLike
+              CodeReferenceElement: SeqLike
+                PsiElement(identifier)('SeqLike')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: MySub
+                CodeReferenceElement: MySub
+                  PsiElement(identifier)('MySub')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: MySub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySub')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: MySeq
+            CodeReferenceElement: MySeq
+              PsiElement(identifier)('MySeq')

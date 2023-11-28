@@ -17,3 +17,246 @@ abstract class Window {
   def closeOperation(): Unit = ()
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.awt.event.WindowEvent
+        CodeReferenceElement: java.awt.event
+          CodeReferenceElement: java.awt
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('awt')
+          PsiElement(.)('.')
+          PsiElement(identifier)('event')
+        PsiElement(.)('.')
+        PsiElement(identifier)('WindowEvent')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.awt
+        CodeReferenceElement: java
+          PsiElement(identifier)('java')
+        PsiElement(.)('.')
+        PsiElement(identifier)('awt')
+      PsiElement(.)('.')
+      ImportSelectors
+        ImportSelector
+          CodeReferenceElement: Window
+            PsiElement(identifier)('Window')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AWTWindow')
+  PsiWhiteSpace('\n\n')
+  ScClass: Window
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Window')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: peer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('peer')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: AWTWindow with InterfaceMixin
+            SimpleType: AWTWindow
+              CodeReferenceElement: AWTWindow
+                PsiElement(identifier)('AWTWindow')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: InterfaceMixin
+              CodeReferenceElement: InterfaceMixin
+                PsiElement(identifier)('InterfaceMixin')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: InterfaceMixin
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('InterfaceMixin')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: javax.swing.RootPaneContainer
+                  CodeReferenceElement: javax.swing.RootPaneContainer
+                    CodeReferenceElement: javax.swing
+                      CodeReferenceElement: javax
+                        PsiElement(identifier)('javax')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('swing')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('RootPaneContainer')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: SuperMixin
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SuperMixin')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: java.awt.Window
+                  CodeReferenceElement: java.awt.Window
+                    CodeReferenceElement: java.awt
+                      CodeReferenceElement: java
+                        PsiElement(identifier)('java')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('awt')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Window')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: processWindowEvent
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  AccessModifier
+                    PsiElement(protected)('protected')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('processWindowEvent')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: e
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('e')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: WindowEvent
+                          CodeReferenceElement: WindowEvent
+                            PsiElement(identifier)('WindowEvent')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: super.processWindowEvent
+                      SuperReference
+                        PsiElement(super)('super')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('processWindowEvent')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: e
+                        PsiElement(identifier)('e')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: e.getID
+                        ReferenceExpression: e
+                          PsiElement(identifier)('e')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getID')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: WindowEvent.WINDOW_CLOSING
+                        ReferenceExpression: WindowEvent
+                          PsiElement(identifier)('WindowEvent')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('WINDOW_CLOSING')
+                    PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: closeOperation
+                        PsiElement(identifier)('closeOperation')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: closeOperation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('closeOperation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

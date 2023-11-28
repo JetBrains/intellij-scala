@@ -4,3 +4,81 @@ class I0 {
   List[Nothing](null:_*)
 }
 -----
+ScalaFile
+  ScClass: I0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('I0')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement(:)(':')
+              SequenceArgumentType
+                PsiElement(_)('_')
+                PsiElement(identifier)('*')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement(:)(':')
+              SequenceArgumentType
+                PsiElement(_)('_')
+                PsiElement(identifier)('*')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement(:)(':')
+              SequenceArgumentType
+                PsiElement(_)('_')
+                PsiElement(identifier)('*')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

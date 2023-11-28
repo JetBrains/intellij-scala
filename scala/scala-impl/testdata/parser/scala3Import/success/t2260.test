@@ -9,3 +9,166 @@ object Index {
   val tree = TreeMap.empty[Text, String]
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: top
+      PsiElement(identifier)('top')
+    PsiWhiteSpace('\n\n')
+    ScClass: Text
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Text')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('value')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Ordered[Text]
+              SimpleType: Ordered
+                CodeReferenceElement: Ordered
+                  PsiElement(identifier)('Ordered')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Text
+                  CodeReferenceElement: Text
+                    PsiElement(identifier)('Text')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: compare
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('compare')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: that
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('that')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Text
+                      CodeReferenceElement: Text
+                        PsiElement(identifier)('Text')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: value.compare
+                ReferenceExpression: value
+                  PsiElement(identifier)('value')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compare')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: that.value
+                  ReferenceExpression: that
+                    PsiElement(identifier)('that')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('value')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Index
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Index')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: scala.collection.immutable.TreeMap
+                CodeReferenceElement: scala.collection.immutable
+                  CodeReferenceElement: scala.collection
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('collection')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('immutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('TreeMap')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: tree
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: tree
+                PsiElement(identifier)('tree')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: TreeMap.empty
+                ReferenceExpression: TreeMap
+                  PsiElement(identifier)('TreeMap')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Text
+                  CodeReferenceElement: Text
+                    PsiElement(identifier)('Text')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

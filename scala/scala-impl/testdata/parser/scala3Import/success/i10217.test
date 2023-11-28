@@ -31,3 +31,1537 @@ val f4 = Foo[A | Null | Null | Null | Null | Null | Null | Null | Null | Null | 
 val f5 = Foo[Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))))))]
 val f6 = Foo[A | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))))))]
 -----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: D
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('D')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: G
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('G')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: H
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('H')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: I
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('I')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: J
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('J')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: K
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('K')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: L
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('L')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: M
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('M')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: N
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('N')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: P
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('P')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Q
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Q')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: R
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('R')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: S
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('S')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: U
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('U')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: V
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('V')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: W
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('W')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f1
+        PsiElement(identifier)('f1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U
+          InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T
+            InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S
+              InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R
+                InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q
+                  InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P
+                    InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O
+                      InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M | N
+                        InfixType: A | B | C | D | E | F | G | H | I | J | K | L | M
+                          InfixType: A | B | C | D | E | F | G | H | I | J | K | L
+                            InfixType: A | B | C | D | E | F | G | H | I | J | K
+                              InfixType: A | B | C | D | E | F | G | H | I | J
+                                InfixType: A | B | C | D | E | F | G | H | I
+                                  InfixType: A | B | C | D | E | F | G | H
+                                    InfixType: A | B | C | D | E | F | G
+                                      InfixType: A | B | C | D | E | F
+                                        InfixType: A | B | C | D | E
+                                          InfixType: A | B | C | D
+                                            InfixType: A | B | C
+                                              InfixType: A | B
+                                                SimpleType: A
+                                                  CodeReferenceElement: A
+                                                    PsiElement(identifier)('A')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: |
+                                                  PsiElement(identifier)('|')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: B
+                                                  CodeReferenceElement: B
+                                                    PsiElement(identifier)('B')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              SimpleType: C
+                                                CodeReferenceElement: C
+                                                  PsiElement(identifier)('C')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: |
+                                              PsiElement(identifier)('|')
+                                            PsiWhiteSpace(' ')
+                                            SimpleType: D
+                                              CodeReferenceElement: D
+                                                PsiElement(identifier)('D')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          SimpleType: E
+                                            CodeReferenceElement: E
+                                              PsiElement(identifier)('E')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: |
+                                          PsiElement(identifier)('|')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: F
+                                          CodeReferenceElement: F
+                                            PsiElement(identifier)('F')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: G
+                                        CodeReferenceElement: G
+                                          PsiElement(identifier)('G')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: |
+                                      PsiElement(identifier)('|')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: H
+                                      CodeReferenceElement: H
+                                        PsiElement(identifier)('H')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: I
+                                    CodeReferenceElement: I
+                                      PsiElement(identifier)('I')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: J
+                                  CodeReferenceElement: J
+                                    PsiElement(identifier)('J')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              SimpleType: K
+                                CodeReferenceElement: K
+                                  PsiElement(identifier)('K')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: |
+                              PsiElement(identifier)('|')
+                            PsiWhiteSpace(' ')
+                            SimpleType: L
+                              CodeReferenceElement: L
+                                PsiElement(identifier)('L')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: M
+                            CodeReferenceElement: M
+                              PsiElement(identifier)('M')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Q
+                    CodeReferenceElement: Q
+                      PsiElement(identifier)('Q')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: U
+            CodeReferenceElement: U
+              PsiElement(identifier)('U')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f2
+        PsiElement(identifier)('f2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: A | (B | (C | (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))))))
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (B | (C | (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))))))
+            PsiElement(()('(')
+            InfixType: B | (C | (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))))))
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (C | (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))))))
+                PsiElement(()('(')
+                InfixType: C | (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))))
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))))
+                    PsiElement(()('(')
+                    InfixType: D | (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))))
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))))
+                        PsiElement(()('(')
+                        InfixType: E | (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))
+                          SimpleType: E
+                            CodeReferenceElement: E
+                              PsiElement(identifier)('E')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          TypeInParenthesis: (F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))))
+                            PsiElement(()('(')
+                            InfixType: F | (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              TypeInParenthesis: (G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))))
+                                PsiElement(()('(')
+                                InfixType: G | (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))
+                                  SimpleType: G
+                                    CodeReferenceElement: G
+                                      PsiElement(identifier)('G')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  TypeInParenthesis: (H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))))
+                                    PsiElement(()('(')
+                                    InfixType: H | (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))
+                                      SimpleType: H
+                                        CodeReferenceElement: H
+                                          PsiElement(identifier)('H')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      TypeInParenthesis: (I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))))
+                                        PsiElement(()('(')
+                                        InfixType: I | (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))
+                                          SimpleType: I
+                                            CodeReferenceElement: I
+                                              PsiElement(identifier)('I')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          TypeInParenthesis: (J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))))
+                                            PsiElement(()('(')
+                                            InfixType: J | (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))
+                                              SimpleType: J
+                                                CodeReferenceElement: J
+                                                  PsiElement(identifier)('J')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              TypeInParenthesis: (K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))))
+                                                PsiElement(()('(')
+                                                InfixType: K | (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))
+                                                  SimpleType: K
+                                                    CodeReferenceElement: K
+                                                      PsiElement(identifier)('K')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: |
+                                                    PsiElement(identifier)('|')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeInParenthesis: (L | (M | (N | (O | (P | (Q | (R | (S | (T | U)))))))))
+                                                    PsiElement(()('(')
+                                                    InfixType: L | (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))
+                                                      SimpleType: L
+                                                        CodeReferenceElement: L
+                                                          PsiElement(identifier)('L')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: |
+                                                        PsiElement(identifier)('|')
+                                                      PsiWhiteSpace(' ')
+                                                      TypeInParenthesis: (M | (N | (O | (P | (Q | (R | (S | (T | U))))))))
+                                                        PsiElement(()('(')
+                                                        InfixType: M | (N | (O | (P | (Q | (R | (S | (T | U)))))))
+                                                          SimpleType: M
+                                                            CodeReferenceElement: M
+                                                              PsiElement(identifier)('M')
+                                                          PsiWhiteSpace(' ')
+                                                          CodeReferenceElement: |
+                                                            PsiElement(identifier)('|')
+                                                          PsiWhiteSpace(' ')
+                                                          TypeInParenthesis: (N | (O | (P | (Q | (R | (S | (T | U)))))))
+                                                            PsiElement(()('(')
+                                                            InfixType: N | (O | (P | (Q | (R | (S | (T | U))))))
+                                                              SimpleType: N
+                                                                CodeReferenceElement: N
+                                                                  PsiElement(identifier)('N')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: |
+                                                                PsiElement(identifier)('|')
+                                                              PsiWhiteSpace(' ')
+                                                              TypeInParenthesis: (O | (P | (Q | (R | (S | (T | U))))))
+                                                                PsiElement(()('(')
+                                                                InfixType: O | (P | (Q | (R | (S | (T | U)))))
+                                                                  SimpleType: O
+                                                                    CodeReferenceElement: O
+                                                                      PsiElement(identifier)('O')
+                                                                  PsiWhiteSpace(' ')
+                                                                  CodeReferenceElement: |
+                                                                    PsiElement(identifier)('|')
+                                                                  PsiWhiteSpace(' ')
+                                                                  TypeInParenthesis: (P | (Q | (R | (S | (T | U)))))
+                                                                    PsiElement(()('(')
+                                                                    InfixType: P | (Q | (R | (S | (T | U))))
+                                                                      SimpleType: P
+                                                                        CodeReferenceElement: P
+                                                                          PsiElement(identifier)('P')
+                                                                      PsiWhiteSpace(' ')
+                                                                      CodeReferenceElement: |
+                                                                        PsiElement(identifier)('|')
+                                                                      PsiWhiteSpace(' ')
+                                                                      TypeInParenthesis: (Q | (R | (S | (T | U))))
+                                                                        PsiElement(()('(')
+                                                                        InfixType: Q | (R | (S | (T | U)))
+                                                                          SimpleType: Q
+                                                                            CodeReferenceElement: Q
+                                                                              PsiElement(identifier)('Q')
+                                                                          PsiWhiteSpace(' ')
+                                                                          CodeReferenceElement: |
+                                                                            PsiElement(identifier)('|')
+                                                                          PsiWhiteSpace(' ')
+                                                                          TypeInParenthesis: (R | (S | (T | U)))
+                                                                            PsiElement(()('(')
+                                                                            InfixType: R | (S | (T | U))
+                                                                              SimpleType: R
+                                                                                CodeReferenceElement: R
+                                                                                  PsiElement(identifier)('R')
+                                                                              PsiWhiteSpace(' ')
+                                                                              CodeReferenceElement: |
+                                                                                PsiElement(identifier)('|')
+                                                                              PsiWhiteSpace(' ')
+                                                                              TypeInParenthesis: (S | (T | U))
+                                                                                PsiElement(()('(')
+                                                                                InfixType: S | (T | U)
+                                                                                  SimpleType: S
+                                                                                    CodeReferenceElement: S
+                                                                                      PsiElement(identifier)('S')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  CodeReferenceElement: |
+                                                                                    PsiElement(identifier)('|')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  TypeInParenthesis: (T | U)
+                                                                                    PsiElement(()('(')
+                                                                                    InfixType: T | U
+                                                                                      SimpleType: T
+                                                                                        CodeReferenceElement: T
+                                                                                          PsiElement(identifier)('T')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      CodeReferenceElement: |
+                                                                                        PsiElement(identifier)('|')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      SimpleType: U
+                                                                                        CodeReferenceElement: U
+                                                                                          PsiElement(identifier)('U')
+                                                                                    PsiElement())(')')
+                                                                                PsiElement())(')')
+                                                                            PsiElement())(')')
+                                                                        PsiElement())(')')
+                                                                    PsiElement())(')')
+                                                                PsiElement())(')')
+                                                            PsiElement())(')')
+                                                        PsiElement())(')')
+                                                    PsiElement())(')')
+                                                PsiElement())(')')
+                                            PsiElement())(')')
+                                        PsiElement())(')')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f3
+        PsiElement(identifier)('f3')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | A
+          InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+            InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+              InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                  InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                    InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                      InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                        InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                          InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                            InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                              InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                                InfixType: Null | Null | Null | Null | Null | Null | Null | Null | Null
+                                  InfixType: Null | Null | Null | Null | Null | Null | Null | Null
+                                    InfixType: Null | Null | Null | Null | Null | Null | Null
+                                      InfixType: Null | Null | Null | Null | Null | Null
+                                        InfixType: Null | Null | Null | Null | Null
+                                          InfixType: Null | Null | Null | Null
+                                            InfixType: Null | Null | Null
+                                              InfixType: Null | Null
+                                                SimpleType: Null
+                                                  CodeReferenceElement: Null
+                                                    PsiElement(identifier)('Null')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: |
+                                                  PsiElement(identifier)('|')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Null
+                                                  CodeReferenceElement: Null
+                                                    PsiElement(identifier)('Null')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              SimpleType: Null
+                                                CodeReferenceElement: Null
+                                                  PsiElement(identifier)('Null')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: |
+                                              PsiElement(identifier)('|')
+                                            PsiWhiteSpace(' ')
+                                            SimpleType: Null
+                                              CodeReferenceElement: Null
+                                                PsiElement(identifier)('Null')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          SimpleType: Null
+                                            CodeReferenceElement: Null
+                                              PsiElement(identifier)('Null')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: |
+                                          PsiElement(identifier)('|')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: Null
+                                          CodeReferenceElement: Null
+                                            PsiElement(identifier)('Null')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: Null
+                                        CodeReferenceElement: Null
+                                          PsiElement(identifier)('Null')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: |
+                                      PsiElement(identifier)('|')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: Null
+                                      CodeReferenceElement: Null
+                                        PsiElement(identifier)('Null')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Null
+                                    CodeReferenceElement: Null
+                                      PsiElement(identifier)('Null')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Null
+                                  CodeReferenceElement: Null
+                                    PsiElement(identifier)('Null')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Null
+                                CodeReferenceElement: Null
+                                  PsiElement(identifier)('Null')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: |
+                              PsiElement(identifier)('|')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Null
+                              CodeReferenceElement: Null
+                                PsiElement(identifier)('Null')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Null
+                            CodeReferenceElement: Null
+                              PsiElement(identifier)('Null')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Null
+                          CodeReferenceElement: Null
+                            PsiElement(identifier)('Null')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Null
+                        CodeReferenceElement: Null
+                          PsiElement(identifier)('Null')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Null
+                      CodeReferenceElement: Null
+                        PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Null
+                  CodeReferenceElement: Null
+                    PsiElement(identifier)('Null')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f4
+        PsiElement(identifier)('f4')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+          InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+            InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+              InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                  InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                    InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                      InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                        InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                          InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                            InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                              InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null | Null
+                                InfixType: A | Null | Null | Null | Null | Null | Null | Null | Null
+                                  InfixType: A | Null | Null | Null | Null | Null | Null | Null
+                                    InfixType: A | Null | Null | Null | Null | Null | Null
+                                      InfixType: A | Null | Null | Null | Null | Null
+                                        InfixType: A | Null | Null | Null | Null
+                                          InfixType: A | Null | Null | Null
+                                            InfixType: A | Null | Null
+                                              InfixType: A | Null
+                                                SimpleType: A
+                                                  CodeReferenceElement: A
+                                                    PsiElement(identifier)('A')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: |
+                                                  PsiElement(identifier)('|')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Null
+                                                  CodeReferenceElement: Null
+                                                    PsiElement(identifier)('Null')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              SimpleType: Null
+                                                CodeReferenceElement: Null
+                                                  PsiElement(identifier)('Null')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: |
+                                              PsiElement(identifier)('|')
+                                            PsiWhiteSpace(' ')
+                                            SimpleType: Null
+                                              CodeReferenceElement: Null
+                                                PsiElement(identifier)('Null')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          SimpleType: Null
+                                            CodeReferenceElement: Null
+                                              PsiElement(identifier)('Null')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: |
+                                          PsiElement(identifier)('|')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: Null
+                                          CodeReferenceElement: Null
+                                            PsiElement(identifier)('Null')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: Null
+                                        CodeReferenceElement: Null
+                                          PsiElement(identifier)('Null')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: |
+                                      PsiElement(identifier)('|')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: Null
+                                      CodeReferenceElement: Null
+                                        PsiElement(identifier)('Null')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Null
+                                    CodeReferenceElement: Null
+                                      PsiElement(identifier)('Null')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Null
+                                  CodeReferenceElement: Null
+                                    PsiElement(identifier)('Null')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Null
+                                CodeReferenceElement: Null
+                                  PsiElement(identifier)('Null')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: |
+                              PsiElement(identifier)('|')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Null
+                              CodeReferenceElement: Null
+                                PsiElement(identifier)('Null')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Null
+                            CodeReferenceElement: Null
+                              PsiElement(identifier)('Null')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Null
+                          CodeReferenceElement: Null
+                            PsiElement(identifier)('Null')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Null
+                        CodeReferenceElement: Null
+                          PsiElement(identifier)('Null')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Null
+                      CodeReferenceElement: Null
+                        PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Null
+                  CodeReferenceElement: Null
+                    PsiElement(identifier)('Null')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f5
+        PsiElement(identifier)('f5')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))))))
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))))))
+            PsiElement(()('(')
+            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))))))
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))))))
+                PsiElement(()('(')
+                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))))
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))))
+                    PsiElement(()('(')
+                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))))
+                      SimpleType: Null
+                        CodeReferenceElement: Null
+                          PsiElement(identifier)('Null')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))))
+                        PsiElement(()('(')
+                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))
+                          SimpleType: Null
+                            CodeReferenceElement: Null
+                              PsiElement(identifier)('Null')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))))
+                            PsiElement(()('(')
+                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))
+                              SimpleType: Null
+                                CodeReferenceElement: Null
+                                  PsiElement(identifier)('Null')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))))
+                                PsiElement(()('(')
+                                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))
+                                  SimpleType: Null
+                                    CodeReferenceElement: Null
+                                      PsiElement(identifier)('Null')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))))
+                                    PsiElement(()('(')
+                                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))
+                                      SimpleType: Null
+                                        CodeReferenceElement: Null
+                                          PsiElement(identifier)('Null')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))))
+                                        PsiElement(()('(')
+                                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))
+                                          SimpleType: Null
+                                            CodeReferenceElement: Null
+                                              PsiElement(identifier)('Null')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))))
+                                            PsiElement(()('(')
+                                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))
+                                              SimpleType: Null
+                                                CodeReferenceElement: Null
+                                                  PsiElement(identifier)('Null')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))))
+                                                PsiElement(()('(')
+                                                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))
+                                                  SimpleType: Null
+                                                    CodeReferenceElement: Null
+                                                      PsiElement(identifier)('Null')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: |
+                                                    PsiElement(identifier)('|')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))))
+                                                    PsiElement(()('(')
+                                                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))
+                                                      SimpleType: Null
+                                                        CodeReferenceElement: Null
+                                                          PsiElement(identifier)('Null')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: |
+                                                        PsiElement(identifier)('|')
+                                                      PsiWhiteSpace(' ')
+                                                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))))
+                                                        PsiElement(()('(')
+                                                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))
+                                                          SimpleType: Null
+                                                            CodeReferenceElement: Null
+                                                              PsiElement(identifier)('Null')
+                                                          PsiWhiteSpace(' ')
+                                                          CodeReferenceElement: |
+                                                            PsiElement(identifier)('|')
+                                                          PsiWhiteSpace(' ')
+                                                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | A)))))))
+                                                            PsiElement(()('(')
+                                                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | A))))))
+                                                              SimpleType: Null
+                                                                CodeReferenceElement: Null
+                                                                  PsiElement(identifier)('Null')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: |
+                                                                PsiElement(identifier)('|')
+                                                              PsiWhiteSpace(' ')
+                                                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | A))))))
+                                                                PsiElement(()('(')
+                                                                InfixType: Null | (Null | (Null | (Null | (Null | (Null | A)))))
+                                                                  SimpleType: Null
+                                                                    CodeReferenceElement: Null
+                                                                      PsiElement(identifier)('Null')
+                                                                  PsiWhiteSpace(' ')
+                                                                  CodeReferenceElement: |
+                                                                    PsiElement(identifier)('|')
+                                                                  PsiWhiteSpace(' ')
+                                                                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | A)))))
+                                                                    PsiElement(()('(')
+                                                                    InfixType: Null | (Null | (Null | (Null | (Null | A))))
+                                                                      SimpleType: Null
+                                                                        CodeReferenceElement: Null
+                                                                          PsiElement(identifier)('Null')
+                                                                      PsiWhiteSpace(' ')
+                                                                      CodeReferenceElement: |
+                                                                        PsiElement(identifier)('|')
+                                                                      PsiWhiteSpace(' ')
+                                                                      TypeInParenthesis: (Null | (Null | (Null | (Null | A))))
+                                                                        PsiElement(()('(')
+                                                                        InfixType: Null | (Null | (Null | (Null | A)))
+                                                                          SimpleType: Null
+                                                                            CodeReferenceElement: Null
+                                                                              PsiElement(identifier)('Null')
+                                                                          PsiWhiteSpace(' ')
+                                                                          CodeReferenceElement: |
+                                                                            PsiElement(identifier)('|')
+                                                                          PsiWhiteSpace(' ')
+                                                                          TypeInParenthesis: (Null | (Null | (Null | A)))
+                                                                            PsiElement(()('(')
+                                                                            InfixType: Null | (Null | (Null | A))
+                                                                              SimpleType: Null
+                                                                                CodeReferenceElement: Null
+                                                                                  PsiElement(identifier)('Null')
+                                                                              PsiWhiteSpace(' ')
+                                                                              CodeReferenceElement: |
+                                                                                PsiElement(identifier)('|')
+                                                                              PsiWhiteSpace(' ')
+                                                                              TypeInParenthesis: (Null | (Null | A))
+                                                                                PsiElement(()('(')
+                                                                                InfixType: Null | (Null | A)
+                                                                                  SimpleType: Null
+                                                                                    CodeReferenceElement: Null
+                                                                                      PsiElement(identifier)('Null')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  CodeReferenceElement: |
+                                                                                    PsiElement(identifier)('|')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  TypeInParenthesis: (Null | A)
+                                                                                    PsiElement(()('(')
+                                                                                    InfixType: Null | A
+                                                                                      SimpleType: Null
+                                                                                        CodeReferenceElement: Null
+                                                                                          PsiElement(identifier)('Null')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      CodeReferenceElement: |
+                                                                                        PsiElement(identifier)('|')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      SimpleType: A
+                                                                                        CodeReferenceElement: A
+                                                                                          PsiElement(identifier)('A')
+                                                                                    PsiElement())(')')
+                                                                                PsiElement())(')')
+                                                                            PsiElement())(')')
+                                                                        PsiElement())(')')
+                                                                    PsiElement())(')')
+                                                                PsiElement())(')')
+                                                            PsiElement())(')')
+                                                        PsiElement())(')')
+                                                    PsiElement())(')')
+                                                PsiElement())(')')
+                                            PsiElement())(')')
+                                        PsiElement())(')')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f6
+        PsiElement(identifier)('f6')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: Foo
+        PsiElement(identifier)('Foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: A | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))))))
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))))))
+            PsiElement(()('(')
+            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))))))
+              SimpleType: Null
+                CodeReferenceElement: Null
+                  PsiElement(identifier)('Null')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))))))
+                PsiElement(()('(')
+                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))))
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))))
+                    PsiElement(()('(')
+                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))))
+                      SimpleType: Null
+                        CodeReferenceElement: Null
+                          PsiElement(identifier)('Null')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))))
+                        PsiElement(()('(')
+                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))
+                          SimpleType: Null
+                            CodeReferenceElement: Null
+                              PsiElement(identifier)('Null')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))))
+                            PsiElement(()('(')
+                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))
+                              SimpleType: Null
+                                CodeReferenceElement: Null
+                                  PsiElement(identifier)('Null')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))))
+                                PsiElement(()('(')
+                                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))
+                                  SimpleType: Null
+                                    CodeReferenceElement: Null
+                                      PsiElement(identifier)('Null')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))))
+                                    PsiElement(()('(')
+                                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))
+                                      SimpleType: Null
+                                        CodeReferenceElement: Null
+                                          PsiElement(identifier)('Null')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: |
+                                        PsiElement(identifier)('|')
+                                      PsiWhiteSpace(' ')
+                                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))))
+                                        PsiElement(()('(')
+                                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))
+                                          SimpleType: Null
+                                            CodeReferenceElement: Null
+                                              PsiElement(identifier)('Null')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: |
+                                            PsiElement(identifier)('|')
+                                          PsiWhiteSpace(' ')
+                                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))))
+                                            PsiElement(()('(')
+                                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))
+                                              SimpleType: Null
+                                                CodeReferenceElement: Null
+                                                  PsiElement(identifier)('Null')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: |
+                                                PsiElement(identifier)('|')
+                                              PsiWhiteSpace(' ')
+                                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))))
+                                                PsiElement(()('(')
+                                                InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))
+                                                  SimpleType: Null
+                                                    CodeReferenceElement: Null
+                                                      PsiElement(identifier)('Null')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: |
+                                                    PsiElement(identifier)('|')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))))
+                                                    PsiElement(()('(')
+                                                    InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))
+                                                      SimpleType: Null
+                                                        CodeReferenceElement: Null
+                                                          PsiElement(identifier)('Null')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: |
+                                                        PsiElement(identifier)('|')
+                                                      PsiWhiteSpace(' ')
+                                                      TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | (Null | Null)))))))
+                                                        PsiElement(()('(')
+                                                        InfixType: Null | (Null | (Null | (Null | (Null | (Null | (Null | Null))))))
+                                                          SimpleType: Null
+                                                            CodeReferenceElement: Null
+                                                              PsiElement(identifier)('Null')
+                                                          PsiWhiteSpace(' ')
+                                                          CodeReferenceElement: |
+                                                            PsiElement(identifier)('|')
+                                                          PsiWhiteSpace(' ')
+                                                          TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | (Null | Null))))))
+                                                            PsiElement(()('(')
+                                                            InfixType: Null | (Null | (Null | (Null | (Null | (Null | Null)))))
+                                                              SimpleType: Null
+                                                                CodeReferenceElement: Null
+                                                                  PsiElement(identifier)('Null')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: |
+                                                                PsiElement(identifier)('|')
+                                                              PsiWhiteSpace(' ')
+                                                              TypeInParenthesis: (Null | (Null | (Null | (Null | (Null | Null)))))
+                                                                PsiElement(()('(')
+                                                                InfixType: Null | (Null | (Null | (Null | (Null | Null))))
+                                                                  SimpleType: Null
+                                                                    CodeReferenceElement: Null
+                                                                      PsiElement(identifier)('Null')
+                                                                  PsiWhiteSpace(' ')
+                                                                  CodeReferenceElement: |
+                                                                    PsiElement(identifier)('|')
+                                                                  PsiWhiteSpace(' ')
+                                                                  TypeInParenthesis: (Null | (Null | (Null | (Null | Null))))
+                                                                    PsiElement(()('(')
+                                                                    InfixType: Null | (Null | (Null | (Null | Null)))
+                                                                      SimpleType: Null
+                                                                        CodeReferenceElement: Null
+                                                                          PsiElement(identifier)('Null')
+                                                                      PsiWhiteSpace(' ')
+                                                                      CodeReferenceElement: |
+                                                                        PsiElement(identifier)('|')
+                                                                      PsiWhiteSpace(' ')
+                                                                      TypeInParenthesis: (Null | (Null | (Null | Null)))
+                                                                        PsiElement(()('(')
+                                                                        InfixType: Null | (Null | (Null | Null))
+                                                                          SimpleType: Null
+                                                                            CodeReferenceElement: Null
+                                                                              PsiElement(identifier)('Null')
+                                                                          PsiWhiteSpace(' ')
+                                                                          CodeReferenceElement: |
+                                                                            PsiElement(identifier)('|')
+                                                                          PsiWhiteSpace(' ')
+                                                                          TypeInParenthesis: (Null | (Null | Null))
+                                                                            PsiElement(()('(')
+                                                                            InfixType: Null | (Null | Null)
+                                                                              SimpleType: Null
+                                                                                CodeReferenceElement: Null
+                                                                                  PsiElement(identifier)('Null')
+                                                                              PsiWhiteSpace(' ')
+                                                                              CodeReferenceElement: |
+                                                                                PsiElement(identifier)('|')
+                                                                              PsiWhiteSpace(' ')
+                                                                              TypeInParenthesis: (Null | Null)
+                                                                                PsiElement(()('(')
+                                                                                InfixType: Null | Null
+                                                                                  SimpleType: Null
+                                                                                    CodeReferenceElement: Null
+                                                                                      PsiElement(identifier)('Null')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  CodeReferenceElement: |
+                                                                                    PsiElement(identifier)('|')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  SimpleType: Null
+                                                                                    CodeReferenceElement: Null
+                                                                                      PsiElement(identifier)('Null')
+                                                                                PsiElement())(')')
+                                                                            PsiElement())(')')
+                                                                        PsiElement())(')')
+                                                                    PsiElement())(')')
+                                                                PsiElement())(')')
+                                                            PsiElement())(')')
+                                                        PsiElement())(')')
+                                                    PsiElement())(')')
+                                                PsiElement())(')')
+                                            PsiElement())(')')
+                                        PsiElement())(')')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(])(']')

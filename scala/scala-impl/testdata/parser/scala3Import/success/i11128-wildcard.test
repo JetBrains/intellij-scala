@@ -14,3 +14,104 @@ import Outer.*
 
 val wrapBar = new Wrap.Bar()
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n\n')
+    ScObject: Outer
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Outer')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Wrap
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Wrap')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScExportStatement
+                  PsiElement(export)('export')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: Outer
+                      PsiElement(identifier)('Outer')
+                    PsiElement(.)('.')
+                    PsiElement(_)('_')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScClass: Bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Bar')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: Outer
+          PsiElement(identifier)('Outer')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScPatternDefinition: wrapBar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: wrapBar
+          PsiElement(identifier)('wrapBar')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ScNewTemplateDefinition: <anonymous>
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: Wrap.Bar
+                CodeReferenceElement: Wrap.Bar
+                  CodeReferenceElement: Wrap
+                    PsiElement(identifier)('Wrap')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Bar')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')

@@ -26,3 +26,107 @@ object ImplicitsBug extends App with Support { // A
   println(3.moo)
 }
 -----
+ScalaFile
+  PsiComment(comment)('// This one is weird and nasty. Not sure if this is scalac or sbt')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (tried with 0.12 & 0.12.2-RC2) bug.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// A level of indirection is required to trigger this bug.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Exts seems to need to be defined in separate file.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Steps to reproduce:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// 1. sbt clean')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// 2. sbt run (it works)')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// 3. Comment A & uncomment B.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// 4. sbt run (it fails)')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// 5. Switch it back & sbt run. It still fails.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// In this project sbt clean helps. However in a large project where this')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// bug was found compiler crashed even after doing sbt clean. The only')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// way to work around this was to reference Exts object explicitly (C) in')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// the source file using its implicit classes.')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Support
+    PsiComment(comment)('// Lets suppose this is a mega-trait combining all sorts of helper')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// functionality.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Support')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Exts
+            CodeReferenceElement: Exts
+              PsiElement(identifier)('Exts')
+  PsiWhiteSpace('\n\n')
+  ScObject: ImplicitsBug
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImplicitsBug')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Support
+            CodeReferenceElement: Support
+              PsiElement(identifier)('Support')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// A')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('// object ImplicitsBug extends App with Exts { // B')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//Exts // C) this reference helped in the large project.')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: 3.moo
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement(.)('.')
+              PsiElement(identifier)('moo')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

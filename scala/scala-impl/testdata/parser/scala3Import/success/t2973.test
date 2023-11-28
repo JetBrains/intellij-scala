@@ -1,2 +1,31 @@
 package foo {}; package bar {}; package baz {}
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiElement(})('}')
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bar
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiElement(})('}')
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: baz
+      PsiElement(identifier)('baz')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiElement(})('}')

@@ -60,3 +60,1784 @@ inline def transparentInlineFoo(inline n: NatT): NatT = inline transparentInline
   println(inlineDependentlyTypedMod2(Succ(Succ(Succ(Zero()))))) // prints Succ(Zero()), as expected
   println(transparentInlineDependentlyTypedMod2(Succ(Succ(Succ(Zero()))))) // prints Succ(Zero()), as expected
 -----
+ScalaFile
+  ScTrait: NatT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NatT')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Zero
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Zero')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NatT
+            CodeReferenceElement: NatT
+              PsiElement(identifier)('NatT')
+  PsiWhiteSpace('\n')
+  ScClass: Succ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Succ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: n
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('n')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NatT
+            CodeReferenceElement: NatT
+              PsiElement(identifier)('NatT')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Mod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mod2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: N match
+  case Zero => Zero
+  case Succ[Zero] => Succ[Zero]
+  case Succ[Succ[predPredN]] => Mod2[predPredN]
+      SimpleType: N
+        CodeReferenceElement: N
+          PsiElement(identifier)('N')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[Zero]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[Zero]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[Succ[predPredN]]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Succ[predPredN]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeVariable: predPredN
+                    PsiElement(identifier)('predPredN')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Mod2[predPredN]
+            SimpleType: Mod2
+              CodeReferenceElement: Mod2
+                PsiElement(identifier)('Mod2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: predPredN
+                CodeReferenceElement: predPredN
+                  PsiElement(identifier)('predPredN')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: mod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('mod2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace('  ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+            Pattern Argument List
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Succ
+                  PsiElement(identifier)('Succ')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: predPredN
+                    PsiElement(identifier)('predPredN')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: mod2
+                PsiElement(identifier)('mod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: inlineMod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('inlineMod2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace('  ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+            Pattern Argument List
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Succ
+                  PsiElement(identifier)('Succ')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: predPredN
+                    PsiElement(identifier)('predPredN')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: inlineMod2
+                PsiElement(identifier)('inlineMod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: transparentInlineMod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('transparentInlineMod2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace('  ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+            Pattern Argument List
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Succ
+                  PsiElement(identifier)('Succ')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: predPredN
+                    PsiElement(identifier)('predPredN')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: transparentInlineMod2
+                PsiElement(identifier)('transparentInlineMod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: dependentlyTypedMod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('dependentlyTypedMod2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Mod2[N]
+      SimpleType: Mod2
+        CodeReferenceElement: Mod2
+          PsiElement(identifier)('Mod2')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: N
+          CodeReferenceElement: N
+            PsiElement(identifier)('N')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Zero
+                PsiElement(identifier)('Zero')
+              Pattern Argument List
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Zero]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Zero
+                    CodeReferenceElement: Zero
+                      PsiElement(identifier)('Zero')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: predPredN
+                      PsiElement(identifier)('predPredN')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Succ[_]]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Succ[_]
+                    SimpleType: Succ
+                      CodeReferenceElement: Succ
+                        PsiElement(identifier)('Succ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: dependentlyTypedMod2
+                PsiElement(identifier)('dependentlyTypedMod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// warning')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: inlineDependentlyTypedMod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('inlineDependentlyTypedMod2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Mod2[N]
+      SimpleType: Mod2
+        CodeReferenceElement: Mod2
+          PsiElement(identifier)('Mod2')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: N
+          CodeReferenceElement: N
+            PsiElement(identifier)('N')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Zero
+                PsiElement(identifier)('Zero')
+              Pattern Argument List
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Zero]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Zero
+                    CodeReferenceElement: Zero
+                      PsiElement(identifier)('Zero')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: predPredN
+                      PsiElement(identifier)('predPredN')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Succ[_]]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Succ[_]
+                    SimpleType: Succ
+                      CodeReferenceElement: Succ
+                        PsiElement(identifier)('Succ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: inlineDependentlyTypedMod2
+                PsiElement(identifier)('inlineDependentlyTypedMod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// warning')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: transparentInlineDependentlyTypedMod2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('transparentInlineDependentlyTypedMod2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Mod2[N]
+      SimpleType: Mod2
+        CodeReferenceElement: Mod2
+          PsiElement(identifier)('Mod2')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: N
+          CodeReferenceElement: N
+            PsiElement(identifier)('N')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: n
+        PsiElement(identifier)('n')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Zero
+                PsiElement(identifier)('Zero')
+              Pattern Argument List
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Zero]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Zero
+                    CodeReferenceElement: Zero
+                      PsiElement(identifier)('Zero')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Succ
+                PsiElement(identifier)('Succ')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: Zero
+                    PsiElement(identifier)('Zero')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// warning')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ConstructorPattern
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+              Pattern Argument List
+                PsiElement(()('(')
+                ConstructorPattern
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: predPredN
+                      PsiElement(identifier)('predPredN')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Succ[Succ[_]]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Succ[_]
+                    SimpleType: Succ
+                      CodeReferenceElement: Succ
+                        PsiElement(identifier)('Succ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: transparentInlineDependentlyTypedMod2
+                PsiElement(identifier)('transparentInlineDependentlyTypedMod2')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: predPredN
+                  PsiElement(identifier)('predPredN')
+                PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// warning')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      MethodCall
+        ReferenceExpression: mod2
+          PsiElement(identifier)('mod2')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: n
+            PsiElement(identifier)('n')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: inlineFoo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('inlineFoo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: inlineMod2
+          PsiElement(identifier)('inlineMod2')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: n
+            PsiElement(identifier)('n')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: transparentInlineFoo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('transparentInlineFoo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: NatT
+              CodeReferenceElement: NatT
+                PsiElement(identifier)('NatT')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: transparentInlineMod2
+          PsiElement(identifier)('transparentInlineMod2')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: n
+            PsiElement(identifier)('n')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+            Pattern Argument List
+              PsiElement(()('(')
+              ConstructorPattern
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Zero
+                PsiElement(identifier)('Zero')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: mod2
+              PsiElement(identifier)('mod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Succ(Zero()), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Zero(), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: inlineMod2
+              PsiElement(identifier)('inlineMod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Succ(Zero()), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: inlineFoo
+              PsiElement(identifier)('inlineFoo')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Succ(Succ(Succ(Zero()))); unexpected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: transparentInlineMod2
+              PsiElement(identifier)('transparentInlineMod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Succ(Zero()), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: transparentInlineFoo
+              PsiElement(identifier)('transparentInlineFoo')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Zero(), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: dependentlyTypedMod2
+              PsiElement(identifier)('dependentlyTypedMod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// runtime error; unexpected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: inlineDependentlyTypedMod2
+              PsiElement(identifier)('inlineDependentlyTypedMod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// prints Succ(Zero()), as expected')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: transparentInlineDependentlyTypedMod2
+              PsiElement(identifier)('transparentInlineDependentlyTypedMod2')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Succ
+                  PsiElement(identifier)('Succ')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: Succ
+                      PsiElement(identifier)('Succ')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Succ
+                          PsiElement(identifier)('Succ')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Zero
+                              PsiElement(identifier)('Zero')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// prints Succ(Zero()), as expected')

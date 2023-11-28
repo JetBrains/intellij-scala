@@ -12,3 +12,208 @@ object Foo {
   val bar = implicitly[Higher[Bar]] // <-- this doesn't compile in 2.10.1-RC1, but does in 2.10.0 !!!
 }
 -----
+ScalaFile
+  ScTrait: Higher
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Higher')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: HigherBox
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('HigherBox')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Higher[Box]
+            SimpleType: Higher
+              CodeReferenceElement: Higher
+                PsiElement(identifier)('Higher')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Box
+                CodeReferenceElement: Box
+                  PsiElement(identifier)('Box')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Higher[Box]
+                    SimpleType: Higher
+                      CodeReferenceElement: Higher
+                        PsiElement(identifier)('Higher')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Box
+                        CodeReferenceElement: Box
+                          PsiElement(identifier)('Box')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: box
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: box
+              PsiElement(identifier)('box')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: implicitly
+              PsiElement(identifier)('implicitly')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Higher[Box]
+                SimpleType: Higher
+                  CodeReferenceElement: Higher
+                    PsiElement(identifier)('Higher')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Box
+                    CodeReferenceElement: Box
+                      PsiElement(identifier)('Box')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// compiles fine !!!')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Box[A]
+            SimpleType: Box
+              CodeReferenceElement: Box
+                PsiElement(identifier)('Box')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bar
+              PsiElement(identifier)('bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: implicitly
+              PsiElement(identifier)('implicitly')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Higher[Bar]
+                SimpleType: Higher
+                  CodeReferenceElement: Higher
+                    PsiElement(identifier)('Higher')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// <-- this doesn't compile in 2.10.1-RC1, but does in 2.10.0 !!!')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

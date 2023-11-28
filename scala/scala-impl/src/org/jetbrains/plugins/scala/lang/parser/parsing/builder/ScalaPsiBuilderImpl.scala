@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
-import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, IndentationWidth}
+import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
@@ -171,6 +170,15 @@ class ScalaPsiBuilderImpl(
 
   override def currentIndentationWidth: IndentationWidth =
     indentationStack.head
+
+  override def previousIndentationWidth: Option[IndentationWidth] =
+    indentationStack match {
+      case top :: rest =>
+        // sometimes we push the same indentation with multiple times
+        // so we filter these away
+        rest.find(_ != top)
+      case _ => None
+    }
 
   override def pushIndentationWidth(width: IndentationWidth): Unit =
     indentationStack ::= width

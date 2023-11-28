@@ -1,3 +1,61 @@
 class Bug372Names;
 class Bug372Symbols { self: Bug372Symbols with Bug372Names => }
 -----
+ScalaFile
+  ScClass: Bug372Names
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug372Names')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScClass: Bug372Symbols
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bug372Symbols')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Bug372Symbols with Bug372Names
+            SimpleType: Bug372Symbols
+              CodeReferenceElement: Bug372Symbols
+                PsiElement(identifier)('Bug372Symbols')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: Bug372Names
+              CodeReferenceElement: Bug372Names
+                PsiElement(identifier)('Bug372Names')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

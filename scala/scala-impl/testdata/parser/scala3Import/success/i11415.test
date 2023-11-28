@@ -41,3 +41,483 @@ object MacroCompat {
 
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.language.experimental.macros
+          CodeReferenceElement: scala.language.experimental
+            CodeReferenceElement: scala.language
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('language')
+            PsiElement(.)('.')
+            PsiElement(identifier)('experimental')
+          PsiElement(.)('.')
+          PsiElement(identifier)('macros')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Context
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Context')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScValueDeclaration: universe
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfIdentifiers
+              Field identifier: universe
+                PsiElement(identifier)('universe')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Universe
+              CodeReferenceElement: Universe
+                PsiElement(identifier)('Universe')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: Universe
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Universe')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Tree
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Tree')
+                  PsiWhiteSpace(' ')
+                  PsiElement(>:)('>:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: AnyRef with TreeApi
+                    SimpleType: AnyRef
+                      CodeReferenceElement: AnyRef
+                        PsiElement(identifier)('AnyRef')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TreeApi
+                      CodeReferenceElement: TreeApi
+                        PsiElement(identifier)('TreeApi')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Literal
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Literal')
+                  PsiWhiteSpace(' ')
+                  PsiElement(>:)('>:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: LiteralApi with TermTree
+                    SimpleType: LiteralApi
+                      CodeReferenceElement: LiteralApi
+                        PsiElement(identifier)('LiteralApi')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TermTree
+                      CodeReferenceElement: TermTree
+                        PsiElement(identifier)('TermTree')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: TermTree
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('TermTree')
+                  PsiWhiteSpace(' ')
+                  PsiElement(>:)('>:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  CompoundType: TermTreeApi with Tree
+                    SimpleType: TermTreeApi
+                      CodeReferenceElement: TermTreeApi
+                        PsiElement(identifier)('TermTreeApi')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tree
+                      CodeReferenceElement: Tree
+                        PsiElement(identifier)('Tree')
+                PsiWhiteSpace('\n\n    ')
+                ScTrait: TermTreeApi
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('TermTreeApi')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: TreeApi
+                          CodeReferenceElement: TreeApi
+                            PsiElement(identifier)('TreeApi')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      SelfType: this
+                        PsiElement(this)('this')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: TermTree
+                          CodeReferenceElement: TermTree
+                            PsiElement(identifier)('TermTree')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                ScTrait: LiteralApi
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('LiteralApi')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: TermTreeApi
+                          CodeReferenceElement: TermTreeApi
+                            PsiElement(identifier)('TermTreeApi')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      SelfType: this
+                        PsiElement(this)('this')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Literal
+                          CodeReferenceElement: Literal
+                            PsiElement(identifier)('Literal')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                ScTrait: TreeApi
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(trait)('trait')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('TreeApi')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Product
+                          CodeReferenceElement: Product
+                            PsiElement(identifier)('Product')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      SelfType: this
+                        PsiElement(this)('this')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Tree
+                          CodeReferenceElement: Tree
+                            PsiElement(identifier)('Tree')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: MacroCompat
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MacroCompat')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Bundles
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Bundles')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScMacroDefinition: mono
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('mono')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  PsiElement(macro)('macro')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: Macros2.MacroImpl.mono
+                    CodeReferenceElement: Macros2.MacroImpl
+                      CodeReferenceElement: Macros2
+                        PsiElement(identifier)('Macros2')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('MacroImpl')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('mono')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: mono
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(inline)('inline')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('mono')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SplicedBlock
+                    PsiElement($)('$')
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Macros3.monoImpl
+                      ReferenceExpression: Macros3
+                        PsiElement(identifier)('Macros3')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('monoImpl')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Macros2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Macros2')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScClass: MacroImpl
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(class)('class')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('MacroImpl')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: c
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('c')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Context
+                              CodeReferenceElement: Context
+                                PsiElement(identifier)('Context')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      ScImportStatement
+                        PsiElement(import)('import')
+                        PsiWhiteSpace(' ')
+                        ImportExpression
+                          CodeReferenceElement: c.universe
+                            CodeReferenceElement: c
+                              PsiElement(identifier)('c')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('universe')
+                          PsiElement(.)('.')
+                          PsiElement(_)('_')
+                      PsiWhiteSpace('\n\n      ')
+                      ScFunctionDefinition: mono
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('mono')
+                        Parameters
+                          <empty list>
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Literal
+                          CodeReferenceElement: Literal
+                            PsiElement(identifier)('Literal')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ???
+                          PsiElement(identifier)('???')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Macros3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Macros3')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: quoted
+                      PsiElement(identifier)('quoted')
+                    PsiElement(.)('.')
+                    PsiElement(_)('_')
+                PsiWhiteSpace('\n\n    ')
+                ScFunctionDefinition: monoImpl
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('monoImpl')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement(using)('using')
+                      PsiWhiteSpace(' ')
+                      Parameter: <anonymous>
+                        ParameterType
+                          SimpleType: Quotes
+                            CodeReferenceElement: Quotes
+                              PsiElement(identifier)('Quotes')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  QuotedBlock
+                    PsiElement(')(''')
+                    PsiElement({)('{')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

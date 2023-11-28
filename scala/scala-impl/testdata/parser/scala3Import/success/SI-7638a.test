@@ -51,3 +51,320 @@ object vectorOrder {
     new ArrayVectorOrder[A] { }
 }
 -----
+ScalaFile
+  PsiComment(comment)('// Same as SI-7638, but without (Int) arguments to @specialized')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: miniboxing.tests.compile
+      CodeReferenceElement: miniboxing.tests
+        CodeReferenceElement: miniboxing
+          PsiElement(identifier)('miniboxing')
+        PsiElement(.)('.')
+        PsiElement(identifier)('tests')
+      PsiElement(.)('.')
+      PsiElement(identifier)('compile')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Ordering
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Ordering')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: specialized
+                    CodeReferenceElement: specialized
+                      PsiElement(identifier)('specialized')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: eqv
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('eqv')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[A]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[A]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BooleanLiteral
+              PsiElement(false)('false')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ArrayVectorOrder
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ArrayVectorOrder')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: specialized
+                    CodeReferenceElement: specialized
+                      PsiElement(identifier)('specialized')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Ordering[A]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: eqv
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('eqv')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[A]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[A]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: super.eqv
+                SuperReference
+                  PsiElement(super)('super')
+                PsiElement(.)('.')
+                PsiElement(identifier)('eqv')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: vectorOrder
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('vectorOrder')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: arrayOrder
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('arrayOrder')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: specialized
+                          CodeReferenceElement: specialized
+                            PsiElement(identifier)('specialized')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: miniboxing.tests.compile.ArrayVectorOrder[A]
+              SimpleType: miniboxing.tests.compile.ArrayVectorOrder
+                CodeReferenceElement: miniboxing.tests.compile.ArrayVectorOrder
+                  CodeReferenceElement: miniboxing.tests.compile
+                    CodeReferenceElement: miniboxing.tests
+                      CodeReferenceElement: miniboxing
+                        PsiElement(identifier)('miniboxing')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('tests')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('compile')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ArrayVectorOrder')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n  ')
+            PsiComment(BlockComment)('/*\n   * Before applying patch:\n   *\n   *      while compiling: SI-7638.scala\n   *         during phase: mixin\n   *      library version: version 2.10.3-20130625-164027-d22e8d282c\n   *     compiler version: version 2.10.3-20130627-153946-54cb6af7db\n   *   reconstructed args:\n   *\n   *   last tree to typer: TypeTree(class Array)\n   *               symbol: class Array in package scala (flags: final)\n   *    symbol definition: final class Array[T >: ? <: ?] extends Object\n   *                  tpe: Array[Int]\n   *        symbol owners: class Array -> package scala\n   *       context owners: anonymous class anon$1 -> package compile\n   *\n   * == Expanded type of tree ==\n   *\n   * TypeRef(\n   *   TypeSymbol(final class Array[T >: ? <: ?] extends Object)\n   *   args = List(TypeRef(TypeSymbol(final abstract class Int extends )))\n   * )\n   *\n   * unhandled exception while transforming SI-7638.scala\n   * error: uncaught exception during compilation: java.lang.UnsupportedOperationException\n   * error: java.lang.UnsupportedOperationException: tail of empty list\n   *    at scala.collection.immutable.Nil$.tail(List.scala:339)\n   *    at scala.collection.immutable.Nil$.tail(List.scala:334)\n   *    at scala.tools.nsc.transform.Mixin$$anonfun$scala$tools$nsc$transform$Mixin$$rebindSuper$1.apply(Mixin.scala:123)\n   *    at scala.tools.nsc.transform.Mixin$$anonfun$scala$tools$nsc$transform$Mixin$$rebindSuper$1.apply(Mixin.scala:122)\n   *    at scala.reflect.internal.SymbolTable.atPhase(SymbolTable.scala:207)\n   *    at scala.reflect.internal.SymbolTable.afterPhase(SymbolTable.scala:216)\n   *    at scala.tools.nsc.Global.afterPickler(Global.scala:1104)\n   *    at scala.tools.nsc.transform.Mixin.scala$tools$nsc$transform$Mixin$$rebindSuper(Mixin.scala:122)\n   *    at scala.tools.nsc.transform.Mixin$$anonfun$scala$tools$nsc$transform$Mixin$$mixinTraitMembers$1$1.apply(Mixin.scala:339)\n   *    at scala.tools.nsc.transform.Mixin$$anonfun$scala$tools$nsc$transform$Mixin$$mixinTraitMembers$1$1.apply(Mixin.scala:292)\n   */')
+            PsiWhiteSpace('\n    ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: ArrayVectorOrder[A]
+                      SimpleType: ArrayVectorOrder
+                        CodeReferenceElement: ArrayVectorOrder
+                          PsiElement(identifier)('ArrayVectorOrder')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -12,3 +12,311 @@ object Test {
   val v3b : Vec[3] = v3a
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Vec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Vec')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: concat
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(infix)('infix')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('concat')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: RS
+                    PsiElement(identifier)('RS')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: that
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('that')
+                      PsiWhiteSpace(' ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Vec[RS]
+                          SimpleType: Vec
+                            CodeReferenceElement: Vec
+                              PsiElement(identifier)('Vec')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: RS
+                              CodeReferenceElement: RS
+                                PsiElement(identifier)('RS')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Vec[S + RS]
+                  SimpleType: Vec
+                    CodeReferenceElement: Vec
+                      PsiElement(identifier)('Vec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    InfixType: S + RS
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      SimpleType: RS
+                        CodeReferenceElement: RS
+                          PsiElement(identifier)('RS')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: Vec[S + RS]
+                          SimpleType: Vec
+                            CodeReferenceElement: Vec
+                              PsiElement(identifier)('Vec')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            InfixType: S + RS
+                              SimpleType: S
+                                CodeReferenceElement: S
+                                  PsiElement(identifier)('S')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              SimpleType: RS
+                                CodeReferenceElement: RS
+                                  PsiElement(identifier)('RS')
+                            PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: v1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v1
+              PsiElement(identifier)('v1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Vec[1]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      LiteralType: 1
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v2
+              PsiElement(identifier)('v2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Vec[2]
+                    SimpleType: Vec
+                      CodeReferenceElement: Vec
+                        PsiElement(identifier)('Vec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      LiteralType: 2
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v3
+              PsiElement(identifier)('v3')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Vec[3]
+            SimpleType: Vec
+              CodeReferenceElement: Vec
+                PsiElement(identifier)('Vec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 3
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: v1
+              PsiElement(identifier)('v1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: concat
+              PsiElement(identifier)('concat')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v2
+              PsiElement(identifier)('v2')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v3a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v3a
+              PsiElement(identifier)('v3a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: v1
+              PsiElement(identifier)('v1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: concat
+              PsiElement(identifier)('concat')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v2
+              PsiElement(identifier)('v2')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v3b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v3b
+              PsiElement(identifier)('v3b')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Vec[3]
+            SimpleType: Vec
+              CodeReferenceElement: Vec
+                PsiElement(identifier)('Vec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 3
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: v3a
+            PsiElement(identifier)('v3a')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

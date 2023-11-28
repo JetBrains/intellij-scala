@@ -12,3 +12,180 @@ trait ThreadedImpl {
     thread.isAlive && threadSync.synchronized(!wasClosed)
 }
 -----
+ScalaFile
+  ScTrait: ThreadedImpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ThreadedImpl')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: threadSync
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: threadSync
+              PsiElement(identifier)('threadSync')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: wasClosed
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: volatile
+                    CodeReferenceElement: volatile
+                      PsiElement(identifier)('volatile')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: wasClosed
+              PsiElement(identifier)('wasClosed')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(false)('false')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: thread
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: thread
+              PsiElement(identifier)('thread')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Thread
+            CodeReferenceElement: Thread
+              PsiElement(identifier)('Thread')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[Int]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: isThreadRunning
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('isThreadRunning')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// threadSync.synchronized(!wasClosed)')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// true')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: thread.isAlive
+                ReferenceExpression: thread
+                  PsiElement(identifier)('thread')
+                PsiElement(.)('.')
+                PsiElement(identifier)('isAlive')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: &&
+                PsiElement(identifier)('&&')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: threadSync.synchronized
+                  ReferenceExpression: threadSync
+                    PsiElement(identifier)('threadSync')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('synchronized')
+                ArgumentList
+                  PsiElement(()('(')
+                  PrefixExpression
+                    ReferenceExpression: !
+                      PsiElement(identifier)('!')
+                    ReferenceExpression: wasClosed
+                      PsiElement(identifier)('wasClosed')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

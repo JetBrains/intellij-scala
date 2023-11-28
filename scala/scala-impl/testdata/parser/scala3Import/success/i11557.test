@@ -11,3 +11,153 @@ def doEncoding(ctx: MyContext): Unit =
 inline def summonInlineMyEncoder(): Unit =
   compiletime.summonInline[MyEncoder]
 -----
+ScalaFile
+  ScTypeAliasDeclaration: MyEncoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEncoder')
+  PsiWhiteSpace('\n\n')
+  ScClass: MyContext
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyContext')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: intEncoder
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('intEncoder')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: MyEncoder
+            CodeReferenceElement: MyEncoder
+              PsiElement(identifier)('MyEncoder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: doEncoding
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('doEncoding')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ctx')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: MyContext
+              CodeReferenceElement: MyContext
+                PsiElement(identifier)('MyContext')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScImportStatement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        ImportExpression
+          CodeReferenceElement: ctx
+            PsiElement(identifier)('ctx')
+          PsiElement(.)('.')
+          ImportSelectors
+            PsiElement({)('{')
+            ImportSelector
+              PsiElement(*)('*')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ImportSelector
+              PsiElement(given)('given')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: MyEncoder
+            CodeReferenceElement: MyEncoder
+              PsiElement(identifier)('MyEncoder')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: summonInlineMyEncoder
+          PsiElement(identifier)('summonInlineMyEncoder')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: summonInlineMyEncoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('summonInlineMyEncoder')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    GenericCall
+      ReferenceExpression: compiletime.summonInline
+        ReferenceExpression: compiletime
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonInline')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: MyEncoder
+          CodeReferenceElement: MyEncoder
+            PsiElement(identifier)('MyEncoder')
+        PsiElement(])(']')

@@ -3,3 +3,56 @@ object Main { s"Hello $Main.toStr!" }
 
 object Alt { s"Hello ${Alt}.toStr!" }
 -----
+ScalaFile
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"Hello ')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: Main
+            PsiElement(identifier)('Main')
+          PsiElement(interpolated string)('.toStr!')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Alt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Alt')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"Hello ')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: Alt
+              PsiElement(identifier)('Alt')
+            PsiElement(})('}')
+          PsiElement(interpolated string)('.toStr!')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

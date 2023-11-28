@@ -27,3 +27,412 @@ object refined:
   println(random)
   println(safeFive)
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: compiletime
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: refined
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('refined')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Positive
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Positive')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Positive
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Positive')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: PositiveFactory
+                  CodeReferenceElement: PositiveFactory
+                    PsiElement(identifier)('PositiveFactory')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: PositiveFactory
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('PositiveFactory')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(inline)('inline')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('value')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Positive
+                  CodeReferenceElement: Positive
+                    PsiElement(identifier)('Positive')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(inline)('inline')
+                  PsiWhiteSpace(' ')
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: value
+                      PsiElement(identifier)('value')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: error
+                      PsiElement(identifier)('error')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        MethodCall
+                          ReferenceExpression: codeOf
+                            PsiElement(identifier)('codeOf')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: value
+                              PsiElement(identifier)('value')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('" is not positive."')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: safe
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(transparent)('transparent')
+                  PsiWhiteSpace(' ')
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('safe')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('value')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                InfixType: Positive | IllegalArgumentException
+                  SimpleType: Positive
+                    CodeReferenceElement: Positive
+                      PsiElement(identifier)('Positive')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: IllegalArgumentException
+                    CodeReferenceElement: IllegalArgumentException
+                      PsiElement(identifier)('IllegalArgumentException')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: value
+                      PsiElement(identifier)('value')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: IllegalArgumentException
+                      PsiElement(identifier)('IllegalArgumentException')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InterpolatedStringLiteral
+                        InterpolatedExpressionPrefix: s
+                          PsiElement(interpolated string id)('s')
+                        PsiElement(interpolated string)('"')
+                        PsiElement(interpolated string injection)('$')
+                        ReferenceExpression: value
+                          PsiElement(identifier)('value')
+                        PsiElement(interpolated string)(' is not positive')
+                        PsiElement(interpolated string end)('"')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  TypedExpression
+                    ReferenceExpression: value
+                      PsiElement(identifier)('value')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Positive
+                      CodeReferenceElement: Positive
+                        PsiElement(identifier)('Positive')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScImportStatement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        ImportExpression
+          CodeReferenceElement: refined
+            PsiElement(identifier)('refined')
+          PsiElement(.)('.')
+          PsiElement(*)('*')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: eight
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: eight
+            PsiElement(identifier)('eight')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Positive
+            PsiElement(identifier)('Positive')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('8')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: random
+        PsiComment(comment)('// val negative = Positive(-1) // This correctly produces a compile error "-1 is not positive."')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// val random = Positive(scala.util.Random.nextInt()) // This correctly produces a compile error about being unable to inline the method call')
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: random
+            PsiElement(identifier)('random')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Positive.safe
+            ReferenceExpression: Positive
+              PsiElement(identifier)('Positive')
+            PsiElement(.)('.')
+            PsiElement(identifier)('safe')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: scala.util.Random.nextInt
+                ReferenceExpression: scala.util.Random
+                  ReferenceExpression: scala.util
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('util')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Random')
+                PsiElement(.)('.')
+                PsiElement(identifier)('nextInt')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: safeNegative
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: safeNegative
+            PsiElement(identifier)('safeNegative')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Positive.safe
+            ReferenceExpression: Positive
+              PsiElement(identifier)('Positive')
+            PsiElement(.)('.')
+            PsiElement(identifier)('safe')
+          ArgumentList
+            PsiElement(()('(')
+            PrefixExpression
+              ReferenceExpression: -
+                PsiElement(identifier)('-')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: safeFive
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: safeFive
+            PsiElement(identifier)('safeFive')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Positive.safe
+            ReferenceExpression: Positive
+              PsiElement(identifier)('Positive')
+            PsiElement(.)('.')
+            PsiElement(identifier)('safe')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('5')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: eight
+            PsiElement(identifier)('eight')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: random
+            PsiElement(identifier)('random')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: safeFive
+            PsiElement(identifier)('safeFive')
+          PsiElement())(')')

@@ -8,3 +8,188 @@ inline def fko(inline that: Nums) = inline that match {
 }
 val ko = fko(Nums.One)
 -----
+ScalaFile
+  ScEnum: Nums
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Nums')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScEnumCases: One
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: One
+            PsiElement(identifier)('One')
+            ExtendsBlock
+              <empty list>
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        ScEnumCases: Two
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Two
+            PsiElement(identifier)('Two')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: fok
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fok')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: that
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('that')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Nums
+              CodeReferenceElement: Nums
+                PsiElement(identifier)('Nums')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: ok
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ok
+        PsiElement(identifier)('ok')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: fok
+        PsiElement(identifier)('fok')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: Nums.One
+          ReferenceExpression: Nums
+            PsiElement(identifier)('Nums')
+          PsiElement(.)('.')
+          PsiElement(identifier)('One')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: fko
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fko')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: that
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('that')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Nums
+              CodeReferenceElement: Nums
+                PsiElement(identifier)('Nums')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: that
+        PsiElement(identifier)('that')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: Nums.One
+              ReferenceExpression: Nums
+                PsiElement(identifier)('Nums')
+              PsiElement(.)('.')
+              PsiElement(identifier)('One')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('"fff(one)"')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: ko
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ko
+        PsiElement(identifier)('ko')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: fko
+        PsiElement(identifier)('fko')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: Nums.One
+          ReferenceExpression: Nums
+            PsiElement(identifier)('Nums')
+          PsiElement(.)('.')
+          PsiElement(identifier)('One')
+        PsiElement())(')')

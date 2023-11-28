@@ -15,3 +15,295 @@
   bldr.toString
 }
 -----
+ScalaFile
+  ScFunctionDefinition: happyBirthday
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('happyBirthday')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: age
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('age')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: name
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('name')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: others
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('others')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: suffix
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: suffix
+            PsiElement(identifier)('suffix')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        MatchStatement
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: age
+                PsiElement(identifier)('age')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: %
+                PsiElement(identifier)('%')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('100')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n      ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              CompositePattern
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('11')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('12')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('13')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                StringLiteral
+                  PsiElement(string content)('"th"')
+            PsiWhiteSpace('\n      ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n        ')
+              BlockOfExpressions
+                MatchStatement
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: age
+                        PsiElement(identifier)('age')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: %
+                        PsiElement(identifier)('%')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('10')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n          ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        StringLiteral
+                          PsiElement(string content)('"st"')
+                    PsiWhiteSpace('\n          ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        StringLiteral
+                          PsiElement(string content)('"nd"')
+                    PsiWhiteSpace('\n          ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        IntegerLiteral
+                          PsiElement(integer)('3')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        StringLiteral
+                          PsiElement(string content)('"rd"')
+                    PsiWhiteSpace('\n          ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        StringLiteral
+                          PsiElement(string content)('"th"')
+                  PsiWhiteSpace('\n        ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: bldr
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: bldr
+            PsiElement(identifier)('bldr')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: StringBuilder
+                  CodeReferenceElement: StringBuilder
+                    PsiElement(identifier)('StringBuilder')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"Happy ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: age
+                      PsiElement(identifier)('age')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: suffix
+                      PsiElement(identifier)('suffix')
+                    PsiElement(interpolated string)(' birthday, ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: name
+                      PsiElement(identifier)('name')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ForStatement
+        PsiElement(for)('for')
+        PsiWhiteSpace(' ')
+        Enumerators
+          Generator
+            ReferencePattern: other
+              PsiElement(identifier)('other')
+            PsiWhiteSpace(' ')
+            PsiElement(<-)('<-')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: others
+              PsiElement(identifier)('others')
+        PsiWhiteSpace(' ')
+        PsiElement(do)('do')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: bldr.append(" and ").append
+            MethodCall
+              ReferenceExpression: bldr.append
+                ReferenceExpression: bldr
+                  PsiElement(identifier)('bldr')
+                PsiElement(.)('.')
+                PsiElement(identifier)('append')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('" and "')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('append')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: other
+              PsiElement(identifier)('other')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: bldr.toString
+        ReferenceExpression: bldr
+          PsiElement(identifier)('bldr')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toString')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

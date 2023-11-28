@@ -11,3 +11,109 @@ class ReferenceQueue[T] {
   // )
 }
 -----
+ScalaFile
+  ScClass: ReferenceQueue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ReferenceQueue')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: wrapper
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('wrapper')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: jref
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('jref')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: ReferenceQueue[_]
+                    SimpleType: ReferenceQueue
+                      CodeReferenceElement: ReferenceQueue
+                        PsiElement(identifier)('ReferenceQueue')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ReferenceQueue[T]
+            SimpleType: ReferenceQueue
+              CodeReferenceElement: ReferenceQueue
+                PsiElement(identifier)('ReferenceQueue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ReferenceExpression: jref
+              PsiElement(identifier)('jref')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  NullLiteral
+                    PsiElement(null)('null')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  NullLiteral
+                    PsiElement(null)('null')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// def wrapper(jref: ReferenceQueue[_]): ReferenceQueue[T] = OptionMatching.runOrElse(jref)(((x1: ReferenceQueue[_]) =>')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   (OptionMatching.guard(null.==(x1), x1.asInstanceOf[ReferenceQueue[_]]).flatMap(((x2: ReferenceQueue[_]) =>')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//     OptionMatching.one(null))): Option[ReferenceQueue[T]]).orElse(')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//   (OptionMatching.zero: Option[ReferenceQueue[T]])))')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// )')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

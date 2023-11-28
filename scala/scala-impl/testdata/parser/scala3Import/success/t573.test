@@ -42,3 +42,632 @@ abstract class Linked {
   }
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: lampion.collections
+      CodeReferenceElement: lampion
+        PsiElement(identifier)('lampion')
+      PsiElement(.)('.')
+      PsiElement(identifier)('collections')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n\n')
+    ScObject: DirX
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DirX')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: Dir
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Dir')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: reverse
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('reverse')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Dir
+                    CodeReferenceElement: Dir
+                      PsiElement(identifier)('Dir')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScObject: BEFORE
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('BEFORE')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Dir
+                    CodeReferenceElement: Dir
+                      PsiElement(identifier)('Dir')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: reverse
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('reverse')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: AFTER
+                    PsiElement(identifier)('AFTER')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScObject: AFTER
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('AFTER')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Dir
+                    CodeReferenceElement: Dir
+                      PsiElement(identifier)('Dir')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: reverse
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('reverse')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: BEFORE
+                    PsiElement(identifier)('BEFORE')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: DirX
+          PsiElement(identifier)('DirX')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiElement(;)(';')
+    PsiWhiteSpace('\n\n')
+    ScClass: Linked
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Linked')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Node
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Node')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Node0
+              CodeReferenceElement: Node0
+                PsiElement(identifier)('Node0')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n\n  ')
+          ScClass: Node0
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Node0')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                SelfType: self
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n\n    ')
+                ScVariableDefinition: next
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: next
+                      PsiElement(identifier)('next')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScVariableDefinition: prev
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: prev
+                      PsiElement(identifier)('prev')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n\n    ')
+                ScFunctionDefinition: get
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('get')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: dir
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('dir')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Dir
+                            CodeReferenceElement: Dir
+                              PsiElement(identifier)('Dir')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: dir
+                        PsiElement(identifier)('dir')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: BEFORE
+                        PsiElement(identifier)('BEFORE')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: prev
+                      PsiElement(identifier)('prev')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: next
+                      PsiElement(identifier)('next')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: set
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    AccessModifier
+                      PsiElement(private)('private')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('set')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: dir
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('dir')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Dir
+                            CodeReferenceElement: Dir
+                              PsiElement(identifier)('Dir')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      Parameter: node
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('node')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Node
+                            CodeReferenceElement: Node
+                              PsiElement(identifier)('Node')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  BlockExpression
+                    PsiWhiteSpace('\n      ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: dir
+                          PsiElement(identifier)('dir')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ==
+                          PsiElement(identifier)('==')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: BEFORE
+                          PsiElement(identifier)('BEFORE')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: prev
+                          PsiElement(identifier)('prev')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: node
+                          PsiElement(identifier)('node')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace(' ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: next
+                          PsiElement(identifier)('next')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: node
+                          PsiElement(identifier)('node')
+                    PsiElement(;)(';')
+                PsiWhiteSpace('\n\n    ')
+                ScFunctionDefinition: link
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('link')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: dir
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('dir')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Dir
+                            CodeReferenceElement: Dir
+                              PsiElement(identifier)('Dir')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      Parameter: node
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('node')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Node
+                            CodeReferenceElement: Node
+                              PsiElement(identifier)('Node')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: assert
+                        PsiElement(identifier)('assert')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          MethodCall
+                            ReferenceExpression: get
+                              PsiElement(identifier)('get')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: dir
+                                PsiElement(identifier)('dir')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          NullLiteral
+                            PsiElement(null)('null')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: assert
+                        PsiElement(identifier)('assert')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          MethodCall
+                            ReferenceExpression: node.get
+                              ReferenceExpression: node
+                                PsiElement(identifier)('node')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('get')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: dir.reverse
+                                ReferenceExpression: dir
+                                  PsiElement(identifier)('dir')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('reverse')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          NullLiteral
+                            PsiElement(null)('null')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: set
+                        PsiElement(identifier)('set')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: dir
+                          PsiElement(identifier)('dir')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: node
+                          PsiElement(identifier)('node')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: node.set
+                        ReferenceExpression: node
+                          PsiElement(identifier)('node')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('set')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: dir.reverse
+                          ReferenceExpression: dir
+                            PsiElement(identifier)('dir')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('reverse')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: self
+                          PsiElement(identifier)('self')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n\n\n    ')
+                ScFunctionDefinition: end
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('end')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: dir
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('dir')
+                        PsiWhiteSpace(' ')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Dir
+                            CodeReferenceElement: Dir
+                              PsiElement(identifier)('Dir')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        MethodCall
+                          ReferenceExpression: get
+                            PsiElement(identifier)('get')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: dir
+                              PsiElement(identifier)('dir')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ==
+                          PsiElement(identifier)('==')
+                        PsiWhiteSpace(' ')
+                        NullLiteral
+                          PsiElement(null)('null')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ThisReference
+                        PsiElement(this)('this')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace('\n      ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: get(dir).end
+                          MethodCall
+                            ReferenceExpression: get
+                              PsiElement(identifier)('get')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: dir
+                                PsiElement(identifier)('dir')
+                              PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('end')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: dir
+                            PsiElement(identifier)('dir')
+                          PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

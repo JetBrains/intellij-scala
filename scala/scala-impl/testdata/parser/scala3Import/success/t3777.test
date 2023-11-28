@@ -6,3 +6,127 @@ object Test {
   val spoints2 = util.Random.shuffle(makePoints2)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Point
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Point')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Map[Symbol, String]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Symbol
+                CodeReferenceElement: Symbol
+                  PsiElement(identifier)('Symbol')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Points
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Points')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IndexedSeq[Point]
+            SimpleType: IndexedSeq
+              CodeReferenceElement: IndexedSeq
+                PsiElement(identifier)('IndexedSeq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Point
+                CodeReferenceElement: Point
+                  PsiElement(identifier)('Point')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: makePoints2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('makePoints2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Points
+            CodeReferenceElement: Points
+              PsiElement(identifier)('Points')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: IndexedSeq
+                PsiElement(identifier)('IndexedSeq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Point
+                  CodeReferenceElement: Point
+                    PsiElement(identifier)('Point')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: spoints2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: spoints2
+              PsiElement(identifier)('spoints2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: util.Random.shuffle
+              ReferenceExpression: util.Random
+                ReferenceExpression: util
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Random')
+              PsiElement(.)('.')
+              PsiElement(identifier)('shuffle')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: makePoints2
+                PsiElement(identifier)('makePoints2')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

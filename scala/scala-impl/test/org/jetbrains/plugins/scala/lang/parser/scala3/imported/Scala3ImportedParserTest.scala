@@ -43,12 +43,8 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
     //  It can also detect that the code was parsed incorrectly
     val hasErrorElements = errors.nonEmpty
 
-    lazy val expected = psiToString(lightFile, true).replace(": " + lightFile.name, "")
-    if (hasErrorElements != shouldHaveErrors) {
-      println(fileText)
-      println("-------")
-      println(expected)
-    }
+    lazy val actualPsiTreeText = psiToString(lightFile, true).replace(": " + lightFile.name, "")
+
 
     val msg = s"Found following errors: " + errors.mkString(", ")
 
@@ -56,9 +52,13 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
     lazy val interlaced = findInterlacedRanges(lightFile, testName)
 
     if (shouldHaveErrors) {
+      println(fileText)
+      println("-------")
+      println(actualPsiTreeText)
       assert(hasErrorElements || interlaced.nonEmpty, "Expected to find error elements or interlaced ranges, but found none.")
+      ""
     } else {
-      assertFalse(msg, hasErrorElements)
+      //assertFalse(msg, hasErrorElements)
       assert(interlaced.isEmpty, "Following elements have conflicting ranges:\n" + {
         val maxStringLen = 50
         def clip(s: String): String = {
@@ -73,10 +73,16 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
           }
           .mkString("\n")
       })
-    }
 
-    // TODO: return real psi tree instead of empty one
-    ""
+      actualPsiTreeText
+    }
+  }
+
+  protected override def transformExpectedResult(text: String): String = {
+    if (!shouldHaveErrors) {
+      assertFalse(text.contains("PsiErrorElement"))
+    }
+    super.transformExpectedResult(text)
   }
 
   def isStringPart(e: PsiElement): Boolean =

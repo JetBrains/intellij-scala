@@ -34,3 +34,621 @@ object usesites {
   val l5: Logarithm = (1.0).asInstanceOf[Logarithm]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Predef
+        PsiElement(identifier)('Predef')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: any2stringadd
+            PsiElement(identifier)('any2stringadd')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(_)('_')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          PsiElement(*)('*')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: opaquetypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('opaquetypes')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Logarithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Logarithm')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Logarithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Logarithm')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: apply
+                PsiComment(comment)('// These are the ways to lift to the logarithm type')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: d
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('d')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Logarithm
+                  CodeReferenceElement: Logarithm
+                    PsiElement(identifier)('Logarithm')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: math.log
+                    ReferenceExpression: math
+                      PsiElement(identifier)('math')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('log')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: d
+                      PsiElement(identifier)('d')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: safe
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('safe')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: d
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('d')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Option[Logarithm]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Logarithm
+                      CodeReferenceElement: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: d
+                      PsiElement(identifier)('d')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: >
+                      PsiElement(identifier)('>')
+                    PsiWhiteSpace(' ')
+                    DoubleLiteral
+                      PsiElement(double)('0.0')
+                  PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: math.log
+                          ReferenceExpression: math
+                            PsiElement(identifier)('math')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('log')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: d
+                            PsiElement(identifier)('d')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: exponent
+                PsiComment(comment)('// This is the first way to unlift the logarithm type')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('exponent')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: l
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('l')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: l
+                  PsiElement(identifier)('l')
+              PsiWhiteSpace('\n\n    ')
+              PsiComment(comment)('// Extension methods define opaque types' public APIs')
+              PsiWhiteSpace('\n\n    ')
+              PsiComment(comment)('// This is the second way to unlift the logarithm type')
+              PsiWhiteSpace('\n    ')
+              Extension on Logarithm
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: toDouble
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('toDouble')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: math.exp
+                        ReferenceExpression: math
+                          PsiElement(identifier)('math')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('exp')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              Extension on Logarithm
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: +
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: y
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('y')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Logarithm
+                              CodeReferenceElement: Logarithm
+                                PsiElement(identifier)('Logarithm')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          MethodCall
+                            ReferenceExpression: math.exp
+                              ReferenceExpression: math
+                                PsiElement(identifier)('math')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('exp')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: x
+                                PsiElement(identifier)('x')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: math.exp
+                              ReferenceExpression: math
+                                PsiElement(identifier)('math')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('exp')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: y
+                                PsiElement(identifier)('y')
+                              PsiElement())(')')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              Extension on Logarithm
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: *
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('*')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: y
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('y')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Logarithm
+                              CodeReferenceElement: Logarithm
+                                PsiElement(identifier)('Logarithm')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Logarithm
+                      CodeReferenceElement: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: y
+                            PsiElement(identifier)('y')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: usesites
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('usesites')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: opaquetypes
+              PsiElement(identifier)('opaquetypes')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l
+              PsiElement(identifier)('l')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Logarithm
+              PsiElement(identifier)('Logarithm')
+            ArgumentList
+              PsiElement(()('(')
+              DoubleLiteral
+                PsiElement(double)('1.0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l2
+              PsiElement(identifier)('l2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Logarithm
+              PsiElement(identifier)('Logarithm')
+            ArgumentList
+              PsiElement(()('(')
+              DoubleLiteral
+                PsiElement(double)('2.0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l3
+              PsiElement(identifier)('l3')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: l
+              PsiElement(identifier)('l')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *
+              PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: l2
+              PsiElement(identifier)('l2')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l4
+              PsiElement(identifier)('l4')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: l
+              PsiElement(identifier)('l')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: l2
+              PsiElement(identifier)('l2')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// currently requires any2stringadd to be disabled because')
+        PsiWhiteSpace('\n                   ')
+        ScPatternDefinition: d
+          PsiComment(comment)('// as a contextual implicit this takes precedence over the')
+          PsiWhiteSpace('\n                   ')
+          PsiComment(comment)('// implicit scope implicit LogarithmOps.')
+          PsiWhiteSpace('\n                   ')
+          PsiComment(comment)('// TODO: Remove any2stringadd')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: d
+              PsiElement(identifier)('d')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Logarithm.toDouble
+              ReferenceExpression: Logarithm
+                PsiElement(identifier)('Logarithm')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toDouble')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: l3
+                PsiElement(identifier)('l3')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: l5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: l5
+              PsiElement(identifier)('l5')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Logarithm
+            CodeReferenceElement: Logarithm
+              PsiElement(identifier)('Logarithm')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: (1.0).asInstanceOf
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                DoubleLiteral
+                  PsiElement(double)('1.0')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('asInstanceOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Logarithm
+                CodeReferenceElement: Logarithm
+                  PsiElement(identifier)('Logarithm')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

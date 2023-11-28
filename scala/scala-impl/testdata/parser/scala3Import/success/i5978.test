@@ -92,3 +92,1538 @@ package p4 {
   given C(using TC): TC with {}
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.language.implicitConversions
+          CodeReferenceElement: scala.language
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('language')
+          PsiElement(.)('.')
+          PsiElement(identifier)('implicitConversions')
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: Position
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(opaque)('opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Position')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Buffer
+          PsiElement(identifier)('Buffer')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace('\n\n')
+    ScTrait: TokenParser
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('TokenParser')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Token
+          PsiElement(identifier)('Token')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: R
+          PsiElement(identifier)('R')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: p1
+        PsiElement(identifier)('p1')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: TextParser
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('TextParser')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScGivenDefinition: TP
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('TP')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                      SimpleType: TokenParser
+                        CodeReferenceElement: TokenParser
+                          PsiElement(identifier)('TokenParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('f')
+              PsiWhiteSpace('\n      ')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement(using)('using')
+                  PsiWhiteSpace(' ')
+                  Parameter: <anonymous>
+                    ParameterType
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n\n    ')
+            ScGivenAliasDefinition: FromCharToken
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(given)('given')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('FromCharToken')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement(using)('using')
+                  PsiWhiteSpace(' ')
+                  Parameter: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('T')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n\n      ')
+              PsiComment(comment)('// skipping newlines is OK here')
+              PsiWhiteSpace('\n\n      ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Conversion[Char, Position[CharSequence]]
+                SimpleType: Conversion
+                  CodeReferenceElement: Conversion
+                    PsiElement(identifier)('Conversion')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Position[CharSequence]
+                    SimpleType: Position
+                      CodeReferenceElement: Position
+                        PsiElement(identifier)('Position')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: CharSequence
+                        CodeReferenceElement: CharSequence
+                          PsiElement(identifier)('CharSequence')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: Testcase
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Testcase')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: main
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('main')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: args
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('args')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Array[String]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: TextParser
+                      PsiElement(identifier)('TextParser')
+                    PsiElement(.)('.')
+                    ImportSelectors
+                      PsiElement({)('{')
+                      ImportSelector
+                        PsiElement(given)('given')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ImportSelector
+                        PsiElement(*)('*')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                ScPatternDefinition: tp_v
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: tp_v
+                      PsiElement(identifier)('tp_v')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                    SimpleType: TokenParser
+                      CodeReferenceElement: TokenParser
+                        PsiElement(identifier)('TokenParser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Position[CharSequence]
+                        SimpleType: Position
+                          CodeReferenceElement: Position
+                            PsiElement(identifier)('Position')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: TextParser.TP
+                    ReferenceExpression: TextParser
+                      PsiElement(identifier)('TextParser')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TP')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: tp_i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: tp_i
+                      PsiElement(identifier)('tp_i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: co_i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: co_i
+                      PsiElement(identifier)('co_i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Conversion[Char, Position[CharSequence]]
+                        SimpleType: Conversion
+                          CodeReferenceElement: Conversion
+                            PsiElement(identifier)('Conversion')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: co_x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: co_x
+                      PsiElement(identifier)('co_x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Position[CharSequence]
+                    SimpleType: Position
+                      CodeReferenceElement: Position
+                        PsiElement(identifier)('Position')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: CharSequence
+                        CodeReferenceElement: CharSequence
+                          PsiElement(identifier)('CharSequence')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  CharLiteral
+                    PsiElement(Character)(''x'')
+                PsiWhiteSpace('\n\n      ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  ScGivenAliasDefinition: XXX
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(given)('given')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('XXX')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Conversion[Char, Position[CharSequence]]
+                      SimpleType: Conversion
+                        CodeReferenceElement: Conversion
+                          PsiElement(identifier)('Conversion')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: co_i
+                      PsiElement(identifier)('co_i')
+                  PsiWhiteSpace('\n        ')
+                  ScPatternDefinition: co_y
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: co_y
+                        PsiElement(identifier)('co_y')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Position[CharSequence]
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: CharSequence
+                          CodeReferenceElement: CharSequence
+                            PsiElement(identifier)('CharSequence')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    CharLiteral
+                      PsiElement(Character)(''x'')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: p2
+        PsiElement(identifier)('p2')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: TextParser
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('TextParser')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScObject: TP
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('TP')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                      SimpleType: TokenParser
+                        CodeReferenceElement: TokenParser
+                          PsiElement(identifier)('TokenParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: FromCharToken
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('FromCharToken')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: c
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('c')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
+                  PsiElement())(')')
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
+                  Parameter: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('T')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Position[CharSequence]
+                SimpleType: Position
+                  CodeReferenceElement: Position
+                    PsiElement(identifier)('Position')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: CharSequence
+                    CodeReferenceElement: CharSequence
+                      PsiElement(identifier)('CharSequence')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: Testcase
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Testcase')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: main
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('main')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: args
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('args')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Array[String]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: TextParser
+                      PsiElement(identifier)('TextParser')
+                    PsiElement(.)('.')
+                    ImportSelectors
+                      PsiElement({)('{')
+                      ImportSelector
+                        PsiElement(given)('given')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ImportSelector
+                        PsiElement(*)('*')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                ScPatternDefinition: tp_v
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: tp_v
+                      PsiElement(identifier)('tp_v')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                    SimpleType: TokenParser
+                      CodeReferenceElement: TokenParser
+                        PsiElement(identifier)('TokenParser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Position[CharSequence]
+                        SimpleType: Position
+                          CodeReferenceElement: Position
+                            PsiElement(identifier)('Position')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: TextParser.TP
+                    ReferenceExpression: TextParser
+                      PsiElement(identifier)('TextParser')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TP')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: tp_i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: tp_i
+                      PsiElement(identifier)('tp_i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: co_x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: co_x
+                      PsiElement(identifier)('co_x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Position[CharSequence]
+                    SimpleType: Position
+                      CodeReferenceElement: Position
+                        PsiElement(identifier)('Position')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: CharSequence
+                        CodeReferenceElement: CharSequence
+                          PsiElement(identifier)('CharSequence')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  CharLiteral
+                    PsiElement(Character)(''x'')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: p3
+        PsiElement(identifier)('p3')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: TextParser
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('TextParser')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScObject: TP
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('TP')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                      SimpleType: TokenParser
+                        CodeReferenceElement: TokenParser
+                          PsiElement(identifier)('TokenParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: FromCharToken
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('FromCharToken')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
+                  Parameter: T
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('T')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                        SimpleType: TokenParser
+                          CodeReferenceElement: TokenParser
+                            PsiElement(identifier)('TokenParser')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Conversion[Char, Position[CharSequence]]
+                SimpleType: Conversion
+                  CodeReferenceElement: Conversion
+                    PsiElement(identifier)('Conversion')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Position[CharSequence]
+                    SimpleType: Position
+                      CodeReferenceElement: Position
+                        PsiElement(identifier)('Position')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: CharSequence
+                        CodeReferenceElement: CharSequence
+                          PsiElement(identifier)('CharSequence')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScObject: Testcase
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Testcase')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: main
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('main')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: args
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('args')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Array[String]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: TextParser
+                      PsiElement(identifier)('TextParser')
+                    PsiElement(.)('.')
+                    ImportSelectors
+                      PsiElement({)('{')
+                      ImportSelector
+                        PsiElement(_)('_')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ImportSelector
+                        PsiElement(given)('given')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                ScPatternDefinition: co_i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: co_i
+                      PsiElement(identifier)('co_i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Conversion[Char, Position[CharSequence]]
+                    SimpleType: Conversion
+                      CodeReferenceElement: Conversion
+                        PsiElement(identifier)('Conversion')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Position[CharSequence]
+                        SimpleType: Position
+                          CodeReferenceElement: Position
+                            PsiElement(identifier)('Position')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Conversion[Char, Position[CharSequence]]
+                        SimpleType: Conversion
+                          CodeReferenceElement: Conversion
+                            PsiElement(identifier)('Conversion')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n\n      ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  ScPatternDefinition: tp_v
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: tp_v
+                        PsiElement(identifier)('tp_v')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                      SimpleType: TokenParser
+                        CodeReferenceElement: TokenParser
+                          PsiElement(identifier)('TokenParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: TextParser.TP
+                      ReferenceExpression: TextParser
+                        PsiElement(identifier)('TextParser')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('TP')
+                  PsiWhiteSpace('\n        ')
+                  ScPatternDefinition: tp_i
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: tp_i
+                        PsiElement(identifier)('tp_i')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    GenericCall
+                      ReferenceExpression: summon
+                        PsiElement(identifier)('summon')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                          SimpleType: TokenParser
+                            CodeReferenceElement: TokenParser
+                              PsiElement(identifier)('TokenParser')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                  PsiWhiteSpace('\n        ')
+                  ScGivenAliasDefinition: given_Conversion_Char_Position
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(given)('given')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Conversion[Char, Position[CharSequence]]
+                      SimpleType: Conversion
+                        CodeReferenceElement: Conversion
+                          PsiElement(identifier)('Conversion')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    Parameters
+                      <empty list>
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: co_i
+                      PsiElement(identifier)('co_i')
+                  PsiWhiteSpace('\n        ')
+                  ScPatternDefinition: co_x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: co_x
+                        PsiElement(identifier)('co_x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Position[CharSequence]
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: CharSequence
+                          CodeReferenceElement: CharSequence
+                            PsiElement(identifier)('CharSequence')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    CharLiteral
+                      PsiElement(Character)(''x'')
+                  PsiWhiteSpace('\n\n        ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n          ')
+                    ScGivenAliasDefinition: XXX
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(given)('given')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('XXX')
+                      Parameters
+                        <empty list>
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Conversion[Char, Position[CharSequence]]
+                        SimpleType: Conversion
+                          CodeReferenceElement: Conversion
+                            PsiElement(identifier)('Conversion')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: co_i
+                        PsiElement(identifier)('co_i')
+                    PsiWhiteSpace('\n          ')
+                    ScPatternDefinition: co_y
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: co_y
+                          PsiElement(identifier)('co_y')
+                      PsiWhiteSpace(' ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Position[CharSequence]
+                        SimpleType: Position
+                          CodeReferenceElement: Position
+                            PsiElement(identifier)('Position')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      CharLiteral
+                        PsiElement(Character)(''x'')
+                    PsiWhiteSpace('\n        ')
+                    PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: p4
+        PsiElement(identifier)('p4')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScClass: TC
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('TC')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            <empty list>
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n\n  ')
+      ScGivenDefinition: A
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: TC
+                CodeReferenceElement: TC
+                  PsiElement(identifier)('TC')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScGivenDefinition: B
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: X
+            PsiElement(identifier)('X')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeParameter: Y
+            PsiElement(identifier)('Y')
+          PsiElement(])(']')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: TC
+                CodeReferenceElement: TC
+                  PsiElement(identifier)('TC')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScGivenDefinition: C
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('C')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            Parameter: <anonymous>
+              ParameterType
+                SimpleType: TC
+                  CodeReferenceElement: TC
+                    PsiElement(identifier)('TC')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: TC
+                CodeReferenceElement: TC
+                  PsiElement(identifier)('TC')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

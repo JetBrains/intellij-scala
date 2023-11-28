@@ -20,3 +20,524 @@ def printf[A](format: Format[A], params: A): Unit = (format, params) match
     println(i)
     printf(next, rest)
 -----
+ScalaFile
+  ScEnum: Format
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Format')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Str
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Str
+            PsiElement(identifier)('Str')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Next
+                PsiElement(identifier)('Next')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: next
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('next')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Format[Next]
+                        SimpleType: Format
+                          CodeReferenceElement: Format
+                            PsiElement(identifier)('Format')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Next
+                            CodeReferenceElement: Next
+                              PsiElement(identifier)('Next')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Format[(String, Next)]
+                    SimpleType: Format
+                      CodeReferenceElement: Format
+                        PsiElement(identifier)('Format')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TupleType: (String, Next)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Next
+                            CodeReferenceElement: Next
+                              PsiElement(identifier)('Next')
+                        PsiElement())(')')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Num
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Num
+            PsiElement(identifier)('Num')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Next
+                PsiElement(identifier)('Next')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: next
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('next')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Format[Next]
+                        SimpleType: Format
+                          CodeReferenceElement: Format
+                            PsiElement(identifier)('Format')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Next
+                            CodeReferenceElement: Next
+                              PsiElement(identifier)('Next')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Format[(Int, Next)]
+                    SimpleType: Format
+                      CodeReferenceElement: Format
+                        PsiElement(identifier)('Format')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TupleType: (Int, Next)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Next
+                            CodeReferenceElement: Next
+                              PsiElement(identifier)('Next')
+                        PsiElement())(')')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Constant
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Constant
+            PsiElement(identifier)('Constant')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Next
+                PsiElement(identifier)('Next')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: value
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('value')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: next
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('next')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Format[Next]
+                        SimpleType: Format
+                          CodeReferenceElement: Format
+                            PsiElement(identifier)('Format')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Next
+                            CodeReferenceElement: Next
+                              PsiElement(identifier)('Next')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Format[Next]
+                    SimpleType: Format
+                      CodeReferenceElement: Format
+                        PsiElement(identifier)('Format')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Next
+                        CodeReferenceElement: Next
+                          PsiElement(identifier)('Next')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Done
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Done
+            PsiElement(identifier)('Done')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Format[Unit]
+                    SimpleType: Format
+                      CodeReferenceElement: Format
+                        PsiElement(identifier)('Format')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                      PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: printf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('printf')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: format
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('format')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Format[A]
+              SimpleType: Format
+                CodeReferenceElement: Format
+                  PsiElement(identifier)('Format')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: params
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('params')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      Tuple
+        PsiElement(()('(')
+        ReferenceExpression: format
+          PsiElement(identifier)('format')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: params
+          PsiElement(identifier)('params')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              StableElementPattern
+                ReferenceExpression: Format.Done
+                  ReferenceExpression: Format
+                    PsiElement(identifier)('Format')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Done')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ConstructorPattern
+                CodeReferenceElement: Format.Constant
+                  CodeReferenceElement: Format
+                    PsiElement(identifier)('Format')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Constant')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: value
+                    PsiElement(identifier)('value')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: next
+                    PsiElement(identifier)('next')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: params
+                PsiElement(identifier)('params')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: value
+                  PsiElement(identifier)('value')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: printf
+                PsiElement(identifier)('printf')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: params
+                  PsiElement(identifier)('params')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ConstructorPattern
+                CodeReferenceElement: Format.Str
+                  CodeReferenceElement: Format
+                    PsiElement(identifier)('Format')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Str')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: next
+                    PsiElement(identifier)('next')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: str
+                    PsiElement(identifier)('str')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: rest
+                    PsiElement(identifier)('rest')
+                PsiElement())(')')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: str
+                  PsiElement(identifier)('str')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: printf
+                PsiElement(identifier)('printf')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: rest
+                  PsiElement(identifier)('rest')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ConstructorPattern
+                CodeReferenceElement: Format.Num
+                  CodeReferenceElement: Format
+                    PsiElement(identifier)('Format')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Num')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: next
+                    PsiElement(identifier)('next')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: rest
+                    PsiElement(identifier)('rest')
+                PsiElement())(')')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: i
+                  PsiElement(identifier)('i')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: printf
+                PsiElement(identifier)('printf')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: next
+                  PsiElement(identifier)('next')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: rest
+                  PsiElement(identifier)('rest')
+                PsiElement())(')')

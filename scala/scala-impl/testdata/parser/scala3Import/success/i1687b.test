@@ -18,3 +18,457 @@ object O {
   }
 }
 -----
+ScalaFile
+  ScObject: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              InfixExpression
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                InfixExpression
+                                  InfixExpression
+                                    InfixExpression
+                                      InfixExpression
+                                        InfixExpression
+                                          InfixExpression
+                                            InfixExpression
+                                              InfixExpression
+                                                InfixExpression
+                                                  InfixExpression
+                                                    InfixExpression
+                                                      InfixExpression
+                                                        InfixExpression
+                                                          InfixExpression
+                                                            InfixExpression
+                                                              InfixExpression
+                                                                InfixExpression
+                                                                  InfixExpression
+                                                                    InfixExpression
+                                                                      InfixExpression
+                                                                        InfixExpression
+                                                                          InfixExpression
+                                                                            InfixExpression
+                                                                              InfixExpression
+                                                                                InfixExpression
+                                                                                  InfixExpression
+                                                                                    InfixExpression
+                                                                                      InfixExpression
+                                                                                        InfixExpression
+                                                                                          InfixExpression
+                                                                                            InfixExpression
+                                                                                              InfixExpression
+                                                                                                InfixExpression
+                                                                                                  InfixExpression
+                                                                                                    InfixExpression
+                                                                                                      InfixExpression
+                                                                                                        InfixExpression
+                                                                                                          InfixExpression
+                                                                                                            InfixExpression
+                                                                                                              InfixExpression
+                                                                                                                InfixExpression
+                                                                                                                  InfixExpression
+                                                                                                                    InfixExpression
+                                                                                                                      InfixExpression
+                                                                                                                        InfixExpression
+                                                                                                                          InfixExpression
+                                                                                                                            InfixExpression
+                                                                                                                              InfixExpression
+                                                                                                                                InfixExpression
+                                                                                                                                  StringLiteral
+                                                                                                                                    PsiElement(string content)('"1"')
+                                                                                                                                  PsiWhiteSpace(' ')
+                                                                                                                                  ReferenceExpression: +
+                                                                                                                                    PsiElement(identifier)('+')
+                                                                                                                                  PsiWhiteSpace(' ')
+                                                                                                                                  IntegerLiteral
+                                                                                                                                    PsiElement(integer)('1')
+                                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                                ReferenceExpression: +
+                                                                                                                                  PsiElement(identifier)('+')
+                                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                                StringLiteral
+                                                                                                                                  PsiElement(string content)('"1"')
+                                                                                                                              PsiWhiteSpace(' ')
+                                                                                                                              ReferenceExpression: +
+                                                                                                                                PsiElement(identifier)('+')
+                                                                                                                              PsiWhiteSpace(' ')
+                                                                                                                              IntegerLiteral
+                                                                                                                                PsiElement(integer)('1')
+                                                                                                                            PsiWhiteSpace(' ')
+                                                                                                                            ReferenceExpression: +
+                                                                                                                              PsiElement(identifier)('+')
+                                                                                                                            PsiWhiteSpace('\n    ')
+                                                                                                                            StringLiteral
+                                                                                                                              PsiElement(string content)('"1"')
+                                                                                                                          PsiWhiteSpace(' ')
+                                                                                                                          ReferenceExpression: +
+                                                                                                                            PsiElement(identifier)('+')
+                                                                                                                          PsiWhiteSpace(' ')
+                                                                                                                          IntegerLiteral
+                                                                                                                            PsiElement(integer)('1')
+                                                                                                                        PsiWhiteSpace(' ')
+                                                                                                                        ReferenceExpression: +
+                                                                                                                          PsiElement(identifier)('+')
+                                                                                                                        PsiWhiteSpace(' ')
+                                                                                                                        StringLiteral
+                                                                                                                          PsiElement(string content)('"1"')
+                                                                                                                      PsiWhiteSpace(' ')
+                                                                                                                      ReferenceExpression: +
+                                                                                                                        PsiElement(identifier)('+')
+                                                                                                                      PsiWhiteSpace(' ')
+                                                                                                                      IntegerLiteral
+                                                                                                                        PsiElement(integer)('1')
+                                                                                                                    PsiWhiteSpace(' ')
+                                                                                                                    ReferenceExpression: +
+                                                                                                                      PsiElement(identifier)('+')
+                                                                                                                    PsiWhiteSpace('\n    ')
+                                                                                                                    StringLiteral
+                                                                                                                      PsiElement(string content)('"1"')
+                                                                                                                  PsiWhiteSpace(' ')
+                                                                                                                  ReferenceExpression: +
+                                                                                                                    PsiElement(identifier)('+')
+                                                                                                                  PsiWhiteSpace(' ')
+                                                                                                                  IntegerLiteral
+                                                                                                                    PsiElement(integer)('1')
+                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                ReferenceExpression: +
+                                                                                                                  PsiElement(identifier)('+')
+                                                                                                                PsiWhiteSpace(' ')
+                                                                                                                StringLiteral
+                                                                                                                  PsiElement(string content)('"1"')
+                                                                                                              PsiWhiteSpace(' ')
+                                                                                                              ReferenceExpression: +
+                                                                                                                PsiElement(identifier)('+')
+                                                                                                              PsiWhiteSpace(' ')
+                                                                                                              IntegerLiteral
+                                                                                                                PsiElement(integer)('1')
+                                                                                                            PsiWhiteSpace(' ')
+                                                                                                            ReferenceExpression: +
+                                                                                                              PsiElement(identifier)('+')
+                                                                                                            PsiWhiteSpace('\n    ')
+                                                                                                            StringLiteral
+                                                                                                              PsiElement(string content)('"1"')
+                                                                                                          PsiWhiteSpace(' ')
+                                                                                                          ReferenceExpression: +
+                                                                                                            PsiElement(identifier)('+')
+                                                                                                          PsiWhiteSpace(' ')
+                                                                                                          IntegerLiteral
+                                                                                                            PsiElement(integer)('1')
+                                                                                                        PsiWhiteSpace(' ')
+                                                                                                        ReferenceExpression: +
+                                                                                                          PsiElement(identifier)('+')
+                                                                                                        PsiWhiteSpace(' ')
+                                                                                                        StringLiteral
+                                                                                                          PsiElement(string content)('"1"')
+                                                                                                      PsiWhiteSpace(' ')
+                                                                                                      ReferenceExpression: +
+                                                                                                        PsiElement(identifier)('+')
+                                                                                                      PsiWhiteSpace(' ')
+                                                                                                      IntegerLiteral
+                                                                                                        PsiElement(integer)('1')
+                                                                                                    PsiWhiteSpace(' ')
+                                                                                                    ReferenceExpression: +
+                                                                                                      PsiElement(identifier)('+')
+                                                                                                    PsiWhiteSpace('\n    ')
+                                                                                                    StringLiteral
+                                                                                                      PsiElement(string content)('"1"')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  ReferenceExpression: +
+                                                                                                    PsiElement(identifier)('+')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  IntegerLiteral
+                                                                                                    PsiElement(integer)('1')
+                                                                                                PsiWhiteSpace(' ')
+                                                                                                ReferenceExpression: +
+                                                                                                  PsiElement(identifier)('+')
+                                                                                                PsiWhiteSpace(' ')
+                                                                                                StringLiteral
+                                                                                                  PsiElement(string content)('"1"')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              ReferenceExpression: +
+                                                                                                PsiElement(identifier)('+')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              IntegerLiteral
+                                                                                                PsiElement(integer)('1')
+                                                                                            PsiWhiteSpace(' ')
+                                                                                            ReferenceExpression: +
+                                                                                              PsiElement(identifier)('+')
+                                                                                            PsiWhiteSpace('\n    ')
+                                                                                            StringLiteral
+                                                                                              PsiElement(string content)('"1"')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          ReferenceExpression: +
+                                                                                            PsiElement(identifier)('+')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          IntegerLiteral
+                                                                                            PsiElement(integer)('1')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        ReferenceExpression: +
+                                                                                          PsiElement(identifier)('+')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        StringLiteral
+                                                                                          PsiElement(string content)('"1"')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      ReferenceExpression: +
+                                                                                        PsiElement(identifier)('+')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      IntegerLiteral
+                                                                                        PsiElement(integer)('1')
+                                                                                    PsiWhiteSpace(' ')
+                                                                                    ReferenceExpression: +
+                                                                                      PsiElement(identifier)('+')
+                                                                                    PsiWhiteSpace('\n    ')
+                                                                                    StringLiteral
+                                                                                      PsiElement(string content)('"1"')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  ReferenceExpression: +
+                                                                                    PsiElement(identifier)('+')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  IntegerLiteral
+                                                                                    PsiElement(integer)('1')
+                                                                                PsiWhiteSpace(' ')
+                                                                                ReferenceExpression: +
+                                                                                  PsiElement(identifier)('+')
+                                                                                PsiWhiteSpace(' ')
+                                                                                StringLiteral
+                                                                                  PsiElement(string content)('"1"')
+                                                                              PsiWhiteSpace(' ')
+                                                                              ReferenceExpression: +
+                                                                                PsiElement(identifier)('+')
+                                                                              PsiWhiteSpace(' ')
+                                                                              IntegerLiteral
+                                                                                PsiElement(integer)('1')
+                                                                            PsiWhiteSpace(' ')
+                                                                            ReferenceExpression: +
+                                                                              PsiElement(identifier)('+')
+                                                                            PsiWhiteSpace('\n    ')
+                                                                            StringLiteral
+                                                                              PsiElement(string content)('"1"')
+                                                                          PsiWhiteSpace(' ')
+                                                                          ReferenceExpression: +
+                                                                            PsiElement(identifier)('+')
+                                                                          PsiWhiteSpace(' ')
+                                                                          IntegerLiteral
+                                                                            PsiElement(integer)('1')
+                                                                        PsiWhiteSpace(' ')
+                                                                        ReferenceExpression: +
+                                                                          PsiElement(identifier)('+')
+                                                                        PsiWhiteSpace(' ')
+                                                                        StringLiteral
+                                                                          PsiElement(string content)('"1"')
+                                                                      PsiWhiteSpace(' ')
+                                                                      ReferenceExpression: +
+                                                                        PsiElement(identifier)('+')
+                                                                      PsiWhiteSpace(' ')
+                                                                      IntegerLiteral
+                                                                        PsiElement(integer)('1')
+                                                                    PsiWhiteSpace(' ')
+                                                                    ReferenceExpression: +
+                                                                      PsiElement(identifier)('+')
+                                                                    PsiWhiteSpace('\n    ')
+                                                                    StringLiteral
+                                                                      PsiElement(string content)('"1"')
+                                                                  PsiWhiteSpace(' ')
+                                                                  ReferenceExpression: +
+                                                                    PsiElement(identifier)('+')
+                                                                  PsiWhiteSpace(' ')
+                                                                  IntegerLiteral
+                                                                    PsiElement(integer)('1')
+                                                                PsiWhiteSpace(' ')
+                                                                ReferenceExpression: +
+                                                                  PsiElement(identifier)('+')
+                                                                PsiWhiteSpace(' ')
+                                                                StringLiteral
+                                                                  PsiElement(string content)('"1"')
+                                                              PsiWhiteSpace(' ')
+                                                              ReferenceExpression: +
+                                                                PsiElement(identifier)('+')
+                                                              PsiWhiteSpace(' ')
+                                                              IntegerLiteral
+                                                                PsiElement(integer)('1')
+                                                            PsiWhiteSpace(' ')
+                                                            ReferenceExpression: +
+                                                              PsiElement(identifier)('+')
+                                                            PsiWhiteSpace('\n    ')
+                                                            StringLiteral
+                                                              PsiElement(string content)('"1"')
+                                                          PsiWhiteSpace(' ')
+                                                          ReferenceExpression: +
+                                                            PsiElement(identifier)('+')
+                                                          PsiWhiteSpace(' ')
+                                                          IntegerLiteral
+                                                            PsiElement(integer)('1')
+                                                        PsiWhiteSpace(' ')
+                                                        ReferenceExpression: +
+                                                          PsiElement(identifier)('+')
+                                                        PsiWhiteSpace(' ')
+                                                        StringLiteral
+                                                          PsiElement(string content)('"1"')
+                                                      PsiWhiteSpace(' ')
+                                                      ReferenceExpression: +
+                                                        PsiElement(identifier)('+')
+                                                      PsiWhiteSpace(' ')
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('1')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: +
+                                                      PsiElement(identifier)('+')
+                                                    PsiWhiteSpace('\n    ')
+                                                    StringLiteral
+                                                      PsiElement(string content)('"1"')
+                                                  PsiWhiteSpace(' ')
+                                                  ReferenceExpression: +
+                                                    PsiElement(identifier)('+')
+                                                  PsiWhiteSpace(' ')
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                StringLiteral
+                                                  PsiElement(string content)('"1"')
+                                              PsiWhiteSpace(' ')
+                                              ReferenceExpression: +
+                                                PsiElement(identifier)('+')
+                                              PsiWhiteSpace(' ')
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace('\n    ')
+                                            StringLiteral
+                                              PsiElement(string content)('"1"')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          IntegerLiteral
+                                            PsiElement(integer)('1')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: +
+                                          PsiElement(identifier)('+')
+                                        PsiWhiteSpace(' ')
+                                        StringLiteral
+                                          PsiElement(string content)('"1"')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression: +
+                                        PsiElement(identifier)('+')
+                                      PsiWhiteSpace(' ')
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace('\n    ')
+                                    StringLiteral
+                                      PsiElement(string content)('"1"')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: +
+                                    PsiElement(identifier)('+')
+                                  PsiWhiteSpace(' ')
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                StringLiteral
+                                  PsiElement(string content)('"1"')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace('\n    ')
+                            StringLiteral
+                              PsiElement(string content)('"1"')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"1"')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace('\n    ')
+                    StringLiteral
+                      PsiElement(string content)('"1"')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"1"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

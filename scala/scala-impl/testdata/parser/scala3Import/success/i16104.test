@@ -17,3 +17,664 @@ def Case2 = {
   .fold(_ => ???, _ == tree)
 }
 -----
+ScalaFile
+  ScTrait: JsonVal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JsonVal')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: value
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: value
+        PsiElement(identifier)('value')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      StringLiteral
+        PsiElement(string content)('"a"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"b"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"c"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"d"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"e"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"f"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"g"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"h"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"i"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"j"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('4')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('5')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('6')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('7')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('8')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('9')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('10')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"k"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"l"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"m"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"n"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"o"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"p"')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      StringLiteral
+        PsiElement(string content)('"q"')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: tree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: tree
+        PsiElement(identifier)('tree')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: JsonVal
+      CodeReferenceElement: JsonVal
+        PsiElement(identifier)('JsonVal')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Case2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Case2')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScTrait: Write
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(sealed)('sealed')
+        PsiWhiteSpace(' ')
+        PsiElement(trait)('trait')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Write')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: T
+            PsiElement(identifier)('T')
+          PsiElement(])(']')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      ScObject: WriteOf
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('WriteOf')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: tuple
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('tuple')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: T
+                  PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Tuple
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Write[T]
+                SimpleType: Write
+                  CodeReferenceElement: Write
+                    PsiElement(identifier)('Write')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+      PsiWhiteSpace('\n\n  ')
+      ScGivenAliasDefinition: EntryToJson
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('EntryToJson')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: T
+            PsiElement(identifier)('T')
+          PsiElement(])(']')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: scala.Conversion[T, JsonStructureEntry[T]]
+          SimpleType: scala.Conversion
+            CodeReferenceElement: scala.Conversion
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Conversion')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ParametrizedType: JsonStructureEntry[T]
+              SimpleType: JsonStructureEntry
+                CodeReferenceElement: JsonStructureEntry
+                  PsiElement(identifier)('JsonStructureEntry')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScClass: JsonStructureEntry
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('JsonStructureEntry')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: T
+            PsiElement(identifier)('T')
+          PsiElement(])(']')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              ClassParameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: writeAs
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('writeAs')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: X
+                  PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  PsiElement(>:)('>:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement(using)('using')
+                  PsiWhiteSpace(' ')
+                  Parameter: <anonymous>
+                    ParameterType
+                      ParametrizedType: Write[X]
+                        SimpleType: Write
+                          CodeReferenceElement: Write
+                            PsiElement(identifier)('Write')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: util.Try[JsonVal]
+                SimpleType: util.Try
+                  CodeReferenceElement: util.Try
+                    CodeReferenceElement: util
+                      PsiElement(identifier)('util')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Try')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: JsonVal
+                    CodeReferenceElement: JsonVal
+                      PsiElement(identifier)('JsonVal')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        ReferenceExpression: value
+  .writeAs(using WriteOf.tuple[String *: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple])
+  .fold
+          MethodCall
+            ReferenceExpression: value
+  .writeAs
+              ReferenceExpression: value
+                PsiElement(identifier)('value')
+              PsiWhiteSpace('\n  ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('writeAs')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: WriteOf.tuple
+                  ReferenceExpression: WriteOf
+                    PsiElement(identifier)('WriteOf')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('tuple')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      InfixType: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        InfixType: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          InfixType: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: *:
+                              PsiElement(identifier)('*:')
+                            PsiWhiteSpace(' ')
+                            InfixType: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: *:
+                                PsiElement(identifier)('*:')
+                              PsiWhiteSpace(' ')
+                              InfixType: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                InfixType: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: *:
+                                    PsiElement(identifier)('*:')
+                                  PsiWhiteSpace(' ')
+                                  InfixType: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                    SimpleType: String
+                                      CodeReferenceElement: String
+                                        PsiElement(identifier)('String')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: *:
+                                      PsiElement(identifier)('*:')
+                                    PsiWhiteSpace(' ')
+                                    InfixType: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                      SimpleType: String
+                                        CodeReferenceElement: String
+                                          PsiElement(identifier)('String')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: *:
+                                        PsiElement(identifier)('*:')
+                                      PsiWhiteSpace(' ')
+                                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                        SimpleType: Int
+                                          CodeReferenceElement: Int
+                                            PsiElement(identifier)('Int')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: *:
+                                          PsiElement(identifier)('*:')
+                                        PsiWhiteSpace(' ')
+                                        InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                          SimpleType: Int
+                                            CodeReferenceElement: Int
+                                              PsiElement(identifier)('Int')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: *:
+                                            PsiElement(identifier)('*:')
+                                          PsiWhiteSpace(' ')
+                                          InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                            SimpleType: Int
+                                              CodeReferenceElement: Int
+                                                PsiElement(identifier)('Int')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: *:
+                                              PsiElement(identifier)('*:')
+                                            PsiWhiteSpace(' ')
+                                            InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                              SimpleType: Int
+                                                CodeReferenceElement: Int
+                                                  PsiElement(identifier)('Int')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: *:
+                                                PsiElement(identifier)('*:')
+                                              PsiWhiteSpace(' ')
+                                              InfixType: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                SimpleType: Int
+                                                  CodeReferenceElement: Int
+                                                    PsiElement(identifier)('Int')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                InfixType: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                  SimpleType: Int
+                                                    CodeReferenceElement: Int
+                                                      PsiElement(identifier)('Int')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: *:
+                                                    PsiElement(identifier)('*:')
+                                                  PsiWhiteSpace(' ')
+                                                  InfixType: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                    SimpleType: Int
+                                                      CodeReferenceElement: Int
+                                                        PsiElement(identifier)('Int')
+                                                    PsiWhiteSpace(' ')
+                                                    CodeReferenceElement: *:
+                                                      PsiElement(identifier)('*:')
+                                                    PsiWhiteSpace(' ')
+                                                    InfixType: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                      SimpleType: Int
+                                                        CodeReferenceElement: Int
+                                                          PsiElement(identifier)('Int')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: *:
+                                                        PsiElement(identifier)('*:')
+                                                      PsiWhiteSpace(' ')
+                                                      InfixType: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                        SimpleType: Int
+                                                          CodeReferenceElement: Int
+                                                            PsiElement(identifier)('Int')
+                                                        PsiWhiteSpace(' ')
+                                                        CodeReferenceElement: *:
+                                                          PsiElement(identifier)('*:')
+                                                        PsiWhiteSpace(' ')
+                                                        InfixType: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                          SimpleType: Int
+                                                            CodeReferenceElement: Int
+                                                              PsiElement(identifier)('Int')
+                                                          PsiWhiteSpace(' ')
+                                                          CodeReferenceElement: *:
+                                                            PsiElement(identifier)('*:')
+                                                          PsiWhiteSpace(' ')
+                                                          InfixType: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                            SimpleType: String
+                                                              CodeReferenceElement: String
+                                                                PsiElement(identifier)('String')
+                                                            PsiWhiteSpace(' ')
+                                                            CodeReferenceElement: *:
+                                                              PsiElement(identifier)('*:')
+                                                            PsiWhiteSpace(' ')
+                                                            InfixType: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                              SimpleType: String
+                                                                CodeReferenceElement: String
+                                                                  PsiElement(identifier)('String')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: *:
+                                                                PsiElement(identifier)('*:')
+                                                              PsiWhiteSpace(' ')
+                                                              InfixType: String *: String *: String *: String *: String *: EmptyTuple
+                                                                SimpleType: String
+                                                                  CodeReferenceElement: String
+                                                                    PsiElement(identifier)('String')
+                                                                PsiWhiteSpace(' ')
+                                                                CodeReferenceElement: *:
+                                                                  PsiElement(identifier)('*:')
+                                                                PsiWhiteSpace(' ')
+                                                                InfixType: String *: String *: String *: String *: EmptyTuple
+                                                                  SimpleType: String
+                                                                    CodeReferenceElement: String
+                                                                      PsiElement(identifier)('String')
+                                                                  PsiWhiteSpace(' ')
+                                                                  CodeReferenceElement: *:
+                                                                    PsiElement(identifier)('*:')
+                                                                  PsiWhiteSpace(' ')
+                                                                  InfixType: String *: String *: String *: EmptyTuple
+                                                                    SimpleType: String
+                                                                      CodeReferenceElement: String
+                                                                        PsiElement(identifier)('String')
+                                                                    PsiWhiteSpace(' ')
+                                                                    CodeReferenceElement: *:
+                                                                      PsiElement(identifier)('*:')
+                                                                    PsiWhiteSpace(' ')
+                                                                    InfixType: String *: String *: EmptyTuple
+                                                                      SimpleType: String
+                                                                        CodeReferenceElement: String
+                                                                          PsiElement(identifier)('String')
+                                                                      PsiWhiteSpace(' ')
+                                                                      CodeReferenceElement: *:
+                                                                        PsiElement(identifier)('*:')
+                                                                      PsiWhiteSpace(' ')
+                                                                      InfixType: String *: EmptyTuple
+                                                                        SimpleType: String
+                                                                          CodeReferenceElement: String
+                                                                            PsiElement(identifier)('String')
+                                                                        PsiWhiteSpace(' ')
+                                                                        CodeReferenceElement: *:
+                                                                          PsiElement(identifier)('*:')
+                                                                        PsiWhiteSpace(' ')
+                                                                        SimpleType: EmptyTuple
+                                                                          CodeReferenceElement: EmptyTuple
+                                                                            PsiElement(identifier)('EmptyTuple')
+                  PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(.)('.')
+          PsiElement(identifier)('fold')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: tree
+              PsiElement(identifier)('tree')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

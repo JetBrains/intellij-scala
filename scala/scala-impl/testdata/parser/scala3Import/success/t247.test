@@ -27,3 +27,869 @@ class TreeMap[KEY,VALUE](_factory:TreeMapFactory[KEY]) extends Tree[KEY,Tuple2[K
   override def size = super[Tree].size
 }
 -----
+ScalaFile
+  ScClass: Order
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Order')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: t
+        PsiElement(identifier)('t')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: less
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('less')
+            PsiElement(:)(':')
+            ParameterType
+              FunctionalType: (t,t) => Boolean
+                TupleType: (t,t)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+          PsiElement(,)(',')
+          ClassParameter: equal
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('equal')
+            PsiElement(:)(':')
+            ParameterType
+              FunctionalType: (t,t) => Boolean
+                TupleType: (t,t)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Map
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Map')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: scala.collection.Map[A, B]
+            SimpleType: scala.collection.Map
+              CodeReferenceElement: scala.collection.Map
+                CodeReferenceElement: scala.collection
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: factory
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: factory
+              PsiElement(identifier)('factory')
+          PsiElement(:)(':')
+          ParametrizedType: MapFactory[A]
+            SimpleType: MapFactory
+              CodeReferenceElement: MapFactory
+                PsiElement(identifier)('MapFactory')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: -
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('-')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: key2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: keys
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('keys')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Map[A, B]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: -
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('-')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Map[A, B]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: MapFactory
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MapFactory')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: Empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Empty')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          ParametrizedType: Map[A,B]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: TreeMapFactory
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TreeMapFactory')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KEY
+        PsiElement(identifier)('KEY')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: newOrder
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('newOrder')
+            PsiElement(:)(':')
+            ParameterType
+              ParametrizedType: Order[KEY]
+                SimpleType: Order
+                  CodeReferenceElement: Order
+                    PsiElement(identifier)('Order')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: MapFactory[KEY]
+            SimpleType: MapFactory
+              CodeReferenceElement: MapFactory
+                PsiElement(identifier)('MapFactory')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: KEY
+                CodeReferenceElement: KEY
+                  PsiElement(identifier)('KEY')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: order
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: order
+              PsiElement(identifier)('order')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: newOrder
+            PsiElement(identifier)('newOrder')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: Empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Empty')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: TreeMap[KEY,V]
+                    SimpleType: TreeMap
+                      CodeReferenceElement: TreeMap
+                        PsiElement(identifier)('TreeMap')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: KEY
+                        CodeReferenceElement: KEY
+                          PsiElement(identifier)('KEY')
+                      PsiElement(,)(',')
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: TreeMapFactory[KEY]
+                              SimpleType: TreeMapFactory
+                                CodeReferenceElement: TreeMapFactory
+                                  PsiElement(identifier)('TreeMapFactory')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: KEY
+                                  CodeReferenceElement: KEY
+                                    PsiElement(identifier)('KEY')
+                                PsiElement(])(']')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: order
+                                PsiElement(identifier)('order')
+                              PsiElement())(')')
+                    PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Tree
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tree')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KEY
+        PsiElement(identifier)('KEY')
+      PsiElement(,)(',')
+      TypeParameter: Entry
+        PsiElement(identifier)('Entry')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: order
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('order')
+            PsiElement(:)(':')
+            ParameterType
+              ParametrizedType: Order[KEY]
+                SimpleType: Order
+                  CodeReferenceElement: Order
+                    PsiElement(identifier)('Order')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: size
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('size')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: TreeMap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TreeMap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KEY
+        PsiElement(identifier)('KEY')
+      PsiElement(,)(',')
+      TypeParameter: VALUE
+        PsiElement(identifier)('VALUE')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: _factory
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('_factory')
+            PsiElement(:)(':')
+            ParameterType
+              ParametrizedType: TreeMapFactory[KEY]
+                SimpleType: TreeMapFactory
+                  CodeReferenceElement: TreeMapFactory
+                    PsiElement(identifier)('TreeMapFactory')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Tree[KEY,Tuple2[KEY,VALUE]]
+            SimpleType: Tree
+              CodeReferenceElement: Tree
+                PsiElement(identifier)('Tree')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: KEY
+                CodeReferenceElement: KEY
+                  PsiElement(identifier)('KEY')
+              PsiElement(,)(',')
+              ParametrizedType: Tuple2[KEY,VALUE]
+                SimpleType: Tuple2
+                  CodeReferenceElement: Tuple2
+                    PsiElement(identifier)('Tuple2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+                  PsiElement(,)(',')
+                  SimpleType: VALUE
+                    CodeReferenceElement: VALUE
+                      PsiElement(identifier)('VALUE')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _factory.order
+              ReferenceExpression: _factory
+                PsiElement(identifier)('_factory')
+              PsiElement(.)('.')
+              PsiElement(identifier)('order')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: scala.collection.DefaultMap[KEY, VALUE]
+            SimpleType: scala.collection.DefaultMap
+              CodeReferenceElement: scala.collection.DefaultMap
+                CodeReferenceElement: scala.collection
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('DefaultMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: KEY
+                CodeReferenceElement: KEY
+                  PsiElement(identifier)('KEY')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: VALUE
+                CodeReferenceElement: VALUE
+                  PsiElement(identifier)('VALUE')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: Map[KEY, VALUE]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: KEY
+                CodeReferenceElement: KEY
+                  PsiElement(identifier)('KEY')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: VALUE
+                CodeReferenceElement: VALUE
+                  PsiElement(identifier)('VALUE')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: factory
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: factory
+              PsiElement(identifier)('factory')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: _factory
+            PsiElement(identifier)('_factory')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: order
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: order
+              PsiElement(identifier)('order')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: _factory.order
+            ReferenceExpression: _factory
+              PsiElement(identifier)('_factory')
+            PsiElement(.)('.')
+            PsiElement(identifier)('order')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: this
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(this)('this')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: newOrder
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('newOrder')
+                PsiElement(:)(':')
+                ParameterType
+                  ParametrizedType: Order[KEY]
+                    SimpleType: Order
+                      CodeReferenceElement: Order
+                        PsiElement(identifier)('Order')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: KEY
+                        CodeReferenceElement: KEY
+                          PsiElement(identifier)('KEY')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SelfInvocation
+            PsiElement(this)('this')
+            ArgumentList
+              PsiElement(()('(')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TreeMapFactory[KEY]
+                        SimpleType: TreeMapFactory
+                          CodeReferenceElement: TreeMapFactory
+                            PsiElement(identifier)('TreeMapFactory')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: KEY
+                            CodeReferenceElement: KEY
+                              PsiElement(identifier)('KEY')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: newOrder
+                          PsiElement(identifier)('newOrder')
+                        PsiElement())(')')
+              PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: get
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('get')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: iterator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('iterator')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          ParametrizedType: Iterator[Tuple2[KEY,VALUE]]
+            SimpleType: Iterator
+              CodeReferenceElement: Iterator
+                PsiElement(identifier)('Iterator')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Tuple2[KEY,VALUE]
+                SimpleType: Tuple2
+                  CodeReferenceElement: Tuple2
+                    PsiElement(identifier)('Tuple2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: KEY
+                    CodeReferenceElement: KEY
+                      PsiElement(identifier)('KEY')
+                  PsiElement(,)(',')
+                  SimpleType: VALUE
+                    CodeReferenceElement: VALUE
+                      PsiElement(identifier)('VALUE')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: size
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('size')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: super[Tree].size
+            SuperReference
+              PsiElement(super)('super')
+              PsiElement([)('[')
+              PsiElement(identifier)('Tree')
+              PsiElement(])(']')
+            PsiElement(.)('.')
+            PsiElement(identifier)('size')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -19,3 +19,149 @@ object Test {
 
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: collection
+        PsiElement(identifier)('collection')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: gen
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: gen
+                  PsiElement(identifier)('gen')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: GenTraversable[Int]
+                SimpleType: GenTraversable
+                  CodeReferenceElement: GenTraversable
+                    PsiElement(identifier)('GenTraversable')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.head
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('head')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.headOption
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('headOption')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.tail
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tail')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.last
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('last')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.lastOption
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('lastOption')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: gen.init
+              ReferenceExpression: gen
+                PsiElement(identifier)('gen')
+              PsiElement(.)('.')
+              PsiElement(identifier)('init')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

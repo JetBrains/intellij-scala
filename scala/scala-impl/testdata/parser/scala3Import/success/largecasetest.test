@@ -5,3 +5,469 @@ def foo(x : Int) = x match {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace('  ')
+                CompositePattern
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('180')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('181')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('182')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('183')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('184')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('185')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('186')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('187')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('188')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('189')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('190')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('191')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('192')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('193')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('194')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('195')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('196')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('197')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('198')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('199')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('200')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('201')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('202')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('203')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('204')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('205')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('206')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('207')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('208')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('209')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('210')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('211')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('212')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('213')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('214')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('215')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('216')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('217')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('218')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('219')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('220')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('221')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('222')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('223')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('224')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('225')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('226')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('227')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('228')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('229')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('230')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('231')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('232')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('233')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('234')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('235')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('236')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('237')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('238')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('239')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('240')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('241')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('242')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('243')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    IntegerLiteral
+                      PsiElement(integer)('244')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  IntegerLiteral
+                    PsiElement(integer)('128')
+              PsiWhiteSpace('\n  ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  PrefixExpression
+                    ReferenceExpression: -
+                      PsiElement(identifier)('-')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

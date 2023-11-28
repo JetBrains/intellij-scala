@@ -50,3 +50,984 @@ trait Quotes:
     trait TreeTraverser:
       def traverseTree(tree: Tree)(symbol: Symbol): Unit
 -----
+ScalaFile
+  ScObject: Wart
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wart')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Ctx
+                    CodeReferenceElement: Ctx
+                      PsiElement(identifier)('Ctx')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ws
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ws')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[Wrap[c.type]]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Wrap[c.type]
+                        SimpleType: Wrap
+                          CodeReferenceElement: Wrap
+                            PsiElement(identifier)('Wrap')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: c.type
+                            CodeReferenceElement: c
+                              PsiElement(identifier)('c')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: ws.zipWithIndex.foreach
+              ReferenceExpression: ws.zipWithIndex
+                ReferenceExpression: ws
+                  PsiElement(identifier)('ws')
+                PsiElement(.)('.')
+                PsiElement(identifier)('zipWithIndex')
+              PsiElement(.)('.')
+              PsiElement(identifier)('foreach')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: w
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('w')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      Parameter: _
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: w.x.foo
+                      ReferenceExpression: w.x
+                        ReferenceExpression: w
+                          PsiElement(identifier)('w')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('foo')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Wrap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: Ctx & Singleton
+          SimpleType: Ctx
+            CodeReferenceElement: Ctx
+              PsiElement(identifier)('Ctx')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: ctx
+              PsiElement(identifier)('ctx')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: C
+            CodeReferenceElement: C
+              PsiElement(identifier)('C')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ctx.inner.X
+            CodeReferenceElement: ctx.inner.X
+              CodeReferenceElement: ctx.inner
+                CodeReferenceElement: ctx
+                  PsiElement(identifier)('ctx')
+                PsiElement(.)('.')
+                PsiElement(identifier)('inner')
+              PsiElement(.)('.')
+              PsiElement(identifier)('X')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Ctx
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ctx')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('inner')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: X
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('X')
+              PsiWhiteSpace('\n    ')
+              Extension on X
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: self
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('self')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: foo
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('foo')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n\n')
+  ScObject: WartInspector
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WartInspector')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: myWartTraverser
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('myWartTraverser')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: WartTraverser
+            CodeReferenceElement: WartTraverser
+              PsiElement(identifier)('WartTraverser')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: inspect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('inspect')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tastys
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tastys')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[Tasty[q.type]]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Tasty[q.type]
+                        SimpleType: Tasty
+                          CodeReferenceElement: Tasty
+                            PsiElement(identifier)('Tasty')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: q.type
+                            CodeReferenceElement: q
+                              PsiElement(identifier)('q')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: universe
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: universe
+                  PsiElement(identifier)('universe')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: WartUniverse.Aux[q.type]
+                SimpleType: WartUniverse.Aux
+                  CodeReferenceElement: WartUniverse.Aux
+                    CodeReferenceElement: WartUniverse
+                      PsiElement(identifier)('WartUniverse')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: q.type
+                    CodeReferenceElement: q
+                      PsiElement(identifier)('q')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: WartUniverse
+                  PsiElement(identifier)('WartUniverse')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: q
+                    PsiElement(identifier)('q')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: traverser
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: traverser
+                  PsiElement(identifier)('traverser')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: myWartTraverser.get
+                  ReferenceExpression: myWartTraverser
+                    PsiElement(identifier)('myWartTraverser')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('get')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: universe
+                    PsiElement(identifier)('universe')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: tastys.zipWithIndex.foreach
+                ReferenceExpression: tastys.zipWithIndex
+                  ReferenceExpression: tastys
+                    PsiElement(identifier)('tastys')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('zipWithIndex')
+                PsiElement(.)('.')
+                PsiElement(identifier)('foreach')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: tasty
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('tasty')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Parameter: index
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('index')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      ScPatternDefinition: tree
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: tree
+                            PsiElement(identifier)('tree')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: tasty.ast
+                          ReferenceExpression: tasty
+                            PsiElement(identifier)('tasty')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('ast')
+                      PsiWhiteSpace('\n      ')
+                      MethodCall
+                        MethodCall
+                          ReferenceExpression: traverser.traverseTree
+                            ReferenceExpression: traverser
+                              PsiElement(identifier)('traverser')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('traverseTree')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: tree
+                              PsiElement(identifier)('tree')
+                            PsiElement())(')')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: tree.symbol
+                            ReferenceExpression: tree
+                              PsiElement(identifier)('tree')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('symbol')
+                          PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: WartUniverse
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WartUniverse')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Aux
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aux')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Quotes
+                CodeReferenceElement: Quotes
+                  PsiElement(identifier)('Quotes')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: WartUniverse { type Q = X }
+            SimpleType: WartUniverse
+              CodeReferenceElement: WartUniverse
+                PsiElement(identifier)('WartUniverse')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Q')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Q
+              PsiElement(identifier)('Q')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Quotes
+                CodeReferenceElement: Quotes
+                  PsiElement(identifier)('Quotes')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: quotes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('quotes')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Q
+                    CodeReferenceElement: Q
+                      PsiElement(identifier)('Q')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Aux[Q]
+            SimpleType: Aux
+              CodeReferenceElement: Aux
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Q
+                CodeReferenceElement: Q
+                  PsiElement(identifier)('Q')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n\n')
+  ScClass: WartUniverse
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WartUniverse')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Q
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Q')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Quotes
+            CodeReferenceElement: Quotes
+              PsiElement(identifier)('Quotes')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: quotes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: quotes
+              PsiElement(identifier)('quotes')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Q
+            CodeReferenceElement: Q
+              PsiElement(identifier)('Q')
+        PsiWhiteSpace('\n  ')
+        ScClass: Traverser
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Traverser')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: quotes.reflect.TreeTraverser
+                  CodeReferenceElement: quotes.reflect.TreeTraverser
+                    CodeReferenceElement: quotes.reflect
+                      CodeReferenceElement: quotes
+                        PsiElement(identifier)('quotes')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('reflect')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TreeTraverser')
+  PsiWhiteSpace('\n\n\n')
+  ScClass: WartTraverser
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WartTraverser')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: get
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('get')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: u
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('u')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: WartUniverse
+                    CodeReferenceElement: WartUniverse
+                      PsiElement(identifier)('WartUniverse')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: u.Traverser
+            CodeReferenceElement: u.Traverser
+              CodeReferenceElement: u
+                PsiElement(identifier)('u')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Traverser')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Tasty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tasty')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Q
+        PsiElement(identifier)('Q')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: Quotes & Singleton
+          SimpleType: Quotes
+            CodeReferenceElement: Quotes
+              PsiElement(identifier)('Quotes')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: quotes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: quotes
+              PsiElement(identifier)('quotes')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Q
+            CodeReferenceElement: Q
+              PsiElement(identifier)('Q')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: path
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('path')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: ast
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ast')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: quotes.reflect.Tree
+            CodeReferenceElement: quotes.reflect.Tree
+              CodeReferenceElement: quotes.reflect
+                CodeReferenceElement: quotes
+                  PsiElement(identifier)('quotes')
+                PsiElement(.)('.')
+                PsiElement(identifier)('reflect')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Tree')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Quotes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Quotes')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: reflect
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('reflect')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Tree
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Tree')
+              PsiWhiteSpace('\n    ')
+              Extension on Tree
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: self
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('self')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Tree
+                          CodeReferenceElement: Tree
+                            PsiElement(identifier)('Tree')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScExtensionBody
+                  ScFunctionDefinition: symbol
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('symbol')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Symbol
+                      CodeReferenceElement: Symbol
+                        PsiElement(identifier)('Symbol')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Symbol
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Symbol')
+              PsiWhiteSpace('\n    ')
+              ScTrait: TreeTraverser
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('TreeTraverser')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScFunctionDeclaration: traverseTree
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('traverseTree')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: tree
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('tree')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                          PsiElement())(')')
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: symbol
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('symbol')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: Symbol
+                                CodeReferenceElement: Symbol
+                                  PsiElement(identifier)('Symbol')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')

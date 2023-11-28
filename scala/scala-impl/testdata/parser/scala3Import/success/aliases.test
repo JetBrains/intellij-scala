@@ -24,3 +24,494 @@ abstract class C() {
 
 }
 -----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: C
+            CodeReferenceElement: C
+              PsiElement(identifier)('C')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: t
+            CodeReferenceElement: t
+              PsiElement(identifier)('t')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y
+              PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: z
+              PsiElement(identifier)('z')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: u
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: u
+              PsiElement(identifier)('u')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: z.type
+            CodeReferenceElement: z
+              PsiElement(identifier)('z')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScValueDeclaration: xt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: xt
+              PsiElement(identifier)('xt')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: x.t
+            CodeReferenceElement: x.t
+              CodeReferenceElement: x
+                PsiElement(identifier)('x')
+              PsiElement(.)('.')
+              PsiElement(identifier)('t')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: yt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: yt
+              PsiElement(identifier)('yt')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: y.t
+            CodeReferenceElement: y.t
+              CodeReferenceElement: y
+                PsiElement(identifier)('y')
+              PsiElement(.)('.')
+              PsiElement(identifier)('t')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: zt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: zt
+              PsiElement(identifier)('zt')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: z.t
+            CodeReferenceElement: z.t
+              CodeReferenceElement: z
+                PsiElement(identifier)('z')
+              PsiElement(.)('.')
+              PsiElement(identifier)('t')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: ut
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: ut
+              PsiElement(identifier)('ut')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: z.t
+            CodeReferenceElement: z.t
+              CodeReferenceElement: z
+                PsiElement(identifier)('z')
+              PsiElement(.)('.')
+              PsiElement(identifier)('t')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: fx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fx')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: x.t
+                    CodeReferenceElement: x.t
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fy
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fy')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: y.t
+                    CodeReferenceElement: y.t
+                      CodeReferenceElement: y
+                        PsiElement(identifier)('y')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fz
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fz')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: z.t
+                    CodeReferenceElement: z.t
+                      CodeReferenceElement: z
+                        PsiElement(identifier)('z')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fu
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fu')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: u.t
+                    CodeReferenceElement: u.t
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: fx
+            PsiElement(identifier)('fx')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: xt
+              PsiElement(identifier)('xt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fx
+            PsiElement(identifier)('fx')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: yt
+              PsiElement(identifier)('yt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fx
+            PsiElement(identifier)('fx')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: zt
+              PsiElement(identifier)('zt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fx
+            PsiElement(identifier)('fx')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: ut
+              PsiElement(identifier)('ut')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: fy
+            PsiElement(identifier)('fy')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: xt
+              PsiElement(identifier)('xt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fy
+            PsiElement(identifier)('fy')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: yt
+              PsiElement(identifier)('yt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fy
+            PsiElement(identifier)('fy')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: zt
+              PsiElement(identifier)('zt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fy
+            PsiElement(identifier)('fy')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: ut
+              PsiElement(identifier)('ut')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: fz
+            PsiElement(identifier)('fz')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: xt
+              PsiElement(identifier)('xt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fz
+            PsiElement(identifier)('fz')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: yt
+              PsiElement(identifier)('yt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fz
+            PsiElement(identifier)('fz')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: zt
+              PsiElement(identifier)('zt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fz
+            PsiElement(identifier)('fz')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: ut
+              PsiElement(identifier)('ut')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: fu
+            PsiElement(identifier)('fu')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: xt
+              PsiElement(identifier)('xt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fu
+            PsiElement(identifier)('fu')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: yt
+              PsiElement(identifier)('yt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fu
+            PsiElement(identifier)('fu')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: zt
+              PsiElement(identifier)('zt')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: fu
+            PsiElement(identifier)('fu')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: ut
+              PsiElement(identifier)('ut')
+            PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

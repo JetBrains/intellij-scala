@@ -11,3 +11,127 @@ object Test {
 //         = scala#34.this.Predef#1683.implicitly#8816[C#5[A#10858]]()
 // }
 -----
+ScalaFile
+  ScTrait: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ImplicitParamCA
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ImplicitParamCA')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: CC
+              PsiElement(identifier)('CC')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ev
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ev')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: C[A]
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            GenericCall
+              ReferenceExpression: implicitly
+                PsiElement(identifier)('implicitly')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: C[A]
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// must use this exact syntax...')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// error: could not find implicit value for parameter e: C[A]')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// [[syntax trees at end of typer]]')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// abstract trait C#5[A#9116 >: Nothing#5832 <: Any#52] extends scala#33.AnyRef#2780;')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// final object Test#15 extends java.lang.Object#2485 with ScalaObject#1913 {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   def ImplicitParamCA#9123[CC#9124[A#10858 >: Nothing#5832 <: Any#52] >: [A#10858]Nothing#5832 <: [A#10858]Any#52,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//                            A#9125 >: Nothing#5832 <: Any#52](implicit ev#10856: C#5[A#9127]): Unit#3818')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//         = scala#34.this.Predef#1683.implicitly#8816[C#5[A#10858]]()')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// }')

@@ -2,3 +2,88 @@ def Test =
   val mirror = summon[deriving.Mirror.SumOf[Foo]]
   summon[mirror.MirroredElemTypes =:= (Foo.Baz.type, Bar)]
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: mirror
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: mirror
+            PsiElement(identifier)('mirror')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: deriving.Mirror.SumOf[Foo]
+              SimpleType: deriving.Mirror.SumOf
+                CodeReferenceElement: deriving.Mirror.SumOf
+                  CodeReferenceElement: deriving.Mirror
+                    CodeReferenceElement: deriving
+                      PsiElement(identifier)('deriving')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('SumOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                PsiElement(])(']')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: mirror.MirroredElemTypes =:= (Foo.Baz.type, Bar)
+            SimpleType: mirror.MirroredElemTypes
+              CodeReferenceElement: mirror.MirroredElemTypes
+                CodeReferenceElement: mirror
+                  PsiElement(identifier)('mirror')
+                PsiElement(.)('.')
+                PsiElement(identifier)('MirroredElemTypes')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TupleType: (Foo.Baz.type, Bar)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Foo.Baz.type
+                  CodeReferenceElement: Foo.Baz
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Baz')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+              PsiElement())(')')
+          PsiElement(])(']')

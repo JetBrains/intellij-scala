@@ -6,3 +6,68 @@ package bar {
   object a extends Grpc
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: io.grpc
+      CodeReferenceElement: io
+        PsiElement(identifier)('io')
+      PsiElement(.)('.')
+      PsiElement(identifier)('grpc')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScTrait: Grpc
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Grpc')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bar
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: io.grpc.Grpc
+          CodeReferenceElement: io.grpc
+            CodeReferenceElement: io
+              PsiElement(identifier)('io')
+            PsiElement(.)('.')
+            PsiElement(identifier)('grpc')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Grpc')
+    PsiWhiteSpace('\n  ')
+    ScObject: a
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Grpc
+              CodeReferenceElement: Grpc
+                PsiElement(identifier)('Grpc')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

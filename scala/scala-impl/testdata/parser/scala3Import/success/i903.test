@@ -25,3 +25,342 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: contains
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('contains')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: f
+                  PsiElement(identifier)('f')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: contains
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    TypedExpression
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: ff
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: ff
+                  PsiElement(identifier)('ff')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: contains
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      TypedExpression
+                        UnderscoreSection
+                          PsiElement(_)('_')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: g
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: g
+                  PsiElement(identifier)('g')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              FunctionalType: Int => Boolean
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: contains
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: gg
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: gg
+                  PsiElement(identifier)('gg')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              FunctionalType: Int => Boolean
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: contains
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: f.apply
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+                PsiElement(.)('.')
+                PsiElement(identifier)('apply')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//     sandbox/eta.scala:4: error: type mismatch:')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//  found   : Int => Int')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//  required: Int')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//     val f = contains("", (_: Int))')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//                          ^')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// sandbox/eta.scala:5: error: apply is not a member of Boolean(f)')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//     f.apply(0)')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//      ^')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: f
+                  PsiElement(identifier)('f')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: "".contains
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('contains')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    TypedExpression
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// dotc:')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: f.apply
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+                PsiElement(.)('.')
+                PsiElement(identifier)('apply')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// sandbox/eta.scala:18: error: apply is not a member of Boolean(f)')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//     f.apply(0)')
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('//       ^')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

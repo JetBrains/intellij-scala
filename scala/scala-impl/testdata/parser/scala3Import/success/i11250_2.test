@@ -6,3 +6,99 @@ object MonoidalTest2 { // But not here
 }
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: shapeless3.data
+      CodeReferenceElement: shapeless3
+        PsiElement(identifier)('shapeless3')
+      PsiElement(.)('.')
+      PsiElement(identifier)('data')
+    PsiWhiteSpace('\n\n')
+    ScObject: MonoidalTest2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MonoidalTest2')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// But not here')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: p
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('p')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: (Int, (String, (Boolean, Unit)))
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TupleType: (String, (Boolean, Unit))
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TupleType: (Boolean, Unit)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Unit
+                          CodeReferenceElement: Unit
+                            PsiElement(identifier)('Unit')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: pairs.length[p] =:= 3
+                ParametrizedType: pairs.length[p]
+                  SimpleType: pairs.length
+                    CodeReferenceElement: pairs.length
+                      CodeReferenceElement: pairs
+                        PsiElement(identifier)('pairs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: p
+                      CodeReferenceElement: p
+                        PsiElement(identifier)('p')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

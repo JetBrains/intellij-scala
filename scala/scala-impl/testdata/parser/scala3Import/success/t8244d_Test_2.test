@@ -2,3 +2,73 @@ class INodeX[K, V] extends INodeBase_1[K, V] {
   INodeBase_1.updater.set(this, null)
 }
 -----
+ScalaFile
+  ScClass: INodeX
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('INodeX')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: INodeBase_1[K, V]
+            SimpleType: INodeBase_1
+              CodeReferenceElement: INodeBase_1
+                PsiElement(identifier)('INodeBase_1')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: INodeBase_1.updater.set
+            ReferenceExpression: INodeBase_1.updater
+              ReferenceExpression: INodeBase_1
+                PsiElement(identifier)('INodeBase_1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('updater')
+            PsiElement(.)('.')
+            PsiElement(identifier)('set')
+          ArgumentList
+            PsiElement(()('(')
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            NullLiteral
+              PsiElement(null)('null')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

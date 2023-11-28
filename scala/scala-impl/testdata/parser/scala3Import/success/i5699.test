@@ -4,3 +4,119 @@ def test = {
   M: M
 }
 -----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScTypeAliasDefinition: M
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('M')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        InfixType: { type T[+A] } & { type T[-A] }
+          CompoundType: { type T[+A] }
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          CompoundType: { type T[-A] }
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDeclaration: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('-')
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: M
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: M
+            PsiElement(identifier)('M')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: M
+          CodeReferenceElement: M
+            PsiElement(identifier)('M')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: ().asInstanceOf
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asInstanceOf')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: M
+              CodeReferenceElement: M
+                PsiElement(identifier)('M')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      TypedExpression
+        ReferenceExpression: M
+          PsiElement(identifier)('M')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: M
+          CodeReferenceElement: M
+            PsiElement(identifier)('M')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

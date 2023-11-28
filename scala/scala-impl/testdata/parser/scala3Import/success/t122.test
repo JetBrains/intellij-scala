@@ -3,3 +3,116 @@ class L {
   val (a:Int, b:Int) = (1, a)
 }
 -----
+ScalaFile
+  ScClass: L
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('L')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ConstructorPattern
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+              Pattern Argument List
+                PsiElement(()('(')
+                Scala3 TypedPattern
+                  ReferencePattern: v
+                    PsiElement(identifier)('v')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypedExpression
+                ReferenceExpression: v
+                  PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a, b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                Scala3 TypedPattern
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: b
+                    PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  TypePattern
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

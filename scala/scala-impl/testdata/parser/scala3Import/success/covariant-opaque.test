@@ -2,3 +2,55 @@ import annotation.unchecked.uncheckedVariance
 
 opaque type O[+T] = Array[T @uncheckedVariance]
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.unchecked.uncheckedVariance
+        CodeReferenceElement: annotation.unchecked
+          CodeReferenceElement: annotation
+            PsiElement(identifier)('annotation')
+          PsiElement(.)('.')
+          PsiElement(identifier)('unchecked')
+        PsiElement(.)('.')
+        PsiElement(identifier)('uncheckedVariance')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: O
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Array[T @uncheckedVariance]
+      SimpleType: Array
+        CodeReferenceElement: Array
+          PsiElement(identifier)('Array')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeWithAnnotation: T @uncheckedVariance
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: uncheckedVariance
+                    CodeReferenceElement: uncheckedVariance
+                      PsiElement(identifier)('uncheckedVariance')
+        PsiElement(])(']')

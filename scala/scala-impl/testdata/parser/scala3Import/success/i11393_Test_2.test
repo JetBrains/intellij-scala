@@ -4,3 +4,72 @@
 
 }
 -----
+ScalaFile
+  ScFunctionDefinition: hello
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('hello')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Formatt.ToFormat['a' *: EmptyTuple]
+          SimpleType: Formatt.ToFormat
+            CodeReferenceElement: Formatt.ToFormat
+              CodeReferenceElement: Formatt
+                PsiElement(identifier)('Formatt')
+              PsiElement(.)('.')
+              PsiElement(identifier)('ToFormat')
+          TypeArgumentsList
+            PsiElement([)('[')
+            InfixType: 'a' *: EmptyTuple
+              LiteralType: 'a'
+                CharLiteral
+                  PsiElement(Character)(''a'')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('  ')
+        StringLiteral
+          PsiElement(string content)('""')
+      PsiWhiteSpace('\n\n\n')
+      PsiElement(})('}')

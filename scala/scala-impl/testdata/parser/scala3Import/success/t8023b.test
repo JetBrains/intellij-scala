@@ -1,3 +1,34 @@
 // this fails with naive attempts to fix SI-8023
 trait T[A <: T[A]]
 -----
+ScalaFile
+  ScTrait: T
+    PsiComment(comment)('// this fails with naive attempts to fix SI-8023')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: T[A]
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>

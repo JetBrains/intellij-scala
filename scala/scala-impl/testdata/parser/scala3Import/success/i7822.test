@@ -4,3 +4,206 @@ class Code {
 def foo(o0:Code,o1:Code) = new Code { type Ctx = o0.Ctx & o1.Ctx }
 def foo0(o0:Code,o1:Code): Code { type Ctx = o0.Ctx & o1.Ctx } = foo(o0,o1)
 -----
+ScalaFile
+  ScClass: Code
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Code')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ctx')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: o0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o0')
+          PsiElement(:)(':')
+          ParameterType
+            SimpleType: Code
+              CodeReferenceElement: Code
+                PsiElement(identifier)('Code')
+        PsiElement(,)(',')
+        Parameter: o1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o1')
+          PsiElement(:)(':')
+          ParameterType
+            SimpleType: Code
+              CodeReferenceElement: Code
+                PsiElement(identifier)('Code')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Code
+              CodeReferenceElement: Code
+                PsiElement(identifier)('Code')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          ScTypeAliasDefinition: Ctx
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ctx')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixType: o0.Ctx & o1.Ctx
+              SimpleType: o0.Ctx
+                CodeReferenceElement: o0.Ctx
+                  CodeReferenceElement: o0
+                    PsiElement(identifier)('o0')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Ctx')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              SimpleType: o1.Ctx
+                CodeReferenceElement: o1.Ctx
+                  CodeReferenceElement: o1
+                    PsiElement(identifier)('o1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Ctx')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo0')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: o0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o0')
+          PsiElement(:)(':')
+          ParameterType
+            SimpleType: Code
+              CodeReferenceElement: Code
+                PsiElement(identifier)('Code')
+        PsiElement(,)(',')
+        Parameter: o1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o1')
+          PsiElement(:)(':')
+          ParameterType
+            SimpleType: Code
+              CodeReferenceElement: Code
+                PsiElement(identifier)('Code')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    CompoundType: Code { type Ctx = o0.Ctx & o1.Ctx }
+      SimpleType: Code
+        CodeReferenceElement: Code
+          PsiElement(identifier)('Code')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Ctx
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ctx')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: o0.Ctx & o1.Ctx
+            SimpleType: o0.Ctx
+              CodeReferenceElement: o0.Ctx
+                CodeReferenceElement: o0
+                  PsiElement(identifier)('o0')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Ctx')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: o1.Ctx
+              CodeReferenceElement: o1.Ctx
+                CodeReferenceElement: o1
+                  PsiElement(identifier)('o1')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Ctx')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: o0
+          PsiElement(identifier)('o0')
+        PsiElement(,)(',')
+        ReferenceExpression: o1
+          PsiElement(identifier)('o1')
+        PsiElement())(')')

@@ -46,3 +46,369 @@ object Test {
     )(exp)
 }
 -----
+ScalaFile
+  PsiComment(comment)('// a.scala')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Sat Jun 30 19:51:17 PDT 2012')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Exp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Exp')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: exp
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('exp')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Exp[T]
+                    SimpleType: Exp
+                      CodeReferenceElement: Exp
+                        PsiElement(identifier)('Exp')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Exp[T]
+            SimpleType: Exp
+              CodeReferenceElement: Exp
+                PsiElement(identifier)('Exp')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              InfixExpression
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                InfixExpression
+                                  InfixExpression
+                                    InfixExpression
+                                      InfixExpression
+                                        InfixExpression
+                                          InfixExpression
+                                            InfixExpression
+                                              InfixExpression
+                                                UnderscoreSection
+                                                  GenericCall
+                                                    ReferenceExpression: f
+                                                      PsiElement(identifier)('f')
+                                                    TypeArgumentsList
+                                                      PsiElement([)('[')
+                                                      SimpleType: T
+                                                        CodeReferenceElement: T
+                                                          PsiElement(identifier)('T')
+                                                      PsiElement(])(']')
+                                                  PsiWhiteSpace(' ')
+                                                  PsiElement(_)('_')
+                                                PsiWhiteSpace('\n      ')
+                                                ReferenceExpression: compose
+                                                  PsiElement(identifier)('compose')
+                                                PsiWhiteSpace(' ')
+                                                GenericCall
+                                                  ReferenceExpression: f
+                                                    PsiElement(identifier)('f')
+                                                  TypeArgumentsList
+                                                    PsiElement([)('[')
+                                                    SimpleType: T
+                                                      CodeReferenceElement: T
+                                                        PsiElement(identifier)('T')
+                                                    PsiElement(])(']')
+                                              PsiWhiteSpace('\n      ')
+                                              ReferenceExpression: compose
+                                                PsiElement(identifier)('compose')
+                                              PsiWhiteSpace(' ')
+                                              GenericCall
+                                                ReferenceExpression: f
+                                                  PsiElement(identifier)('f')
+                                                TypeArgumentsList
+                                                  PsiElement([)('[')
+                                                  SimpleType: T
+                                                    CodeReferenceElement: T
+                                                      PsiElement(identifier)('T')
+                                                  PsiElement(])(']')
+                                            PsiWhiteSpace('\n      ')
+                                            ReferenceExpression: compose
+                                              PsiElement(identifier)('compose')
+                                            PsiWhiteSpace(' ')
+                                            GenericCall
+                                              ReferenceExpression: f
+                                                PsiElement(identifier)('f')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                SimpleType: T
+                                                  CodeReferenceElement: T
+                                                    PsiElement(identifier)('T')
+                                                PsiElement(])(']')
+                                          PsiWhiteSpace('\n      ')
+                                          ReferenceExpression: compose
+                                            PsiElement(identifier)('compose')
+                                          PsiWhiteSpace(' ')
+                                          GenericCall
+                                            ReferenceExpression: f
+                                              PsiElement(identifier)('f')
+                                            TypeArgumentsList
+                                              PsiElement([)('[')
+                                              SimpleType: T
+                                                CodeReferenceElement: T
+                                                  PsiElement(identifier)('T')
+                                              PsiElement(])(']')
+                                        PsiWhiteSpace('\n      ')
+                                        ReferenceExpression: compose
+                                          PsiElement(identifier)('compose')
+                                        PsiWhiteSpace(' ')
+                                        GenericCall
+                                          ReferenceExpression: f
+                                            PsiElement(identifier)('f')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            SimpleType: T
+                                              CodeReferenceElement: T
+                                                PsiElement(identifier)('T')
+                                            PsiElement(])(']')
+                                      PsiWhiteSpace('\n      ')
+                                      ReferenceExpression: compose
+                                        PsiElement(identifier)('compose')
+                                      PsiWhiteSpace(' ')
+                                      GenericCall
+                                        ReferenceExpression: f
+                                          PsiElement(identifier)('f')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          SimpleType: T
+                                            CodeReferenceElement: T
+                                              PsiElement(identifier)('T')
+                                          PsiElement(])(']')
+                                    PsiWhiteSpace('\n      ')
+                                    ReferenceExpression: compose
+                                      PsiElement(identifier)('compose')
+                                    PsiWhiteSpace(' ')
+                                    GenericCall
+                                      ReferenceExpression: f
+                                        PsiElement(identifier)('f')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
+                                        PsiElement(])(']')
+                                  PsiWhiteSpace('\n      ')
+                                  ReferenceExpression: compose
+                                    PsiElement(identifier)('compose')
+                                  PsiWhiteSpace(' ')
+                                  GenericCall
+                                    ReferenceExpression: f
+                                      PsiElement(identifier)('f')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
+                                      PsiElement(])(']')
+                                PsiWhiteSpace('\n      ')
+                                ReferenceExpression: compose
+                                  PsiElement(identifier)('compose')
+                                PsiWhiteSpace(' ')
+                                GenericCall
+                                  ReferenceExpression: f
+                                    PsiElement(identifier)('f')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                    PsiElement(])(']')
+                              PsiWhiteSpace('\n      ')
+                              ReferenceExpression: compose
+                                PsiElement(identifier)('compose')
+                              PsiWhiteSpace(' ')
+                              GenericCall
+                                ReferenceExpression: f
+                                  PsiElement(identifier)('f')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
+                                  PsiElement(])(']')
+                            PsiWhiteSpace('      ')
+                            PsiComment(comment)('// 4s')
+                            PsiWhiteSpace('\n      ')
+                            ReferenceExpression: compose
+                              PsiElement(identifier)('compose')
+                            PsiWhiteSpace(' ')
+                            GenericCall
+                              ReferenceExpression: f
+                                PsiElement(identifier)('f')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(])(']')
+                          PsiWhiteSpace('      ')
+                          PsiComment(comment)('// 5s')
+                          PsiWhiteSpace('\n      ')
+                          ReferenceExpression: compose
+                            PsiElement(identifier)('compose')
+                          PsiWhiteSpace(' ')
+                          GenericCall
+                            ReferenceExpression: f
+                              PsiElement(identifier)('f')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                        PsiWhiteSpace('      ')
+                        PsiComment(comment)('// 5s')
+                        PsiWhiteSpace('\n      ')
+                        ReferenceExpression: compose
+                          PsiElement(identifier)('compose')
+                        PsiWhiteSpace(' ')
+                        GenericCall
+                          ReferenceExpression: f
+                            PsiElement(identifier)('f')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                      PsiWhiteSpace('      ')
+                      PsiComment(comment)('// 6s')
+                      PsiWhiteSpace('\n      ')
+                      ReferenceExpression: compose
+                        PsiElement(identifier)('compose')
+                      PsiWhiteSpace(' ')
+                      GenericCall
+                        ReferenceExpression: f
+                          PsiElement(identifier)('f')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('      ')
+                    PsiComment(comment)('// 7s')
+                    PsiWhiteSpace('\n      ')
+                    ReferenceExpression: compose
+                      PsiElement(identifier)('compose')
+                    PsiWhiteSpace(' ')
+                    GenericCall
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                  PsiWhiteSpace('      ')
+                  PsiComment(comment)('// 8s')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: compose
+                    PsiElement(identifier)('compose')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: f
+                      PsiElement(identifier)('f')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                PsiWhiteSpace('      ')
+                PsiComment(comment)('// 11s')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: compose
+                  PsiElement(identifier)('compose')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: f
+                    PsiElement(identifier)('f')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiWhiteSpace('      ')
+              PsiComment(comment)('// 17s')
+              PsiWhiteSpace('\n')
+              PsiComment(BlockComment)('/*      compose f[T]      // 29s\n      compose f[T]      // 54s\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]\n      compose f[T]*/')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: exp
+                PsiElement(identifier)('exp')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -94,3 +94,1973 @@ object Main {
   type ACIN = AValClI[[x] =>> Nothing]
 }
 -----
+ScalaFile
+  PsiComment(comment)('// Ensure we omit valid JVM generic signatures when upper bounds are primitive')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// types. Java generic signatures cannot use primitive types in that position.')
+  PsiWhiteSpace('\n\n')
+  ScClass: AUnit
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AUnit')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ABoolean
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ABoolean')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Boolean
+          CodeReferenceElement: Boolean
+            PsiElement(identifier)('Boolean')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: AByte
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AByte')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Byte
+          CodeReferenceElement: Byte
+            PsiElement(identifier)('Byte')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: AChar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AChar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Char
+          CodeReferenceElement: Char
+            PsiElement(identifier)('Char')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: AShort
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AShort')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Short
+          CodeReferenceElement: Short
+            PsiElement(identifier)('Short')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: AInt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AInt')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ALong
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ALong')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Long
+          CodeReferenceElement: Long
+            PsiElement(identifier)('Long')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: AFloat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AFloat')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Float
+          CodeReferenceElement: Float
+            PsiElement(identifier)('Float')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ADouble
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ADouble')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Double
+          CodeReferenceElement: Double
+            PsiElement(identifier)('Double')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: ValClU
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ValClU')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: i
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('i')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+  PsiWhiteSpace('\n')
+  ScClass: AValClU
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AValClU')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: ValClU
+          CodeReferenceElement: ValClU
+            PsiElement(identifier)('ValClU')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ValClI
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ValClI')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: i
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('i')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+  PsiWhiteSpace('\n')
+  ScClass: AValClI
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AValClI')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: ValClI
+          CodeReferenceElement: ValClI
+            PsiElement(identifier)('ValClI')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: opaquetypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('opaquetypes')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Logarithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Logarithm')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+        PsiWhiteSpace('\n  ')
+        ScObject: Logarithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Logarithm')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScClass: ALogarithm
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ALogarithm')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: B
+                    PsiElement(identifier)('B')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Logarithm
+                      CodeReferenceElement: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: ALog
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ALog')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ALogarithm[[x] =>> Logarithm]
+                  SimpleType: ALogarithm
+                    CodeReferenceElement: ALogarithm
+                      PsiElement(identifier)('ALogarithm')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Logarithm
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Logarithm
+                        CodeReferenceElement: Logarithm
+                          PsiElement(identifier)('Logarithm')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: ALogD
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ALogD')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ALogarithm[[x] =>> Double]
+                  SimpleType: ALogarithm
+                    CodeReferenceElement: ALogarithm
+                      PsiElement(identifier)('ALogarithm')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Double
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: ALogN
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ALogN')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ALogarithm[[x] =>> Nothing]
+                  SimpleType: ALogarithm
+                    CodeReferenceElement: ALogarithm
+                      PsiElement(identifier)('ALogarithm')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Nothing
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDefinition: A1Log
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A1Log')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: opaquetypes.ALogarithm[[x] =>> Logarithm]
+                  SimpleType: opaquetypes.ALogarithm
+                    CodeReferenceElement: opaquetypes.ALogarithm
+                      CodeReferenceElement: opaquetypes
+                        PsiElement(identifier)('opaquetypes')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('ALogarithm')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Logarithm
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Logarithm
+                        CodeReferenceElement: Logarithm
+                          PsiElement(identifier)('Logarithm')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: A1LogN
+                PsiComment(comment)('// type A1LogD = opaquetypes.ALogarithm[[x] =>> Double]')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A1LogN')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: opaquetypes.ALogarithm[[x] =>> Nothing]
+                  SimpleType: opaquetypes.ALogarithm
+                    CodeReferenceElement: opaquetypes.ALogarithm
+                      CodeReferenceElement: opaquetypes
+                        PsiElement(identifier)('opaquetypes')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('ALogarithm')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Nothing
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              ScClass: ALogNested
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ALogNested')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: B
+                    PsiElement(identifier)('B')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Logarithm
+                      CodeReferenceElement: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScClass: ValClLogNested
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ValClLogNested')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      ClassParameter: i
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('i')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Logarithm
+                            CodeReferenceElement: Logarithm
+                              PsiElement(identifier)('Logarithm')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: AnyVal
+                        CodeReferenceElement: AnyVal
+                          PsiElement(identifier)('AnyVal')
+              PsiWhiteSpace('\n    ')
+              ScClass: AValClLogNested
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AValClLogNested')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: B
+                    PsiElement(identifier)('B')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ValClLogNested
+                      CodeReferenceElement: ValClLogNested
+                        PsiElement(identifier)('ValClLogNested')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDefinition: A
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: AValClLogNested[[x] =>> ValClLogNested]
+                  SimpleType: AValClLogNested
+                    CodeReferenceElement: AValClLogNested
+                      PsiElement(identifier)('AValClLogNested')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> ValClLogNested
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: ValClLogNested
+                        CodeReferenceElement: ValClLogNested
+                          PsiElement(identifier)('ValClLogNested')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: AN
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AN')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: AValClLogNested[[x] =>> Nothing]
+                  SimpleType: AValClLogNested
+                    CodeReferenceElement: AValClLogNested
+                      PsiElement(identifier)('AValClLogNested')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeLambda: [x] =>> Nothing
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: x
+                          PsiElement(identifier)('x')
+                        PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>>)('=>>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScClass: ValClLog
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ValClLog')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Logarithm
+                      CodeReferenceElement: Logarithm
+                        PsiElement(identifier)('Logarithm')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: AnyVal
+                  CodeReferenceElement: AnyVal
+                    PsiElement(identifier)('AnyVal')
+        PsiWhiteSpace('\n  ')
+        ScClass: AValClLog
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AValClLog')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ValClLog
+                CodeReferenceElement: ValClLog
+                  PsiElement(identifier)('ValClLog')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AClLog
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AClLog')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClLog[[x] =>> ValClLog]
+            SimpleType: AValClLog
+              CodeReferenceElement: AValClLog
+                PsiElement(identifier)('AValClLog')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> ValClLog
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: ValClLog
+                  CodeReferenceElement: ValClLog
+                    PsiElement(identifier)('ValClLog')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AClLogN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AClLogN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClLog[[x] =>> Nothing]
+            SimpleType: AValClLog
+              CodeReferenceElement: AValClLog
+                PsiElement(identifier)('AValClLog')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: ADouble
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ADouble')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AD
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AD')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ADouble[[x] =>> Double]
+            SimpleType: ADouble
+              CodeReferenceElement: ADouble
+                PsiElement(identifier)('ADouble')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Double
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ADN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ADN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ADouble[[x] =>> Nothing]
+            SimpleType: ADouble
+              CodeReferenceElement: ADouble
+                PsiElement(identifier)('ADouble')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: ALogarithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ALogarithm')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Logarithm
+                CodeReferenceElement: Logarithm
+                  PsiElement(identifier)('Logarithm')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ALog
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ALog')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ALogarithm[[x] =>> Logarithm]
+            SimpleType: ALogarithm
+              CodeReferenceElement: ALogarithm
+                PsiElement(identifier)('ALogarithm')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Logarithm
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Logarithm
+                  CodeReferenceElement: Logarithm
+                    PsiElement(identifier)('Logarithm')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ALogN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ALogN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ALogarithm[[x] =>> Nothing]
+            SimpleType: ALogarithm
+              CodeReferenceElement: ALogarithm
+                PsiElement(identifier)('ALogarithm')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: A1Log
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A1Log')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Logarithm.ALogarithm[[x] =>> Logarithm]
+            SimpleType: Logarithm.ALogarithm
+              CodeReferenceElement: Logarithm.ALogarithm
+                CodeReferenceElement: Logarithm
+                  PsiElement(identifier)('Logarithm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ALogarithm')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Logarithm
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Logarithm
+                  CodeReferenceElement: Logarithm
+                    PsiElement(identifier)('Logarithm')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: A1LogN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A1LogN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Logarithm.ALogarithm[[x] =>> Nothing]
+            SimpleType: Logarithm.ALogarithm
+              CodeReferenceElement: Logarithm.ALogarithm
+                CodeReferenceElement: Logarithm
+                  PsiElement(identifier)('Logarithm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ALogarithm')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AU
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AU')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AUnit[[x] =>> Unit]
+            SimpleType: AUnit
+              CodeReferenceElement: AUnit
+                PsiElement(identifier)('AUnit')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Unit
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AUN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AUN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AUnit[[x] =>> Nothing]
+            SimpleType: AUnit
+              CodeReferenceElement: AUnit
+                PsiElement(identifier)('AUnit')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AB
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AB')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ABoolean[[x] =>> Boolean]
+            SimpleType: ABoolean
+              CodeReferenceElement: ABoolean
+                PsiElement(identifier)('ABoolean')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Boolean
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ABN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ABN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ABoolean[[x] =>> Nothing]
+            SimpleType: ABoolean
+              CodeReferenceElement: ABoolean
+                PsiElement(identifier)('ABoolean')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n\n  ')
+        ScTypeAliasDefinition: ABy
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ABy')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AByte[[x] =>> Byte]
+            SimpleType: AByte
+              CodeReferenceElement: AByte
+                PsiElement(identifier)('AByte')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Byte
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AByN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AByN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AByte[[x] =>> Nothing]
+            SimpleType: AByte
+              CodeReferenceElement: AByte
+                PsiElement(identifier)('AByte')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AC')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AChar[[x] =>> Char]
+            SimpleType: AChar
+              CodeReferenceElement: AChar
+                PsiElement(identifier)('AChar')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Char
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ACN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ACN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AChar[[x] =>> Nothing]
+            SimpleType: AChar
+              CodeReferenceElement: AChar
+                PsiElement(identifier)('AChar')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n\n  ')
+        ScTypeAliasDefinition: AS
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AS')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AShort[[x] =>> Short]
+            SimpleType: AShort
+              CodeReferenceElement: AShort
+                PsiElement(identifier)('AShort')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Short
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Short
+                  CodeReferenceElement: Short
+                    PsiElement(identifier)('Short')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ASN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ASN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AShort[[x] =>> Nothing]
+            SimpleType: AShort
+              CodeReferenceElement: AShort
+                PsiElement(identifier)('AShort')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AI')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AInt[[x] =>> Int]
+            SimpleType: AInt
+              CodeReferenceElement: AInt
+                PsiElement(identifier)('AInt')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Int
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AIN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AIN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AInt[[x] =>> Nothing]
+            SimpleType: AInt
+              CodeReferenceElement: AInt
+                PsiElement(identifier)('AInt')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AL
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AL')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ALong[[x] =>> Long]
+            SimpleType: ALong
+              CodeReferenceElement: ALong
+                PsiElement(identifier)('ALong')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Long
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ALN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ALN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ALong[[x] =>> Nothing]
+            SimpleType: ALong
+              CodeReferenceElement: ALong
+                PsiElement(identifier)('ALong')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n\n  ')
+        ScTypeAliasDefinition: AF
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AF')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AFloat[[x] =>> Float]
+            SimpleType: AFloat
+              CodeReferenceElement: AFloat
+                PsiElement(identifier)('AFloat')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Float
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AFN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AFN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AFloat[[x] =>> Nothing]
+            SimpleType: AFloat
+              CodeReferenceElement: AFloat
+                PsiElement(identifier)('AFloat')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AD
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AD')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ADouble[[x] =>> Double]
+            SimpleType: ADouble
+              CodeReferenceElement: ADouble
+                PsiElement(identifier)('ADouble')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Double
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ADN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ADN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ADouble[[x] =>> Nothing]
+            SimpleType: ADouble
+              CodeReferenceElement: ADouble
+                PsiElement(identifier)('ADouble')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n\n  ')
+        ScTypeAliasDefinition: ACU
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ACU')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClU[[x] =>> ValClU]
+            SimpleType: AValClU
+              CodeReferenceElement: AValClU
+                PsiElement(identifier)('AValClU')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> ValClU
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: ValClU
+                  CodeReferenceElement: ValClU
+                    PsiElement(identifier)('ValClU')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ACUN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ACUN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClU[[x] =>> Nothing]
+            SimpleType: AValClU
+              CodeReferenceElement: AValClU
+                PsiElement(identifier)('AValClU')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ACI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ACI')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClI[[x] =>> ValClI]
+            SimpleType: AValClI
+              CodeReferenceElement: AValClI
+                PsiElement(identifier)('AValClI')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> ValClI
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: ValClI
+                  CodeReferenceElement: ValClI
+                    PsiElement(identifier)('ValClI')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ACIN
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ACIN')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AValClI[[x] =>> Nothing]
+            SimpleType: AValClI
+              CodeReferenceElement: AValClI
+                PsiElement(identifier)('AValClI')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeLambda: [x] =>> Nothing
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: x
+                    PsiElement(identifier)('x')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

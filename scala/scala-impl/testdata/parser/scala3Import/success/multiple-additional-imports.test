@@ -4,3 +4,75 @@ class annotation extends Annotation
 val s: String = "str"
 val regex: Regex = s.r
 -----
+ScalaFile
+  PsiComment(comment)('// scalac: -Yimports:scala,java.lang,scala.Predef,scala.annotation,scala.util.matching')
+  PsiWhiteSpace('\n\n')
+  ScClass: annotation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('annotation')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Annotation
+            CodeReferenceElement: Annotation
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: s
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: s
+        PsiElement(identifier)('s')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"str"')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: regex
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: regex
+        PsiElement(identifier)('regex')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Regex
+      CodeReferenceElement: Regex
+        PsiElement(identifier)('Regex')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: s.r
+      ReferenceExpression: s
+        PsiElement(identifier)('s')
+      PsiElement(.)('.')
+      PsiElement(identifier)('r')
