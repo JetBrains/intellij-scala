@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.isScalaProject
 import org.jetbrains.jps.incremental.scala.data.{CompilationDataFactory, DataFactoryService}
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
@@ -53,5 +54,5 @@ private final class ScalaClassPostProcessorBuilder extends ModuleLevelBuilder(Bu
   override def getPresentableName: String = JpsBundle.message("scala.class.post.processor.builder.presentable.name")
 
   private def isEnabled(context: CompileContext): Boolean =
-    ScalaBuilder.projectSettings(context).getIncrementalityType == IncrementalityType.SBT
+    isScalaProject(context) && ScalaBuilder.projectSettings(context).getIncrementalityType == IncrementalityType.SBT
 }
