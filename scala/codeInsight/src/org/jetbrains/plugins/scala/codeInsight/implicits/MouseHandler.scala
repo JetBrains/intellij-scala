@@ -28,6 +28,7 @@ import scala.jdk.CollectionConverters._
 private final class MouseHandler extends ProjectManagerListener {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
+  private var activeFolding = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]
 
   private var hyperlinkTooltip = Option.empty[TooltipUI]
@@ -54,6 +55,8 @@ private final class MouseHandler extends ProjectManagerListener {
               navigateTo(text, editor.getProject)
             case _ => expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach { renderer =>
+                e.consume()
+                deactivateActiveFolding(e.getEditor)
                 renderer.expand(text)
                 inlay.update()
                 if (!ImplicitHints.expanded) {
@@ -69,6 +72,7 @@ private final class MouseHandler extends ProjectManagerListener {
           }
         } else {
           deactivateActiveHyperlink(editor)
+          deactivateActiveFolding(e.getEditor)
         }
 
       }
@@ -91,6 +95,15 @@ private final class MouseHandler extends ProjectManagerListener {
               deactivateActiveHyperlink(e.getEditor)
           }
           textAtPoint match {
+            case Some((inlay, text)) if text.expansion.isDefined =>
+              if (!activeFolding.contains((inlay, text))) {
+                deactivateActiveFolding(e.getEditor)
+                activateFolding(e.getEditor, inlay, text, e.getMouseEvent)
+              }
+            case _ =>
+              deactivateActiveFolding(e.getEditor)
+          }
+          textAtPoint match {
             case Some((inlay, text)) =>
               highlightMatches(e.getEditor, inlay, text)
             case None =>
@@ -109,6 +122,7 @@ private final class MouseHandler extends ProjectManagerListener {
               errorTooltip.foreach(_.cancel())
           }
           deactivateActiveHyperlink(e.getEditor)
+          deactivateActiveFolding(e.getEditor)
         }
 
       }
@@ -167,6 +181,7 @@ private final class MouseHandler extends ProjectManagerListener {
       private def handle(): Unit = {
         editor.getContentComponent.removeKeyListener(this)
         deactivateActiveHyperlink(editor)
+        deactivateActiveFolding(editor)
       }
     })
   }
@@ -181,6 +196,18 @@ private final class MouseHandler extends ProjectManagerListener {
 
     hyperlinkTooltip.foreach(_.cancel())
     hyperlinkTooltip = None
+  }
+
+  private def activateFolding(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
+    activeFolding = Some(inlay, text)
+    editor.getContentComponent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
+  }
+
+  private def deactivateActiveFolding(editor: Editor): Unit = {
+    activeFolding.foreach { case (inlay, text) =>
+      editor.getContentComponent.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR))
+    }
+    activeFolding = None
   }
 
   private def navigateTo(text: Text, project: Project): Unit = {
