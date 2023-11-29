@@ -4,18 +4,24 @@ package navigation
 
 import com.intellij.ide.util.gotoByName._
 import com.intellij.openapi.application.ModalityState
-import com.intellij.psi.PsiElement
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil, TestIndexingModeSupporter}
 import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.scala.base.TestIndexingModeSupporterCompanion
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.junit.Assert._
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
+abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexingModeSupporter {
   private var myPopup: ChooseByNamePopup = _
+
+  private var myToken: IndexingMode.ShutdownToken = _
+  private var myIndexingMode: IndexingMode = IndexingMode.SMART
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
     if (myPopup == null) {
@@ -24,19 +30,27 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
     myPopup
   }
 
+  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
+    super.afterSetUpProject(project, module)
+    myToken = myIndexingMode.setUpTest(project, getTestRootDisposable)
+  }
+
   override def tearDown(): Unit = {
     if (myPopup != null) {
       myPopup.close(false)
       myPopup.dispose()
       myPopup = null
     }
-    super.tearDown()
+    try {
+      if (myToken != null) {
+        myIndexingMode.tearDownTest(getProject, myToken)
+      }
+    } finally super.tearDown()
   }
 
   protected def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
 
-  @nowarn("cat=deprecation")
-  protected def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject), text)
+  protected def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject, getTestRootDisposable), text)
 
   private def getPopupElements(model: ChooseByNameModel, text: String): Set[Any] = {
     calcPopupElements(createPopup(model), text)
@@ -69,11 +83,16 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
     expectedSize,
     elements.size
   )
+
+  override def getIndexingMode: IndexingMode = myIndexingMode
+
+  override def setIndexingMode(mode: IndexingMode): Unit = myIndexingMode = mode
 }
 
 class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
   override protected def loadScalaLibrary = false
 
+  @NeedsIndex.Full
   def testTrait(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
@@ -83,6 +102,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
+  @NeedsIndex.Full
   def testTrait2(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
@@ -92,6 +112,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
+  @NeedsIndex.Full
   def testObject(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleObject.scala", "object GoToClassSimpleObject")
 
@@ -101,6 +122,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
+  @NeedsIndex.Full
   def testPackageObject(): Unit = {
     myFixture.addFileToProject("foo/somePackageName/package.scala",
     """package foo
@@ -114,6 +136,8 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
+  // TODO: relax index requirements when IDEA-339250 is implemented
+  @NeedsIndex.SmartMode(reason = "DefaultSymbolNavigationContributor is not DumbAware yet")
   def testGoToSymbol(): Unit = {
     myFixture.addFileToProject("GoToSymbol.scala",
       """class FooClass {
@@ -135,6 +159,40 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     )
   }
 
+  @NeedsIndex.Full
+  def testGoToClass(): Unit = {
+    myFixture.addFileToProject("GoToClass.scala",
+      """class FooClass {
+        |  def fooMethod(): Unit = ()
+        |}
+        |
+        |trait FooTrait {
+        |  def fooMethod(): Unit
+        |}
+      """.stripMargin)
+
+    val elements = gotoClassElements("foo")
+    checkContainExpected(
+      elements,
+      (is[ScClass], "FooClass"),
+      (is[ScTrait], "FooTrait"),
+    )
+  }
+
+  @NeedsIndex.ForStandardLibrary
+  def testGoToClass_javaStdLib(): Unit = {
+    checkContainExpected(
+      gotoClassElements("AutoCloseable"),
+      (is[PsiClass], "java.lang.AutoCloseable")
+    )
+
+    checkContainExpected(
+      gotoClassElements("AbstractCollection"),
+      (is[PsiClass], "java.util.AbstractCollection")
+    )
+  }
+
+  @NeedsIndex.Full
   def testClass_:::(): Unit = {
     myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
@@ -144,6 +202,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
+  @NeedsIndex.Full
   def testSymbol_:::(): Unit = {
     myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
@@ -153,6 +212,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 2)
   }
 
+  @NeedsIndex.Full
   def testSymbolInPackaging_:::(): Unit = {
     myFixture.addFileToProject("threeColons.scala",
       """package test
@@ -165,3 +225,5 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 2)
   }
 }
+
+object GoToClassAndSymbolTest extends TestIndexingModeSupporterCompanion[GoToClassAndSymbolTest]

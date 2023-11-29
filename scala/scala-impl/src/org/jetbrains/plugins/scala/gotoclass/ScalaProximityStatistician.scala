@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.gotoclass
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
 import com.intellij.psi.statistics.StatisticsInfo
 import com.intellij.psi.util.ProximityLocation
@@ -8,7 +9,10 @@ import org.jetbrains.plugins.scala.lang.completion.statistician.ScalaStatisticMa
 
 class ScalaProximityStatistician extends ProximityStatistician {
   override def serialize(element: PsiElement, location: ProximityLocation): StatisticsInfo = {
-    ScalaStatisticManager.memberKey(element).map(el =>
-      new StatisticsInfo("scalaMember#", el)).getOrElse(return null)
+    if (DumbService.isDumb(element.getProject)) return null
+
+    ScalaStatisticManager.memberKey(element)
+      .map(el => new StatisticsInfo("scalaMember#", el))
+      .orNull
   }
 }
