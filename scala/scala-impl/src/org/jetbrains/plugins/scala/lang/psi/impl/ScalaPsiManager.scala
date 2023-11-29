@@ -267,7 +267,9 @@ class ScalaPsiManager(implicit val project: Project) {
         }
     )
 
-  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = _getCachedClass(scope, fqn)
+  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] =
+    if (DumbService.getInstance(project).isDumb) None
+    else _getCachedClass(scope, fqn)
 
   private val _getCachedClass =
     cachedWithoutModificationCount(
@@ -290,7 +292,8 @@ class ScalaPsiManager(implicit val project: Project) {
     )
 
   def getTopLevelExportsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScExportStmt] =
-    _getTopLevelExportsByPackage(pkgFqn, scope)
+    if (DumbService.getInstance(project).isDumb) Iterable.empty
+    else _getTopLevelExportsByPackage(pkgFqn, scope)
 
   private val _getTopLevelExportsByPackage =
     cachedWithoutModificationCount(
@@ -305,7 +308,8 @@ class ScalaPsiManager(implicit val project: Project) {
 
 
   def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] =
-    _getTopLevelDefinitionsByPackage(pkgFqn, scope)
+    if (DumbService.getInstance(project).isDumb) Iterable.empty
+    else _getTopLevelDefinitionsByPackage(pkgFqn, scope)
 
   private val _getTopLevelDefinitionsByPackage =
     cachedWithoutModificationCount(
@@ -322,28 +326,33 @@ class ScalaPsiManager(implicit val project: Project) {
     )
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
-    TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
+    if (DumbService.getInstance(project).isDumb) Iterable.empty
+    else TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
-  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] = {
-    val elements = ScStableTypeAliasFqnIndex.instance.getElements(fqn, project, scope).asScala
-    elements.filter(_.qualifiedNameOpt.contains(fqn))
-  }
-
-  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    val builder = ArraySeq.newBuilder[PsiClass]
-    builder ++= PsiShortNamesCache
-      .getInstance(project)
-      .getClassesByName(name, scope)
-      .iterator
-      .filterNot(p => p.is[ScTemplateDefinition, PsiClassWrapper])
-    val classesIterator = scalaClasses.iterator
-    while (classesIterator.hasNext) {
-      val clazz = classesIterator.next()
-      builder += clazz
+  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+    if (DumbService.getInstance(project).isDumb) Iterable.empty
+    else {
+      val elements = ScStableTypeAliasFqnIndex.instance.getElements(fqn, project, scope).asScala
+      elements.filter(_.qualifiedNameOpt.contains(fqn))
     }
-    builder.result()
-  }
+
+  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] =
+    if (DumbService.getInstance(project).isDumb) Seq.empty
+    else {
+      val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+      val builder = ArraySeq.newBuilder[PsiClass]
+      builder ++= PsiShortNamesCache
+        .getInstance(project)
+        .getClassesByName(name, scope)
+        .iterator
+        .filterNot(p => p.is[ScTemplateDefinition, PsiClassWrapper])
+      val classesIterator = scalaClasses.iterator
+      while (classesIterator.hasNext) {
+        val clazz = classesIterator.next()
+        builder += clazz
+      }
+      builder.result()
+    }
 
   def getClasses(
     `package`: PsiPackage
@@ -588,10 +597,12 @@ class ScalaPsiManager(implicit val project: Project) {
   private def andType(psiTypes: Seq[PsiType]): ScType =
     new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
 
-  def getStableTypeAliasesNames: Iterable[String] = {
-    import ScalaIndexKeys._
-    STABLE_ALIAS_NAME_KEY.allKeys
-  }
+  def getStableTypeAliasesNames: Iterable[String] =
+    if (DumbService.getInstance(project).isDumb) Iterable.empty
+    else {
+      import ScalaIndexKeys._
+      STABLE_ALIAS_NAME_KEY.allKeys
+    }
 
   val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker
 
