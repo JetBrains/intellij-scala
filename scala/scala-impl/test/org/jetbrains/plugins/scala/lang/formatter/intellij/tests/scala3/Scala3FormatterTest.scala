@@ -249,6 +249,68 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |  def compare(x: Int, y: Int): Int = 42
       |""".stripMargin
   )
+
+  def testGivens_Incomplete(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_CLASS = 0
+
+    doTextTest(
+      """class C {
+        |  class MyClass1
+        |  class MyClass2(using String)
+        |  class MyClass3(using String)
+        |
+        |  given MyClass1()
+        |  given MyClass2(using)
+        |  given MyClass3(using "42")
+        |
+        |  given foo1(using String): String
+        |  given foo2(using String): String =
+        |  given foo3(using String): String = ???
+        |}
+        |
+        |class D {
+        |  class MyClass1[T]
+        |  class MyClass2[T](using String)
+        |  class MyClass3[T](using String)
+        |
+        |  given MyClass1[String]()
+        |  given MyClass2[String](using)
+        |  given MyClass3[String](using "42")
+        |
+        |  given foo1[T](using String): String
+        |  given foo2[T](using String): String =
+        |  given foo3[T](using String): String = ???
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testGivens_Incomplete_Anonymous(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_CLASS = 0
+
+    doTextTest(
+      """class A {
+        |  given ()
+        |  given (using)
+        |  given (using String)
+        |  given (using String): String
+        |  given (using String): String =
+        |  given (using String): String = ???
+        |}
+        |
+        |class B {
+        |  given [T]()
+        |  given [T](using)
+        |  given [T](using String)
+        |  given [T](using String): String
+        |  given [T](using String): String =
+        |  given [T](using String): String = ???
+        |}""".stripMargin
+    )
+  }
+
   def testPackagingWithColon(): Unit = {
     doTextTest(
       """package p1:
