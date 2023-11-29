@@ -66,4 +66,13 @@ class TypeAliasConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+
+  def testSCL12611(): Unit = checkTextHasNoErrors(
+    """
+      |type Id = Short
+      |final val InvalidId: Id = -1
+      |//True
+    """.stripMargin
+  )
 }
