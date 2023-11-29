@@ -1280,10 +1280,6 @@ package object extensions {
     def hasElementType(elementType: IElementType): Boolean =
       node.nullSafe.exists(_.getElementType == elementType)
 
-    def isWhitespace: Boolean = {
-      node != null && node.isInstanceOf[PsiWhiteSpace]
-    }
-
     def isWhitespaceOrComment: Boolean = {
       node != null && PsiImplUtil.isWhitespaceOrComment(node)
     }

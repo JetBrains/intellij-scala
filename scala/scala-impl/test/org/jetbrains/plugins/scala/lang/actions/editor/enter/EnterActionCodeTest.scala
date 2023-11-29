@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
+import com.intellij.application.options.CodeStyle
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class EnterActionCodeTest extends EditorActionTestBase
   with Scala2AndScala3EnterActionCommonTests {
@@ -143,4 +145,22 @@ class EnterActionCodeTest extends EditorActionTestBase
        |}
        |""".stripMargin
   )
+
+  // SCL-18488
+  def testEnterInAlignedIfElse(): Unit = {
+    CodeStyle.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).ALIGN_IF_ELSE = true
+    checkGeneratedTextAfterEnter(
+      s"""class Test {
+         |  if (true) "yay"
+         |  else if (false)$CARET "YAY"
+         |}
+         |""".stripMargin,
+      s"""class Test {
+         |  if (true) "yay"
+         |  else if (false)
+         |         $CARET"YAY"
+         |}
+         |""".stripMargin
+    )
+  }
 }
