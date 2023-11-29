@@ -6,6 +6,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.options.ex.Settings
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
@@ -47,7 +48,7 @@ package object hints {
     } yield segment.toLowerCase
   }
 
-  private[hints] def textPartsOf(tpe: ScType, maxChars: Int)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
+  private[hints] def textPartsOf(tpe: ScType, maxChars: Int, originalElement: PsiElement)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): Seq[Text] = {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,
@@ -55,7 +56,7 @@ package object hints {
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
         val quickNavigateInfo = tpe.flatMap {
-          case dt: ScDesignatorType => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, dt.element))
+          case dt: ScDesignatorType => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, originalElement))
           case _ => None
         }
         Text(text,

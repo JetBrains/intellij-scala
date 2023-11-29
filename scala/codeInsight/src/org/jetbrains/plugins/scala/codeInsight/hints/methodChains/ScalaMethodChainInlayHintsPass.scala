@@ -192,7 +192,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    Text(": ") +: textPartsOf(ty, settings.presentationLength)
+    Text(": ") +: textPartsOf(ty, settings.presentationLength, expr)
   }
 }
 
