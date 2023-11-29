@@ -701,4 +701,23 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
     scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY = true
     doTextTest(before, after)
   }
+
+  //SCL-21860
+  def testTypeWithAnnotation(): Unit = {
+    doTextTest(
+      """val x: String @unchecked = "42"
+        |val y: String @unchecked @unchecked @unchecked = "42"
+        |val z: Some[String @unchecked] = Some("42")
+        |val u: Some[String @unchecked @unchecked @unchecked] = Some("42")
+        |
+        |??? match {
+        |  case x: Some[String @unchecked] => true
+        |  case x: Some[String @unchecked @unchecked @unchecked] => true
+        |  case x: String @unchecked => true
+        |  case x: String @unchecked @unchecked @unchecked => true
+        |  case _ =>
+        |}
+        |""".stripMargin
+    )
+  }
 }

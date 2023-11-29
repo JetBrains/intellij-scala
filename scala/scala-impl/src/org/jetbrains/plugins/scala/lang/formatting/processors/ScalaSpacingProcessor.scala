@@ -1351,8 +1351,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         if (rightBlockString.startsWith("{")) WITH_SPACING
         else if (containsNewLine(fileText, leftNode.getTreeParent.getTextRange)) ON_NEW_LINE
         else WITH_SPACING
-      //annotation
-      case (_, ScalaElementType.ANNOTATIONS, ScalaElementType.ANNOT_TYPE, _) => WITHOUT_SPACING
+      //type with annotation (val x: String @unchecked)
+      case (_, ScalaElementType.ANNOTATIONS, ScalaElementType.ANNOT_TYPE, _) =>
+        WITH_SPACING
       //case for package statement
       case (ScalaElementType.REFERENCE, ret, _, _) if ret != ScalaElementType.PACKAGING &&
         leftNode.getTreePrev != null && leftNode.getTreePrev.getTreePrev != null &&
