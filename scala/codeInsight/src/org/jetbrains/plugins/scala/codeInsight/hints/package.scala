@@ -11,8 +11,10 @@ import org.jetbrains.plugins.scala.annotator.TypeDiff.Match
 import org.jetbrains.plugins.scala.annotator.hints.{Text, foldedAttributes, foldedString}
 import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -52,8 +54,12 @@ package object hints {
           foldedAttributes(error = false),
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
+        val quickNavigateInfo = tpe.flatMap {
+          case dt: ScDesignatorType => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, dt.element))
+          case _ => None
+        }
         Text(text,
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          tooltip = quickNavigateInfo.orElse(tpe.map(_.canonicalText.replaceFirst("_root_.", ""))),
           navigatable = tpe.flatMap(_.extractClass))
       case _ =>
         ???
