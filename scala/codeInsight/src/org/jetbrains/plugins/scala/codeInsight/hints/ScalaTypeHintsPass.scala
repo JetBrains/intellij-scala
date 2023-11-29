@@ -69,9 +69,9 @@ private[codeInsight] trait ScalaTypeHintsPass {
 
   private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings) = {
     if (inParentheses)
-      Seq(Hint(Seq(Text("(")), e, suffix = false), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Seq(Text("(")), e, suffix = false), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true))
     else
-      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, suffix = true, relatesToPrecedingElement = true))
   }
 }
 
@@ -143,6 +143,6 @@ private object ScalaTypeHintsPass {
         case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => Seq(Text(" ="))
         case _ => Seq.empty
       }
-      text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength) ++ suffix)
+      text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength, anchor) ++ suffix)
     } yield Hint(text, anchor, suffix = true, menu, relatesToPrecedingElement = true)
 }
