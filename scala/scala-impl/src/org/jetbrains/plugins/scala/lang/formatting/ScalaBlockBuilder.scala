@@ -442,19 +442,19 @@ final class ScalaBlockBuilder(
     val ifAndThenBlockLastNode = ifAndThenBlockFirstNode
       .treeNextNodes
       .takeWhile(_.getElementType != kELSE)
-      .filterNot(_.isWhitespace)
+      .filterNot(_.isInstanceOf[PsiWhiteSpace])
       .lastOption
       .getOrElse(ifAndThenBlockFirstNode)
 
     val firstBlock = subBlock(ifAndThenBlockFirstNode, ifAndThenBlockLastNode, alignment)
     subBlocks.add(firstBlock)
 
-    val elseBlockFirstNodeOpt = ifAndThenBlockLastNode.treeNextNodes.dropWhile(_.isWhitespace).nextOption()
+    val elseBlockFirstNodeOpt = ifAndThenBlockLastNode.treeNextNodes.dropWhile(_.isInstanceOf[PsiWhiteSpace]).nextOption()
 
     elseBlockFirstNodeOpt match {
       case Some(elseBlockFirstNode) =>
         val elseLastNode = elseBlockFirstNode.treeNextNodes
-          .filterNot(_.isWhitespace)
+          .filterNot(_.isInstanceOf[PsiWhiteSpace])
           .takeWhile(n => if (cs.SPECIAL_ELSE_IF_TREATMENT) n.getElementType != kIF else true)
           .lastOption
           .getOrElse(elseBlockFirstNode)
