@@ -1114,12 +1114,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightPsi.isInstanceOf[ScParameters]) {
       leftPsiParent match {
+        case _: ScGiven =>
+          //add space between `given` keyword and parameters in anonymous given:
+          //`given (using String): String = ???`
+          val addSpacing = leftElementType == ScalaTokenType.GivenKeyword
+          return if (addSpacing) WITH_SPACING else WITHOUT_SPACING
         case fun: ScFunction =>
           val addSpacing = settings.SPACE_BEFORE_METHOD_PARENTHESES ||
             (scalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES && ScalaNamesUtil.isOperatorName(fun.name)) ||
-            (scalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME && rightNode.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace]) ||
-            //add space after `given` in anonymous given alias: `given (using String): String = ???`
-            (leftPsiParent.is[ScGivenAlias] && leftElementType == ScalaTokenType.GivenKeyword)
+            (scalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME && rightNode.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace])
           return if (addSpacing) WITH_SPACING else WITHOUT_SPACING
         case _: ScExtension =>
           //We could add some extring setting like we do for ScFunction, but lets not do that unless we will see the demand from users
@@ -1307,8 +1310,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return if (settings.SPACE_WITHIN_BRACKETS)  WITH_SPACING else WITHOUT_SPACING
       case ScalaElementType.TYPE_PARAM_CLAUSE =>
         val result =
-          //add space after `given` in anonymous given alias with type parameter: `given [T](using T): String = ???`
-          if (leftPsiParent.is[ScGivenAlias] && leftElementType == ScalaTokenType.GivenKeyword) WITH_SPACING
+          //add space after `given` in anonymous given alias with type parameter:
+          //given [T](using T): String = ??? //alias
+          //given [T](using Int, Short): Ordering[Byte] with {} //definition
+          if (leftPsiParent.is[ScGiven] && leftElementType == ScalaTokenType.GivenKeyword) WITH_SPACING
           //"extension [T]..."s
           else if (leftNodeParentElementType == EXTENSION) WITH_SPACING
           else if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING
