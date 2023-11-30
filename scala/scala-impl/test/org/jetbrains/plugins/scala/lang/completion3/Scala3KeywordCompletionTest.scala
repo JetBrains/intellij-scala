@@ -1114,12 +1114,11 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "using"
   )
 
-  // TODO: implement this (SCL-19010)
-//  def testUsingInAnonymousGenericGiven(): Unit = doCompletionTest(
-//    fileText = s"given [T](u$CARET)",
-//    resultText = s"given [T](using $CARET)",
-//    item = "using"
-//  )
+  def testUsingInAnonymousGenericGiven(): Unit = doCompletionTest(
+    fileText = s"given [T](u$CARET)",
+    resultText = s"given [T](using $CARET)",
+    item = "using"
+  )
 
   /// GIVEN
 
