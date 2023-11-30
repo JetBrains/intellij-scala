@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 case class Text(string: String,
                 attributes: Option[TextAttributes] = None,
                 effectRange: Option[(Int, Int)]    = None,
-                tooltip: Option[String]            = None,
+                tooltip: () => Option[String]      = () => None,
                 navigatable: Option[Navigatable]   = None,
                 errorTooltip: Option[ErrorTooltip] = None,
                 expansion: Option[() => Seq[Text]] = None) {

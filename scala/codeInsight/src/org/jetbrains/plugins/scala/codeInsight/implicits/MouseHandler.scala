@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 import java.awt.event._
 import java.awt.Cursor
 import java.awt.Point
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.Editor
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
 import org.jetbrains.plugins.scala.annotator.hints.TooltipUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -165,7 +166,12 @@ private final class MouseHandler extends ProjectManagerListener {
     UIUtil.setCursor(editor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
 
     if (!hyperlinkTooltip.exists(_.isDisposed)) {
-      hyperlinkTooltip = text.tooltip.map(showTooltip(editor, event, _, inlay))
+      ApplicationManager.getApplication.executeOnPooledThread({ () =>
+        val tooltip = inReadAction(text.tooltip())
+        invokeLater {
+          hyperlinkTooltip = tooltip.map(showTooltip(editor, event, _, inlay))
+        }
+      }: Runnable)
     }
 
     editor.getContentComponent.addKeyListener(new KeyAdapter {
