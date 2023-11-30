@@ -18,7 +18,6 @@ import java.util
  * @param sbtVersion  indicates a version of SBT in case of SBT us used over BSP
  * @note for a SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtBuildModuleData]]
  */
-@SerialVersionUID(4)
 case class SbtBuildModuleDataBsp @PropertyMapping(Array(
   "id",
   "childrenIds",
@@ -41,7 +40,6 @@ object SbtBuildModuleDataBsp {
  * @note for a similar SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtModuleData]]
  * @note read the difference between `buildModuleId` and `baseDirectory` in [[org.jetbrains.sbt.project.data.SbtModuleData]]
  */
-@SerialVersionUID(2)
 case class SbtModuleDataBsp @PropertyMapping(Array(
   "id",
   "buildModuleId",

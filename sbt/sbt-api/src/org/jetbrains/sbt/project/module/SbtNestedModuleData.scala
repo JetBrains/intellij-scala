@@ -4,7 +4,6 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.sbt.project.SbtProjectSystem
 
-@SerialVersionUID(1)
 final case class SbtNestedModuleData @PropertyMapping(Array(
   "id",
   "externalName",
