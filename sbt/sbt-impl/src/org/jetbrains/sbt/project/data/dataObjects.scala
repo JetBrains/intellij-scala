@@ -46,7 +46,6 @@ object SbtEntityData {
   * @param resolvers resolvers for this build project
   * @param buildFor id of the project that this module describes the build for
   */
-@SerialVersionUID(3)
 case class SbtBuildModuleData @PropertyMapping(Array("imports", "resolvers", "buildFor"))(
   imports: JList[String],
   resolvers: JSet[SbtResolver],
@@ -79,7 +78,6 @@ object SbtBuildModuleData {
  *                      It can be removed later if Platform ES STORAGE_VERSION is incremented in future releases
  *                      (see IDEA-314999 for the details)
  */
-@SerialVersionUID(2)
 case class SbtModuleData @PropertyMapping(Array(
   "id",
   "buildURI",
@@ -100,7 +98,6 @@ object SbtModuleData {
     new SbtModuleData(id, new MyURI(buildURI), baseDirectory)
 }
 
-@SerialVersionUID(2)
 case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath", "projectTransitiveDependenciesUsed"))(
   @Nullable jdk: SdkReference,
   //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
@@ -138,7 +135,6 @@ sealed trait SbtRankedKey {
   val rank: Int
 }
 
-@SerialVersionUID(1)
 case class SbtSettingData @PropertyMapping(Array("name", "description", "rank", "value"))(
   override val name: String,
   @Nls description: String,
@@ -150,7 +146,6 @@ object SbtSettingData {
   val Key: Key[SbtSettingData] = datakey(classOf[SbtSettingData])
 }
 
-@SerialVersionUID(1)
 case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (
   override val name: String,
   @Nls description: String,
@@ -161,7 +156,6 @@ object SbtTaskData {
   val Key: Key[SbtTaskData] = datakey(classOf[SbtTaskData])
 }
 
-@SerialVersionUID(1)
 case class SbtCommandData @PropertyMapping(Array("name", "help")) (
   override val name: String,
   help: JMap[String, String]
@@ -181,7 +175,6 @@ object SbtCommandData {
  *                               Needs to be added to `scalacClasspath`<br>
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
-@SerialVersionUID(4)
 case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage", "compileOrder")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
@@ -227,7 +220,6 @@ object SbtModuleExtData {
  *                               Needs to be added to `scalacClasspath`<br>
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
-@SerialVersionUID(1)
 case class SbtScalaSdkData @PropertyMapping(Array(
   "scalaVersion",
   "scalacClasspath",
@@ -261,7 +253,6 @@ object SbtScalaSdkData {
 }
 
 
-@SerialVersionUID(2)
 case class SbtPlay2ProjectData @PropertyMapping(Array("stringValues", "seqStringsValues")) (
   stringValues: JMap[String, JMap[String, StringParsedValue]],
   seqStringsValues: JMap[String, JMap[String, SeqStringParsedValue]]
@@ -307,7 +298,6 @@ object SbtPlay2ProjectData {
  *
  * @todo remove when IDEA-221074 is fixed
  */
-@SerialVersionUID(2)
 final class MyURI @PropertyMapping(Array("string"))(
   private val string: String
 ) extends Serializable {

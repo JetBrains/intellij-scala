@@ -40,7 +40,6 @@ object BspEntityData {
 /**
  * @param serverDisplayName corresponds to `InitializeBuildResult.displayName`, examples: "sbt", "scala-cli"
  */
-@SerialVersionUID(2)
 case class BspProjectData @PropertyMapping(Array(
   "jdk",
   "vcsRootsCandidates",
@@ -63,7 +62,6 @@ case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
   @Nullable javaVersion: String
 ) extends BspEntityData
 
-@SerialVersionUID(4)
 case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions"))(
   @NotNull scalaOrganization: String,
   @Nullable scalaVersion: String,
@@ -83,7 +81,6 @@ case class BspMetadataError(msg: String)
   * Metadata to about bsp targets that have been mapped to IntelliJ modules.
   * @param targetIds target ids mapped to module
   */
-@SerialVersionUID(4)
 case class BspMetadata @PropertyMapping(Array(
   "targetIds",
   "javaHome",
