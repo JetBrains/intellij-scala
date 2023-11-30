@@ -75,12 +75,12 @@ object TypeMismatchHints {
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
         Text(text,
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          tooltip = () => tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
       case Leaf(Mismatch(text, tpe)) =>
         Text(text,
           attributes = Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)),
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          tooltip = () =>tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.forActual(expected, actual)

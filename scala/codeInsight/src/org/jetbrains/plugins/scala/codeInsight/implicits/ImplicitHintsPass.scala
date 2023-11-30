@@ -310,9 +310,9 @@ private object ImplicitHintsPass {
       case element => element
     }
 
-    val tooltip = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor)
+    val tooltip = () => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor))
     Seq(
-      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = Option(tooltip))
+      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = tooltip)
     )
   }
 

@@ -55,12 +55,12 @@ package object hints {
           foldedAttributes(error = false),
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
-        val quickNavigateInfo = tpe.flatMap {
+        def quickNavigateInfo = tpe.flatMap {
           case dt: ScDesignatorType => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, originalElement))
           case _ => None
         }
         Text(text,
-          tooltip = quickNavigateInfo.orElse(tpe.map(_.canonicalText.replaceFirst("_root_.", ""))),
+          tooltip = () => quickNavigateInfo.orElse(tpe.map(_.canonicalText.replaceFirst("_root_.", ""))),
           navigatable = tpe.flatMap(_.extractClass))
       case _ =>
         ???
