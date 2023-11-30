@@ -208,21 +208,21 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
     doTextTest(before2, after)
   }
 
-  def testGivenInstance_1(): Unit = doTextTest(
+  def testGivenAlias_1(): Unit = doTextTest(
     """given IntWrapperToDoubleWrapper: Conversion[IntWrapper, DoubleWrapper] = new Conversion[IntWrapper, DoubleWrapper] {
       |  override def apply(i: IntWrapper): DoubleWrapper = new DoubleWrapper(i.a.toDouble)
       |}
       |""".stripMargin
   )
 
-  def testGivenInstance_2(): Unit = doTextTest(
+  def testGivenAlias_2(): Unit = doTextTest(
     """given stringParser: StringParser[String] = baseParser(Success(_))
       |
       |given intParser: StringParser[Int] = baseParser(s ⇒ Try(s.toInt))
       |""".stripMargin
   )
 
-  def testGivenInstance_3(): Unit = doTextTest(
+  def testGivenAlias_3(): Unit = doTextTest(
     """given optionParser[A](using parser: => StringParser[A]): StringParser[Option[A]] = new StringParser[Option[A]] {
       |  override def parse(s: String): Try[Option[A]] = s match {
       |    case "" ⇒ Success(None) // implicit parser not used.
@@ -232,14 +232,14 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
-  def testGivenInstance_4_WithoutEqualsSign(): Unit = doTextTest(
+  def testGivenDefinition_WithoutEqualsSign(): Unit = doTextTest(
     """given Id: Object with {
       |  def msg: String = ""
       |}
       |""".stripMargin
   )
 
-  def testGivenInstance_5_WithIndentationBasedTemplateBody(): Unit = doTextTest(
+  def testGivenDefinition_WithIndentationBasedTemplateBody(): Unit = doTextTest(
     """given intOrd: Ordering[Int] with
       |  def compare(x: Int, y: Int): Int = 42
       |
@@ -248,6 +248,26 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |given intOrd: Ordering[Int] with MyTrait with
       |  def compare(x: Int, y: Int): Int = 42
       |""".stripMargin
+  )
+
+  def testGivenDefinition_WithUsingParameterClause(): Unit = doTextTest(
+    """given ByteOrdering(using Int, Short): Ordering[Byte] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_WithUsingParameterClauseAndTypeParameters(): Unit = doTextTest(
+    """given ShortOrdering[T, X](using T, X): Ordering[Short] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous(): Unit = doTextTest(
+    """given Ordering[Int] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous_WithUsingParameterClause(): Unit = doTextTest(
+    """given (using Int, Short): Ordering[Byte] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous_WithUsingParameterClauseAndTypeParameters(): Unit = doTextTest(
+    """given [T, X](using T, X): Ordering[Short] with {}""".stripMargin
   )
 
   def testGivens_Incomplete(): Unit = {
