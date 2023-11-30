@@ -100,7 +100,7 @@ object ScalaInlayParameterHintsPass {
       case _ => true
     }.map {
       case (argument, parameter) =>
-        val tooltip = parameter.psiParam.map(p => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(p, p))
+        val tooltip = () => parameter.psiParam.map(p => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(p, argument))
         Hint(Seq(Text(parameter.name, tooltip = tooltip, navigatable = parameter.psiParam), Text(s" ${ScalaTokenTypes.tASSIGN} ")), argument, suffix = false, menu = menu)
     }
   }
