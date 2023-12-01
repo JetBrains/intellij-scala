@@ -152,6 +152,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testToString_NonLiteralType(): Unit = assertTypeIs(AnyOps +
     """type T = ToString[AliasToInt] == "1"""", """ToString[AliasToInt] == "1"""")
 
+  def testAnyNotEvaluated(): Unit = assertTypeIs(AnyOps +
+    "type T[C] = C == true", "C == true")
+
   //
   // Boolean
   //
@@ -167,6 +170,20 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testBooleanOr(): Unit = assertTypeIs(BooleanOps +
     "type T = true || false", "true")
+
+  def testBooleanNotEvaluated(): Unit = assertTypeIs(BooleanOps +
+    "type T[C] = ![C]", "![C]")
+
+  // SCL-21875
+  def testBooleanNotTypeParameter(): Unit = assertTypeIs(BooleanOps +
+    """import scala.compiletime.ops.boolean
+      |
+      |type ![C] = C match
+      |  case Boolean => boolean.![C]
+      |  case _       => Any
+    """.stripMargin,
+    "C match { case Boolean => boolean.![C]; case _$1 => Any }"
+  )
 
   //
   // Int
@@ -270,6 +287,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
     assertTypeIs(IntOps + "type T = NumberOfLeadingZeros[-2147483648]", "0") //Int.MinValue
     assertTypeIs(IntOps + "type T = NumberOfLeadingZeros[-2147483647]", "0") //Int.MaxValue + 1
   }
+
+  def testIntNotEvaluated(): Unit = assertTypeIs(IntOps +
+    "type T[C] = Abs[C]", "Abs[C]")
 
   //
   // Long
@@ -388,6 +408,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
     assertTypeIs(LongOps + "type T = NumberOfLeadingZeros[-9223372036854775807L]", "0") //Long.MaxValue + 1
   }
 
+  def testLongNotEvaluated(): Unit = assertTypeIs(LongOps +
+    "type T[C] = Abs[C]", "Abs[C]")
+
   //
   // Float
   //
@@ -440,6 +463,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testFloatToDouble(): Unit = assertTypeIs(FloatOps +
     "type T = ToDouble[1f]", "1.0")
 
+  def testFloatNotEvaluated(): Unit = assertTypeIs(FloatOps +
+    "type T[C] = Abs[C]", "Abs[C]")
+
   //
   // Double
   //
@@ -491,6 +517,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testDoubleToFloat(): Unit = assertTypeIs(DoubleOps +
     "type T = ToFloat[1d]", "1.0f")
 
+  def testDoubleNotEvaluated(): Unit = assertTypeIs(DoubleOps +
+    "type T[C] = Abs[C]", "Abs[C]")
+
   //
   // String
   //
@@ -533,6 +562,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testStringMatches_Bad_WrongPattern(): Unit = assertTypeIs(StringOps +
     """type T = Matches["unhappy", "{"]""", """Matches["unhappy", "{"]""")
+
+  def testStringNotEvaluated(): Unit = assertTypeIs(StringOps +
+    "type T[C] = Length[C]", "Length[C]")
 
   private def assertTypeIs(code: String, tpe: String): Unit = {
     val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(getProject)
