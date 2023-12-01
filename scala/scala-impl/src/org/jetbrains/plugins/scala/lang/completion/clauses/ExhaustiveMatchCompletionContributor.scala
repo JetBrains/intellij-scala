@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
@@ -112,11 +113,12 @@ object ExhaustiveMatchCompletionContributor {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
       val (components, clausesText) = strategy
-        .createClauses(context.getFile.useIndentationBasedSyntax, prefix, suffix, rightHandSide = " ???")
+        .createClauses(prefix = prefix, suffix = suffix, rightHandSide = " ???")
       replaceText(clausesText)
 
       onTargetElement { (statement: E) =>
-        val caseClauses = statement.findLastChildByTypeScala[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES).get
+        val caseClauses = statement.toIndentationBasedSyntax
+          .findLastChildByTypeScala[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES).get
 
         val clauses = caseClauses.caseClauses
         strategy.adjustTypes(components, clauses)

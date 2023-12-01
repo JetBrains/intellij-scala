@@ -116,4 +116,86 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |    case Direction.East => ???
        """.stripMargin
   )
+
+  def testScala3EnumBetweenMethods(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""
+        |enum Tree[+A]:
+        |  case Leaf(value: A)
+        |  case Branch(left: Tree[A], right: Tree[A])
+        |
+        |  def size: Int = this match
+        |    case Leaf(_) => 1
+        |    case Branch(l, r) => 1 + l.size + r.size
+        |
+        |  def depth: Int = ???
+        |
+        |  this ma$CARET
+        |
+        |  def map[B](f: A => B): Tree[B] = ???
+        |
+        |  def fold[B](f: A => B, g: (B, B) => B): B = ???
+        |""".stripMargin,
+    resultText =
+      s"""
+        |enum Tree[+A]:
+        |  case Leaf(value: A)
+        |  case Branch(left: Tree[A], right: Tree[A])
+        |
+        |  def size: Int = this match
+        |    case Leaf(_) => 1
+        |    case Branch(l, r) => 1 + l.size + r.size
+        |
+        |  def depth: Int = ???
+        |
+        |  this match
+        |    case Tree.Leaf(value) => $START$CARET???$END
+        |    case Tree.Branch(left, right) => ???
+        |
+        |  def map[B](f: A => B): Tree[B] = ???
+        |
+        |  def fold[B](f: A => B, g: (B, B) => B): B = ???
+        |""".stripMargin,
+  )
+
+  def testScala3EnumInsideMethodBodyBetweenMethods(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""
+         |enum Tree[+A]:
+         |  case Leaf(value: A)
+         |  case Branch(left: Tree[A], right: Tree[A])
+         |
+         |  def size: Int = this match
+         |    case Leaf(_) => 1
+         |    case Branch(l, r) => 1 + l.size + r.size
+         |
+         |  def depth: Int = ???
+         |
+         |  def foo = this ma$CARET
+         |
+         |  def map[B](f: A => B): Tree[B] = ???
+         |
+         |  def fold[B](f: A => B, g: (B, B) => B): B = ???
+         |""".stripMargin,
+    resultText =
+      s"""
+         |enum Tree[+A]:
+         |  case Leaf(value: A)
+         |  case Branch(left: Tree[A], right: Tree[A])
+         |
+         |  def size: Int = this match
+         |    case Leaf(_) => 1
+         |    case Branch(l, r) => 1 + l.size + r.size
+         |
+         |  def depth: Int = ???
+         |
+         |  def foo = this match
+         |    case Tree.Leaf(value) => $START$CARET???$END
+         |    case Tree.Branch(left, right) => ???
+         |
+         |  def map[B](f: A => B): Tree[B] = ???
+         |
+         |  def fold[B](f: A => B, g: (B, B) => B): B = ???
+         |""".stripMargin,
+  )
 }
