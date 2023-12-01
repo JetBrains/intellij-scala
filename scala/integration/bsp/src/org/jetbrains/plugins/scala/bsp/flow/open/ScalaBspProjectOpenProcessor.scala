@@ -7,5 +7,5 @@ class ScalaBspProjectOpenProcessor extends BspProjectOpenProcessorExtension {
 
   override def getShouldBspProjectOpenProcessorBeAvailable: Boolean = BspFeatureFlags.isBspPluginIntegrationEnabled
 
-  override def getBuildToolId: BuildToolId = new BuildToolId("scalabsp")
+  override def getBuildToolId: BuildToolId = new BuildToolId("sbt")
 }
