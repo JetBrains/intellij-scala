@@ -30,6 +30,8 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testExhaustiveScala3Enum(): Unit = doTest()
 
+  def testExhaustiveScala3EnumInTheMiddle(): Unit = doTest()
+
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()
 
   def testNoBlockParent(): Unit = doNotApplicableTest()
