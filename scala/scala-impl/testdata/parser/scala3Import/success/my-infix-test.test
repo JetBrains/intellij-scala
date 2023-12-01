@@ -1,0 +1,8 @@
+package scalabip
+
+object Test:
+  def f(i: Int) = i
+  val x = f:
+    3
+  :: List.empty
+-----
