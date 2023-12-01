@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFea
 
 package object expression {
 
-  private[expression] implicit class ScalaPsiElementExt[E <: ScalaPsiElement](private val element: E) extends AnyVal {
+  private[scala] implicit class ScalaPsiElementExt[E <: ScalaPsiElement](private val element: E) extends AnyVal {
     def toIndentationBasedSyntax(implicit ctx: ProjectContext = element.projectContext,
                                  features: ScalaFeatures = element): E = inWriteCommandAction {
       val withNewSyntax = Rewriters.rewriteToNewSyntax(element)
