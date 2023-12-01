@@ -145,8 +145,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
     val manager = PsiManager.getInstance(project)
     inReadAction {
       files.filter { vf =>
-        val psiFile = manager.findFile(vf)
-        if (psiFile ne null) ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project) else false
+        if (vf.isValid) {
+          val psiFile = manager.findFile(vf)
+          if (psiFile ne null) ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project) else false
+        } else false
       }
     }
   }
