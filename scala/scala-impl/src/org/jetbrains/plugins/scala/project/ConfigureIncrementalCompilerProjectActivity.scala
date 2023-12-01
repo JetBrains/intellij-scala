@@ -63,6 +63,7 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
             val executor = backgroundExecutor(project)
             ReadAction
               .nonBlocking(callable)
+              .inSmartMode(project)
               .expireWhen(() => project.isDisposed)
               .coalesceBy(EqualityToken(project))
               .finishOnUiThread(ModalityState.defaultModalityState(), consumer)
