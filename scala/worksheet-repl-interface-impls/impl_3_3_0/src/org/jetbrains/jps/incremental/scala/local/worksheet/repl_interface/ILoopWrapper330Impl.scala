@@ -50,6 +50,8 @@ class ILoopWrapper330Impl(
 
   override def reset(): Unit = {
     driver.resetToInitial(Nil) // TODO: should we pass any settings here?
+    //TODO: ReplDriver has private field `shouldStart` which can set to false if repl driver can't be started
+    // we should detect it
     state = driver.initialState
   }
 
