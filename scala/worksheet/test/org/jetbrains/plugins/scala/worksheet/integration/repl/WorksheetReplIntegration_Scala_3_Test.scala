@@ -15,7 +15,6 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_3_Latest_RC
 ))
 class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase
-
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_2
 ))
@@ -140,6 +139,39 @@ abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetRepl
     } catch {
       case _: AssertionError =>
     }
+  }
+
+  def testIgnoreFatalWarningsCompilerOption(): Unit = {
+    val worksheetText =
+      """//warning since scala 2.13.11: Implicit definition should have explicit type (inferred String)
+        |implicit def foo = "42"
+        |""".stripMargin
+
+    val editorAndFile = prepareWorksheetEditor(worksheetText, scratchFile = true)
+
+    setAdditionalCompilerOptions(Seq("-Werror", "-Xfatal-warnings"))
+
+    doRenderTestWithoutCompilationChecks(editorAndFile,
+      s"""
+         |$foldStart-- Error: ----------------------------------------------------------------------
+         |2 |implicit def foo = "42"
+         |  |             ^
+         |  |           result type of implicit definition needs to be given explicitly
+         |1 error found$foldEnd""".stripMargin
+    )
+
+    //TODO: in Scala 3 worksheets error reporting works different from Scala 2 due to some limitations
+    // (see TODOs in org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper330Impl)
+    // After that is fixed expected data should be adjusted
+    //    doRenderTestWithoutCompilationChecks(editorAndFile,
+    //      s"""
+    //         |def foo: String""".stripMargin
+    //    )
+    //    assertCompilerMessages(editorAndFile.editor)(
+    //      """Warning:(2, 14) Implicit definition should have explicit type (inferred String)
+    //        |implicit def foo = "42"
+    //        |""".stripMargin
+    //    )
   }
 }
 
@@ -385,6 +417,22 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
         |// defined case class C""".stripMargin
     ).editor
     assertLastLine(editor, 9)
+  }
+
+  def testIgnoreWarnAboutUnusedImportsCompilerOption(): Unit = {
+    val worksheetText =
+      """import scala.util.Random
+        |Random.nextInt().abs.min(0)""".stripMargin
+
+    val editorAndFile = prepareWorksheetEditor(worksheetText, scratchFile = true)
+
+    setAdditionalCompilerOptions(Seq("-Wunused:imports"))
+
+    doRenderTestWithoutCompilationChecks(editorAndFile,
+      s"""
+         |val res0: Int = 0""".stripMargin
+    )
+    assertCompilerMessages(editorAndFile.editor)("")
   }
 
   private def assertLastLine(editor: Editor, line: Int): Unit = {

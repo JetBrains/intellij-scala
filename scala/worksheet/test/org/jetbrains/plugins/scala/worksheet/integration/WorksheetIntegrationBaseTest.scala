@@ -7,6 +7,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
@@ -260,6 +261,12 @@ abstract class WorksheetIntegrationBaseTest
     val foldRegions = viewer.getFoldingModel.getAllFoldRegions
     val foldings = foldRegions.map(Folding.apply)
     ViewerEditorData(viewer, renderedText, foldings.toIndexedSeq)
+  }
+
+  protected def setAdditionalCompilerOptions(options: Seq[String]): Unit = {
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(additionalCompilerOptions = options)
+    profile.setSettings(newSettings)
   }
 }
 

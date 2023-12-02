@@ -222,6 +222,7 @@ object RemoteServerConnector {
 
   private val IgnoredScalacOptions = Set(
     "-Xfatal-warnings", //before 2.12 and in 2.13
-    "-Werror" //since 2.13 only
+    "-Werror", //since 2.13 only
+    "-Wunused:imports", //see SCL-21880
   )
 }
