@@ -1,24 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.util.ThrowableRunnable
-import junit.framework.{TestCase, TestSuite}
+import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
-import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
 
 class GenerateGivenNameTest extends TestCase
 
-object GenerateGivenNameTest {
-  def suite: TestSuite = {
-    val testSuite = new TestSuite()
-    allTests.map(createTest).foreach(testSuite.addTest)
-    testSuite
-  }
-
-  case class GivenNameTestData(code: String, expectedName: String)
+object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
+  override type TD = GivenNameTestData
 
   /**
    * All test cases.
@@ -26,7 +18,7 @@ object GenerateGivenNameTest {
    * See CheckGenerateGivenNameTestDataTest, which uses the real scala compiler to check
    * if these testcases compile correctly.
    */
-  lazy val allTests: Seq[GivenNameTestData] = Seq(
+  override lazy val testData: Seq[GivenNameTestData] = Seq(
     //////////////////// atoms /////////////////
     GivenNameTestData(
       """
@@ -334,33 +326,36 @@ object GenerateGivenNameTest {
         |""".stripMargin,
       "given_Seq_T"
     ),
-
   )
 
-  private def createTest(testData: GivenNameTestData): SimpleTestCase = {
-    val test = new ActualTest(testData)
-    test.setName(testData.code.trim.linesIterator.toSeq.last.replaceAll(raw"([\s\n])+", " "))
-    test
-  }
-
-  //noinspection JUnitMalformedDeclaration
-  private class ActualTest(data: GivenNameTestData) extends SimpleTestCase with AssertionMatchers {
-    override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
-
-    override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-      val GivenNameTestData(code, expectedName) = data
-      val tree = code.parse[ScFile]
-
-      tree.hasParseError shouldBe false
-
-      val givens = tree.elements.collect {
-        case given: ScGiven => given
-      }.toSeq
-
-      givens.length shouldBe 1
-
-      val givenElement = givens.head
-      givenElement.name shouldBe expectedName
+  case class GivenNameTestData(override val testCode: String, expectedGivenName: String) extends TestData {
+    override def testName: String = testCode.trim.linesIterator.toSeq.last.replaceAll(raw"([\s\n])+", " ")
+    override def checkCodeFragment: String = {
+      s"""
+         |object GivenHolder {
+         |  ${testCode.trim.replace("\n", "\n  ")}
+         |}
+         |println(GivenHolder.`$expectedGivenName`)
+         |""".stripMargin
     }
   }
+
+  override def makeActualTest(testData: GivenNameTestData): Test =
+    new SimpleActualTest(testData, ScalaVersion.Latest.Scala_3) {
+      override def runActualTest(): Unit = {
+        val GivenNameTestData(code, expectedName) = testData
+        val tree = code.parse[ScFile]
+
+        tree.hasParseError shouldBe false
+
+        val givens = tree.elements.collect {
+          case given: ScGiven => given
+        }.toSeq
+
+        givens.length shouldBe 1
+
+        val givenElement = givens.head
+        givenElement.name shouldBe expectedName
+      }
+    }
 }
