@@ -49,6 +49,8 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
+    if (!typeAware) return
+
     val owner     = element.owner
     val session   = new AnnotationSession(element.getContainingFile): @nowarn("cat=deprecation")
     val companion = owner.baseCompanion.collect { case obj: ScObject => obj }.orElse(owner.fakeCompanionModule)
