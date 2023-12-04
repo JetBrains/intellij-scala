@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.bsp.assets
 
 import com.intellij.openapi.util.IconLoader
 import org.jetbrains.plugins.bsp.assets.BuildToolAssetsExtension
-import org.jetbrains.plugins.bsp.flow.open.BuildToolId
+import org.jetbrains.plugins.bsp.extension.points.BuildToolId
 import org.jetbrains.plugins.scala.bsp.config.ScalaPluginConstants
 
 import javax.swing.Icon
@@ -18,5 +18,5 @@ class ScalaAssetsExtension extends BuildToolAssetsExtension {
 
   override def getPresentableName: String = "sbt"
 
-  override def getBuildToolId: BuildToolId = new BuildToolId("sbt")
+  override def getBuildToolId: BuildToolId = ScalaPluginConstants.BUILD_TOOL_ID
 }

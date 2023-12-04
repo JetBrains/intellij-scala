@@ -1,9 +1,10 @@
 <idea-plugin>
-    <extensions defaultExtensionNs="com.intellij">
+    <extensions defaultExtensionNs="org.jetbrains.bsp">
         <bspProjectOpenProcessorExtension
                 implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspProjectOpenProcessor"/>
         <bspProjectAwareExtension implementation="org.jetbrains.plugins.scala.bsp.config.ScalaBspProjectAwareExtension"/>
-        <bspBuildTargetClassifierExtension implementation="org.jetbrains.plugins.scala.bsp.extension.ScalaBuildTargetClassifier" />
+        <buildTargetClassifierExtension implementation="org.jetbrains.plugins.scala.bsp.extension.ScalaBuildTargetClassifier" />
         <buildToolAssetsExtension implementation="org.jetbrains.plugins.scala.bsp.assets.ScalaAssetsExtension" />
+        <scalaSdkGetterExtension implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkGetter"/>
     </extensions>
 </idea-plugin>
