@@ -302,8 +302,11 @@ object ScPattern {
   case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
       val selectors = extractPossibleProductParts(tpe, place)
-      if (selectors.length >= 2) Option(selectors)
-      else                       None
+      val minSelectors =
+        if (place.isInScala3File) 1
+        else 2
+      if (selectors.length >= minSelectors) Some(selectors)
+      else                                  None
     }
   }
 
@@ -378,10 +381,10 @@ object ScPattern {
       val extracted            = extractedType(returnTpe, place)
 
       extracted.orElse(place.isInScala3File.option(returnTpe)).map {
-        case tpe if isOneArgSyntheticUnapply(fun) => Seq(tpe)
-        case TupleType(comps)                     => comps
-        case byNameExtractor(comps)               => comps
-        case tpe                                  => Seq(tpe)
+        case tpe if !place.isInScala3File && isOneArgSyntheticUnapply(fun) => Seq(tpe)
+        case TupleType(comps)                                              => comps
+        case byNameExtractor(comps)                                        => comps
+        case tpe                                                           => Seq(tpe)
       }.getOrElse(Seq.empty)
     }
 

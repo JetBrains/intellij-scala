@@ -32,6 +32,8 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |  val A(i) = a
       |  val _x: Int = i
       |
+      |  val _acc1: Int = a._1
+      |
       |  val _y: A = A.unapply(a)
       |}
       |""".stripMargin,
@@ -46,20 +48,92 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |  val _x: Int = i
       |  val _y: String = s
       |
+      |  val _acc1: Int = a._1
+      |  val _acc2: String = a._2
+      |
       |  val _z: A = A.unapply(a)
       |}
       |""".stripMargin,
     """
-      |// testAccessor
+      |// testAlreadyDefinedUnapply
       |case class A(i: Int, s: String)
+      |object A {
+      |  def unapply(a: A): Some[(Double, Double)] = Some((1.0, 1.0))
+      |}
       |
       |object Test {
       |  val a: A = A(123, "test")
       |
-      |  val _x: Int = a._1
-      |  val _y: String = a._2
+      |  val A(d1, d2) = a
+      |  val _d1: Double = d1
+      |  val _d2: Double = d2
+      |
+      |  val _acc1: Int = a._1
+      |  val _acc2: String = a._2
+      |
+      |  val Some((e1, e2)) = A.unapply(a)
+      |  val _e1: Double = e1
+      |  val _e2: Double = e2
+      |}
+      |""".stripMargin,
+    """
+      |// testAlreadyDefinedAccessors
+      |case class A(i: Int, s: String) {
+      |  def _1: Boolean = true
+      |  def _3: Boolean = false
       |}
       |
+      |object Test {
+      |  val a: A = A(123, "test")
+      |
+      |  val A(b1, s, b2) = a
+      |  val _b1: Boolean = b1
+      |  val _s: String = s
+      |  val _b2: Boolean = b2
+      |
+      |  val _acc1: Boolean = a._1
+      |  val _acc2: String = a._2
+      |  val _acc3: Boolean = a._3
+      |
+      |  val _z: A = A.unapply(a)
+      |}
+      |""".stripMargin,
+    """
+      |// testAlreadyDefinedOneAccessor
+      |case class A(i: Int) {
+      |  def _1: Boolean = true
+      |}
+      |
+      |object Test {
+      |  val a: A = A(123)
+      |
+      |  val A(b) = a
+      |  val _b: Boolean = b
+      |
+      |  val _acc1: Boolean = a._1
+      |
+      |  val _z: A = A.unapply(a)
+      |}
+      |""".stripMargin,
+    """
+      |// testTupleMember
+      |case class A(i: (Int, Int))
+      |
+      |object Test {
+      |  val a: A = A((123, 321))
+      |
+      |  val A(t) = a
+      |  val _t: (Int, Int) = t
+      |
+      |  val _acc1: (Int, Int) = a._1
+      |
+      |  val _z: A = A.unapply(a)
+      |}
+      |""".stripMargin,
+    """
+      |// testOption
+      |val Some(x: Int) = Option(1)
+      |val _o: Option[Int] = Some.unapply(Some(1))
       |""".stripMargin
   ).map(testDataFromCode)
 }
