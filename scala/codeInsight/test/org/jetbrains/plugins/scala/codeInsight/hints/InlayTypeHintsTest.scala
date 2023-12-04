@@ -128,12 +128,21 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
   )
 
-  private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit = {
+  def testNavigationTooltip(): Unit = doTest(
+    s"""  val a$S: Foo /* [light_idea_test_case] default\\nclass Foo extends <span style='color:#000000;'><a href='psi_element://java.lang.Object'><code>Object</code></a></span> */ $E = new Foo()""".stripMargin,
+    withTooltips = true,
+    options = settings.showMemberVariableSetter, settings.showObviousTypeSetter
+  )
+
+  private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit =
+    doTest(text, false, options: _*)
+
+  private def doTest(text: String, withTooltips: Boolean, options: Setter[java.lang.Boolean]*): Unit = {
     def setOptions(value: Boolean): Unit = options.foreach(_.set(value))
 
     try {
       setOptions(true)
-      doInlayTest(text)
+      doInlayTest(text, withTooltips)
     } finally {
       setOptions(false)
     }
