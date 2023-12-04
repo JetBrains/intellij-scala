@@ -264,7 +264,12 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override final def getQualifiedName: String = _getQualifiedName()
 
   private val _getQualifiedName = cached("getQualifiedName", ModTracker.anyScalaPsiChange, () => {
-    if (hasNoJavaFQName(this)) null else {
+    //NOTE: according to `getQualifiedName` contract
+    //null should be returned for anonymous and local classes (and for type parameters, but it's not relevant here?)
+    //Related: SCL-15357, KTIJ-24653
+    if (isLocalOrInsideAnonymous(this))
+      null
+    else {
       byStubOrPsi(_.javaQualifiedName) {
         val suffix = this match {
           case o: ScObject if o.isPackageObject => ".package$"
@@ -273,7 +278,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
         }
 
         import ScalaNamesUtil.{isBacktickedName, toJavaName}
-        val result = qualifiedName(DefaultSeparator)(toJavaName)
+        val result = qualifiedName(DefaultSeparator, forJvmRepresentation = true)(toJavaName)
           .split('.')
           .map(isBacktickedName(_).orNull)
           .mkString(DefaultSeparator)
@@ -288,7 +293,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   private val _qualifiedName = cached("qualifiedName", ModTracker.anyScalaPsiChange, () => {
     if (isLocalOrInsideAnonymous(this)) name
     else byStubOrPsi(_.getQualifiedName) {
-      qualifiedName(DefaultSeparator)(identity)
+      qualifiedName(DefaultSeparator, forJvmRepresentation = false)(identity)
     }
   })
 
@@ -299,16 +304,29 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getQualifiedNameForDebugger: String = {
     import ScalaNamesUtil.toJavaName
     containingClass match {
-      case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + toJavaName(name)
-      case _ if isPackageObject => qualifiedName("")(toJavaName) + ".package"
-      case _ => qualifiedName("$")(s => toJavaName(withoutBackticks(s)))
+      case td: ScTypeDefinition =>
+        td.getQualifiedNameForDebugger + "$" + toJavaName(name)
+      case _ if isPackageObject =>
+        qualifiedName("", forJvmRepresentation = true)(toJavaName) + ".package"
+      case _ =>
+        qualifiedName("$", forJvmRepresentation = true)(s => toJavaName(withoutBackticks(s)))
     }
   }
 
-  protected def qualifiedName(separator: String)
-                             (nameTransformer: String => String): String =
-    toQualifiedName(packageName(this)(Right(this) :: Nil, separator))(nameTransformer)
+  protected def qualifiedName(
+    separator: String,
+    forJvmRepresentation: Boolean
+  )(nameTransformer: String => String): String = {
+    val packageName = getPackageName(
+      this,
+      separator,
+      forJvmRepresentation,
+      Right(this) :: Nil
+    )
+    toQualifiedName(packageName)(nameTransformer)
+  }
 
+  //TODO: also check this
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
       case o: ScObject if o.isPackageObject && o.name == "`package`" =>
@@ -412,36 +430,68 @@ object ScTypeDefinitionImpl {
   val DefaultLocationString = "<default>"
 
   /**
-    * Returns prefix with a convenient separator
-    */
-  @tailrec
-  def packageName(element: PsiElement)
-                 (implicit builder: QualifiedNameList,
-                  separator: String): QualifiedNameList = element.getContext match {
-    case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
-      packageName(packageObject)
-    case definition: ScTypeDefinition =>
-      packageName(definition)(
-        Right(definition) :: Left(separator) :: builder,
-        separator
-      )
-    case packaging: ScPackaging =>
-      val packageNamesList = packaging.fullPackageName
-        .split('.').toSeq
-        .intersperse(".")
-        .map(Left(_))
-        .toList
-      packageNamesList ::: Left(".") :: builder
-    case _: ScalaFile |
-         _: PsiFile |
-         _: ScBlock |
-         null => builder
-    case context@(_: ScTemplateBody |
-                  _: ScEnumCases    |
-                  _: ScExtendsBlock |
-                  _: ScTemplateParents) =>
-      packageName(context)
-    case context => packageName(context)(Nil, separator)
+   * Returns prefix with a convenient separator
+   *
+   * @param forJvmRepresentation when true, return package name in JVM representation
+   *                             For example, for a package object it returns `org.example.package` instead of `org.example
+   */
+  def getPackageName(
+    element: PsiElement,
+    separator: String,
+    forJvmRepresentation: Boolean,
+    builder: QualifiedNameList = Nil,
+  ): QualifiedNameList = {
+    @tailrec
+    def inner(element: PsiElement, acc: QualifiedNameList): QualifiedNameList = element.getContext match {
+      //Q: is this still actual? why is "`package`"
+      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
+        inner(packageObject, acc)
+      case packageObject: ScObject if packageObject.isPackageObject =>
+        inner(
+          packageObject,
+          //NOTE: in JVM bytecode scala package object is represented by a class with name "package"
+          //Even though it's not possible to reference it in Java (because "package" is a keyword)
+          // you can still reference it from Scala or Kotlin using backticks (``).
+          //For example this Scala code:
+          //```scala
+          //  package org
+          //  package object example { class Inner }
+          //```
+          //class "Inner" can be referenced from Kotlin using org.example.`package`.Inner
+          //it can be reference from scala using both org.example.Inner and org.example.`package`.Inner
+          //however the latter is considered an implementation detail and generally shouldn't be used in scala sources
+          if (forJvmRepresentation)
+            Right(packageObject) :: Left(separator) :: Left("package") :: Left(separator) :: acc
+          else
+            Right(packageObject) :: Left(separator) :: acc
+        )
+      case definition: ScTypeDefinition =>
+        inner(
+          definition,
+          Right(definition) :: Left(separator) :: acc
+        )
+      case packaging: ScPackaging =>
+        val packageNamesList = packaging.fullPackageName
+          .split('.').toSeq
+          .intersperse(".")
+          .map(Left(_))
+          .toList
+        packageNamesList ::: Left(".") :: acc
+      case _: ScalaFile |
+           _: PsiFile |
+           _: ScBlock |
+           null =>
+        acc
+      case context@(_: ScTemplateBody |
+                    _: ScEnumCases    |
+                    _: ScExtendsBlock |
+                    _: ScTemplateParents) =>
+        inner(context, acc)
+      case context =>
+        inner(context, Nil)
+    }
+
+    inner(element, builder)
   }
 
   def toQualifiedName(list: QualifiedNameList)
@@ -453,14 +503,4 @@ object ScTypeDefinitionImpl {
 
   private def isLocalOrInsideAnonymous(td: ScTypeDefinition): Boolean =
     td.isLocal || PsiTreeUtil.getStubOrPsiParentOfType(td, classOf[ScNewTemplateDefinition]) != null
-
-  private def isInPackageObject(td: ScTypeDefinition): Boolean =
-    td.containingClass match {
-      case o: ScObject => o.isPackageObject
-      case _ => false
-    }
-
-  private def hasNoJavaFQName(td: ScTypeDefinition): Boolean = {
-    isLocalOrInsideAnonymous(td) || isInPackageObject(td)
-  }
 }

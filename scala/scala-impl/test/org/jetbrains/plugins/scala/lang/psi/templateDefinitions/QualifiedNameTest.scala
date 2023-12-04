@@ -95,8 +95,8 @@ class QualifiedNameTest extends SimpleTestCase {
        |}
     """.stripMargin)
 
-  //classes defined in package objects are not accessible from java
-  def testInPackageObject(): Unit = doTest("foo.bar.A", null,
+  //classes defined in package objects are not accessible from java but can be accessible
+  def testInPackageObject(): Unit = doTest("foo.bar.A", "foo.bar.package.A",
     s"""package foo
        |
        |package object bar {
