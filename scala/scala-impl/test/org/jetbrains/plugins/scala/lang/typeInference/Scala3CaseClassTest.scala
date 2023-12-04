@@ -134,6 +134,20 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |// testOption
       |val Some(x: Int) = Option(1)
       |val _o: Option[Int] = Some.unapply(Some(1))
+      |""".stripMargin,
+    """
+      |// caseClassWithTypeParameters
+      |
+      |case class A[T](t: T)
+      |
+      |def test[T](a: A[T]): Unit = {
+      | val A(t) = a
+      | val _t: T = t
+      |
+      | val _acc1: T = a._1
+      |
+      | val _z: A[T] = A.unapply(a)
+      |}
       |""".stripMargin
   ).map(testDataFromCode)
 }
