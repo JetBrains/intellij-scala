@@ -34,7 +34,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     collectedHintTemplates =
       if (editor.isOneLineMode ||
         !settings.showMethodChainInlayHints ||
-        root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
+        !ScalaHintsSettings.xRayMode && root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
         Seq.empty
       } else {
         gatherMethodChainHints(editor, root)
