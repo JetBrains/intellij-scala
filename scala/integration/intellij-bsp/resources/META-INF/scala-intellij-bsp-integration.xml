@@ -6,5 +6,7 @@
         <buildTargetClassifierExtension implementation="org.jetbrains.plugins.scala.bsp.extension.ScalaBuildTargetClassifier" />
         <buildToolAssetsExtension implementation="org.jetbrains.plugins.scala.bsp.assets.ScalaAssetsExtension" />
         <scalaSdkGetterExtension implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkGetter"/>
+        <bspConnectionDetailsGeneratorExtension
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspDetailsConnectionGenerator"/>
     </extensions>
 </idea-plugin>
