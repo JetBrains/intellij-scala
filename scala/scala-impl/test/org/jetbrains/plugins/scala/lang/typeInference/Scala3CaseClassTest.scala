@@ -1,30 +1,29 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
+import junit.framework.TestCase
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 // SCL-21799
 @Category(Array(classOf[TypecheckerTests]))
-class Scala3CaseClassTest extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+class Scala3CaseClassTest extends TestCase
 
-  def testUnapplyMethod0Param(): Unit = checkTextHasNoErrors(
+object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTest(ScalaVersion.Latest.Scala_3_3) {
+  lazy val testData: Seq[TestData] = Seq(
     """
+      |// testUnapplyMethod0Param
       |case class A()
       |
       |object Test {
-      |  val a: A = A(123)
+      |  val a: A = A()
       |
       |  val A() = a
       |  val _y: Boolean = A.unapply(a)
       |}
-      |""".stripMargin
-  )
-
-  def testUnapplyMethod1Param(): Unit = checkTextHasNoErrors(
+      |""".stripMargin,
     """
+      |// testUnapplyMethod1Param
       |case class A(i: Int)
       |
       |object Test {
@@ -35,11 +34,9 @@ class Scala3CaseClassTest extends ScalaLightCodeInsightFixtureTestCase {
       |
       |  val _y: A = A.unapply(a)
       |}
-      |""".stripMargin
-  )
-
-  def testUnapplyMethod2Param(): Unit = checkTextHasNoErrors(
+      |""".stripMargin,
     """
+      |// testUnapplyMethod2Param
       |case class A(i: Int, s: String)
       |
       |object Test {
@@ -49,13 +46,11 @@ class Scala3CaseClassTest extends ScalaLightCodeInsightFixtureTestCase {
       |  val _x: Int = i
       |  val _y: String = s
       |
-      |  val _y: A = A.unapply(a)
+      |  val _z: A = A.unapply(a)
       |}
-      |""".stripMargin
-  )
-
-  def testAccessor(): Unit = checkTextHasNoErrors(
+      |""".stripMargin,
     """
+      |// testAccessor
       |case class A(i: Int, s: String)
       |
       |object Test {
@@ -64,6 +59,7 @@ class Scala3CaseClassTest extends ScalaLightCodeInsightFixtureTestCase {
       |  val _x: Int = a._1
       |  val _y: String = a._2
       |}
+      |
       |""".stripMargin
-  )
+  ).map(testDataFromCode)
 }
