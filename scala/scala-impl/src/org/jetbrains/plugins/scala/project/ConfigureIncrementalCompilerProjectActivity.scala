@@ -30,7 +30,7 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
         fileType match {
           case UnknownFileType.INSTANCE =>
           // The Kotlin plugin is not enabled. Kotlin code cannot be compiled in this case, so it is ok to use Zinc.
-          case kotlin =>
+          case kotlinFileType =>
             // `true` means that there are Kotlin sources in the project
             val callable: Callable[Boolean] = { () =>
               if (project.isDisposed) false
@@ -48,7 +48,7 @@ private final class ConfigureIncrementalCompilerProjectActivity extends ProjectA
                     Log.debug(debugMessage)
                     false // Stop processing files
                   }
-                  !FileTypeIndex.processFiles(kotlin, processor, moduleScope)
+                  !FileTypeIndex.processFiles(kotlinFileType, processor, moduleScope)
                 }
               }
             }
