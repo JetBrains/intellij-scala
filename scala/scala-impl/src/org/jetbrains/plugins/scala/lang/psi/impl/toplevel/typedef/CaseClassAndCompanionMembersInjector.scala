@@ -27,7 +27,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
               val returnTypeText =
                 if (params.isEmpty) BooleanCanonical
-                else if (source.isInScala3File) className // in scala 3 the unapply method returns the case class itself
+                else if (source.isInScala3File) className + typeArgsFromTypeParams(cls) // in scala 3 the unapply method returns the case class itself
                 else {
                   val params = clauses.head.parameters
                   if (params.isEmpty) BooleanCanonical
