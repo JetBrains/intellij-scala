@@ -18,6 +18,9 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         val className            = cls.name
         val typeArgs             = typeArgsFromTypeParams(cls)
         val typeParamsDefinition = typeParamsString(cls.typeParameters)
+        lazy val isScala3 = source.isInScala3File
+        lazy val zeroParamsReturnType =
+          if (isScala3) "true" else BooleanCanonical
 
         val unapply: Option[String] =
           if (cls.tooBigForUnapply) None
@@ -26,11 +29,11 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
               val clauses = x.parameterList.clauses
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
               val returnTypeText =
-                if (params.isEmpty) BooleanCanonical
+                if (params.isEmpty) zeroParamsReturnType
                 else if (source.isInScala3File) className + typeArgsFromTypeParams(cls) // in scala 3 the unapply method returns the case class itself
                 else {
                   val params = clauses.head.parameters
-                  if (params.isEmpty) BooleanCanonical
+                  if (params.isEmpty) zeroParamsReturnType
                   else {
                     val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyCanonical))
                     val optionTypeArg = caseClassParamTypes match {

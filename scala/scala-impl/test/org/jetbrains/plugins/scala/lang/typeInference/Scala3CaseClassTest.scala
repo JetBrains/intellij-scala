@@ -19,7 +19,20 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |  val a: A = A()
       |
       |  val A() = a
-      |  val _y: Boolean = A.unapply(a)
+      |  val _y: true = A.unapply(a)
+      |}
+      |""".stripMargin,
+    """
+      |// testUnapplyMethod0ParamWhenExtractorAccessorIsPresent
+      |case class A() {
+      |  def _1 = 1
+      |}
+      |
+      |object Test {
+      |  val a: A = A()
+      |
+      |  val A() = a
+      |  val _y: true = A.unapply(a)
       |}
       |""".stripMargin,
     """
