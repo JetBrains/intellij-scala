@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 
 import scala.annotation.tailrec
 
@@ -169,7 +170,7 @@ private object ScalaUseScope {
       case ResolvesTo(target: PsiNamedElement) =>
         target match {
           case o: ScObject if o.isPackageObject =>
-            val pName = o.qualifiedName.stripSuffix(".`package`")
+            val pName = ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(o.qualifiedName)
             ScPackageImpl.findPackage(o.getProject, pName)
           case _ => Some(target)
         }

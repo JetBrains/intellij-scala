@@ -329,8 +329,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   //TODO: also check this
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
-      case o: ScObject if o.isPackageObject && o.name == "`package`" =>
-        val packageName = o.qualifiedName.stripSuffix(".`package`")
+      case o: ScObject if o.isPackageObject && o.name == ScObjectImpl.LegacyPackageObjectNameInBackticks =>
+        val packageName = ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(o.qualifiedName)
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
       case _ => name
@@ -443,8 +443,7 @@ object ScTypeDefinitionImpl {
   ): QualifiedNameList = {
     @tailrec
     def inner(element: PsiElement, acc: QualifiedNameList): QualifiedNameList = element.getContext match {
-      //Q: is this still actual? why is "`package`"
-      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
+      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == ScObjectImpl.LegacyPackageObjectNameInBackticks =>
         inner(packageObject, acc)
       case packageObject: ScObject if packageObject.isPackageObject =>
         inner(

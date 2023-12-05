@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNa
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 
 import java.{util => ju}
 import scala.annotation.nowarn
@@ -138,7 +139,8 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
   private def packageName(sf: ScalaFile) = {
     sf.typeDefinitions match {
       case Seq(obj: ScObject) if obj.isPackageObject =>
-        if (obj.name == "`package`") obj.qualifiedName.stripSuffix(".`package`")
+        if (obj.name == ScObjectImpl.LegacyPackageObjectNameInBackticks)
+          ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(obj.qualifiedName)
         else obj.qualifiedName
       case _ => sf.getPackageName
     }

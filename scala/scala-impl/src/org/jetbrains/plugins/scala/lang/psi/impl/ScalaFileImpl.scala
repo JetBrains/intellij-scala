@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -83,7 +84,7 @@ class ScalaFileImpl(
 
     typeDefinitions match {
       // Handle package object
-      case Seq(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
+      case Seq(obj: ScObject) if obj.isPackageObject && obj.name != ScObjectImpl.LegacyPackageObjectNameInBackticks =>
         val (packageName, objectName) = name match {
           case QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case _ => ("", name)

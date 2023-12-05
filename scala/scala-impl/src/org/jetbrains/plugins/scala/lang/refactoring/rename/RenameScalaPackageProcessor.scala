@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiElement, PsiPackage, PsiReference}
 import com.intellij.refactoring.rename.RenamePsiPackageProcessor
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 
 import java.{util => ju}
 
@@ -22,7 +23,7 @@ class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRe
       for {
         packageObject <- ScalaShortNamesCacheManager.getInstance(element.getProject)
           .findPackageObjectByName(p.getQualifiedName, element.resolveScope)
-        if packageObject.name != "`package`"
+        if packageObject.name != ScObjectImpl.LegacyPackageObjectNameInBackticks
       } allRenames.put(packageObject, newName)
     case _ =>
   }

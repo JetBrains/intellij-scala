@@ -7,6 +7,7 @@ import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScClassFqnIndex, ScPackageObjectFqnIndex}
@@ -64,7 +65,8 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       ScPackageObjectFqnIndex.instance.getElements(fqn, project, scope).asScala
         .collectFirst {
           case scalaObject: ScObject if scalaObject.qualifiedName != null &&
-            equivalentFqn(fqn, scalaObject.qualifiedName.stripSuffix(".`package`")) => scalaObject
+            equivalentFqn(fqn, ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(scalaObject.qualifiedName)) =>
+            scalaObject
         }
     }
   }
