@@ -375,7 +375,7 @@ object ScPattern {
       })
 
   private[this] def productElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
-    if (returnTpe.isBoolean) Seq.empty
+    if (returnTpe.widenIfLiteral.isBoolean) Seq.empty
     else {
       lazy val byNameExtractor = ByNameExtractor(place)
       val extracted            = extractedType(returnTpe, place)

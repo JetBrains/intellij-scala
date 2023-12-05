@@ -207,7 +207,7 @@ object ScalaCompilerTestBase {
       val fileToMessages = messages.groupBy(_.getVirtualFile)
       fileToMessages
         .toSeq
-        .sortBy(_._1.toString)
+        .sortBy(t => Option(t._1).fold("")(_.toString))
         .map { case (file, messages) =>
           val messagesConcatenated = messages
             .map { message => s"${message.getCategory}: ${message.getMessage.trim}" }
