@@ -54,14 +54,14 @@ trait ScImportSelector extends ScalaPsiElement {
    */
   def isAliasedImport: Boolean
 
-  final def isScala2StyleAliasImport: Boolean = {
-    isAliasedImport && {
-      val isScala3AliasImport =
-        this.features.`Scala 3 renaming imports` &&
-          this.findFirstChildByType(ScalaTokenType.AsKeyword).isDefined
-      !isScala3AliasImport
-    }
-  }
+  final def isScala2StyleAliasImport: Boolean =
+    isAliasedImport &&
+      !isScala3StyleAliasImport
+
+  final def isScala3StyleAliasImport: Boolean =
+    isAliasedImport &&
+      this.features.`Scala 3 renaming imports` &&
+      this.findFirstChildByType(ScalaTokenType.AsKeyword).isDefined
 
   def reference: Option[ScStableCodeReference]
 
