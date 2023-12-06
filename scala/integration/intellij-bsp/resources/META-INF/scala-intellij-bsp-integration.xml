@@ -2,10 +2,12 @@
     <extensions defaultExtensionNs="org.jetbrains.bsp">
         <bspProjectOpenProcessorExtension
                 implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspProjectOpenProcessor"/>
-        <bspProjectAwareExtension implementation="org.jetbrains.plugins.scala.bsp.config.ScalaBspProjectAwareExtension"/>
-        <buildTargetClassifierExtension implementation="org.jetbrains.plugins.scala.bsp.extension.ScalaBuildTargetClassifier" />
-        <buildToolAssetsExtension implementation="org.jetbrains.plugins.scala.bsp.assets.ScalaAssetsExtension" />
-        <scalaSdkGetterExtension implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkGetter"/>
+        <bspProjectAwareExtension
+                implementation="org.jetbrains.plugins.scala.bsp.config.ScalaBspProjectAwareExtension"/>
+        <buildTargetClassifierExtension
+                implementation="org.jetbrains.plugins.scala.bsp.extension.ScalaBuildTargetClassifier"/>
+        <buildToolAssetsExtension implementation="org.jetbrains.plugins.scala.bsp.assets.ScalaAssetsExtension"/>
+        <scalaSdkGetterExtension implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkExtensionImpl"/>
         <bspConnectionDetailsGeneratorExtension
                 implementation="org.jetbrains.plugins.scala.bsp.flow.open.ScalaBspDetailsConnectionGenerator"/>
     </extensions>

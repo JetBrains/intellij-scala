@@ -24,7 +24,10 @@ class ScalaBspDetailsConnectionGenerator extends BspConnectionDetailsGeneratorEx
     true // for now we assume that this check is redundant since it is already done earlier
 
   override def generateBspConnectionDetailsFile(projectPath: VirtualFile, outputStream: OutputStream, project: Project): VirtualFile = {
-    val process = new ProcessBuilder("coursier", "launch", "sbt", "--", "bspConfig").start.waitFor(2, TimeUnit.MINUTES)
+    val process = new ProcessBuilder("coursier", "launch", "sbt", "--", "bspConfig")
+      .directory(projectPath.toNioPath.toFile)
+      .start
+    process.waitFor(2, TimeUnit.MINUTES)
 
     getChild(projectPath, List(".bsp", "sbt.json").asJava)
   }
