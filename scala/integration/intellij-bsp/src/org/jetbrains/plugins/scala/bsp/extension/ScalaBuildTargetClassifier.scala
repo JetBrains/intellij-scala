@@ -31,4 +31,3 @@ private class ScalaBuildTargetClassifier extends BuildTargetClassifierExtension 
       }
       .getOrElse(s)
 }
-

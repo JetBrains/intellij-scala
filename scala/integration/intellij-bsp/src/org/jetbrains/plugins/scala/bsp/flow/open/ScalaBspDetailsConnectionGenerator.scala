@@ -3,15 +3,16 @@ package org.jetbrains.plugins.scala.bsp.flow.open
 import com.intellij.openapi.observable.properties.ObservableMutableProperty
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.bsp.config.BspPluginBundle
 import org.jetbrains.plugins.bsp.extension.points.BspConnectionDetailsGeneratorExtension
 import org.jetbrains.plugins.bsp.flow.open.wizard.{ConnectionFileOrNewConnection, ImportProjectWizardStep}
+import org.jetbrains.plugins.bsp.ui.console.BspConsoleService
 import org.jetbrains.plugins.scala.bsp.config.ScalaPluginConstants
 
 import java.io.OutputStream
 import java.nio.file.Path
 import java.util
 import java.util.concurrent.TimeUnit
-import scala.collection.immutable.List
 import scala.jdk.CollectionConverters._
 
 class ScalaBspDetailsConnectionGenerator extends BspConnectionDetailsGeneratorExtension {
@@ -28,9 +29,26 @@ class ScalaBspDetailsConnectionGenerator extends BspConnectionDetailsGeneratorEx
     getChild(projectPath, List(".bsp", "sbt.json").asJava)
   }
 
-  override def calculateImportWizardSteps(path: Path, observableMutableProperty: ObservableMutableProperty[ConnectionFileOrNewConnection]): util.List[ImportProjectWizardStep] = ???
+  override def calculateImportWizardSteps(path: Path, observableMutableProperty: ObservableMutableProperty[ConnectionFileOrNewConnection]): util.List[ImportProjectWizardStep] = List.empty.asJava
 
-  override def executeAndWait(list: util.List[String], virtualFile: VirtualFile, outputStream: OutputStream, project: Project): Unit = ???
+  override def executeAndWait(command: util.List[String], projectPath: VirtualFile, outputStream: OutputStream, project: Project): Unit = {
+    val commandStr = command.asScala.concat(" ").toString()
+    val bspSyncConsole = new BspConsoleService(project).getBspSyncConsole
+    bspSyncConsole.addMessage(BspPluginBundle.message("console.task.run.message.command", commandStr))
+
+    val builder = new ProcessBuilder()
+      .directory(projectPath.toNioPath.toFile)
+      .redirectError(ProcessBuilder.Redirect.PIPE)
+
+    val consoleProcess = builder.start()
+    consoleProcess.getInputStream.transferTo(outputStream)
+    consoleProcess.getErrorStream.transferTo(outputStream)
+    consoleProcess.waitFor()
+
+    if (consoleProcess.exitValue() != 0) {
+      throw new RuntimeException("Error occurred while running command: " + commandStr)
+    }
+  }
 
   override def getChild(root: VirtualFile, path: util.List[String]): VirtualFile = {
     val pathAsScala = path.asScala
@@ -42,4 +60,3 @@ class ScalaBspDetailsConnectionGenerator extends BspConnectionDetailsGeneratorEx
     found
   }
 }
-
