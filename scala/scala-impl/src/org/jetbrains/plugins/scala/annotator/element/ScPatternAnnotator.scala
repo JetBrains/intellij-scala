@@ -153,7 +153,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
             ref.bind() match {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Right(rt) =>
-                  val substitutor = PatternTypeInference.doTypeInference(pattern, rt)
+                  val substitutor = PatternTypeInference.doTypeInference(pattern, exprType)
                   val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns)
                   val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]

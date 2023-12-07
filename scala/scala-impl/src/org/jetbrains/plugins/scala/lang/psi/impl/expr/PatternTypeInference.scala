@@ -114,7 +114,8 @@ object PatternTypeInference {
       cachedInUserData(
         "doTypeInference",
         pattern,
-        BlockModificationTracker(pattern)
+        BlockModificationTracker(pattern),
+        Tuple1(scrutineeType),
       ) {
         getPatternType(pattern, scrutineeType) match {
           case Left(subst) => subst
