@@ -52,7 +52,6 @@ lazy val scalaCommunity: sbt.Project =
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
-      intellijBspIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -640,13 +639,6 @@ lazy val copyrightIntegration =
     .settings(
       intellijPlugins += "com.intellij.copyright".toPlugin,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
-    )
-
-lazy val intellijBspIntegration =
-  newProject("intellij-bsp", file("scala/integration/intellij-bsp"))
-    .dependsOn(scalaImpl)
-    .settings(
-      intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin
     )
 
 lazy val gradleIntegration =
