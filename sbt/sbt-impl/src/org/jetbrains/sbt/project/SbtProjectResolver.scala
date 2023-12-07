@@ -847,6 +847,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode.addAll(createUnmanagedDependencies(projectData.dependencies.jars)(moduleNode))
     unmanagedSourcesAndDocsLibrary.foreach { lib =>
       val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
+      dependency.setOrder(2)
       dependency.setScope(DependencyScope.COMPILE)
       moduleNode.add(dependency)
     }
@@ -946,7 +947,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val classes = build.classes.filter(_.exists).map(_.path)
       val docs = build.docs.filter(_.exists).map(_.path)
       val sources = build.sources.filter(_.exists).map(_.path)
-      createModuleLevelDependency(Sbt.BuildLibraryPrefix + sbtVersion, classes, docs, sources, DependencyScope.PROVIDED)(result)
+      createModuleLevelDependency(Sbt.BuildLibraryPrefix + sbtVersion, classes, docs, sources, DependencyScope.PROVIDED, None)(result)
     }
 
     result.add(library)
@@ -1006,6 +1007,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
+      data.setOrder(2)
       data.setScope(scopeFor(dependency.configurations))
       data
     }
@@ -1019,19 +1021,25 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         case it => s"${Sbt.UnmanagedLibraryName}-${it.getDisplayName.toLowerCase}"
       }
       val files = dependency.map(_.file.path)
-      createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope)(moduleData)
+      createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope, Some(1))(moduleData)
     }
   }
 
-  private def createModuleLevelDependency(name: String, classes: Seq[String], docs: Seq[String], sources: Seq[String], scope: DependencyScope)
-                                         (moduleData: ModuleData): LibraryDependencyNode = {
-
+  private def createModuleLevelDependency(
+    name: String,
+    classes: Seq[String],
+    docs: Seq[String],
+    sources: Seq[String],
+    scope: DependencyScope,
+    order: Option[Int]
+  )(moduleData: ModuleData): LibraryDependencyNode = {
     val libraryNode = new LibraryNode(name, resolved = true)
     libraryNode.addPaths(LibraryPathType.BINARY, classes)
     libraryNode.addPaths(LibraryPathType.DOC, docs)
     libraryNode.addPaths(LibraryPathType.SOURCE, sources)
 
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
+    order.foreach(result.setOrder)
     result.setScope(scope)
     result
   }
