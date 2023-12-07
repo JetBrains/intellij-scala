@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunct
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -101,7 +103,12 @@ trait ScParameter extends ScTypedDefinition
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
   }
 
-  override def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
+  //noinspection UnstableApiUsage
+  override def getType: PsiType = {
+    val scType = getRealParameterType.getOrNothing
+    if (DumbService.isDumb(getProject)) new FakePsiType(scType)
+    else scType.toPsiType
+  }
 
   /**
    * Infers expected type for the parameter of an anonymous function
