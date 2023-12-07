@@ -136,8 +136,7 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 1)
   }
 
-  // TODO: relax index requirements when IDEA-339250 is implemented
-  @NeedsIndex.SmartMode(reason = "DefaultSymbolNavigationContributor is not DumbAware yet")
+  @NeedsIndex.Full
   def testGoToSymbol(): Unit = {
     myFixture.addFileToProject("GoToSymbol.scala",
       """class FooClass {
