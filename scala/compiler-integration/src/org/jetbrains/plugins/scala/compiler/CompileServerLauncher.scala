@@ -591,7 +591,7 @@ object CompileServerLauncher {
   private def isUsed(portFromSettings: Int): Boolean =
     NetUtils.canConnectToSocket("localhost", portFromSettings)
 
-  private def saveSettings(): Unit = invokeAndWait {
+  private def saveSettings(): Unit = {
     ApplicationManager.getApplication.saveSettings()
   }
 
