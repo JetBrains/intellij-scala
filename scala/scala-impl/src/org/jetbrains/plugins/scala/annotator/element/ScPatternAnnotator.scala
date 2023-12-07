@@ -28,7 +28,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     pattern match {
       case ScTypedPattern(ScInfixTypeElement(_, op, _)) =>
-        holder.createErrorAnnotation(op, "Cannot have infix type directly in typed pattern. Try to surround it with parenthesis.")
+        holder.createErrorAnnotation(op, ScalaBundle.message("cannot.have.infix.type.directly.in.typed.pattern.try.to..."))
       case _ =>
     }
 
