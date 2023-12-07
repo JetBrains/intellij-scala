@@ -122,7 +122,10 @@ object PhysicalExtractorPatternComponents {
       types = ScPattern.unapplySubpatternTypes(
         returnType,
         parameters.place,
-        method
+        method,
+        // we obviously don't know the amount of expected components, so give -1
+        // (see ScPattern.unapplySubpatternTypes)
+        expectedComponents = -1
       )
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }

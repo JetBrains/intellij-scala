@@ -86,7 +86,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_assignments(): Unit = doTest("assignments", true)
   def test_attributes(): Unit = doTest("attributes", true)
   def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", true)
-  def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", false)
+  def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", true)
   def test_avoid(): Unit = doTest("avoid", false)
   def test_B(): Unit = doTest("B", true)
   def test_backquoted_type_operator(): Unit = doTest("backquoted_type_operator", true)

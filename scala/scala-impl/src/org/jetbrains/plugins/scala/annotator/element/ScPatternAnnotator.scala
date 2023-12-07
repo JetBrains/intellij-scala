@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
@@ -150,9 +151,10 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         reference match {
           case Some(ref) =>
             ref.bind() match {
-              case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapply" => fun.returnType match {
+              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Right(rt) =>
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun)
+                  val substitutor = PatternTypeInference.doTypeInference(pattern, rt)
+                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns)
                   val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
                     val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
@@ -163,7 +165,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
               case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapplySeq" => fun.returnType match {
                 case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun) - 1
+                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns) - 1
                   if (expected > numPatterns) {
                     val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected.toString)
                     holder.createErrorAnnotation(pattern, message)
