@@ -64,7 +64,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
             }
 
             val isUnapplySeq = methodName == CommonNames.UnapplySeq
-            val params = ScPattern.unapplySubpatternTypes(returnType, args, method.asInstanceOf[ScFunction]).zipWithIndex
+            val params = ScPattern.unapplySubpatternTypes(returnType, args, method.asInstanceOf[ScFunction], args.getArgsCount).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {

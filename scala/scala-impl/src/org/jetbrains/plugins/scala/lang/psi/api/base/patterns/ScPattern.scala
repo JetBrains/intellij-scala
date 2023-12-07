@@ -209,7 +209,7 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
+              val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun, totalNumberOfPatterns)
 
               if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
               else if (argIndex < args.length)                   Some(subst(args(argIndex)).unpackedType)
@@ -226,7 +226,7 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
+              val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun, totalNumberOfPatterns)
 
               if (subpatternTpes.isEmpty) None
               else {
@@ -293,20 +293,18 @@ object ScPattern {
   }
 
   def expectedNumberOfExtractorArguments(
-    returnType: ScType,
-    place:      PsiElement,
-    fun:        ScFunction
+    returnType:         ScType,
+    place:              PsiElement,
+    fun:                ScFunction,
+    expectedComponents: Int
   ): Int =
-    unapplySubpatternTypes(returnType, place, fun).size
+    unapplySubpatternTypes(returnType, place, fun, expectedComponents).size
 
   case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
       val selectors = extractPossibleProductParts(tpe, place)
-      val minSelectors =
-        if (place.isInScala3File) 1
-        else 2
-      if (selectors.length >= minSelectors) Some(selectors)
-      else                                  None
+      if (selectors.length >= 2) Some(selectors)
+      else                       None
     }
   }
 
@@ -374,13 +372,14 @@ object ScPattern {
         case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
       })
 
-  private[this] def productElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
+
+  private[this] def scala2ProductElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
     if (returnTpe.widenIfLiteral.isBoolean) Seq.empty
     else {
       lazy val byNameExtractor = ByNameExtractor(place)
       val extracted            = extractedType(returnTpe, place)
 
-      extracted.orElse(place.isInScala3File.option(returnTpe)).map {
+      extracted.map {
         case tpe if !place.isInScala3File && isOneArgSyntheticUnapply(fun) => Seq(tpe)
         case TupleType(comps)                                              => comps
         case byNameExtractor(comps)                                        => comps
@@ -388,9 +387,99 @@ object ScPattern {
       }.getOrElse(Seq.empty)
     }
 
-  def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] = {
+
+  /**
+   * Returns the types of subpatterns for all applicable matching methods in scala 3 in the order of precedence.
+   * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
+   */
+  private[this] def scala3ProductElementTypes(tpe: ScType, place: PsiElement): LazyList[Seq[ScType]] = {
+    def withAutoTupling(types: Seq[ScType]): Option[Seq[ScType]] =
+      types match {
+        case Seq(TupleType(comps)) => Some(comps)
+        case _                     => None
+      }
+
+    def isProduct: Boolean = {
+      val productFqn = "scala.Product"
+      val baseTpes = Iterator(tpe) ++ BaseTypes.iterator(tpe)
+      baseTpes.exists {
+        case ExtractClass(cls) if cls.qualifiedName == productFqn => true
+        case _                                                    => false
+      }
+    }
+
+    /*
+     * Scala 3 product match for types that implement scala.Product
+     */
+    if (tpe.widenIfLiteral.isBoolean) {
+      // if tpe is a boolean then it cannot be any of the other matches
+      // so we don't even need to try them and can just return
+      return LazyList(Seq.empty)
+    }
+
+    /*
+     * Scala 3 product match for types that implement scala.Product
+     * and have _1..._N methods
+     */
+    lazy val productMatch = tpe match {
+      case TupleType(comps) => Some(comps)
+      case _ if isProduct   => Some(extractPossibleProductParts(tpe, place)).filter(_.nonEmpty)
+      case _                => None
+    }
+
+    /*
+     * Scala 3 single match for types that conform to
+     * {
+     *   def isEmpty: Boolean
+     *   def get: S
+     * }
+     * // S is the single match
+     */
+    lazy val singleMatch = extractedType(tpe, place)
+
+    /*
+     * # Named based match
+     * If there was a single match and S has _1, _2, ... _N methods (N >= 2),
+     * then these can be matched as well
+     */
+    def nameBasedMatch: Option[Seq[ScType]] = singleMatch
+      .map {
+        case TupleType(comps) => comps
+        case tpe => extractPossibleProductParts(tpe, place)
+      }
+      .filter(_.length >= 2)
+
+    (
+      productMatch #::
+      productMatch.flatMap(withAutoTupling) #::
+      singleMatch.map(Seq(_)) #::
+      nameBasedMatch #::
+      LazyList.empty
+    ).flatten
+  }
+
+  /*
+   * Returns the types of the subpatterns when matching `returnTpe`
+   * In Scala3's matching semantics the matching method that is applicable depends
+   * on the number of receiving subpatterns, here given by `expectedComponents`.
+   * If you are in a situation where you don't know the amount of receiving subpatterns,
+   * you can just give -1 and receive the types of the subpatterns for the matching method that
+   * has the highest precedence.
+   *
+   * TODO: Ideally this method should not take `expectedComponents` and simply return all applicable matching methods
+   *       That has to work for unapplySeq as well.
+   */
+  def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction, expectedComponents: Int): Seq[ScType] = {
     val isUnapplySeq = fun.name == CommonNames.UnapplySeq
-    val tpes         = productElementTypes(returnTpe, place, fun)
+    val tpes =
+      if (place.isInScala3File) {
+        val tpes = scala3ProductElementTypes(returnTpe, place)
+        tpes
+          .find(_.length == expectedComponents)
+          .orElse(tpes.headOption) // return types of the highest precedence
+          .getOrElse(Seq.empty)
+      }
+      else scala2ProductElementTypes(returnTpe, place, fun)
 
     if (tpes.isEmpty)       Seq.empty
     else if (!isUnapplySeq) tpes

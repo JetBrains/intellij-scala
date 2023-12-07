@@ -161,6 +161,20 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |
       | val _z: A[T] = A.unapply(a)
       |}
+      |""".stripMargin,
+    """
+      |// testAutoTupling
+      |
+      |case class A[T](t: (T, T))
+      |
+      |def test[T](a: A[T]): Unit = {
+      | val A(t, _) = a
+      | val _t: T = t
+      |
+      | val _acc1: (T, T) = a._1
+      |
+      | val _z: A[T] = A.unapply(a)
+      |}
       |""".stripMargin
   ).map(testDataFromCode)
 }
