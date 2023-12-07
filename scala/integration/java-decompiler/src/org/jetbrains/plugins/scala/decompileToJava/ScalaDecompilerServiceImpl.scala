@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.decompileToJava
 
-import com.intellij.ide.highlighter.JavaClassFileType
+import com.intellij.application.options.CodeStyle
+import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.java.decompiler.IdeaLogger
@@ -26,18 +27,11 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
       }
       val saver = new ScalaResultSaver
 
-      val options: Map[String, AnyRef] = Map(
-        IFernflowerPreferences.REMOVE_BRIDGE -> "0",
-        IFernflowerPreferences.NEW_LINE_SEPARATOR -> "1",
-        //We will append the banner manually after concatenating all decompilation results for a given file
-        //IFernflowerPreferences.BANNER -> ScalaDecompilerServiceImpl.BANNER,
-      )
-
       val provider: IBytecodeProvider = (externalPath, _) => {
         val path = new File(FileUtil.toSystemIndependentName(externalPath))
         mappings.get(path).map(_.apply()).orNull
       }
-
+      val options: Map[String, AnyRef] = getFernflowerDecompilerOptions
       val decompiler = new BaseDecompiler(provider, saver, options.asJava, new IdeaLogger())
       mappings.foreach { case (path, _) => decompiler.addSource(path) }
       decompiler.decompileContext()
@@ -66,8 +60,9 @@ object ScalaDecompilerServiceImpl {
   type FileContents = () => Array[Byte]
 
   /**
-   *  Original text inspired by [[org.jetbrains.java.decompiler.IdeaDecompiler.BANNER]]. We use custom text
-   *  because the result of decompilation is concatenation of multiple decompilation results, not a single `.class` file
+   *  Original text inspired by [[org.jetbrains.java.decompiler.IdeaDecompilerKt.IDEA_DECOMPILER_BANNER]].<br>
+   *  We use custom text because the result of compilation is concatenation of multiple compilation results, not a single `.class` file
+   *  Original wording was "recreated from a .class file by IntelliJ IDEA"
    */
   private val Banner =
     """//
@@ -75,6 +70,48 @@ object ScalaDecompilerServiceImpl {
       |// (powered by FernFlower decompiler)
       |//
       |""".stripMargin.replace("\r", "")
+
+  /**
+   * @note for options used for Java .class files decompiler see:<br>
+   *       [[org.jetbrains.java.decompiler.IdeaDecompilerKt.getOptions]]<br>
+   *       Some of the option values were taken from there
+   */
+  private def getFernflowerDecompilerOptions: Map[String, AnyRef] = {
+    val options = CodeStyle.getDefaultSettings.getIndentOptions(JavaFileType.INSTANCE)
+    val indent = " " * options.INDENT_SIZE
+
+    val DISABLED = "0"
+    val ENABLED = "1"
+
+    Map(
+      IFernflowerPreferences.HIDE_DEFAULT_CONSTRUCTOR -> DISABLED,
+      IFernflowerPreferences.INDENT_STRING -> indent,
+
+      //I didn't find the original reasoning why it's disabled, but I guess in Scala it might be useful to see more internals
+      IFernflowerPreferences.REMOVE_BRIDGE -> DISABLED,
+      //I guess the same reasoning as with `REMOVE_BRIDGE`
+      IFernflowerPreferences.REMOVE_SYNTHETIC -> DISABLED,
+
+      //This option is needed in order it works on Windows (otherwise the result will contain `\r` and document.setText won't work)
+      IFernflowerPreferences.NEW_LINE_SEPARATOR -> ENABLED,
+
+      //example: show `Option<String> foo()` instead of `Option foo()`
+      IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES -> ENABLED,
+
+      //avoid very long decompilation
+      //value is copied from IdeaDecompilerKt
+      IFernflowerPreferences.MAX_PROCESSING_METHOD -> 60.asInstanceOf[java.lang.Integer],
+
+      //value is copied from IdeaDecompilerKt
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE -> ENABLED,
+
+      //Skipping the BANNER - we will append the banner manually after concatenating all decompilation results for a given file
+      //IFernflowerPreferences.BANNER -> ScalaDecompilerServiceImpl.BANNER,
+
+      //it's used in IdeaDecompilerKt, but I have no idea what it affects from the user perspective
+      //IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES -> ENABLED,
+    )
+  }
 
   private def getFileContents(vf: VirtualFile): FileContents =
     () => vf.contentsToByteArray(false)
