@@ -4,6 +4,7 @@ import com.intellij.util.ThrowableRunnable
 import junit.framework.{Test, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken, SimpleTestCase}
+import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.typeInference.Scala3CaseClassTest
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -33,8 +34,10 @@ abstract class GeneratedTestSuiteFactory {
     override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(Scala3CaseClassTest)
     override protected def supportedIn(version: ScalaVersion): Boolean = version >= minScalaVersion
 
-    override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-      checkTextHasNoErrors(testData.testCode)
+    override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+      if (!testData.isFailing)
+        checkTextHasNoErrors(testData.testCode)
+    }
   }
 
   //noinspection JUnitMalformedDeclaration
@@ -55,10 +58,29 @@ object GeneratedTestSuiteFactory {
     def testName: String
     def testCode: String
     def checkCodeFragment: String
+    def failureExpectation: Option[FailureExpectation] = None
+
+    final def isFailing: Boolean = failureExpectation.nonEmpty
   }
 
+  sealed case class FailureExpectation(errors: Seq[TestDataError])(val linesCovered: Boolean, val messagesCovered: Boolean) {
+    assert(!linesCovered || errors.forall(_.line.nonEmpty))
+    assert(!messagesCovered || errors.forall(_.message.nonEmpty))
+  }
+  object FailureExpectation {
+    def fromErrors(errors: Seq[TestDataError], linesCovered: Boolean = false, messagesCovered: Boolean = false): Option[FailureExpectation] =
+      errors.nonEmpty.option(FailureExpectation(errors)(linesCovered, messagesCovered))
+  }
+
+  case class TestDataError(line: Option[Int], message: Option[TestDataErrorMessage]) {
+    assert(line.nonEmpty || message.nonEmpty)
+  }
+
+  case class TestDataErrorMessage(scalaPluginMessage: String, scalaCompilerMessage: String)
+
   case class SimpleTestData(override val testName: String,
-                            override val testCode: String) extends TestData {
+                            override val testCode: String,
+                            override val failureExpectation: Option[FailureExpectation]) extends TestData {
     override def checkCodeFragment: String = testCode
   }
 
@@ -69,7 +91,13 @@ object GeneratedTestSuiteFactory {
       val testName = lines.head.trim.stripPrefix("//").trim
       assert(testName.nonEmpty)
 
-      SimpleTestData(testName, code)
+      val errors =
+        lines.zipWithIndex.collect {
+          case (line, lineNum) if line.contains("// Error") =>
+            TestDataError(Some(lineNum + 1), None)
+        }
+
+      SimpleTestData(testName, code.trim, FailureExpectation.fromErrors(errors, linesCovered = true))
     }
   }
 
