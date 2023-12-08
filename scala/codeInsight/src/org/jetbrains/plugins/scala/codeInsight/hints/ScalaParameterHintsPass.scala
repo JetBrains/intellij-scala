@@ -95,7 +95,7 @@ object ScalaInlayParameterHintsPass {
     (regular ++ varargs.headOption).filter {
       case (argument, _) if !isNameable(argument) => false
       case (_: ScUnderscoreSection, _) => false
-      case (_, parameter) if parameter.name.length <= 1 => false
+      case (_, parameter) if parameter.name.isEmpty || !ScalaHintsSettings.xRayMode && parameter.name.length == 1 => false
       case (argument, _) => isUnclear(argument)
       case _ => true
     }.map {
