@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
@@ -208,15 +209,16 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
       val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
-      libraries := scalaLibraries
+      val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
+      libraries := scalaLibraries :+ managedLibrary
 
       modules += new module("unmanagedDependency") {
-        lazy val unmanagedLibrary: library = new library("sbt: unmanaged-jars") {
+        lazy val unmanagedLibrary: library = new library(s"sbt: ${Sbt.UnmanagedLibraryName}") {
           libClasses += (getTestProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
         }
 
         libraries := Seq(unmanagedLibrary)
-        val myLibraryDependencies: Seq[library] = unmanagedLibrary +: scalaLibraries
+        val myLibraryDependencies: Seq[library] = unmanagedLibrary +: managedLibrary +: scalaLibraries
         libraryDependencies := myLibraryDependencies
       }
     }
