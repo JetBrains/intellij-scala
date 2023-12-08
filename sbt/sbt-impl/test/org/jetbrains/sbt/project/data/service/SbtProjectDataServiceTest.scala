@@ -46,7 +46,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
   def testValidJavaSdk(): Unit =
     doTestSdk(
       Option(JdkByName("1.8")),
-      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
+      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdkName(LanguageLevel.JDK_1_8.toJavaVersion)),
       LanguageLevel.JDK_1_8,
       expectedProjectLanguageLevelIsDefault = true
     )

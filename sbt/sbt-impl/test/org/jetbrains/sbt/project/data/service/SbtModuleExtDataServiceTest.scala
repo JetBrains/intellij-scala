@@ -83,13 +83,13 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
 
   def testValidJavaSdk(): Unit =
     doTestSdk(Some(JdkByName("1.8")),
-      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
+      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdkName(LanguageLevel.JDK_1_8.toJavaVersion)),
       LanguageLevel.JDK_1_8)
 
   def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
     doTestSdk(Some(JdkByName("1.8")),
       Seq("-source", "1.6"),
-      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
+      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdkName(LanguageLevel.JDK_1_8.toJavaVersion)),
       LanguageLevel.JDK_1_6)
 
   def testInvalidSdk(): Unit =
@@ -99,7 +99,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
     doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
 
   def testValidJdkByHome(): Unit = {
-    val jdk = ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName)
+    val jdk = ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdkName(LanguageLevel.JDK_1_8.toJavaVersion))
     doTestSdk(Some(JdkByHome(new File(jdk.getHomePath))), jdk, LanguageLevel.JDK_1_8)
   }
 
