@@ -750,11 +750,8 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |""".stripMargin
 
     val editorAndFile = prepareWorksheetEditor(worksheetText, scratchFile = true)
-    val profile = getModule.scalaCompilerSettingsProfile
-    val newSettings = profile.getSettings.copy(
-      additionalCompilerOptions = Seq("-Werror", "-Xfatal-warnings")
-    )
-    profile.setSettings(newSettings)
+
+    setAdditionalCompilerOptions(Seq("-Werror", "-Xfatal-warnings"))
 
     doRenderTestWithoutCompilationChecks(editorAndFile,
       s"""
