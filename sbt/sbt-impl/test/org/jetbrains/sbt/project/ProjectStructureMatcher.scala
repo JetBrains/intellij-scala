@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{ContentEntry, LanguageLevelModuleExtensionImpl, ModuleRootManager}
+import com.intellij.openapi.roots.{ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
@@ -16,8 +16,7 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLibraryProperties}
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
@@ -232,7 +231,14 @@ trait ProjectStructureMatcher {
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType]): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
     assertNamesEqualIgnoreOrder(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
+    assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actualLibraryEntries)
     pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+  }
+
+  private def assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actual: Seq[LibraryOrderEntry]): Unit = {
+    val librariesWithoutScalaSDK = actual.map(_.getLibrary).filterNot(_.isScalaSdk)
+    val index = librariesWithoutScalaSDK.indexWhere(_.getName == s"sbt: ${Sbt.UnmanagedLibraryName}")
+    assert(index == 0 || index == -1, "Library for unmanaged jars exists, but it is not the highest in the order")
   }
 
   private def assertDependencyScopeAndExportedFlagEqual(expected: dependency[_], actual: roots.ExportableOrderEntry): Unit = {
