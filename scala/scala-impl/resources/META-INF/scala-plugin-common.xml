@@ -1968,9 +1968,7 @@
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
-        <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
-            <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
-        </action>
+        <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction"/>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConversions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
