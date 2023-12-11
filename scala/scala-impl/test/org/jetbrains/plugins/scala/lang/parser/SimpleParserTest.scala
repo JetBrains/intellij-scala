@@ -272,4 +272,47 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |    <empty list>
       |""".stripMargin
   )
+
+  def test_line_comment_in_interpolated_string(): Unit = {
+    val stringDelim = "\"\"\""
+    checkTree(
+      s"""
+        |s$stringDelim
+        | $${ /* blub */ }
+        | $${
+        |   id // comment
+        | }
+        |$stringDelim
+        |""".stripMargin,
+      s"""
+        |ScalaFile
+        |  PsiWhiteSpace('\\n')
+        |  InterpolatedStringLiteral
+        |    InterpolatedExpressionPrefix: s
+        |      PsiElement(interpolated string id)('s')
+        |    PsiElement(interpolated multiline string)('\"\"\"\\n ')
+        |    PsiElement(interpolated string injection)('$$')
+        |    BlockExpression
+        |      PsiElement({)('{')
+        |      PsiWhiteSpace(' ')
+        |      PsiComment(BlockComment)('/* blub */')
+        |      PsiWhiteSpace(' ')
+        |      PsiElement(})('}')
+        |    PsiElement(interpolated multiline string)('\\n ')
+        |    PsiElement(interpolated string injection)('$$')
+        |    BlockExpression
+        |      PsiElement({)('{')
+        |      PsiWhiteSpace('\\n   ')
+        |      ReferenceExpression: id
+        |        PsiElement(identifier)('id')
+        |      PsiWhiteSpace(' ')
+        |      PsiComment(comment)('// comment')
+        |      PsiWhiteSpace('\\n ')
+        |      PsiElement(})('}')
+        |    PsiElement(interpolated multiline string)('\\n')
+        |    PsiElement(interpolated string end)('\"\"\"')
+        |  PsiWhiteSpace('\\n')
+        |""".stripMargin
+    )
+  }
 }
