@@ -95,7 +95,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           if (name != "<empty>" && (!containsPackageObject || name.contains('.'))) {
             sb ++= "package "
-            val parts = name.split('.').map(id)
+            val parts = name.split('.').map(id(_))
             if (containsPackageObject) {
               sb ++= parts.init.mkString(".")
             } else {
@@ -493,7 +493,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         val qualifier = textOfType(tail)
         val qualifierInParens = if (selector == "#" && tail.is(REFINEDtpt)) "(" + qualifier + ")" else qualifier
         if (qualifier.nonEmpty) qualifierInParens + selector + id(name) else id(name)
-      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id).mkString(".")
+      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id(_)).mkString(".")
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
         val simpleBase = if (infixTypes) simple0(base) else base
@@ -623,7 +623,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
-          sb ++= "@" + simple(name.split('.').map(id).mkString("."))
+          sb ++= "@" + simple(name.split('.').map(id(_)).mkString("."))
           tail match {
             case Node3(TYPEAPPLY, _, Seq(_, args: _*)) =>
               sb ++= "["
@@ -839,7 +839,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           val isSyntheticParam = node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC))
           if (!isSyntheticParam) {
-            val nameId = id(name)
+            val nameId = id(name, parameter = true)
             sb ++= nameId
             if (needsSpace(nameId)) {
               sb ++= " "
@@ -972,8 +972,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
   }
 
-  private def id(s: String): String =
-    if (Keywords(s) || !isIdentifier(s)) "`" + s + "`" else s
+  private def id(s: String, parameter: Boolean = false): String =
+    if (Keywords(s) || !isIdentifier(s) || parameter && s == "using") "`" + s + "`" else s
 
   private def isIdentifier(s: String): Boolean = !(s.isEmpty || s.contains("//") || s.contains("/*")) && {
     if (s(0) == '_' || s(0) == '$' || Character.isUnicodeIdentifierStart(s(0))) {
