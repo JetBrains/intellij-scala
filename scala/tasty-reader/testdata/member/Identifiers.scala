@@ -48,4 +48,6 @@ trait Identifiers {
     def & : Int = ???
 
   def contextBound[& : Ordering]: Unit = ???
+
+  def using(`using`: Int): Int = ???
 }
