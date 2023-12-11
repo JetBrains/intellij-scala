@@ -47,6 +47,16 @@ object Scala3UnapplySeqTest extends GeneratedTestSuiteFactory.withHighlightingTe
        |
        |$tester_bs
        |""".stripMargin,
+    s"""
+       |//directSequenceMatchWithTypeParameters
+       |object A:
+       |  def unapplySeq[X](x: X): Seq[X] = ???
+       |
+       |def test[Z](z: Z): Unit =
+       |  val A(x, y) = z
+       |  val _x: Z = x
+       |  val _y: Z = y
+       |""".stripMargin,
     // ============= Direct Product-Sequence match =============
     s"""
        |// directProductSequenceMatchWithSeqAndTuple
@@ -169,6 +179,36 @@ object Scala3UnapplySeqTest extends GeneratedTestSuiteFactory.withHighlightingTe
        |
        |
        |$tester_s_i_bs
+       |""".stripMargin,
+    s"""
+       |// indirectProductSequenceMatchCustomWithTypeParameters
+       |class Custom[X, Y] extends scala.Product1[X]:
+       |  def canEqual(that: Any): Boolean = true
+       |  val _1 : X = ???
+       |  val _2 : Int = ???
+       |  val _3 : Seq[Y] = ???
+       |
+       |class Unapplied[X, Y]:
+       |  def isEmpty = false
+       |  def get: Custom[X, Y] = ???
+       |
+       |object A:
+       |  def unapplySeq[X, Y](i: (X, Y)): Unapplied[X, Y] = ???
+       |
+       |def test[X, Y](tuple: (X, Y)) = {
+       |  {
+       |    val A(x, i) = tuple
+       |    val _x: X = x
+       |    val _i: Int = i
+       |  }
+       |  {
+       |    val A(x, i, y, yy*) = tuple
+       |    val _x: X = x
+       |    val _i: Int = i
+       |    val _y: Y = y
+       |    val _yy: Seq[Y] = yy
+       |  }
+       |}
        |""".stripMargin,
 
 //    s"""
