@@ -899,7 +899,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
 object ScalaSigPrinter {
   val keywordList =
-    Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
+    Set(":", "=", "=>", "<-", "<:", "<%", ">:", "#", "@",
+      "true", "false", "null", "abstract", "case", "catch", "class", "def",
       "do", "else", "extends", "final", "finally", "for", "forSome", "if",
       "implicit", "import", "lazy", "macro", "match", "new", "object", "override",
       "package", "private", "protected", "return", "sealed", "super",
@@ -962,7 +963,7 @@ object ScalaSigPrinter {
 
     def escapeNonIdentifiers: String = {
       if (str == "<empty>") str
-      else if (!isIdentifier(str) || keywordList.contains(str) || str == "=" || str == "=>") "`" + str + "`"
+      else if (!isIdentifier(str) || keywordList.contains(str)) "`" + str + "`"
       else str
     }
 

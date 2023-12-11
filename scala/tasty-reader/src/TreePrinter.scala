@@ -1001,10 +1001,17 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
 private object TreePrinter {
   private val Keywords = Set(
+    ":",
     "=",
     "=>",
     "=>>",
     "?=>",
+    "<-",
+    "<:",
+    "<%",
+    ">:",
+    "#",
+    "@",
     "abstract",
     "case",
     "catch",
