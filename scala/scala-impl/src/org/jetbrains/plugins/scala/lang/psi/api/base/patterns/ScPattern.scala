@@ -354,11 +354,12 @@ object ScPattern {
    * }
    */
   private[this] def extractSequenceMatchType(tpe: ScType, place: PsiElement): Option[ScType] = {
+    val applyReturnTpe = ApplyBasedExtractor(place)
     for {
-      _  <- findMember("lengthCompare", tpe, place).orElse(findMember("length", tpe, place))
-      _  <- findMember("drop", tpe, place)
+      _  <- findMember("lengthCompare", tpe, place, parameterless = false).orElse(findMember("length", tpe, place))
+      _  <- findMember("drop", tpe, place, parameterless = false)
       _  <- findMember("toSeq", tpe, place)
-      t1 <- findMember("apply", tpe, place)
+      case applyReturnTpe(t1) <- Some(tpe)
     } yield t1
   }
 
@@ -512,7 +513,7 @@ object ScPattern {
         val productComponents = extractPossibleProductParts(v, place)
         productComponents.lastOption
           .flatMap(extractSequenceMatchType(_, place))
-          .map(UnapplySeqMatch.ProductSequence(productComponents, _))
+          .map(UnapplySeqMatch.ProductSequence(productComponents.init, _))
       }
 
       /**
@@ -540,16 +541,16 @@ object ScPattern {
     inner(tpe, extract = true)
   }
 
-  private def unapplySubpatternTypesScala3(returnTpe: ScType, place: PsiElement, fun: ScFunction, expectedComponents: Int): Seq[ScType] = {
+  private def unapplySubpatternTypesScala3(returnTpe: ScType, place: PsiElement, fun: ScFunction, expectedSubPatterns: Int): Seq[ScType] = {
     if (fun.name == CommonNames.Unapply) {
       val tpes = scala3ProductElementTypes(returnTpe, place)
       tpes
-        .find(_.length == expectedComponents)
+        .find(_.length == expectedSubPatterns)
         .orElse(tpes.headOption) // return types of the highest precedence
         .getOrElse(Seq.empty)
     } else {
       scala3UnapplySeqMatches(returnTpe, place)
-        .find(_.minArgPatterns <= expectedNumberOfExtractorArguments(returnTpe, place, fun, -1))
+        .find(_.minArgPatterns <= expectedSubPatterns)
         .map {
           case UnapplySeqMatch.Sequence(tpe) => Seq(tpe)
           case UnapplySeqMatch.ProductSequence(productComponents, tpe) =>
