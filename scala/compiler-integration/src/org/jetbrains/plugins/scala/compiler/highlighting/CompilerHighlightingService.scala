@@ -5,7 +5,7 @@ import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
@@ -96,7 +96,6 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   def triggerIncrementalCompilation(
     virtualFile: VirtualFile,
     module: Module,
-    sourceScope: SourceScope,
     document: Document,
     psiFile: PsiFile,
     debugReason: String
@@ -107,6 +106,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       BuildManager.getInstance().scheduleAutoMake()
       // clearOutputDirectories is invoked in AutomakeBuildManagerListener
     } else {
+      val sourceScope = calculateSourceScope(virtualFile)
       schedule(CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, psiFile, debugReason))
     }
   }
@@ -114,11 +114,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   def triggerDocumentCompilation(
     virtualFile: VirtualFile,
     module: Module,
-    sourceScope: SourceScope,
     document: Document,
     debugReason: String
-  ): Unit =
+  ): Unit = {
+    val sourceScope = calculateSourceScope(virtualFile)
     schedule(CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason))
+  }
 
   def triggerWorksheetCompilation(
     virtualFile: VirtualFile,
@@ -128,6 +129,19 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     debugReason: String
   ): Unit =
     schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason))
+
+  private def calculateSourceScope(virtualFile: VirtualFile): SourceScope = {
+    def sourceScope: SourceScope =
+      if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
+      else SourceScope.Production
+
+    ReadAction
+      .nonBlocking(() => sourceScope)
+      .expireWith(this) // Cancel when this service is disposed.
+      .expireWhen(() => project.isDisposed) // Cancel when this project is disposed.
+      .inSmartMode(project) // TestSourcesFilter.isTestSources can access file indices, so smart mode is required.
+      .executeSynchronously() // Already running in a background thread, execute in place.
+  }
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
@@ -167,7 +181,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         case m => m
       }
 
-      val sourceScope = if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test else SourceScope.Production
+      val sourceScope = calculateSourceScope(virtualFile)
       val incrementalRequest = CompilationRequest.IncrementalRequest(realModule, sourceScope, virtualFile, document, file, debugReason)
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
@@ -248,7 +262,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       if (document == null || module == null || psiFile == null)
         None
       else if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
-        val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
+        val sourceScope = calculateSourceScope(vf)
         Some((module, sourceScope, document, vf))
       }
       else None
