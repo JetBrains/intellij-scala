@@ -57,6 +57,7 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.VALUES, VALUES),
     new AttributesDescriptor(DisplayNames.VARIABLES, VARIABLES),
     new AttributesDescriptor(DisplayNames.LAZY, LAZY),
+    new AttributesDescriptor(DisplayNames.GIVEN, GIVEN),
     new AttributesDescriptor(DisplayNames.PARAMETER, PARAMETER),
     new AttributesDescriptor(DisplayNames.PARAMETER_OF_ANONIMOUS_FUNCTION, PARAMETER_OF_ANONIMOUS_FUNCTION),
     new AttributesDescriptor(DisplayNames.PATTERN, PATTERN),
@@ -126,6 +127,7 @@ object ScalaColorsAndFontsPage {
     val LOCAL_LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.lazy.val.var")
     val VALUES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.val")
     val VARIABLES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.var")
+    val GIVEN = ScalaOptionsBundle.message("options.scala.attribute.descriptor.given")
     val LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.lazy.val.var")
     val PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter")
     //TODO: rename ANONIMOUS -> ANONYMOUS
@@ -224,6 +226,11 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()
        |
        |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, <number>9</number><par>)</par>
+       |  <keyword>given</keyword> <given>ordering</given><colon>:</colon> <trait>Ordering</trait>[<predef>Int</predef>] <assign>=</assign> <keyword>null</keyword>
+       |
+       |  <keyword>class</keyword> <class>usage</class> <brace>{</brace>
+       |    <given>ordering</given>
+       |  <brace>}</brace>
        |<brace>}</brace>
        |
        |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par>
@@ -273,6 +280,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("abstract", ABSTRACT_CLASS)
     map.put("local", LOCAL_VALUES)
     map.put("val", VALUES)
+    map.put("given", GIVEN)
     map.put("param", PARAMETER)
     map.put("anon_param", PARAMETER_OF_ANONIMOUS_FUNCTION)
     map.put("method", METHOD_CALL)
