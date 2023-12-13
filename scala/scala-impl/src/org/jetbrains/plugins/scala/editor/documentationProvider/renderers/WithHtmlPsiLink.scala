@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.renderers
 
 import com.intellij.psi.{PsiClass, PsiModifier, PsiPackage}
-import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
+import org.jetbrains.plugins.scala.editor.documentationProvider.{HtmlPsiUtils, _}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{AccessModifierRenderer, ModifiersRenderer}
-import org.jetbrains.plugins.scala.editor.documentationProvider._
 
 private [documentationProvider] object WithHtmlPsiLink extends AccessQualifierRenderer {
   private val accessModifierRenderer = new AccessModifierRenderer(WithHtmlPsiLink) {
@@ -23,15 +25,22 @@ private [documentationProvider] object WithHtmlPsiLink extends AccessQualifierRe
   }
 
   val modifiersRenderer: ModifiersRenderer = new ModifiersRenderer(accessModifierRenderer) {
-    override def render(buffer: StringBuilder, modifierList: ScModifierList): Unit = {
+    override def render(buffer: StringBuilder, owner: ScModifierListOwner): Unit = {
+      val modifierList = owner.getModifierList
       modifierList
         .accessModifier
         .map(accessModifierRenderer.render)
         .foreach { modifierText => buffer.append(modifierText).append(' ') }
 
+      lazy val isGivenElement = owner match {
+        case _: ScGiven                 => true
+        case DesugaredTypeDefinition(_) => true
+        case _                          => false
+      }
+
       ModifiersRenderer
         .modifiers
-        .filter(modifierList.hasModifierProperty)
+        .filter(mod => modifierList.hasModifierProperty(mod) && !(mod.contentEquals("implicit") && isGivenElement))
         .foreach { modifier => buffer.appendKeyword(modifier).append(' ') }
     }
   }

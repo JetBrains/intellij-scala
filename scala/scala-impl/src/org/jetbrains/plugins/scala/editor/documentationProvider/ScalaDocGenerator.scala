@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, Psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScEnum}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL
@@ -136,20 +137,19 @@ object ScalaDocGenerator {
   }
 
   private def findActualComment(docOwner: PsiDocCommentOwner, param: Option[ScParameter]): Option[ActualComment] =
-    docOwner.getDocComment match {
-      case null =>
-        findSuperElementWithDocComment(docOwner) match {
-          case Some((base, baseComment)) => Some(ActualComment(base, baseComment, isInherited = true, param))
+    Option(docOwner.getDocComment) match {
+      case Some(comment) =>
+        Some(ActualComment(docOwner, comment, isInherited = false, param))
+      case None =>
+        docOwner match {
+          case DesugaredTypeDefinition(gvn) if gvn.getDocComment != null =>
+            Some(ActualComment(gvn, gvn.getDocComment, isInherited = false, param))
+          case method: ScFunction =>
+            findSuperMethodWithDocComment(method).map {
+              case (method, comment) => ActualComment(method, comment, isInherited = true, param)
+            }
           case _ => None
         }
-      case docComment =>
-        Some(ActualComment(docOwner, docComment, isInherited = false, param))
-    }
-
-  private def findSuperElementWithDocComment(docOwner: PsiDocCommentOwner): Option[(PsiDocCommentOwner, PsiDocComment)] =
-    docOwner match {
-      case method: ScFunction => findSuperMethodWithDocComment(method)
-      case _                  => None
     }
 
   private def findSuperMethodWithDocComment(method: ScFunction): Option[(PsiMethod, PsiDocComment)] = {
