@@ -34,7 +34,7 @@ object TypeMismatchHints {
     }
 
     val prefix = format match {
-      case InnerParentheses | OuterParentheses => Seq(Hint(Seq(Text("(")), element, suffix = false))
+      case InnerParentheses | OuterParentheses => Seq(Hint(Seq(Text("(")), element, suffix = false, corners = Corners.Left))
       case _ => Seq.empty
     }
 
@@ -62,7 +62,12 @@ object TypeMismatchHints {
         .map(e => 0.max(e.getText.takeWhile(_ != '\n').length - (if (isWhitespaceRequiredBeforeNextElement) 1 else 0)))
         .getOrElse(0)
 
-    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = typeMismatchHintContextMenu)
+    val corners = format match {
+      case InnerParentheses | OuterParentheses => Corners.Right
+      case _ => Corners.All
+    }
+
+    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = typeMismatchHintContextMenu, corners = corners)
 
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }

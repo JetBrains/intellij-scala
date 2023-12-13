@@ -236,13 +236,14 @@ private object ImplicitHintsPass {
     owner:  ImplicitArgumentsOwner
   ): Seq[Hint] = {
     val hintPrefix =
-      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = menu.ImplicitConversion)
+      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = menu.ImplicitConversion, corners = Corners.Left)
 
     val hintSuffix = Hint(
       Text(")") +: collapsedPresentationOf(conversion.implicitParameters, Option(owner)),
       e,
       suffix = true,
-      menu = menu.ImplicitArguments
+      menu = menu.ImplicitArguments,
+      corners = Corners.Right
     )
 
     Seq(hintPrefix, hintSuffix)

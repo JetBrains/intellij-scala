@@ -16,7 +16,8 @@ case class Hint(parts: Seq[Text],
                 menu: MenuProvider = MenuProvider.NoMenu,
                 margin: Option[Insets] = None,
                 relatesToPrecedingElement: Boolean = false,
-                offsetDelta: Int = 0) { //gives more natural behaviour
+                offsetDelta: Int = 0, //gives more natural behaviour
+                corners: Corners = Corners.All) {
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
   override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)

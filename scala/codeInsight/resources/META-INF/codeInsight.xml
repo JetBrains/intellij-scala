@@ -323,6 +323,8 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeTip"/>
 
         <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
+
+        <registryKey key="scala.round.hint.corners" defaultValue="false" restartRequired="false" description="Round hint corners"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">

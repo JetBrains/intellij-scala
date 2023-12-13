@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{Document, Editor, Inlay, InlayModel, RangeMarker}
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.util.ui.JBUI
-import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.annotator.hints.{Corners, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup.{AlignedInlayRenderer, AlignmentLine, ScalaMethodChainDisposableKey}
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
@@ -52,10 +52,14 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
   locally {
     inlays =
       for (line <- alignmentLines; hint <- line.maybeHint) yield {
+        val corners =
+          if (line.eq(alignmentLines.head)) Corners.Top
+          else if (line.eq(alignmentLines.last)) Corners.Bottom
+          else Corners.None
         val inlay = inlayModel.addAfterLineEndElement(
           hint.endOffset,
           NonSoftWrappingInlayProperties,
-          new AlignedInlayRenderer(line, hint.textParts, recalculateGroupsOffsets)
+          new AlignedInlayRenderer(line, hint.textParts, corners, recalculateGroupsOffsets)
         )
         inlay.putUserData(ScalaMethodChainKey, true)
         inlay
@@ -113,8 +117,8 @@ private object AlignedInlayGroup {
     def margin: Int = targetX - lineEndX
   }
 
-  private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text], recalculateGroupsOffsets: Editor => Unit)
-    extends TextPartsHintRenderer(textParts, ScalaMethodChainInlayHintsPass.methodChainContextMenu) {
+  private class AlignedInlayRenderer(val line: AlignmentLine, textParts: Seq[Text], corners: Corners, recalculateGroupsOffsets: Editor => Unit)
+    extends TextPartsHintRenderer(textParts, ScalaMethodChainInlayHintsPass.methodChainContextMenu, corners) {
 
     private var cached: Cached = Cached(lineEndX = 0, targetX = 0)
 
