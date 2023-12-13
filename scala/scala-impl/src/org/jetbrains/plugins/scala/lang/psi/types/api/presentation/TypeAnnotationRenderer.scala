@@ -5,6 +5,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 
@@ -21,8 +22,10 @@ class TypeAnnotationRenderer(
   def renderWithoutColon(buffer: StringBuilder, typed: Typeable): Unit = {
     val typeText = renderType(typed)
     typed match {
-      case param: ScParameter => decoratedParameterType(buffer, param, typeText)
-      case _                  => buffer.append(typeText)
+      case param: ScParameter =>
+        decoratedParameterType(buffer, param, typeText)
+      case _                  =>
+        buffer.append(typeText)
     }
   }
 
@@ -51,8 +54,10 @@ class TypeAnnotationRenderer(
 
   private def typeAnnotation(typed: Typeable): TypeResult =
     typed match {
-      case fun: ScFunction => fun.returnType
-      case _               => typed.`type`()
+
+      case givenDef: ScGivenDefinition => givenDef.givenType()
+      case fun: ScFunction             => fun.returnType
+      case _                           => typed.`type`()
     }
 
   private def decoratedParameterType(buffer: StringBuilder, param: ScParameter, typeText: String): Unit = {

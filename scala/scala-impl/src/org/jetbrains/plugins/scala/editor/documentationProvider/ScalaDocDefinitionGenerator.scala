@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -43,13 +44,15 @@ private class ScalaDocDefinitionGenerator private(
 
   private def generate(): Unit =
     elementWithDoc match {
-      case typeDef: ScTypeDefinition => appendTypeDef(typeDef)
-      case fun: ScFunction           => appendFunction(fun)
-      case tpe: ScTypeAlias          => appendTypeAlias(tpe)
-      case decl: ScValueOrVariable   => appendValOrVar(decl)
-      case pattern: ScBindingPattern => appendBindingPattern(pattern)
-      case param: ScParameter        => appendParameter(param)
-      case _                         =>
+      case DesugaredTypeDefinition(gvn) => appendGivenDef(gvn)
+      case gvn: ScGivenDefinition       => appendGivenDef(gvn)
+      case typeDef: ScTypeDefinition    => appendTypeDef(typeDef)
+      case fun: ScFunction              => appendFunction(fun)
+      case tpe: ScTypeAlias             => appendTypeAlias(tpe)
+      case decl: ScValueOrVariable      => appendValOrVar(decl)
+      case pattern: ScBindingPattern    => appendBindingPattern(pattern)
+      case param: ScParameter           => appendParameter(param)
+      case _                            =>
     }
 
   private def appendDefinitionSection(mainPart: => Unit): Unit = {
@@ -123,10 +126,11 @@ private class ScalaDocDefinitionGenerator private(
     }
 
     element match {
-      case _: ScObject              => // ignore, object doesn't need type annotation
-      case typed: ScTypedDefinition => typeAnnotationRenderer.render(builder, typed)
-      case typed: ScValueOrVariable => typeAnnotationRenderer.render(builder, typed)
-      case _                        =>
+      case DesugaredTypeDefinition(gvn) => typeAnnotationRenderer.render(builder, gvn)
+      case _: ScObject                  => // ignore, object doesn't need type annotation
+      case typed: ScTypedDefinition     => typeAnnotationRenderer.render(builder, typed)
+      case typed: ScValueOrVariable     => typeAnnotationRenderer.render(builder, typed)
+      case _                            =>
     }
   }
 
@@ -147,6 +151,12 @@ private class ScalaDocDefinitionGenerator private(
         builder.append("\n")
         builder.append(extendsListRendered)
       }
+    }
+
+  private def appendGivenDef(givenDef: ScGivenDefinition): Unit =
+    appendDefinitionSection {
+      appendContainingClass(givenDef)
+      appendDeclMainSection(givenDef)
     }
 
   private def appendFunction(fun: ScFunction): Unit =

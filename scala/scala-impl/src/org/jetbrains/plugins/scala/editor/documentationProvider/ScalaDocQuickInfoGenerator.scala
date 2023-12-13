@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -43,6 +44,7 @@ object ScalaDocQuickInfoGenerator {
     implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer(originalElement, substitutor)
     val buffer = new StringBuilder
     element match {
+      case scGiven: ScGiven                              => generateGivenInfo(buffer, scGiven)
       case clazz: ScTypeDefinition                       => generateClassInfo(buffer, clazz)
       case constructor: ScPrimaryConstructor             => generateClassInfo(buffer, constructor.containingClass)
       case function: ScFunction                          => generateFunctionInfo(buffer, function)
@@ -146,6 +148,15 @@ object ScalaDocQuickInfoGenerator {
     typeParamsRenderer.renderParams(buffer, function)
     functionParametersRenderer.renderClauses(buffer, function.paramClauses.clauses)
     simpleTypeAnnotationRenderer.render(buffer, function)
+  }
+
+  private def generateGivenInfo(buffer: StringBuilder, scGiven: ScGiven)
+                               (implicit typeRenderer: TypeRenderer): Unit = {
+    renderMemberHeader(buffer, scGiven)
+    modifiersRenderer.render(buffer, scGiven)
+    buffer.append("given ")
+    buffer.append(scGiven.name)
+    simpleTypeAnnotationRenderer.render(buffer, scGiven)
   }
 
   private def renderMemberHeader(buffer: StringBuilder, member: ScMember): Unit =
@@ -264,9 +275,9 @@ object ScalaDocQuickInfoGenerator {
       }
   }
 
-  private def modifiersRenderer: ModifiersRendererLike = (buffer, modList) => {
+  private def modifiersRenderer: ModifiersRendererLike = (buffer, modListOwner) => {
     import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
-    modList.modifiers.foreach { m =>
+    modListOwner.getModifierList.modifiers.foreach { m =>
       buffer.append(m.text).append(" ")
     }
   }

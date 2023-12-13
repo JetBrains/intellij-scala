@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsi
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 import javax.swing.Icon
 
@@ -43,13 +45,22 @@ class ScGivenDefinitionImpl(
 
   override def nameId: PsiElement = nameElement.getOrElse(extendsBlock)
 
-  override protected def nameInner: String = {
-    val explicitName = nameElement.map(_.getText)
-    val typeElements = extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
+  override def givenType(): TypeResult =
+    typeElements
+      .headOption
+      .map(_.`type`())
+      .getOrElse(`type`())
 
-    explicitName
+  override protected def nameInner: String =
+    nameElement
+      .map(_.getText)
       .getOrElse(ScalaPsiUtil.generateGivenName(typeElements: _*))
-  }
+
+  private def typeElements: Seq[ScTypeElement] =
+    extendsBlock
+      .templateParents
+      .toSeq
+      .flatMap(_.typeElements)
 
   override def clauses: Option[ScParameters] = _clauses()
 
