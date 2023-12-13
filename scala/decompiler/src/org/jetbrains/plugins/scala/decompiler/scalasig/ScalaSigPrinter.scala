@@ -599,7 +599,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case c @ Constant(v) => Constants.constantExpression(c).getOrElse(annotArgText(v))
       case Ref(v) => annotArgText(v)
       case AnnotArgArray(args) =>
-        args.map(ref => annotArgText(ref.get)).mkString("_root_.scala.Array(", ", ", ")")
+        args.map { ref =>
+          val arg = ref.get
+          if (arg != AnnotInfo) annotArgText(ref.get)
+          else                  ""
+        }.mkString("_root_.scala.Array(", ", ", ")")
       case t: Type => "_root_.scala.Predef.classOf[%s]" format toString(t)
       case null => "null"
       case _ => arg.toString

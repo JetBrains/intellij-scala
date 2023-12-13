@@ -109,11 +109,11 @@ case class SymAnnot(symbol: Ref[Symbol], infoRef: Ref[Type], annotArgs: Seq[Ref[
   def typeRef: Type = infoRef.get
 
   def args: Seq[ConstAnnotArg] = annotArgs.collect {
-    case ref if ref.get != Tree => ref.get
+    case ref if ref.get != Tree && ref.get != AnnotInfo => ref.get
   }
 
   def namedArgs: Seq[(String, ConstAnnotArg)] = named.collect {
-    case (refName, refArg) if refArg.get != Tree => (refName.get.value, refArg.get)
+    case (refName, refArg) if refArg.get != Tree && refArg.get != AnnotInfo => (refName.get.value, refArg.get)
   }
 
   def hasArgs: Boolean = args.size + namedArgs.size > 0
@@ -122,7 +122,7 @@ case class SymAnnot(symbol: Ref[Symbol], infoRef: Ref[Type], annotArgs: Seq[Ref[
 case object Children extends Entry
 
 //case class AnnotInfo(body: AnnotInfoBody) extends ConstAnnotArg //seems inconsistent with PickleFormat
-case object AnnotInfo extends Entry
+case object AnnotInfo extends ConstAnnotArg
 
 case class AnnotArgArray(args: Seq[Ref[ConstAnnotArg]]) extends ConstAnnotArg
 
