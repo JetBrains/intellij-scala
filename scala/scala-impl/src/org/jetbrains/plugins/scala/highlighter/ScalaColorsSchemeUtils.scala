@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionEx
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 object ScalaColorsSchemeUtils {
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
-      case _: ScGiven                                 => Some(DefaultHighlighter.GIVEN)
+      case _: ScGiven | DesugaredTypeDefinition(_)    => Some(DefaultHighlighter.GIVEN)
       case _: ScEnum                                  => Some(DefaultHighlighter.ENUM)
       case _: ScEnumClassCase                         => Some(DefaultHighlighter.ENUM_CLASS_CASE)
       case _: ScEnumSingletonCase                     => Some(DefaultHighlighter.ENUM_SINGLETON_CASE)
@@ -61,7 +62,7 @@ object ScalaColorsSchemeUtils {
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {
-      case _: ScGiven                                                                    => DefaultHighlighter.GIVEN
+      case _: ScGiven | DesugaredTypeDefinition(_)                                       => DefaultHighlighter.GIVEN
       case _: ScEnum | ScObject.Companion(_: ScEnum)                                     => DefaultHighlighter.ENUM
       case _: ScEnumClassCase | ScObject.Companion(_: ScEnumClassCase)                   => DefaultHighlighter.ENUM_CLASS_CASE
       case _: ScEnumSingletonCase                                                        => DefaultHighlighter.ENUM_SINGLETON_CASE
