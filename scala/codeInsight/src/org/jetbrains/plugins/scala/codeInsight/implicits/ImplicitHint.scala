@@ -29,7 +29,7 @@ object ImplicitHint {
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
 
     val inlay = {
-      val renderer = new TextPartsHintRenderer(parts, menu) {
+      val renderer = new TextPartsHintRenderer(parts, menu, hint.corners) {
         override protected def getMargin(editor: Editor): Insets = margin.getOrElse(EmptyInsets)
       }
       if (ImplicitHints.expanded) {

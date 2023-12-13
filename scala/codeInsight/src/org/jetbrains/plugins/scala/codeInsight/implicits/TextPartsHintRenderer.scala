@@ -1,25 +1,27 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import com.intellij.ide.ui.AntialiasingType
+import com.intellij.ide.ui.{AntialiasingType, UISettingsUtils}
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.{GraphicsUtil, JBUI}
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
-import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.annotator.hints.{Corners, Text}
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.awt._
+import java.awt.geom.Path2D
 
 //TODO: why it's in "implicits" package?
 // It's also used in methodChains, rangeHints
 // We should move it to a proper package
-class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
+class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider, corners: Corners = Corners.All)
   extends HintRendererProxy(parts.map(_.string).mkString) {
 
   private val originalParts = parts
@@ -65,9 +67,13 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
         GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
         g.setColor(backgroundColor)
         if (p.left == 0 && p.right == 0) {
-          g.fillRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height)
+          if (RoundCorners) {
+            fillRoundRect(g2d, xPlusLeftMargin, r.y, widthMinusMargins, r.height, roundCorners = corners, ArcWidth, ArcHeight)
+          } else {
+            g.fillRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height)
+          }
         } else {
-          g.fillRoundRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height, 8, 8)
+          g.fillRoundRect(xPlusLeftMargin, r.y, widthMinusMargins, r.height, ArcWidth, ArcHeight)
         }
         config.restore()
       }
@@ -88,7 +94,16 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
             val config = GraphicsUtil.setupAAPainting(g)
             GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
             g.setColor(backgroundColor)
-            g.fillRect(xStart, r.y, width, r.height)
+            if (RoundCorners) {
+              val roundCorners = {
+                val left = if (text.eq(parts.head)) corners.intersect(Corners.Left) else Corners.None
+                val right = if (text.eq(parts.last)) corners.intersect(Corners.Right) else Corners.None
+                left.union(right)
+              }
+              fillRoundRect(g2d, xStart, r.y, width, r.height, roundCorners, ArcWidth, ArcHeight)
+            } else {
+              g.fillRect(xStart, r.y, width, r.height)
+            }
             config.restore()
           }
 
@@ -132,6 +147,29 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
         }
       }
     }
+  }
+
+  private def fillRoundRect(g: Graphics2D, x: Int, y: Int, width: Int, height: Int, roundCorners: Corners, arcWidth: Int, arcHeight: Int): Unit = {
+    import roundCorners._
+
+    val path = new Path2D.Double()
+    path.moveTo(if (topLeft) arcWidth else 0, 0)
+    path.lineTo(if (topRight) width - arcWidth else width, 0)
+    if (topRight) path.curveTo(width, 0, width, 0, width, arcHeight)
+    path.lineTo(width, if (bottomRight) height - arcHeight else height)
+    if (bottomRight) path.curveTo(width, height, width, height, width - arcWidth, height)
+    path.lineTo(if (bottomLeft) arcWidth else 0, height)
+    if (bottomLeft) path.curveTo(0, height, 0, height, 0, height - arcHeight)
+    path.lineTo(0, if (topLeft) arcHeight else 0)
+    if (topLeft) path.curveTo(0, 0, 0, 0, arcWidth, 0)
+    path.closePath()
+
+    val transform = g.getTransform
+
+    g.translate(x, y)
+    g.fill(path)
+
+    g.setTransform(transform)
   }
 
   private def editorFontTypeOf(fontType: Int) = fontType match {
@@ -206,6 +244,12 @@ private object TextPartsHintRenderer {
   private final val DefaultMargin = JBUI.emptyInsets()
 
   private final val DefaultPadding = JBUI.emptyInsets()
+
+  private def RoundCorners = Registry.is("scala.round.hint.corners")
+
+  private def ArcWidth = (8 * UISettingsUtils.getInstance.getCurrentIdeScale).round
+
+  private def ArcHeight = (8 * UISettingsUtils.getInstance.getCurrentIdeScale).round
 
   private final val ExpansionLevel = 5
 }
