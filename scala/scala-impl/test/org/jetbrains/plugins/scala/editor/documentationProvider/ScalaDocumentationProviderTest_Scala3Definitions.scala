@@ -85,7 +85,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">given</span> <span style="color:#000080;font-weight:bold;">ec</span>
+      """<span style="color:#000080;font-weight:bold;">given</span> <span style="color:#660e7a;font-style:italic;">ec</span>
         |: <span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>
         |""".stripMargin.withoutNewLines
 
