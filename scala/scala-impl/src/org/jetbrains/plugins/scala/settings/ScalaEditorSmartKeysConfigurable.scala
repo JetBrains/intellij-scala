@@ -36,7 +36,7 @@ final class ScalaEditorSmartKeysConfigurable extends BoundConfigurable(
       settings.DELETE_CLOSING_BRACE,
       settings.DELETE_CLOSING_BRACE = _)
 
-    panel.groupRowsRange(ScalaBundle.message("control.curly.braces.based.on.line.indents")) { groupPanel =>
+    panel.buttonsGroup(ScalaBundle.message("control.curly.braces.based.on.line.indents")) { groupPanel =>
       groupPanel.checkBoxCellWithTooltip(
         ScalaBundle.message("insert.block.braces.automatically.based.on.indentation"),
         ScalaBundle.message("insert.block.braces.automatically.based.on.indentation.tooltip"),

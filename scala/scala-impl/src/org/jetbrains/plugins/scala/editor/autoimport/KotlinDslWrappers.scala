@@ -48,6 +48,12 @@ object KotlinDslWrappers {
       })
     }
 
+    def buttonsGroup(@NlsContexts.Label title: String, indent: Boolean = true)(init: Panel => Unit): ButtonsGroup =
+      panel.buttonsGroup(title, indent, (groupPanel: Panel) => {
+        init(groupPanel)
+        KUnit
+      })
+
     def groupRowsRange(@NlsContexts.BorderTitle title: String, indent: Boolean = true)(init: Panel => Unit): RowsRange =
       panel.groupRowsRange(title, indent, false, false, (groupPanel: Panel) => {
         init(groupPanel)
