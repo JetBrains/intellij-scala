@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, Tes
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
@@ -131,7 +132,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  def beforeIncrementalCompilation(): Unit = invokeAndWait {
+  @RequiresEdt
+  def beforeIncrementalCompilation(): Unit = {
     val fileDocumentManager = FileDocumentManager.getInstance()
     val psiDocumentManager = PsiDocumentManager.getInstance(project)
     val unsaved = fileDocumentManager.getUnsavedDocuments

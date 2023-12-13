@@ -20,7 +20,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
-import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 
 import java.util.concurrent.ConcurrentHashMap
@@ -315,7 +315,8 @@ object CompileServerLauncher {
       }
       infoAndPrintOnTeamcity(s"compile server process stopped${debugReason.fold("")(", reason: " + _)}")
 
-      if (!stopped) {
+      // Do not log anything if not waiting for the compile server to exit at all
+      if (!stopped && !timeout.contains(Duration.Zero)) {
         val message = timeout match {
           case Some(duration) =>
             s"Compile server process failed to stop after ${duration.toMillis} ms"

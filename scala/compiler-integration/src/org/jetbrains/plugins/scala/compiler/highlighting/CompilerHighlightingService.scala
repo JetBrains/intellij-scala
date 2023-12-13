@@ -29,10 +29,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
+import java.io.EOFException
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture}
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Promise}
+import scala.concurrent.{Await, Future, Promise}
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -82,6 +83,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     executor.shutdown()
     indicatorExecutor.shutdown()
     priorityQueue.clear()
+    val task = compilationTask.getAndSet(null)
+    if (task ne null) {
+      task.cancel(true)
+    }
     val indicator = progressIndicator.getAndSet(null)
     if (indicator ne null) {
       indicator.cancel()
@@ -167,7 +172,13 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
-    performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, module, _))
+    performCompilation(delayIndicator = true) { client =>
+      // This function is already running on a background thread.
+      // Since there is no need to shift to any other thread, invoke the worksheet compiler in place
+      // and complete the future.
+      val compilation = Try(WorksheetHighlightingCompiler.compile(file, document, module, client))
+      Future.fromTry(compilation)
+    }
   }
 
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
@@ -175,21 +186,50 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
-      triggerService.beforeIncrementalCompilation()
-      IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
-      if (runDocumentCompiler && client.successful) {
-        triggerDocumentCompilationInAllOpenEditors(Some(client))
+      val promise = Promise[Unit]()
+      // Documents must be saved on the UI thread, so a thread shift is mandatory in this case.
+      invokeLater {
+        triggerService.beforeIncrementalCompilation()
+        // Schedule the rest of the execution of this incremental compilation request on a background thread.
+        executeOnPooledThread {
+          val computation = Try {
+            IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+            if (runDocumentCompiler && client.successful) {
+              triggerDocumentCompilationInAllOpenEditors(Some(client))
+            }
+            if (psiFile.is[ScalaFile] && client.successful) {
+              triggerService.enableDocumentCompiler(virtualFile)
+            }
+          }
+          promise.complete(computation)
+        }
       }
-      if (psiFile.is[ScalaFile] && client.successful) {
-        triggerService.enableDocumentCompiler(virtualFile)
-      }
+      promise.future
     }
   }
 
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
     val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
-    performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document)
+  }
+
+  private def executeDocumentCompilationRequest(
+    module: Module,
+    sourceScope: SourceScope,
+    virtualFile: VirtualFile,
+    document: Document
+  ): Unit = {
+    performCompilation(delayIndicator = true) { client =>
+      // This function is already running on a background thread.
+      // Since there is no need to shift to any other thread, invoke the document compiler in place
+      // and complete the future.
+      val compilation = Try {
+        DocumentCompiler.get(project)
+          .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
+      }
+      Future.fromTry(compilation)
+    }
   }
 
   private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
@@ -217,12 +257,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         case Some(c) =>
           DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
         case None =>
-          performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document)
       }
     }
   }
 
-  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Unit = {
+  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Future[Unit]): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
     val promise = Promise[Unit]()
@@ -232,9 +272,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         progressIndicator.set(indicator)
         val client = new CompilerEventGeneratingClient(project, indicator, Log)
-        val result = Try(compile(client))
-        progressIndicator.set(null)
-        promise.complete(result)
+        val future = compile(client)
+        promise.completeWith(future)
       }
     }
 
@@ -245,7 +284,17 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     val runnable: Runnable = () => indicator.show()
     indicatorExecutor.schedule(runnable, length, unit)
 
-    Await.result(promise.future, Duration.Inf)
+    try Await.result(promise.future, Duration.Inf)
+    catch {
+      case _: InterruptedException =>
+        // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
+        // Java thread interruption mechanism.
+      case _: EOFException =>
+        // Stopping the Scala Compiler Server can result EOF exceptions to be thrown when trying to read from the
+        // byte communication stream.
+    } finally {
+      progressIndicator.set(null)
+    }
   }
 
   // SCL-17295
