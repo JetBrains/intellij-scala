@@ -8,12 +8,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.EdtTestUtil
-import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
@@ -96,12 +95,11 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     })
 
     val module = ScalaUtil.getModuleForFile(virtualFile)(project)
-    val sourceScope = SourceScope.Production
     val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
     val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
     module.foreach { m =>
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, m, sourceScope, document, psiFile, "manual trigger from tests")
+        .triggerIncrementalCompilation(virtualFile, m, document, psiFile, "manual trigger from tests")
     }
     Await.result(promise.future, 60.seconds)
   }
