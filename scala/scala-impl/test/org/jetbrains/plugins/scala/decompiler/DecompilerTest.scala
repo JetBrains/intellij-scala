@@ -177,4 +177,6 @@ class DecompilerTest extends DecompilerTestBase {
   def testContextBounds(): Unit = {
     doTest("ContextBounds.class")
   }
+
+  def testScl20248(): Unit = doTest("Animal.class")
 }
