@@ -157,7 +157,7 @@ object JavaToScala {
       case f: PsiFile =>
         val children = f.getChildren.map(convertPsiToIntermediate(_, externalProperties)).toSeq
         MainConstruction(children)
-      case unnamedClass: PsiUnnamedClass =>
+      case unnamedClass: PsiImplicitClass =>
         val children = unnamedClass.getChildren.map(convertPsiToIntermediate(_, externalProperties)).toSeq
         MainConstruction(children)
       case e: PsiExpressionStatement => convertPsiToIntermediate(e.getExpression, externalProperties)
