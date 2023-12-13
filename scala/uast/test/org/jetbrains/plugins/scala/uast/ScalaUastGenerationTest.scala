@@ -437,7 +437,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testStringLiteral(): Unit = {
-    val str = uastElementFactory.createStringLiteralExpression("foo", null)
+    val str = uastElementFactory.createStringLiteralExpression("foo", null).asInstanceOf[ULiteralExpression]
     assertTrue(str.isString)
     assertEquals("foo", str.getValue)
     assertEquals(""""foo"""", str.getSourcePsi.getText)

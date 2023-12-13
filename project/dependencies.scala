@@ -13,9 +13,9 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.6"
   val zincVersion = "1.9.5"
-
+   
   // ATTENTION: check the comment in CommonUltimate when updating this version
-  val intellijVersion = "241.5078"
+  val intellijVersion = "241.5619"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
