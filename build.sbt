@@ -142,7 +142,9 @@ lazy val uast = newProject(
   "uast",
   file("scala/uast")
 ).dependsOn(
-  scalaImpl % "test->test;compile->compile"
+  scalaImpl % "test->test;compile->compile",
+).settings(
+  intellijPlugins += "JUnit".toPlugin
 )
 
 lazy val worksheet =

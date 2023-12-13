@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.uast.platform_inspections
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.codeInspection.test.junit.JUnitMalformedDeclarationInspection
+import com.intellij.execution.junit.codeInspection.JUnitMalformedDeclarationInspection
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
