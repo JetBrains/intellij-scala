@@ -203,7 +203,7 @@ object ScPattern {
           if fun.name == CommonNames.Unapply && fun.parameters.count(!_.isImplicitParameter) == 1 =>
 
           val subst = expected match {
-            case Some(tp) => PatternTypeInference.doTypeInference(contextPattern, tp)
+            case Some(tp) => substitutor.followed(PatternTypeInference.doTypeInference(contextPattern, tp))
             case _        => substitutor
           }
 
@@ -220,7 +220,7 @@ object ScPattern {
           if fun.name == CommonNames.UnapplySeq && fun.parameters.count(!_.isImplicitParameter) == 1 =>
 
           val subst = expected match {
-            case Some(tp) => PatternTypeInference.doTypeInference(contextPattern, tp)
+            case Some(tp) => substitutor.followed(PatternTypeInference.doTypeInference(contextPattern, tp))
             case _        => substitutor
           }
 
