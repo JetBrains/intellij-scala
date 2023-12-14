@@ -6,6 +6,7 @@ import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -89,12 +90,13 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
       val maybeEntity = block match {
         case Some(_ childOf (obj: ScObject)) if obj.isSyntheticObject =>
           val bl = materializeSyntheticObject(obj).extendsBlock
-          createEntity(bl, text)
-        case Some(it) => createEntity(it, text)
+          createEntity(bl, text, ref)
+        case Some(it) => createEntity(it, text, ref)
         case None => createEntity(ref, text)
       }
 
       for (entity <- maybeEntity) {
+        CodeStyleManager.getInstance(project).reformat(entity)
         ScalaPsiUtil.adjustTypes(entity)
         entity match {
           case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
@@ -173,18 +175,27 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     }
   }
 
-  private def createEntity(block: ScExtendsBlock, text: String): Option[PsiElement] = {
+  private def createEntity(block: ScExtendsBlock, text: String, ref: ScExpression): Option[PsiElement] = {
     val templateBody = block.getOrCreateTemplateBody
     val children = templateBody.children.toSeq
-    for (anchor <- children.find(_.is[ScSelfTypeElement]).orElse(children.headOption)) yield {
+
+    def findAnchor(): Option[PsiElement] = {
+      // ref inside the block, so find a suitable position directly after the member that contains ref
+      def childWithRef = children.find(_.getTextRange.contains(ref.getTextOffset))
+
+      // the last thing that is not { or whitespace
+      def lastMember = children
+        .reverseIterator
+        .drop(1) // drop }
+        .filterNot(_.is[PsiWhiteSpace])
+        .nextOption()
+
+      childWithRef.orElse(lastMember)
+    }
+
+    for (anchor <- findAnchor()) yield {
       val holder = anchor.getParent
-
-      val hasMembers = holder.children.containsInstanceOf[ScMember]
-
-      val entity = holder.addAfter(createElementFromText(text, block), anchor)
-      if (hasMembers) holder.addAfter(createNewLine(), entity)
-
-      entity
+      holder.addAfter(createElementFromText(text, block), anchor)
     }
   }
 
@@ -192,17 +203,16 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     for (anchor <- anchorForUnqualified(ref)) yield {
       val holder = anchor.getParent
 
-      val isUsageFirstElementInFile = anchor.getParent match {
-        case _: ScalaFile => anchor.getPrevSiblingNotWhitespace == null
-        case _            => false
+      if (holder.is[ScalaFile]) {
+        val entity = holder.addBefore(createElementFromText(text, ref), anchor)
+        val isUsageFirstElementInFile = entity.getPrevSiblingNotWhitespace == null
+        if (!isUsageFirstElementInFile)
+          holder.addBefore(createNewLine("\n\n"), entity)
+        holder.addAfter(createNewLine("\n\n"), entity)
+        entity
+      } else {
+        holder.addAfter(createElementFromText(text, ref), anchor)
       }
-      val entity = holder.addBefore(createElementFromText(text, ref), anchor)
-
-      if (!isUsageFirstElementInFile)
-        holder.addBefore(createNewLine("\n\n"), entity)
-      holder.addAfter(createNewLine("\n\n"), entity)
-
-      entity
     }
 
   private def typeFor(ref: ScReferenceExpression): Option[String] = ref.getParent match {
