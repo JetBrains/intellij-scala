@@ -439,6 +439,40 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}
        |""".stripMargin
   )
+
+  def test_comparison(): Unit = checkTextHasError(
+    s"""
+       |def test(): Unit = {
+       |  ${START}3 == 3$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_known_methods_without_sideeffects(): Unit = checkTextHasError(
+    s"""
+       |trait X
+       |def test(x: X): Unit = {
+       |  ${START}x.getClass$END
+       |  ${START}x.hashCode$END
+       |  ${START}x.toString$END
+       |  ${START}x.equals(x)$END
+       |  ${START}x.ne(x)$END
+       |  ${START}x.clone()$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_some_prefixes_without_sideeffects(): Unit = checkTextHasError(
+    s"""
+       |def isGood: Boolean = ???
+       |def canBeGood: Boolean = ???
+       |
+       |def test(x: Any): Unit = {
+       |  ${START}isGood$END
+       |  ${START}canBeGood$END
+       |}
+       |""".stripMargin
+  )
 }
 
 class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTestBase {

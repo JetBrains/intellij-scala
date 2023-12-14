@@ -40,6 +40,21 @@ object SideEffectsUtil {
     objectMethods :+ stringMethods
   }
 
+  private val knownMethodsWithoutSideEffects: Set[String] = Set(
+    "getClass",
+    "toString",
+    "hashCode",
+    "clone",
+    "equals"
+  )
+
+  private val methodPrefixesIndicatingNoSideEffect: ArraySeq[String] = ArraySeq(
+    "to",
+    "is",
+    "can",
+    // "get",
+  )
+
   def hasNoSideEffects(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = false)
 
   def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = true)
@@ -157,6 +172,9 @@ object SideEffectsUtil {
     if (knownUnsafeMethodNames.contains(methodName) && !allowThrows)
       return false
 
+    if (methodNameIndicatesNoSideEffects(methodName))
+      return true
+
     val methodClazzName = Option(m.containingClass).map(_.qualifiedName)
 
     methodClazzName match {
@@ -180,5 +198,9 @@ object SideEffectsUtil {
       case None => false
     }
   }
+
+  private def methodNameIndicatesNoSideEffects(name: String): Boolean =
+    knownMethodsWithoutSideEffects.contains(name) ||
+      methodPrefixesIndicatingNoSideEffect.exists(prefix => name.startsWith(prefix) && name.lift(prefix.length).forall(_.isUpper))
 }
 
