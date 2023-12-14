@@ -152,24 +152,21 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider, co
   private def fillRoundRect(g: Graphics2D, x: Int, y: Int, width: Int, height: Int, roundCorners: Corners, arcWidth: Int, arcHeight: Int): Unit = {
     import roundCorners._
 
+    val x2 = x + width; val y2 = y + height
+
     val path = new Path2D.Double()
-    path.moveTo(if (topLeft) arcWidth else 0, 0)
-    path.lineTo(if (topRight) width - arcWidth else width, 0)
-    if (topRight) path.curveTo(width, 0, width, 0, width, arcHeight)
-    path.lineTo(width, if (bottomRight) height - arcHeight else height)
-    if (bottomRight) path.curveTo(width, height, width, height, width - arcWidth, height)
-    path.lineTo(if (bottomLeft) arcWidth else 0, height)
-    if (bottomLeft) path.curveTo(0, height, 0, height, 0, height - arcHeight)
-    path.lineTo(0, if (topLeft) arcHeight else 0)
-    if (topLeft) path.curveTo(0, 0, 0, 0, arcWidth, 0)
+    path.moveTo(x + (if (topLeft) arcWidth else 0), y)
+    path.lineTo(x2 - (if (topRight) arcWidth else 0), y)
+    if (topRight) path.curveTo(x2, y, x2, y, x2, y + arcHeight)
+    path.lineTo(x2, y2 - (if (bottomRight) arcHeight else 0))
+    if (bottomRight) path.curveTo(x2, y2, x2, y2, x2 - arcWidth, y2)
+    path.lineTo(x + (if (bottomLeft) arcWidth else 0), y2)
+    if (bottomLeft) path.curveTo(x, y2, x, y2, x, y2 - arcHeight)
+    path.lineTo(x, y + (if (topLeft) arcHeight else 0))
+    if (topLeft) path.curveTo(x, y, x, y, x + arcWidth, y)
     path.closePath()
 
-    val transform = g.getTransform
-
-    g.translate(x, y)
     g.fill(path)
-
-    g.setTransform(transform)
   }
 
   private def editorFontTypeOf(fontType: Int) = fontType match {

@@ -300,9 +300,19 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case _ => ""
     }
     val members = {
-      val cases = // TODO check element types
-        if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
-        else Seq.empty
+      val cases =
+        if (isInEnum) {
+          def casesIn(pair: (Node, Node), name: String): Option[Seq[Node]] = Some(pair).collect {
+            case (Node2(VALDEF, Seq(name1)), Node3(TYPEDEF, Seq(name2), Seq(Node3(TEMPLATE, _, children), _: _*))) if name1 == name && name2 == name + "$" =>
+              children.filter(_.is(VALDEF, TYPEDEF))
+          }
+          val name = definition.get.name
+          def nextPair = definition.get.nextSibling.flatMap(n => n.nextSibling.map((n, _)))
+          def previousPair = definition.get.prevSibling.flatMap(n => n.prevSibling.map((_, n)))
+          nextPair.flatMap(casesIn(_, name)).orElse(previousPair.flatMap(casesIn(_, name))).getOrElse(Seq.empty)
+        } else {
+          Seq.empty
+        }
 
       children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases // TODO type member
     }
