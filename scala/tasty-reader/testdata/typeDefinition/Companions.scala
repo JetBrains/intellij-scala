@@ -29,13 +29,23 @@ trait Companions {
 
   object SerializableClass
 
-  enum Enum {
+  enum Enum1 {
     def instance: Int = ???
 
     case Case
   }
 
-  object Enum {
+  object Enum1 {
     def static: Int = ???
+  }
+
+  object Enum2 {
+    def static: Int = ???
+  }
+
+  enum Enum2 {
+    def instance: Int = ???
+
+    case Case
   }
 }
