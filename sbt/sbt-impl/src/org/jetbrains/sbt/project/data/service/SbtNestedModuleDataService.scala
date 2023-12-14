@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, Key}
+import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractModuleDataService
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.{getExternalProjectPath, isExternalSystemAwareModule}
@@ -13,18 +13,21 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.io.FileUtil.pathsEqual
 import com.intellij.openapi.vfs.VfsUtilCore
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
+import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, SetHasAsJava}
 
 class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModuleData]{
 
-  override def getTargetDataKey: Key[SbtNestedModuleData] = Sbt.sbtNestedModuleDataKey
+  import org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService.sbtNestedModuleType
+
+  override def getTargetDataKey: Key[SbtNestedModuleData] = SbtNestedModuleData.key
 
   override def computeOrphanData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
@@ -36,8 +39,8 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
       val orphanIdeModules = new java.util.ArrayList[Module]()
 
       modelsProvider.getModules.foreach { module =>
-        val isPossibleOrphan = !(module.isDisposed || !ExternalSystemApiUtil.isExternalSystemAwareModule(projectData.getOwner, module) ||
-          ExternalSystemApiUtil.getExternalModuleType(module) != Sbt.SbtNestedModuleTypeKey)
+        val isPossibleOrphan = !module.isDisposed && ExternalSystemApiUtil.isExternalSystemAwareModule(projectData.getOwner, module) &&
+          ExternalSystemApiUtil.getExternalModuleType(module) == sbtNestedModuleType
         if (isPossibleOrphan) {
           val rootProjectPath = ExternalSystemApiUtil.getExternalRootProjectPath(module)
           if (projectData.getLinkedExternalProjectPath.equals(rootProjectPath)) {
@@ -51,13 +54,13 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
     }
   }
 
-
   override def importData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
+    setModulesInExternalSystemSettings(project, toImport.asScala.toList)
     toImport.asScala.foreach { sbtNestedModuleNode =>
       val newInternalModuleName = generateNewInternalModuleNameIfApplicable(sbtNestedModuleNode, modelsProvider)
       newInternalModuleName match {
@@ -84,7 +87,7 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
 
   override def setModuleOptions(module: Module, moduleDataNode: DataNode[SbtNestedModuleData]): Unit = {
     super.setModuleOptions(module, moduleDataNode)
-    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(Sbt.SbtNestedModuleTypeKey)
+    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(sbtNestedModuleType)
   }
 
   private def generateNewInternalModuleNameIfApplicable(
@@ -105,19 +108,17 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
         parentModuleOriginalName
           .map(generateNewInternalModuleName(internalModuleName, moduleName, _, parentModuleActualName))
       } else {
-        None
+        Some(internalModuleName)
       }
     }
   }
 
   private def findParentModuleOriginalName(module: Module): Option[String] = {
     val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
-    moduleId match {
-      case Some(id) =>
-        val project = module.getProject
-        val moduleData = ExternalSystemUtil.getModuleDataNode(SbtProjectSystem.Id, project, id, None)
-        moduleData.map(_.getData.getModuleName)
-      case _ => None
+    moduleId.flatMap { id =>
+      val project = module.getProject
+      val moduleData = ExternalSystemUtil.getModuleDataNode(SbtProjectSystem.Id, project, id, None)
+      moduleData.map(_.getData.getModuleName)
     }
   }
 
@@ -131,6 +132,13 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
       s"$parentActualModuleName.$groupNameInsideBuild$moduleName"
   }
 
+  /**
+   * When new module is created, it must be ensured that IDEA will not be able to find an existing module with that name.
+   * Otherwise IDEA will prepend module name with parent directories names and the structure of the modules will be disturbed.
+   * The described situation happens in
+   * [[com.intellij.openapi.externalSystem.service.project.AbstractIdeModifiableModelsProvider#newModule(com.intellij.openapi.externalSystem.model.project.ModuleData)]] .<br>
+   * If the module name provided in the parameter is already being used by another module, a suffix consisting of a tilde and a number is appended to the module name (e.g. <code>~1</code>).
+   */
   private def findDeduplicatedModuleName(
     moduleName: String,
     modelsProvider: IdeModifiableModelsProvider,
@@ -143,7 +151,7 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
       if (ideModule == null) {
         isUnique = true
       } else {
-        moduleNameCandidate = moduleName + "~" + inc
+        moduleNameCandidate = SbtUtil.appendSuffixToModuleName(moduleName, inc)
         inc += 1
       }
     }
@@ -156,12 +164,30 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
     moduleData: SbtNestedModuleData
   ): Boolean = {
     val ideModule = modelsProvider.findIdeModule(moduleName)
-    Option(ideModule).exists { module =>
-      //note: in general this logic was taken from com.intellij.openapi.externalSystem.service.project.IdeModelsProviderImpl.isApplicableIdeModule
-      for (root <- ModuleRootManager.getInstance(module).getContentRoots) {
+    ideModule != null && {
+      //note: the logic is copied from the private method com.intellij.openapi.externalSystem.service.project.IdeModelsProviderImpl.isApplicableIdeModule
+      for (root <- ModuleRootManager.getInstance(ideModule).getContentRoots) {
         if (VfsUtilCore.pathEqualsTo(root, moduleData.getLinkedExternalProjectPath)) return true
       }
-      isExternalSystemAwareModule(moduleData.getOwner, module) && pathsEqual(getExternalProjectPath(module), moduleData.getLinkedExternalProjectPath)
+      isExternalSystemAwareModule(moduleData.getOwner, ideModule) && pathsEqual(getExternalProjectPath(ideModule), moduleData.getLinkedExternalProjectPath)
     }
   }
+
+  //note: before introducing SbtNestedModuleData setting modules in com.intellij.openapi.externalSystem.service.internal.ExternalSystemResolveProjectTask.doExecute was enough, but because
+  // the logic there does not take into account modules with keys different than ProjectKeys.MODULE it was needed to implement it on our own for SbtNestedModuleData.
+  // It is needed for com.intellij.openapi.externalSystem.service.project.IdeModelsProviderImpl.suggestModuleNameCandidates method to choose the proper delimiter for ModuleNameGenerator.
+  private def setModulesInExternalSystemSettings(project: Project, sbtNestedModules: List[_ <: DataNode[SbtNestedModuleData]]): Unit = {
+    val linkedProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
+    if (linkedProjectSettings != null) {
+      val sbtNestedModulePaths = sbtNestedModules.map(_.getData).map(_.externalConfigPath)
+
+      val externalModulePaths = (sbtNestedModulePaths ++ linkedProjectSettings.getModules.asScala.toSeq).toSet
+      linkedProjectSettings.setModules(externalModulePaths.asJava)
+    }
+  }
+}
+
+object SbtNestedModuleDataService {
+  @VisibleForTesting
+  val sbtNestedModuleType = "nestedProject"
 }

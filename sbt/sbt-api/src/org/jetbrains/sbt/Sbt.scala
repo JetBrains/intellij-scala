@@ -1,12 +1,9 @@
 package org.jetbrains.sbt
 
-import com.intellij.openapi.externalSystem.model.ProjectKeys
 import org.jetbrains.annotations.NonNls
-import com.intellij.openapi.externalSystem.model.Key
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import javax.swing.Icon
 
@@ -44,8 +41,6 @@ object Sbt {
   val Latest_1_0: Version = Version(BuildInfo.sbtLatest_1_0)
   val Latest_0_13: Version = Version(BuildInfo.sbtLatest_0_13)
 
-  val SbtNestedModuleTypeKey = "nestedProject"
-
   /**
    * '''ATTENTION!'''<br>
    * Don't do these icons `val`. They are initialized  in test suites fields (e.g. via Sbt.LatestVersion)
@@ -63,8 +58,4 @@ object Sbt {
    */
   def Icon: Icon = Icons.SBT
   def FolderIcon: Icon = Icons.SBT_FOLDER
-
-  val sbtNestedModuleDataKey: Key[SbtNestedModuleData] =
-    new Key(classOf[SbtNestedModuleData].getName, ProjectKeys.MODULE.getProcessingWeight + 3)
-
 }

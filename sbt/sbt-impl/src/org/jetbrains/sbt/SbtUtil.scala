@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -206,7 +206,7 @@ object SbtUtil {
   }
 
   def getSbtModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, Some(Sbt.sbtNestedModuleDataKey), key)
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, Some(SbtNestedModuleData.key), key)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects
@@ -360,5 +360,13 @@ object SbtUtil {
 
   private def environmentsToUse(passParentEnvironment: Boolean, userSetEnv: Map[String, String]) =
     if (passParentEnvironment) EnvironmentUtil.getEnvironmentMap.asScala ++ userSetEnv else userSetEnv
+
+  /**
+   * Appending a special suffix to the module name might be needed when unique module names are generated in
+   * [[org.jetbrains.sbt.project.SbtProjectResolver.ModuleUniqueInternalNameGenerator]] and when new modules are being created from <code>SbtNestedModuleData</code>.
+   * In the second case, this is necessary when it is detected that the module name is already occupied by another module.
+   */
+  def appendSuffixToModuleName(moduleName: String, inc: Int): String =
+    moduleName + "~" + inc
 
 }
