@@ -3,3 +3,104 @@ abstract class x {
  val x: t[scala.collection.mutable.Stack, Iterable]
 }
 -----
+ScalaFile
+  ScClass: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('x')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        ScTypeAliasDeclaration: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: m
+              PsiElement(identifier)('m')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Bound[x]
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: x
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Bound
+              PsiElement(identifier)('Bound')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: x
+                  PsiElement(identifier)('x')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: t[scala.collection.mutable.Stack, Iterable]
+            SimpleType: t
+              CodeReferenceElement: t
+                PsiElement(identifier)('t')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: scala.collection.mutable.Stack
+                CodeReferenceElement: scala.collection.mutable.Stack
+                  CodeReferenceElement: scala.collection.mutable
+                    CodeReferenceElement: scala.collection
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('collection')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('mutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Stack')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Iterable
+                CodeReferenceElement: Iterable
+                  PsiElement(identifier)('Iterable')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

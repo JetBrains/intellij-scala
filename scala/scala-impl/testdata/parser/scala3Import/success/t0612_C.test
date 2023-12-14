@@ -5,3 +5,43 @@ class C {
   Ob.f
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: app
+        PsiElement(identifier)('app')
+      PsiWhiteSpace('\n\n')
+      ScClass: C
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('C')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            <empty list>
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            ReferenceExpression: Ob.f
+              ReferenceExpression: Ob
+                PsiElement(identifier)('Ob')
+              PsiElement(.)('.')
+              PsiElement(identifier)('f')
+            PsiWhiteSpace('\n')
+            PsiElement(})('}')

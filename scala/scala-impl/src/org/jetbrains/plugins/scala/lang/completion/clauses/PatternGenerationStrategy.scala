@@ -28,7 +28,7 @@ object PatternGenerationStrategy {
         caseClauses.zip(components)
       )
 
-    def createClauses(useIndentationBasedSyntax: Boolean,
+    def createClauses(useIndentationBasedSyntax: Boolean = false,
                       prefix: Option[String] = None,
                       suffix: Option[String] = None,
                       rightHandSide: String = "")

@@ -3,7 +3,7 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.ParameterHintsPassFactory.forceHintsUpdateOnNextPass
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
@@ -36,7 +36,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
       file.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
     }
     if (editor.isOneLineMode ||
-      !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType) ||
+      !(settings.showMethodResultType || settings.showMemberVariableType || settings.showLocalVariableType || ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) ||
       (compilerErrorsEnabled && !ScalaHintsSettings.xRayMode)) {
       Seq.empty
     } else {
@@ -48,7 +48,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, TypePresentationContext(element), settings)
-      } yield info) ++ (if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_HINTS) collectXRayHints(editor, root) else Seq.empty)
+      } yield info) ++ (if (ScalaHintsSettings.xRayMode) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
 
@@ -58,20 +58,20 @@ private[codeInsight] trait ScalaTypeHintsPass {
   }
 
   private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings): Seq[Hint] = e match {
-    case e: ScParameter if e.typeElement.isEmpty =>
+    case e: ScParameter if e.typeElement.isEmpty && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScParameterClause] && e.getParent.getFirstChild.elementType != ScalaTokenTypes.tLPARENTHESIS)
-    case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] =>
+    case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScReferenceExpression, ScInfixExpr])
-    case _: ScReferencePattern | _: ScWildcardPattern if !e.getParent.is[ScPatternList, ScTypedPatternLike] =>
+    case _: ScReferencePattern | _: ScWildcardPattern if !e.getParent.is[ScPatternList, ScTypedPatternLike] && ScalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS =>
       hints(e, t, inParentheses = false)
     case _ => Seq.empty
   }
 
   private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings) = {
     if (inParentheses)
-      Seq(Hint(Seq(Text("(")), e, suffix = false), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Seq(Text("(")), e, suffix = false), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true))
     else
-      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, suffix = true, relatesToPrecedingElement = true))
   }
 }
 
@@ -94,7 +94,9 @@ private object ScalaTypeHintsPass {
           override def actionPerformed(e: AnActionEvent): Unit = {
             ScalaTypeHintsSettingsModel.navigateTo(e.getProject)
           }
-        }
+        },
+        Separator.getInstance,
+        ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
       )
     }
 
@@ -141,6 +143,6 @@ private object ScalaTypeHintsPass {
         case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => Seq(Text(" ="))
         case _ => Seq.empty
       }
-      text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength) ++ suffix)
+      text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength, anchor) ++ suffix)
     } yield Hint(text, anchor, suffix = true, menu, relatesToPrecedingElement = true)
 }

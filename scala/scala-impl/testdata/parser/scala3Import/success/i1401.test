@@ -24,3 +24,244 @@ trait Buffer[A] extends BufferLike[A, Buffer[A]]
 
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: i1401
+      PsiElement(identifier)('i1401')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Subtractable
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Subtractable')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: AS
+          PsiElement(identifier)('AS')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: Repr
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('Repr')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Subtractable[AS, Repr]
+            SimpleType: Subtractable
+              CodeReferenceElement: Subtractable
+                PsiElement(identifier)('Subtractable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: AS
+                CodeReferenceElement: AS
+                  PsiElement(identifier)('AS')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Repr
+                CodeReferenceElement: Repr
+                  PsiElement(identifier)('Repr')
+              PsiElement(])(']')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDeclaration: -
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('-')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: elem
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('elem')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: AS
+                      CodeReferenceElement: AS
+                        PsiElement(identifier)('AS')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: BufferLike
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BufferLike')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: BA
+          PsiElement(identifier)('BA')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: This
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('This')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: BufferLike[BA, This] with Buffer[BA]
+            ParametrizedType: BufferLike[BA, This]
+              SimpleType: BufferLike
+                CodeReferenceElement: BufferLike
+                  PsiElement(identifier)('BufferLike')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BA
+                  CodeReferenceElement: BA
+                    PsiElement(identifier)('BA')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: This
+                  CodeReferenceElement: This
+                    PsiElement(identifier)('This')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Buffer[BA]
+              SimpleType: Buffer
+                CodeReferenceElement: Buffer
+                  PsiElement(identifier)('Buffer')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BA
+                  CodeReferenceElement: BA
+                    PsiElement(identifier)('BA')
+                PsiElement(])(']')
+        PsiElement(])(']')
+      PsiWhiteSpace('\n                ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Subtractable[BA, This]
+              SimpleType: Subtractable
+                CodeReferenceElement: Subtractable
+                  PsiElement(identifier)('Subtractable')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BA
+                  CodeReferenceElement: BA
+                    PsiElement(identifier)('BA')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: This
+                  CodeReferenceElement: This
+                    PsiElement(identifier)('This')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          SelfType: self
+            PsiElement(identifier)('self')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: This
+              CodeReferenceElement: This
+                PsiElement(identifier)('This')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDeclaration: -
+            PsiComment(BlockComment)('/* Without fix-#1401:\n   *\n     error: overriding method - in trait Subtractable of type (elem: A)This & i1401.Buffer[A];\n     method - of type (elem: BA)This has incompatible type\n     def -(elem: BA): This\n         ^\n     one error found\n  */')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('-')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: elem
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('elem')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: BA
+                      CodeReferenceElement: BA
+                        PsiElement(identifier)('BA')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: This
+              CodeReferenceElement: This
+                PsiElement(identifier)('This')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Buffer
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Buffer')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: BufferLike[A, Buffer[A]]
+              SimpleType: BufferLike
+                CodeReferenceElement: BufferLike
+                  PsiElement(identifier)('BufferLike')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Buffer[A]
+                  SimpleType: Buffer
+                    CodeReferenceElement: Buffer
+                      PsiElement(identifier)('Buffer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiElement(])(']')

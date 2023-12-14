@@ -5,3 +5,101 @@ object Test {
     x.getClass.getMethods.head.getParameterTypes.mkString(",")
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: ???.getClass.getMethods.head.getParameterTypes.mkString
+                ReferenceExpression: ???.getClass.getMethods.head.getParameterTypes
+                  ReferenceExpression: ???.getClass.getMethods.head
+                    ReferenceExpression: ???.getClass.getMethods
+                      ReferenceExpression: ???.getClass
+                        ReferenceExpression: ???
+                          PsiElement(identifier)('???')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getClass')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('getMethods')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('head')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getParameterTypes')
+                PsiElement(.)('.')
+                PsiElement(identifier)('mkString')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('","')
+                PsiElement())(')')
+            PsiWhiteSpace('\n      ')
+            PsiComment(comment)('// this is the current behavior. But it would also be OK if `???.getClass` fails')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: x.getClass.getMethods.head.getParameterTypes.mkString
+                ReferenceExpression: x.getClass.getMethods.head.getParameterTypes
+                  ReferenceExpression: x.getClass.getMethods.head
+                    ReferenceExpression: x.getClass.getMethods
+                      ReferenceExpression: x.getClass
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getClass')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('getMethods')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('head')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getParameterTypes')
+                PsiElement(.)('.')
+                PsiElement(identifier)('mkString')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('","')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

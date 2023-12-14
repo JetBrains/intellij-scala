@@ -30,3 +30,854 @@ object world extends App {
   val felix: pc.Cat = pc.newCat(new { val age = 1; val meow = 2 })
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hello
+      PsiElement(identifier)('hello')
+    PsiWhiteSpace('\n\n')
+    ScObject: world
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('world')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: App
+              CodeReferenceElement: App
+                PsiElement(identifier)('App')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"hello dotty!"')
+              PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScTrait: AnimalPackage
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('AnimalPackage')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Animal
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Animal')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: AnimalU
+                    CodeReferenceElement: AnimalU
+                      PsiElement(identifier)('AnimalU')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: AnimalU
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('AnimalU')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  CompoundType: { val age: Int }
+                    Refinement
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScValueDeclaration: age
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfIdentifiers
+                          Field identifier: age
+                            PsiElement(identifier)('age')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: newAnimal
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newAnimal')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: a
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('a')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: AnimalU
+                            CodeReferenceElement: AnimalU
+                              PsiElement(identifier)('AnimalU')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Animal
+                    CodeReferenceElement: Animal
+                      PsiElement(identifier)('Animal')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: newSubAnimal
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newSubAnimal')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: T
+                      PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: a
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('a')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          InfixType: AnimalU & T
+                            SimpleType: AnimalU
+                              CodeReferenceElement: AnimalU
+                                PsiElement(identifier)('AnimalU')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: &
+                              PsiElement(identifier)('&')
+                            PsiWhiteSpace(' ')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  InfixType: Animal & T
+                    SimpleType: Animal
+                      CodeReferenceElement: Animal
+                        PsiElement(identifier)('Animal')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: p
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: p
+                PsiElement(identifier)('p')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: AnimalPackage
+              CodeReferenceElement: AnimalPackage
+                PsiElement(identifier)('AnimalPackage')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: AnimalPackage
+                      CodeReferenceElement: AnimalPackage
+                        PsiElement(identifier)('AnimalPackage')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  SelfType: p
+                    PsiElement(identifier)('p')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n    ')
+                  ScTypeAliasDefinition: Animal
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('Animal')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: AnimalU
+                      CodeReferenceElement: AnimalU
+                        PsiElement(identifier)('AnimalU')
+                  PsiWhiteSpace('\n    ')
+                  ScFunctionDefinition: newAnimal
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(override)('override')
+                    PsiWhiteSpace(' ')
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('newAnimal')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: a
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('a')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: AnimalU
+                              CodeReferenceElement: AnimalU
+                                PsiElement(identifier)('AnimalU')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Animal
+                      CodeReferenceElement: Animal
+                        PsiElement(identifier)('Animal')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                  PsiWhiteSpace('\n    ')
+                  ScFunctionDefinition: newSubAnimal
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(override)('override')
+                    PsiWhiteSpace(' ')
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('newSubAnimal')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: a
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('a')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            InfixType: AnimalU & T
+                              SimpleType: AnimalU
+                                CodeReferenceElement: AnimalU
+                                  PsiElement(identifier)('AnimalU')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    InfixType: Animal & T
+                      SimpleType: Animal
+                        CodeReferenceElement: Animal
+                          PsiElement(identifier)('Animal')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: lambda
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: lambda
+                PsiElement(identifier)('lambda')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: p.Animal
+              CodeReferenceElement: p.Animal
+                CodeReferenceElement: p
+                  PsiElement(identifier)('p')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Animal')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: p.newAnimal
+                ReferenceExpression: p
+                  PsiElement(identifier)('p')
+                PsiElement(.)('.')
+                PsiElement(identifier)('newAnimal')
+              ArgumentList
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScPatternDefinition: age
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: age
+                            PsiElement(identifier)('age')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScTrait: CatPackage
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('CatPackage')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                SelfType: pc
+                  PsiElement(identifier)('pc')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: Cat
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Cat')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  InfixType: p.Animal & pc.CatDelta
+                    SimpleType: p.Animal
+                      CodeReferenceElement: p.Animal
+                        CodeReferenceElement: p
+                          PsiElement(identifier)('p')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Animal')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: pc.CatDelta
+                      CodeReferenceElement: pc.CatDelta
+                        CodeReferenceElement: pc
+                          PsiElement(identifier)('pc')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('CatDelta')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: CatDelta
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('CatDelta')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  CompoundType: { val meow: Int }
+                    Refinement
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScValueDeclaration: meow
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfIdentifiers
+                          Field identifier: meow
+                            PsiElement(identifier)('meow')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: CatU
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('CatU')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  InfixType: p.AnimalU & pc.CatDelta
+                    SimpleType: p.AnimalU
+                      CodeReferenceElement: p.AnimalU
+                        CodeReferenceElement: p
+                          PsiElement(identifier)('p')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('AnimalU')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: pc.CatDelta
+                      CodeReferenceElement: pc.CatDelta
+                        CodeReferenceElement: pc
+                          PsiElement(identifier)('pc')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('CatDelta')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: newCat
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newCat')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: c
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('c')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: CatU
+                            CodeReferenceElement: CatU
+                              PsiElement(identifier)('CatU')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Cat
+                    CodeReferenceElement: Cat
+                      PsiElement(identifier)('Cat')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDeclaration: newSubCat
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newSubCat')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: T
+                      PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: c
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('c')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          InfixType: CatU & T
+                            SimpleType: CatU
+                              CodeReferenceElement: CatU
+                                PsiElement(identifier)('CatU')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: &
+                              PsiElement(identifier)('&')
+                            PsiWhiteSpace(' ')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  InfixType: Cat & T
+                    SimpleType: Cat
+                      CodeReferenceElement: Cat
+                        PsiElement(identifier)('Cat')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: pc
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: pc
+                PsiElement(identifier)('pc')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: CatPackage
+              CodeReferenceElement: CatPackage
+                PsiElement(identifier)('CatPackage')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: CatPackage
+                      CodeReferenceElement: CatPackage
+                        PsiElement(identifier)('CatPackage')
+                PsiWhiteSpace(' ')
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  SelfType: pc
+                    PsiElement(identifier)('pc')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n    ')
+                  ScTypeAliasDefinition: Cat
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('Cat')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixType: p.Animal & pc.CatDelta
+                      SimpleType: p.Animal
+                        CodeReferenceElement: p.Animal
+                          CodeReferenceElement: p
+                            PsiElement(identifier)('p')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Animal')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: pc.CatDelta
+                        CodeReferenceElement: pc.CatDelta
+                          CodeReferenceElement: pc
+                            PsiElement(identifier)('pc')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('CatDelta')
+                  PsiWhiteSpace('\n    ')
+                  ScFunctionDefinition: newCat
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('newCat')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: c
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('c')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: CatU
+                              CodeReferenceElement: CatU
+                                PsiElement(identifier)('CatU')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Cat
+                      CodeReferenceElement: Cat
+                        PsiElement(identifier)('Cat')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      GenericCall
+                        ReferenceExpression: p.newSubAnimal
+                          ReferenceExpression: p
+                            PsiElement(identifier)('p')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('newSubAnimal')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: pc.CatDelta
+                            CodeReferenceElement: pc.CatDelta
+                              CodeReferenceElement: pc
+                                PsiElement(identifier)('pc')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('CatDelta')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: c
+                          PsiElement(identifier)('c')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  ScFunctionDefinition: newSubCat
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('newSubCat')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: c
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('c')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            InfixType: CatU & T
+                              SimpleType: CatU
+                                CodeReferenceElement: CatU
+                                  PsiElement(identifier)('CatU')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    InfixType: Cat & T
+                      SimpleType: Cat
+                        CodeReferenceElement: Cat
+                          PsiElement(identifier)('Cat')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      GenericCall
+                        ReferenceExpression: p.newSubAnimal
+                          ReferenceExpression: p
+                            PsiElement(identifier)('p')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('newSubAnimal')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          InfixType: pc.CatDelta & T
+                            SimpleType: pc.CatDelta
+                              CodeReferenceElement: pc.CatDelta
+                                CodeReferenceElement: pc
+                                  PsiElement(identifier)('pc')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('CatDelta')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: &
+                              PsiElement(identifier)('&')
+                            PsiWhiteSpace(' ')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: c
+                          PsiElement(identifier)('c')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: felix
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: felix
+                PsiElement(identifier)('felix')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: pc.Cat
+              CodeReferenceElement: pc.Cat
+                CodeReferenceElement: pc
+                  PsiElement(identifier)('pc')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Cat')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: pc.newCat
+                ReferenceExpression: pc
+                  PsiElement(identifier)('pc')
+                PsiElement(.)('.')
+                PsiElement(identifier)('newCat')
+              ArgumentList
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScPatternDefinition: age
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: age
+                            PsiElement(identifier)('age')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                      PsiElement(;)(';')
+                      PsiWhiteSpace(' ')
+                      ScPatternDefinition: meow
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: meow
+                            PsiElement(identifier)('meow')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

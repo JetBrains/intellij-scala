@@ -24,7 +24,7 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
     .flatMap(_.bind())
     .collect {
       case ScalaResolveResult(clazz: PsiClass, _) =>
-        //case 1: creation of anonimous class with trait as base: `new MyTrait {}`
+        //case 1: creation of anonymous class with trait as base: `new MyTrait {}`
         //case 2: creation of Java class (or other non-Scala language)
         (clazz, None)
       case ScalaResolveResult(Constructor(constructor), _) =>

@@ -6,3 +6,121 @@ object Foo {
   foo.append(Seq(bar):_*)
 }
 -----
+ScalaFile
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: foo
+              PsiElement(identifier)('foo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: scala.collection.mutable.ArrayBuffer.empty
+              ReferenceExpression: scala.collection.mutable.ArrayBuffer
+                ReferenceExpression: scala.collection.mutable
+                  ReferenceExpression: scala.collection
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('collection')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ArrayBuffer')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Seq[Double]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bar
+              PsiElement(identifier)('bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: Seq.empty
+              ReferenceExpression: Seq
+                PsiElement(identifier)('Seq')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: foo.append
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('append')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: bar
+              PsiElement(identifier)('bar')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: foo.append
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('append')
+          ArgumentList
+            PsiElement(()('(')
+            TypedExpression
+              MethodCall
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: bar
+                    PsiElement(identifier)('bar')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              SequenceArgumentType
+                PsiElement(_)('_')
+                PsiElement(identifier)('*')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

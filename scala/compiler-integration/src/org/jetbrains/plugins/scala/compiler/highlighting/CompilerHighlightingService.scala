@@ -12,7 +12,7 @@ import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.util.ModificationTracker
@@ -34,6 +34,7 @@ import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, Sc
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
+import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
 private final class CompilerHighlightingService(project: Project) extends Disposable {
@@ -132,7 +133,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     case wr: CompilationRequest.WorksheetRequest =>
       executeWorksheetCompilationRequest(wr)
     case ir: CompilationRequest.IncrementalRequest =>
-      executeIncrementalCompilationRequest(ir)
+      executeIncrementalCompilationRequest(ir, runDocumentCompiler = true)
     case dr: CompilationRequest.DocumentRequest =>
       executeDocumentCompilationRequest(dr)
   }
@@ -153,30 +154,34 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (isFirstTimeHighlighting) {
       //If we have just opened worksheet we need to invoke incremental compilation to ensure that worksheet module is compiled to avoid red code
       //Otherwise if you open non-compiled project and open worksheet it will contain red code
+      val realModule = module match {
+        case synthetic: SyntheticModule =>
+          // We need to compile the real module, not the synthetic one for the worksheet. Otherwise, bytecode for
+          // classes from the real module will not be produced.
+          synthetic.underlying
+        case m => m
+      }
+
       val sourceScope = if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test else SourceScope.Production
-      val incrementalRequest = CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, file, debugReason)
-      executeIncrementalCompilationRequest(incrementalRequest)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(realModule, sourceScope, virtualFile, document, file, debugReason)
+      executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
     performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, module, _))
   }
 
-  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest): Unit = {
+  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
-      try {
-        IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
-        if (client.successful) {
-          triggerDocumentCompilationInAllOpenEditors(Some(client))
-        }
+      IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+      if (runDocumentCompiler && client.successful) {
+        triggerDocumentCompilationInAllOpenEditors(Some(client))
       }
-      finally {
-        if (psiFile.is[ScalaFile]) {
-          triggerService.enableDocumentCompiler(virtualFile)
-        }
+      if (psiFile.is[ScalaFile] && client.successful) {
+        triggerService.enableDocumentCompiler(virtualFile)
       }
     }
   }
@@ -248,18 +253,35 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (!project.isDisposed || project.isDefault) project.save()
   })
 
-  private def isReadyForExecution(request: CompilationRequest): Boolean =
-    (request.remaining < Duration.Zero) && (request match {
-      case CompilationRequest.WorksheetRequest(_, _, document, _, _) => isDocumentReadyForCompilation(document)
-      case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => true
-      case CompilationRequest.DocumentRequest(_, _, _, document, _) => isDocumentReadyForCompilation(document)
-    })
+  private def isReadyForExecution(request: CompilationRequest): RequestState = {
+    if (!request.virtualFile.isValid) {
+      RequestState.Expired
+    } else if (request.remaining < Duration.Zero) {
+      request match {
+        case CompilationRequest.WorksheetRequest(_, _, document, _, _) => canDocumentBeCompiled(document)
+        case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => RequestState.Ready
+        case CompilationRequest.DocumentRequest(_, _, _, document, _) => canDocumentBeCompiled(document)
+      }
+    } else RequestState.NotReady
+  }
 
-  private def isDocumentReadyForCompilation(document: Document): Boolean =
-    EditorFactory.getInstance().editors(document, project).anyMatch { editor =>
-      LookupManager.getActiveLookup(editor) == null &&
-        TemplateManager.getInstance(project).getActiveTemplate(editor) == null
+  private def canDocumentBeCompiled(document: Document): RequestState = {
+    val editors = EditorFactory.getInstance().getEditors(document, project)
+    if (editors.isEmpty) {
+      // There are no open editors for the document. Skip the request.
+      RequestState.Expired
+    } else {
+      val ready = editors.exists { editor =>
+        LookupManager.getActiveLookup(editor) == null &&
+          TemplateManager.getInstance(project).getActiveTemplate(editor) == null
+      }
+
+      // If there are no active lookups or templates in the editor, it can be compiled.
+      // Otherwise, delay the request, in case the user dismisses lookups and templates without typing letters
+      // (e.g. with the Esc key)
+      if (ready) RequestState.Ready else RequestState.NotReady
     }
+  }
 
   private def scheduleCompilationTask(compilationDelay: FiniteDuration): Unit = {
     val Duration(delay, unit) = compilationDelay
@@ -273,19 +295,37 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private final class CompilationTask extends Runnable {
     override def run(): Unit = {
       val request = priorityQueue.pollFirst()
-      if (request eq null) return
-      if (isReadyForExecution(request)) {
-        priorityQueue.tailSet(request).forEach { r =>
-          // remove less important compilation requests for the same file
-          if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
-            priorityQueue.remove(r)
-          }
+      if (request ne null) {
+        isReadyForExecution(request) match {
+          case RequestState.Ready =>
+            try {
+              // The request with the highest priority is ready for execution. We need to also remove all requests from the
+              // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
+              // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
+              // source file, as less important requests for unrelated files are still useful and should be executed.
+              priorityQueue.tailSet(request).forEach { r =>
+                // remove less important compilation requests for the same file
+                if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
+                  priorityQueue.remove(r)
+                }
+              }
+              execute(request)
+            } catch {
+              case _: ProcessCanceledException =>
+                // Do not log PCE.
+              case NonFatal(t) =>
+                Log.error(s"Execution of compilation request $request failed", t)
+            }
+
+          case RequestState.NotReady =>
+            val delayed = request.delayed
+            priorityQueue.add(delayed)
+
+          case RequestState.Expired =>
         }
-        execute(request)
-      } else {
-        priorityQueue.add(request)
       }
 
+      // Will not be rescheduled if there are no requests left.
       reschedule()
     }
 
@@ -329,4 +369,11 @@ private object CompilerHighlightingService {
 
   def platformAutomakeEnabled(project: Project): Boolean =
     CompilerWorkspaceConfiguration.getInstance(project).MAKE_PROJECT_ON_SAVE
+
+  sealed trait RequestState
+  object RequestState {
+    case object Ready extends RequestState
+    case object NotReady extends RequestState
+    case object Expired extends RequestState
+  }
 }

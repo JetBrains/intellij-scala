@@ -115,7 +115,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(
       s"""${START}1
          |2
-         |3${END}""".stripMargin,
+         |3$END""".stripMargin,
       s"""def bar =
          |     42
          |     $Caret
@@ -222,6 +222,28 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |    def circumference: Double = c.radius * math.Pi * 2
         |
         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
+  }
+
+  // SCL-20036
+  def testExtension_4_PastingWithClassWithEndMarker(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |""".stripMargin
+    val to =
+      s"""object Example:
+         |  $Caret
+         |end Example""".stripMargin
+    val after =
+      """object Example:
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |end Example""".stripMargin
     doTestWithAllSelections(from, to, after)
   }
 
@@ -909,6 +931,52 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
+  def testPasteInTheMiddleOfTheClassBody_UseTabs(): Unit = {
+    getCommonCodeStyleSettings.getIndentOptions.USE_TAB_CHARACTER = true
+
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}42$End""".stripMargin,
+      s"""object Target1:
+         |${tab}object Target2:
+         |$tab${tab}object Target3:
+         |$tab$tab${tab}def m0 = ???
+         |
+         |$Caret
+         |
+         |$tab$tab${tab}def m1 = ???""".stripMargin,
+      s"""object Target1:
+         |${tab}object Target2:
+         |$tab${tab}object Target3:
+         |$tab$tab${tab}def m0 = ???
+         |
+         |$tab$tab${tab}42$Caret
+         |
+         |$tab$tab${tab}def m1 = ???""".stripMargin,
+    )
+  }
+
+  def testPasteInTheMiddleOfTheClassBody_PasteAsFirstChild_CaretUnindented(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}def hello(): Unit =
+         |    println("Hello, world!")$End""".stripMargin,
+      s"""object Target:
+         |$Caret
+         |
+         |  def m0 = ???
+         |
+         |  def m1 = ???""".stripMargin,
+      s"""object Target:
+         |  def hello(): Unit =
+         |    println("Hello, world!")$Caret
+         |
+         |  def m0 = ???
+         |
+         |  def m1 = ???""".stripMargin,
+    )
+  }
+
   def testPasteInTheMiddleOfTheClassBody_CaretUnindented(): Unit = {
     doTestWithAllSelections(
       s"""object Source:
@@ -1299,6 +1367,38 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
       s"""//comment          42$CARET
          |
          |class A""".stripMargin,
+    )
+  }
+
+  def testPasteToBodyWithSelectedBlockExpression_1(): Unit = {
+    doPasteTest(
+      "42",
+      s"""def foo = {
+        |  $START{
+        |    1
+        |    2
+        |    3
+        |  }$END
+        |}""".stripMargin,
+      """def foo = {
+        |  42
+        |}""".stripMargin
+    )
+  }
+
+  def testPasteToBodyWithSelectedBlockExpression_2(): Unit = {
+    doPasteTest(
+      "42",
+      s"""def foo = {
+        |$START  {
+        |    1
+        |    2
+        |    3
+        |  }  $END
+        |}""".stripMargin,
+      """def foo = {
+        |  42
+        |}""".stripMargin
     )
   }
 }

@@ -4,3 +4,125 @@ class Foo {
   val unzipped:  (ListBuffer[String], ListBuffer[Int]) = zipped.unzip
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection.mutable.ListBuffer
+        CodeReferenceElement: scala.collection.mutable
+          CodeReferenceElement: scala.collection
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('collection')
+          PsiElement(.)('.')
+          PsiElement(identifier)('mutable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ListBuffer')
+  PsiWhiteSpace('\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: zipped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zipped
+              PsiElement(identifier)('zipped')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ListBuffer[(String, Int)]
+            SimpleType: ListBuffer
+              CodeReferenceElement: ListBuffer
+                PsiElement(identifier)('ListBuffer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: unzipped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: unzipped
+              PsiElement(identifier)('unzipped')
+          PsiElement(:)(':')
+          PsiWhiteSpace('  ')
+          TupleType: (ListBuffer[String], ListBuffer[Int])
+            PsiElement(()('(')
+            TypesList
+              ParametrizedType: ListBuffer[String]
+                SimpleType: ListBuffer
+                  CodeReferenceElement: ListBuffer
+                    PsiElement(identifier)('ListBuffer')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ListBuffer[Int]
+                SimpleType: ListBuffer
+                  CodeReferenceElement: ListBuffer
+                    PsiElement(identifier)('ListBuffer')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: zipped.unzip
+            ReferenceExpression: zipped
+              PsiElement(identifier)('zipped')
+            PsiElement(.)('.')
+            PsiElement(identifier)('unzip')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

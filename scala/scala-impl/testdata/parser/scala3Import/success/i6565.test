@@ -16,3 +16,463 @@ lazy val nowAlsoOK: Lifted[String] = {
   point("a").flatMap(_ => point("b").flatMap(_ => if true then "foo" else error))
 }
 -----
+ScalaFile
+  ScClass: Err
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Err')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Lifted
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Lifted')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: Err | A
+      SimpleType: Err
+        CodeReferenceElement: Err
+          PsiElement(identifier)('Err')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: point
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('point')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: o
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: O
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Lifted[O]
+      SimpleType: Lifted
+        CodeReferenceElement: Lifted
+          PsiElement(identifier)('Lifted')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: O
+          CodeReferenceElement: O
+            PsiElement(identifier)('O')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: o
+      PsiElement(identifier)('o')
+  PsiWhiteSpace('\n')
+  Extension on Lifted[O]
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: o
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Lifted[O]
+              SimpleType: Lifted
+                CodeReferenceElement: Lifted
+                  PsiElement(identifier)('Lifted')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: map
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('map')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('f')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: O => U
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: U
+                    CodeReferenceElement: U
+                      PsiElement(identifier)('U')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Lifted[U]
+          SimpleType: Lifted
+            CodeReferenceElement: Lifted
+              PsiElement(identifier)('Lifted')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  Extension on Lifted[O]
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: o
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('o')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Lifted[O]
+              SimpleType: Lifted
+                CodeReferenceElement: Lifted
+                  PsiElement(identifier)('Lifted')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: flatMap
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('flatMap')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('f')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: O => Lifted[U]
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Lifted[U]
+                    SimpleType: Lifted
+                      CodeReferenceElement: Lifted
+                        PsiElement(identifier)('Lifted')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(])(']')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Lifted[U]
+          SimpleType: Lifted
+            CodeReferenceElement: Lifted
+              PsiElement(identifier)('Lifted')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: error
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: error
+        PsiElement(identifier)('error')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Err
+      CodeReferenceElement: Err
+        PsiElement(identifier)('Err')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Err
+        PsiElement(identifier)('Err')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ok
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(lazy)('lazy')
+    PsiWhiteSpace(' ')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ok
+        PsiElement(identifier)('ok')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Lifted[String]
+      SimpleType: Lifted
+        CodeReferenceElement: Lifted
+          PsiElement(identifier)('Lifted')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: point("a").flatMap
+          MethodCall
+            ReferenceExpression: point
+              PsiElement(identifier)('point')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"a"')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('flatMap')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(true)('true')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"foo"')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: error
+                PsiElement(identifier)('error')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: nowAlsoOK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(lazy)('lazy')
+    PsiWhiteSpace(' ')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: nowAlsoOK
+        PsiElement(identifier)('nowAlsoOK')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Lifted[String]
+      SimpleType: Lifted
+        CodeReferenceElement: Lifted
+          PsiElement(identifier)('Lifted')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: point("a").flatMap
+          MethodCall
+            ReferenceExpression: point
+              PsiElement(identifier)('point')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"a"')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('flatMap')
+        ArgumentList
+          PsiElement(()('(')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: _
+                  PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: point("b").flatMap
+                MethodCall
+                  ReferenceExpression: point
+                    PsiElement(identifier)('point')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"b"')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('flatMap')
+              ArgumentList
+                PsiElement(()('(')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: _
+                        PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                    PsiWhiteSpace(' ')
+                    PsiElement(then)('then')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"foo"')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: error
+                      PsiElement(identifier)('error')
+                PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

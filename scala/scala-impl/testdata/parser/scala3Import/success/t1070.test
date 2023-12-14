@@ -3,3 +3,64 @@ trait beanpropertytrait {
   @BeanProperty var myVariable: Long = -1l;
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.beans.BeanProperty
+        CodeReferenceElement: scala.beans
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('beans')
+        PsiElement(.)('.')
+        PsiElement(identifier)('BeanProperty')
+  PsiElement(;)(';')
+  PsiWhiteSpace('\n')
+  ScTrait: beanpropertytrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('beanpropertytrait')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: myVariable
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: BeanProperty
+                    CodeReferenceElement: BeanProperty
+                      PsiElement(identifier)('BeanProperty')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: myVariable
+              PsiElement(identifier)('myVariable')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Long
+            CodeReferenceElement: Long
+              PsiElement(identifier)('Long')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PrefixExpression
+            ReferenceExpression: -
+              PsiElement(identifier)('-')
+            LongLiteral
+              PsiElement(long)('1l')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

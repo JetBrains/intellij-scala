@@ -4,3 +4,98 @@ class ScBar[BooT <: Boo[FooT], FooT <: Foo](i: Int) extends Bar[BooT, FooT](i) {
 
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScClass: ScBar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ScBar')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: BooT
+          PsiElement(identifier)('BooT')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Boo[FooT]
+            SimpleType: Boo
+              CodeReferenceElement: Boo
+                PsiElement(identifier)('Boo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: FooT
+                CodeReferenceElement: FooT
+                  PsiElement(identifier)('FooT')
+              PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: FooT
+          PsiElement(identifier)('FooT')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: i
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('i')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Bar[BooT, FooT]
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BooT
+                  CodeReferenceElement: BooT
+                    PsiElement(identifier)('BooT')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: FooT
+                  CodeReferenceElement: FooT
+                    PsiElement(identifier)('FooT')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: i
+                PsiElement(identifier)('i')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

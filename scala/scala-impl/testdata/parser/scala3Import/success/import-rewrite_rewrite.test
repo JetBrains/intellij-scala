@@ -6,3 +6,86 @@ object Main {
   // def name(file: File) = file.name
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: file
+      PsiElement(identifier)('file')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: java.io
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('io')
+        PsiElement(.)('.')
+        ImportSelectors
+          PsiElement({)('{')
+          ImportSelector
+            CodeReferenceElement: File
+              PsiElement(identifier)('File')
+            PsiWhiteSpace(' ')
+            PsiElement(as)('as')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('JFile')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportSelector
+            PsiElement(*)('*')
+          PsiElement(})('}')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: StreamTokenizer
+          PsiElement(identifier)('StreamTokenizer')
+        PsiElement(.)('.')
+        ImportSelectors
+          ImportSelector
+            CodeReferenceElement: TT_EOF
+              PsiElement(identifier)('TT_EOF')
+            PsiWhiteSpace(' ')
+            PsiElement(as)('as')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('eof')
+    PsiWhiteSpace('\n\n')
+    ScObject: Main
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Main')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: Seq("").map
+              MethodCall
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: File.apply
+                ReferenceExpression: File
+                  PsiElement(identifier)('File')
+                PsiElement(.)('.')
+                PsiElement(identifier)('apply')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// def name(file: File) = file.name')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

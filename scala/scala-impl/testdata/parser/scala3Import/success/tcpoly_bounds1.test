@@ -5,3 +5,201 @@ trait MyOrdered[a]
 trait MySet[x <: MyOrdered[x]]
 trait SetMonad[a <: MyOrdered[a]] extends Monad[MySet, MyOrdered, a]
 -----
+ScalaFile
+  ScTrait: Monad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Monad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: m
+        PsiElement(identifier)('m')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: x
+            PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Bound[x]
+              SimpleType: Bound
+                CodeReferenceElement: Bound
+                  PsiElement(identifier)('Bound')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: x
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Bound
+        PsiElement(identifier)('Bound')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: x
+            PsiElement(identifier)('x')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// TODO: variances!')
+  PsiWhiteSpace('\n')
+  ScTrait: ListMonad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ListMonad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Monad[List, [X] =>> Any, a]
+            SimpleType: Monad
+              CodeReferenceElement: Monad
+                PsiElement(identifier)('Monad')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeLambda: [X] =>> Any
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: a
+                CodeReferenceElement: a
+                  PsiElement(identifier)('a')
+              PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// Dotty difference: Any is not a legal argument for hk type.')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MyOrdered
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyOrdered')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: MySet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MySet')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: x
+        PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: MyOrdered[x]
+          SimpleType: MyOrdered
+            CodeReferenceElement: MyOrdered
+              PsiElement(identifier)('MyOrdered')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: x
+              CodeReferenceElement: x
+                PsiElement(identifier)('x')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: SetMonad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SetMonad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: a
+        PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: MyOrdered[a]
+          SimpleType: MyOrdered
+            CodeReferenceElement: MyOrdered
+              PsiElement(identifier)('MyOrdered')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: a
+              CodeReferenceElement: a
+                PsiElement(identifier)('a')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Monad[MySet, MyOrdered, a]
+            SimpleType: Monad
+              CodeReferenceElement: Monad
+                PsiElement(identifier)('Monad')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: MySet
+                CodeReferenceElement: MySet
+                  PsiElement(identifier)('MySet')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: MyOrdered
+                CodeReferenceElement: MyOrdered
+                  PsiElement(identifier)('MyOrdered')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: a
+                CodeReferenceElement: a
+                  PsiElement(identifier)('a')
+              PsiElement(])(']')

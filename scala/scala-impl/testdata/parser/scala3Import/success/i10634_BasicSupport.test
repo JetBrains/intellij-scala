@@ -9,3 +9,113 @@ trait BasicSupport:
     sym.getVisibility()
 
 -----
+ScalaFile
+  ScTrait: BasicSupport
+    PsiComment(comment)('// BasicSupport.scala')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BasicSupport')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Parser
+            CodeReferenceElement: Parser
+              PsiElement(identifier)('Parser')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: SymOps
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SymOps')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: SymOps[ctx.type]
+                  SimpleType: SymOps
+                    CodeReferenceElement: SymOps
+                      PsiElement(identifier)('SymOps')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: ctx.type
+                      CodeReferenceElement: ctx
+                        PsiElement(identifier)('ctx')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: ctx
+                    PsiElement(identifier)('ctx')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: SymOps
+              PsiElement(identifier)('SymOps')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: parse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('parse')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: sym
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('sym')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: ctx.Symbol
+                    CodeReferenceElement: ctx.Symbol
+                      CodeReferenceElement: ctx
+                        PsiElement(identifier)('ctx')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Symbol')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: sym.getVisibility
+              ReferenceExpression: sym
+                PsiElement(identifier)('sym')
+              PsiElement(.)('.')
+              PsiElement(identifier)('getVisibility')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')

@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package hints
+package org.jetbrains.plugins.scala.codeInsight.hints
 
-import com.intellij.codeInsight.hints.Option
+import org.jetbrains.plugins.scala.codeInsight.{InlayHintsTestBase, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 
 class InlayParameterHintsTest extends InlayHintsTestBase {
 
   import Hint.{End => E, Start => S}
-  import ScalaInlayParameterHintsProvider._
 
   def testNoDefaultPackageHint(): Unit = doTest(
     s"""  println(42)
@@ -32,13 +29,13 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |         (bar: Int)
        |         (baz: Int = 0): Unit = {}
        |
-       |  foo(${S}foo =${E}42, ${S}otherFoo =${E}42)(${S}bar =${E}42)()
-       |  foo(${S}foo =${E}42)(bar = 42)()
-       |  foo(${S}foo =${E}42, ${S}otherFoo =${E}42)(${S}bar =${E}42)(${S}baz =${E}42)""".stripMargin
+       |  foo(${S}foo = ${E}42, ${S}otherFoo = ${E}42)(${S}bar = ${E}42)()
+       |  foo(${S}foo = ${E}42)(bar = 42)()
+       |  foo(${S}foo = ${E}42, ${S}otherFoo = ${E}42)(${S}bar = ${E}42)(${S}baz = ${E}42)""".stripMargin
   )
 
   def testConstructorParameterHint(): Unit = doTest(
-    s"""  new Bar(${S}bar =${E}42)
+    s"""  new Bar(${S}bar = ${E}42)
        |  new Bar()
        |
        |  class Bar(bar: Int = 42)
@@ -49,9 +46,11 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   )
 
   def testNoInfixExpressionHint(): Unit = doTest(
-    s"""  def foo(foo: Int): Unit = {}
+    s"""object This {
+       |  def foo(bar: Int): Int = bar
        |
-       |  foo(${S}foo =${E}this foo 42)""".stripMargin
+       |  foo(${S}bar = ${E}this foo 42)
+       |}""".stripMargin
   )
 
   def testNoTrivialHint(): Unit = doTest(
@@ -65,7 +64,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |
        |  def bazImpl(): Unit = {}
        |
-       |  foo(${S}bar =${E}null)
+       |  foo(${S}bar = ${E}null)
        |  foo(bar)
        |  foo(bar.length)
        |  bar(bar.hashCode())
@@ -76,20 +75,20 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   def testVarargHint(): Unit = doTest(
     s"""  def foo(foo: Int, bars: Int*): Unit = {}
        |
-       |  foo(${S}foo =${E}42)
-       |  foo(${S}foo =${E}42, bars = 42, 42 + 0)
+       |  foo(${S}foo = ${E}42)
+       |  foo(${S}foo = ${E}42, bars = 42, 42 + 0)
        |  foo(foo = 42)
-       |  foo(foo = 42, ${S}bars =${E}42, 42 + 0)
-       |  foo(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
+       |  foo(foo = 42, ${S}bars = ${E}42, 42 + 0)
+       |  foo(${S}foo = ${E}42, ${S}bars = ${E}42, 42 + 0)
        |  foo(foo = 42, bars = 42, 42 + 0)""".stripMargin
   )
 
   def testVarargConstructorHint(): Unit = doTest(
-    s"""  new Foo(${S}foo =${E}42)
-       |  new Foo(${S}foo =${E}42, bars = 42, 42 + 0)
+    s"""  new Foo(${S}foo = ${E}42)
+       |  new Foo(${S}foo = ${E}42, bars = 42, 42 + 0)
        |  new Foo(foo = 42)
-       |  new Foo(foo = 42, ${S}bars =${E}42, 42 + 0)
-       |  new Foo(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
+       |  new Foo(foo = 42, ${S}bars = ${E}42, 42 + 0)
+       |  new Foo(${S}foo = ${E}42, ${S}bars = ${E}42, 42 + 0)
        |  new Foo(foo = 42, bars = 42, 42 + 0)
        |
        |  class Foo(foo: Int, bars: Int*)""".stripMargin
@@ -128,7 +127,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |    foo({ case 42 => 42 })
        |  }
        |
-       |  bar(${S}bar =${E}0) {
+       |  bar(${S}bar = ${E}0) {
        |    case 42 => 42
        |  }""".stripMargin
   )
@@ -141,7 +140,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
           |}""".stripMargin,
       className = "Bar.java"
     )
-    doTest(s"  Bar.bar(${S}bar =${E}42)")
+    doTest(s"  Bar.bar(${S}bar = ${E}42)")
   }
 
   def testJavaConstructorParameterHint(): Unit = {
@@ -152,7 +151,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
           |}""".stripMargin,
       className = "Bar.java"
     )
-    doTest(s"  new Bar(${S}bar =${E}42)")
+    doTest(s"  new Bar(${S}bar = ${E}42)")
   }
 
   def testVarargJavaConstructorHint(): Unit = {
@@ -164,52 +163,32 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
       className = "Bar.java"
     )
     doTest(
-      s"""  new Bar(${S}foo =${E}42)
-         |  new Bar(${S}foo =${E}42, bars = 42, 42 + 0)
+      s"""  new Bar(${S}foo = ${E}42)
+         |  new Bar(${S}foo = ${E}42, bars = 42, 42 + 0)
          |  new Bar(foo = 42)
-         |  new Bar(foo = 42, ${S}bars =${E}42, 42 + 0)
-         |  new Bar(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
+         |  new Bar(foo = 42, ${S}bars = ${E}42, 42 + 0)
+         |  new Bar(${S}foo = ${E}42, ${S}bars = ${E}42, 42 + 0)
          |  new Bar(foo = 42, bars = 42, 42 + 0)""".stripMargin
     )
   }
-
-  def testNoApplyUpdateParameterHints(): Unit = doTest(
-    s"""  private val array: Array[Double] = Array.emptyDoubleArray
-       |
-       |  def apply(index: Int): Double = array(index)
-       |
-       |  this(0)
-       |  this.apply(0)
-       |
-       |  def update(index: Int, value: Double): Unit = {
-       |    array(index) = value
-       |  }
-       |
-       |  this(0) = 0d
-       |  this.update(0, 0d)
-       |
-       |  Seq(1, 2, 3)
-       |  Seq.apply(1, 2, 3)""".stripMargin
-  )
 
   def testApplyUpdateParameterHints(): Unit = doTest(
     s"""  private val array: Array[Double] = Array.emptyDoubleArray
        |
        |  def apply(index: Int): Double = array(index)
        |
-       |  this(${S}index =${E}0)
-       |  this.apply(${S}index =${E}0)
+       |  this(${S}index = ${E}0)
+       |  this.apply(${S}index = ${E}0)
        |
        |  def update(index: Int, value: Double): Unit = {
        |    array(index) = value
        |  }
        |
-       |  this(${S}index =${E}0) = 0d
-       |  this.update(${S}index =${E}0, ${S}value =${E}0d)
+       |  this(${S}index = ${E}0) = 0d
+       |  this.update(${S}index = ${E}0, ${S}value = ${E}0d)
        |
        |  Seq(1, 2, 3)
-       |  Seq.apply(1, 2, 3)""".stripMargin,
-    option = applyUpdateParameterNames
+       |  Seq.apply(1, 2, 3)""".stripMargin
   )
 
   def testNonLiteralArgumentParameterHint(): Unit = doTest(
@@ -217,8 +196,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |  foo("".length())
        |
        |  def bar(hashCode: Int): Unit = {}
-       |  bar("".hashCode())""".stripMargin,
-    option = referenceParameterNames
+       |  bar("".hashCode())""".stripMargin
   )
 
   def testNoParameterHintsByCamelCase(): Unit = doTest(
@@ -230,24 +208,16 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
        |
        |  withType(`type`)
        |  withType(getType)
-       |  withType($S`type` =$E"type")""".stripMargin,
-    option = referenceParameterNames
+       |  withType($S`type` = $E"type")""".stripMargin
   )
 
-  private def doTest(text: String, option: Option = null): Unit = {
-    def setOption(default: Boolean): Unit = option match {
-      case null =>
-      case _ =>
-        val defaultValue = option.getDefaultValue
-        option.set(if (default) defaultValue else !defaultValue)
-    }
-
+  private def doTest(text: String): Unit = {
+    val settings = ScalaCodeInsightSettings.getInstance
     try {
-      setOption(false)
-      configureFromFileText(text)
-      myFixture.testInlays()
+      settings.showParameterNames = true
+      doInlayTest(text)
     } finally {
-      setOption(true)
+      settings.showParameterNames = false
     }
   }
 }

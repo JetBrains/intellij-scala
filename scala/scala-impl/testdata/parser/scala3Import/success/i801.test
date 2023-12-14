@@ -8,3 +8,257 @@ object T2 {
   def f: JStream[String] = new java.util.ArrayList[String](Arrays.asList("1", "2")).stream.map(_.toInt).map(_.toString)
 }
 -----
+ScalaFile
+  ScObject: T1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: java.util.ArrayList
+              CodeReferenceElement: java.util
+                CodeReferenceElement: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('ArrayList')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: java.util.stream
+              CodeReferenceElement: java.util
+                CodeReferenceElement: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('stream')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                CodeReferenceElement: Stream
+                  PsiElement(identifier)('Stream')
+                PsiWhiteSpace(' ')
+                PsiElement(as)('as')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('JStream')
+        PsiWhiteSpace('\n  ')
+        TypedExpression
+          MethodCall
+            ReferenceExpression: new java.util.ArrayList[String]().stream.map(_.toInt).map
+              MethodCall
+                ReferenceExpression: new java.util.ArrayList[String]().stream.map
+                  ReferenceExpression: new java.util.ArrayList[String]().stream
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: java.util.ArrayList[String]
+                              SimpleType: java.util.ArrayList
+                                CodeReferenceElement: java.util.ArrayList
+                                  CodeReferenceElement: java.util
+                                    CodeReferenceElement: java
+                                      PsiElement(identifier)('java')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('util')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('ArrayList')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                                PsiElement(])(']')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('stream')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.toInt
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toInt')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.toString
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toString')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: JStream[String]
+            SimpleType: JStream
+              CodeReferenceElement: JStream
+                PsiElement(identifier)('JStream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: T2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: java.util
+              CodeReferenceElement: java
+                PsiElement(identifier)('java')
+              PsiElement(.)('.')
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: java.util.stream
+              CodeReferenceElement: java.util
+                CodeReferenceElement: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('stream')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                CodeReferenceElement: Stream
+                  PsiElement(identifier)('Stream')
+                PsiWhiteSpace(' ')
+                PsiElement(as)('as')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('JStream')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: JStream[String]
+            SimpleType: JStream
+              CodeReferenceElement: JStream
+                PsiElement(identifier)('JStream')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: new java.util.ArrayList[String](Arrays.asList("1", "2")).stream.map(_.toInt).map
+              MethodCall
+                ReferenceExpression: new java.util.ArrayList[String](Arrays.asList("1", "2")).stream.map
+                  ReferenceExpression: new java.util.ArrayList[String](Arrays.asList("1", "2")).stream
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: java.util.ArrayList[String]
+                              SimpleType: java.util.ArrayList
+                                CodeReferenceElement: java.util.ArrayList
+                                  CodeReferenceElement: java.util
+                                    CodeReferenceElement: java
+                                      PsiElement(identifier)('java')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('util')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('ArrayList')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                                PsiElement(])(']')
+                            ArgumentList
+                              PsiElement(()('(')
+                              MethodCall
+                                ReferenceExpression: Arrays.asList
+                                  ReferenceExpression: Arrays
+                                    PsiElement(identifier)('Arrays')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('asList')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  StringLiteral
+                                    PsiElement(string content)('"1"')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  StringLiteral
+                                    PsiElement(string content)('"2"')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('stream')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.toInt
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toInt')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.toString
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toString')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

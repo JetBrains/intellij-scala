@@ -43,3 +43,1040 @@ object Test extends App {
   check(classOf[LongAnnotation], "test4", Constants.LiteralIntAsLong)
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.Selectable.reflectiveSelectable
+        CodeReferenceElement: scala.reflect.Selectable
+          CodeReferenceElement: scala.reflect
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('reflect')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Selectable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflectiveSelectable')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: theClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: theClass
+              PsiElement(identifier)('theClass')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: classOf
+              PsiElement(identifier)('classOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: AnnotationTest
+                CodeReferenceElement: AnnotationTest
+                  PsiElement(identifier)('AnnotationTest')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: annotation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('annotation')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: java.lang.annotation.Annotation
+                CodeReferenceElement: java.lang.annotation.Annotation
+                  CodeReferenceElement: java.lang.annotation
+                    CodeReferenceElement: java.lang
+                      CodeReferenceElement: java
+                        PsiElement(identifier)('java')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('lang')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('annotation')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Annotation')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: annotationClass
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('annotationClass')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[T]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: methodName
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('methodName')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: theClass.getDeclaredMethod(methodName)
+      .getAnnotation
+                MethodCall
+                  ReferenceExpression: theClass.getDeclaredMethod
+                    ReferenceExpression: theClass
+                      PsiElement(identifier)('theClass')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getDeclaredMethod')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: methodName
+                      PsiElement(identifier)('methodName')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('getAnnotation')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: annotationClass
+                PsiElement(identifier)('annotationClass')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: check
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('check')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              InfixType: java.lang.annotation.Annotation & { def value(): T }
+                SimpleType: java.lang.annotation.Annotation
+                  CodeReferenceElement: java.lang.annotation.Annotation
+                    CodeReferenceElement: java.lang.annotation
+                      CodeReferenceElement: java.lang
+                        CodeReferenceElement: java
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('annotation')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Annotation')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                CompoundType: { def value(): T }
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScFunctionDeclaration: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('value')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: annotationClass
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('annotationClass')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[U]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: methodName
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('methodName')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: expected
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('expected')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: annotation
+                  PsiElement(identifier)('annotation')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: annotationClass
+                    PsiElement(identifier)('annotationClass')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: methodName
+                    PsiElement(identifier)('methodName')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: !=
+                    PsiElement(identifier)('!=')
+                  PsiWhiteSpace(' ')
+                  NullLiteral
+                    PsiElement(null)('null')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"No annotation of type ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: annotationClass
+                    PsiElement(identifier)('annotationClass')
+                  PsiElement(interpolated string)(' found on method ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: methodName
+                    PsiElement(identifier)('methodName')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  MethodCall
+                    ReferenceExpression: a.value
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('value')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: expected
+                    PsiElement(identifier)('expected')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"Actual value of annotation ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(interpolated string)(' on ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: methodName
+                    PsiElement(identifier)('methodName')
+                  PsiElement(interpolated string)(' was not of expected value ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: expected
+                    PsiElement(identifier)('expected')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BooleanAnnotation
+                  CodeReferenceElement: BooleanAnnotation
+                    PsiElement(identifier)('BooleanAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.BooleanTrue
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('BooleanTrue')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ByteAnnotation
+                  CodeReferenceElement: ByteAnnotation
+                    PsiElement(identifier)('ByteAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Byte
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Byte')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: CharAnnotation
+                  CodeReferenceElement: CharAnnotation
+                    PsiElement(identifier)('CharAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Char
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Char')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ShortAnnotation
+                  CodeReferenceElement: ShortAnnotation
+                    PsiElement(identifier)('ShortAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Short
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Short')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: IntAnnotation
+                  CodeReferenceElement: IntAnnotation
+                    PsiElement(identifier)('IntAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Int
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Int')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: LongAnnotation
+                  CodeReferenceElement: LongAnnotation
+                    PsiElement(identifier)('LongAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Long
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Long')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: FloatAnnotation
+                  CodeReferenceElement: FloatAnnotation
+                    PsiElement(identifier)('FloatAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Float
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Float')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: DoubleAnnotation
+                  CodeReferenceElement: DoubleAnnotation
+                    PsiElement(identifier)('DoubleAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.Double
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Double')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: StringAnnotation
+                  CodeReferenceElement: StringAnnotation
+                    PsiElement(identifier)('StringAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.String
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('String')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BooleanAnnotation
+                  CodeReferenceElement: BooleanAnnotation
+                    PsiElement(identifier)('BooleanAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.InvertedBoolean
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('InvertedBoolean')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ByteAnnotation
+                  CodeReferenceElement: ByteAnnotation
+                    PsiElement(identifier)('ByteAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeByte
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeByte')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// no negative char possible')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ShortAnnotation
+                  CodeReferenceElement: ShortAnnotation
+                    PsiElement(identifier)('ShortAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeShort
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeShort')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: IntAnnotation
+                  CodeReferenceElement: IntAnnotation
+                    PsiElement(identifier)('IntAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeInt
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeInt')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: LongAnnotation
+                  CodeReferenceElement: LongAnnotation
+                    PsiElement(identifier)('LongAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeLong
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeLong')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: FloatAnnotation
+                  CodeReferenceElement: FloatAnnotation
+                    PsiElement(identifier)('FloatAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeFloat
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeFloat')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: DoubleAnnotation
+                  CodeReferenceElement: DoubleAnnotation
+                    PsiElement(identifier)('DoubleAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeDouble
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeDouble')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: StringAnnotation
+                  CodeReferenceElement: StringAnnotation
+                    PsiElement(identifier)('StringAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.NegativeString
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('NegativeString')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: BooleanAnnotation
+                  CodeReferenceElement: BooleanAnnotation
+                    PsiElement(identifier)('BooleanAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.BooleanFalse
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('BooleanFalse')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ByteAnnotation
+                  CodeReferenceElement: ByteAnnotation
+                    PsiElement(identifier)('ByteAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralCharAsByte
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralCharAsByte')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: CharAnnotation
+                  CodeReferenceElement: CharAnnotation
+                    PsiElement(identifier)('CharAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralChar
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralChar')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: ShortAnnotation
+                  CodeReferenceElement: ShortAnnotation
+                    PsiElement(identifier)('ShortAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralCharAsShort
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralCharAsShort')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: IntAnnotation
+                  CodeReferenceElement: IntAnnotation
+                    PsiElement(identifier)('IntAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralCharAsInt
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralCharAsInt')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: LongAnnotation
+                  CodeReferenceElement: LongAnnotation
+                    PsiElement(identifier)('LongAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test3"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralCharAsLong
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralCharAsLong')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: check
+            PsiElement(identifier)('check')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: LongAnnotation
+                  CodeReferenceElement: LongAnnotation
+                    PsiElement(identifier)('LongAnnotation')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"test4"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Constants.LiteralIntAsLong
+              ReferenceExpression: Constants
+                PsiElement(identifier)('Constants')
+              PsiElement(.)('.')
+              PsiElement(identifier)('LiteralIntAsLong')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaInlayParameterHintsPass, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
@@ -47,6 +47,7 @@ class ImplicitHintsPass(
   rootElement.getContainingFile,
   /*runIntentionPassAfter*/ false
 ) with ScalaTypeHintsPass
+  with ScalaInlayParameterHintsPass
   with ScalaMethodChainInlayHintsPass
   with RangeInlayHintsPass {
 
@@ -65,6 +66,7 @@ class ImplicitHintsPass(
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       hints ++= collectTypeHints(editor, rootElement)
+      hints ++= collectParameterHints(editor, rootElement)
       collectConversionsAndArguments()
       collectMethodChainHints(editor, rootElement)
       collectRangeHints(editor, rootElement)
@@ -308,9 +310,9 @@ private object ImplicitHintsPass {
       case element => element
     }
 
-    val tooltip = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor)
+    val tooltip = () => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor))
     Seq(
-      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = Option(tooltip))
+      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = tooltip)
     )
   }
 

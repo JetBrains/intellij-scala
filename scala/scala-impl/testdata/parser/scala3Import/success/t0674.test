@@ -47,3 +47,747 @@ for(a <- Some(1);
    ) yield a)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n')
+            ForStatement
+              PsiElement(for)('for')
+              PsiElement(()('(')
+              Enumerators
+                Generator
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: b
+                    PsiElement(identifier)('b')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('3')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: d
+                    PsiElement(identifier)('d')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('4')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: e
+                    PsiElement(identifier)('e')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: f
+                    PsiElement(identifier)('f')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('6')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: g
+                    PsiElement(identifier)('g')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('7')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: h
+                    PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('8')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('9')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: j
+                    PsiElement(identifier)('j')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('10')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: k
+                    PsiElement(identifier)('k')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('11')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: l
+                    PsiElement(identifier)('l')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('12')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: m
+                    PsiElement(identifier)('m')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('13')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: n
+                    PsiElement(identifier)('n')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('14')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: o
+                    PsiElement(identifier)('o')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('15')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: p
+                    PsiElement(identifier)('p')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('16')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: q
+                    PsiElement(identifier)('q')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('17')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('18')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('19')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: d
+                    PsiElement(identifier)('d')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('4')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: e
+                    PsiElement(identifier)('e')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: f
+                    PsiElement(identifier)('f')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('6')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: g
+                    PsiElement(identifier)('g')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('7')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: h
+                    PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('8')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('9')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: j
+                    PsiElement(identifier)('j')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('10')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: k
+                    PsiElement(identifier)('k')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('11')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: l
+                    PsiElement(identifier)('l')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('12')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: m
+                    PsiElement(identifier)('m')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('13')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: n
+                    PsiElement(identifier)('n')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('14')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: o
+                    PsiElement(identifier)('o')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('15')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: p
+                    PsiElement(identifier)('p')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('16')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: q
+                    PsiElement(identifier)('q')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('17')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('18')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('19')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: k
+                    PsiElement(identifier)('k')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('11')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: l
+                    PsiElement(identifier)('l')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('12')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: m
+                    PsiElement(identifier)('m')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('13')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: n
+                    PsiElement(identifier)('n')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('14')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: o
+                    PsiElement(identifier)('o')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('15')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: p
+                    PsiElement(identifier)('p')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('16')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: q
+                    PsiElement(identifier)('q')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('17')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('18')
+                      PsiElement())(')')
+                PsiElement(;)(';')
+                PsiWhiteSpace('\n    ')
+                Generator
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('19')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n   ')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(yield)('yield')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

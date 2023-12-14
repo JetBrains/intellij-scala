@@ -16,3 +16,352 @@ object Test {
   val fib6: Fib[6] = 8
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Fib
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Fib')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: N match {
+    case 0 => 0
+    case 1 => 1
+    case _ => Fib[N - 1] + Fib[N - 2]
+  }
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: Fib[N - 1] + Fib[N - 2]
+                  ParametrizedType: Fib[N - 1]
+                    SimpleType: Fib
+                      CodeReferenceElement: Fib
+                        PsiElement(identifier)('Fib')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      InfixType: N - 1
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: -
+                          PsiElement(identifier)('-')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Fib[N - 2]
+                    SimpleType: Fib
+                      CodeReferenceElement: Fib
+                        PsiElement(identifier)('Fib')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      InfixType: N - 2
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: -
+                          PsiElement(identifier)('-')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib0
+              PsiElement(identifier)('fib0')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[0]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 0
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib1
+              PsiElement(identifier)('fib1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[1]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib2
+              PsiElement(identifier)('fib2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[2]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 2
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib3
+              PsiElement(identifier)('fib3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[3]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 3
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib4
+              PsiElement(identifier)('fib4')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[4]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 4
+                IntegerLiteral
+                  PsiElement(integer)('4')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('3')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib5
+              PsiElement(identifier)('fib5')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[5]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 5
+                IntegerLiteral
+                  PsiElement(integer)('5')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('5')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fib6
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fib6
+              PsiElement(identifier)('fib6')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fib[6]
+            SimpleType: Fib
+              CodeReferenceElement: Fib
+                PsiElement(identifier)('Fib')
+            TypeArgumentsList
+              PsiElement([)('[')
+              LiteralType: 6
+                IntegerLiteral
+                  PsiElement(integer)('6')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('8')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

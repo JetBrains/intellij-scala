@@ -5,3 +5,148 @@ class MaxSizeMap[K, V](maxSize: Int)(using o: Ordering[K]):
 
   export sortedMap._
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: collection.mutable
+        CodeReferenceElement: collection
+          PsiElement(identifier)('collection')
+        PsiElement(.)('.')
+        PsiElement(identifier)('mutable')
+  PsiWhiteSpace('\n\n')
+  ScClass: MaxSizeMap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MaxSizeMap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: maxSize
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('maxSize')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: o
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('o')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Ordering[K]
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: sortedMap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: sortedMap
+              PsiElement(identifier)('sortedMap')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: mutable.TreeMap[K, V]
+            SimpleType: mutable.TreeMap
+              CodeReferenceElement: mutable.TreeMap
+                CodeReferenceElement: mutable
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('TreeMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: mutable.TreeMap.empty
+                ReferenceExpression: mutable.TreeMap
+                  ReferenceExpression: mutable
+                    PsiElement(identifier)('mutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('TreeMap')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: o
+                PsiElement(identifier)('o')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: sortedMap
+              PsiElement(identifier)('sortedMap')
+            PsiElement(.)('.')
+            PsiElement(_)('_')

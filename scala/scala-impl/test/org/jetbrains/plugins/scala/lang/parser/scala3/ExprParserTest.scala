@@ -1466,4 +1466,163 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(integer)('2')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  def test_return(): Unit = checkTree(
+    """1
+      |return
+      |2
+      |return
+      |  3
+      |
+      |if (true) return
+      |4
+      |if (true) return
+      |  5
+      |
+      |if (true)
+      |  return
+      |  6
+      |
+      |if (true)
+      |  return
+      |    7
+      |""".stripMargin,
+    """ScalaFile
+      |  IntegerLiteral
+      |    PsiElement(integer)('1')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |  PsiWhiteSpace('\n')
+      |  IntegerLiteral
+      |    PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |    PsiWhiteSpace('\n  ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    BooleanLiteral
+      |      PsiElement(true)('true')
+      |    PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |  PsiWhiteSpace('\n')
+      |  IntegerLiteral
+      |    PsiElement(integer)('4')
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    BooleanLiteral
+      |      PsiElement(true)('true')
+      |    PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |      PsiWhiteSpace('\n  ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('5')
+      |  PsiWhiteSpace('\n\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    BooleanLiteral
+      |      PsiElement(true)('true')
+      |    PsiElement())(')')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ReturnStatement
+      |        PsiElement(return)('return')
+      |      PsiWhiteSpace('\n  ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('6')
+      |  PsiWhiteSpace('\n\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    BooleanLiteral
+      |      PsiElement(true)('true')
+      |    PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |      PsiWhiteSpace('\n    ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('7')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // SCL-21539
+  def test_infix_expr_after_block_arg(): Unit = checkTree(
+    """
+      |// A("hi") :: Nil
+      |return A:
+      |  "hi"
+      |:: Nil
+      |
+      |// "hi" :: Nil
+      |return A:
+      |  "hi"
+      | :: Nil
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  PsiComment(comment)('// A("hi") :: Nil')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      MethodCall
+      |        ReferenceExpression: A
+      |          PsiElement(identifier)('A')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n  ')
+      |            StringLiteral
+      |              PsiElement(string content)('"hi"')
+      |      PsiWhiteSpace('\n')
+      |      ReferenceExpression: ::
+      |        PsiElement(identifier)('::')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: Nil
+      |        PsiElement(identifier)('Nil')
+      |  PsiWhiteSpace('\n\n')
+      |  PsiComment(comment)('// "hi" :: Nil')
+      |  PsiWhiteSpace('\n')
+      |  ReturnStatement
+      |    PsiElement(return)('return')
+      |    PsiWhiteSpace(' ')
+      |    MethodCall
+      |      ReferenceExpression: A
+      |        PsiElement(identifier)('A')
+      |      ArgumentList
+      |        BlockExpression
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace('\n  ')
+      |          InfixExpression
+      |            StringLiteral
+      |              PsiElement(string content)('"hi"')
+      |            PsiWhiteSpace('\n ')
+      |            ReferenceExpression: ::
+      |              PsiElement(identifier)('::')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: Nil
+      |              PsiElement(identifier)('Nil')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

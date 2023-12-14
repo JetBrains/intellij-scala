@@ -104,7 +104,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
-  def testContextParameters_Anonimous(): Unit = {
+  def testContextParameters_Anonymous(): Unit = {
     val fileContent =
       s"""
          |import scala.concurrent.ExecutionContext

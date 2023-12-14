@@ -7,3 +7,108 @@ transparent inline def default(inline name: String): Any =
 def test =
   default("Int")
 -----
+ScalaFile
+  ScFunctionDefinition: default
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('default')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: name
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('name')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Any
+      CodeReferenceElement: Any
+        PsiElement(identifier)('Any')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      InfixExpression
+        ReferenceExpression: name
+          PsiElement(identifier)('name')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ==
+          PsiElement(identifier)('==')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('"Int"')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('0')
+      PsiWhiteSpace('\n  ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      IfStatement
+        PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: name
+            PsiElement(identifier)('name')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ==
+            PsiElement(identifier)('==')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"String"')
+        PsiWhiteSpace(' ')
+        PsiElement(then)('then')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('""')
+        PsiWhiteSpace('\n  ')
+        PsiElement(else)('else')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: default
+        PsiElement(identifier)('default')
+      ArgumentList
+        PsiElement(()('(')
+        StringLiteral
+          PsiElement(string content)('"Int"')
+        PsiElement())(')')

@@ -9,3 +9,83 @@ object X {
   export B.C // error
 }
 -----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScObject: C
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('C')
+                ExtendsBlock
+                  <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: X
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('X')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: A.B
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+              PsiElement(.)('.')
+              PsiElement(identifier)('B')
+        PsiWhiteSpace('\n\n  ')
+        ReferenceExpression: B.C
+          ReferenceExpression: B
+            PsiElement(identifier)('B')
+          PsiElement(.)('.')
+          PsiElement(identifier)('C')
+        PsiWhiteSpace('        ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: B.C
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+              PsiElement(.)('.')
+              PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// error')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -24,3 +24,422 @@ class MainClass {
   def shapeNames: EnumerateNames[Shape] = EnumerateNames.derived[Shape]
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: summonFrom
+            PsiElement(identifier)('summonFrom')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: summonInline
+            PsiElement(identifier)('summonInline')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: erasedValue
+            PsiElement(identifier)('erasedValue')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n\n')
+  ScTrait: EnumerateNames
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumerateNames')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: EnumerateNames
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumerateNames')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: derived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derived')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: EnumerateNames[T]
+            SimpleType: EnumerateNames
+              CodeReferenceElement: EnumerateNames
+                PsiElement(identifier)('EnumerateNames')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: summonFrom
+              PsiElement(identifier)('summonFrom')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: ev
+                        PsiElement(identifier)('ev')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: Mirror.Of[T]
+                          SimpleType: Mirror.Of
+                            CodeReferenceElement: Mirror.Of
+                              CodeReferenceElement: Mirror
+                                PsiElement(identifier)('Mirror')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Of')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n        ')
+                    BlockOfExpressions
+                      MatchStatement
+                        PsiElement(inline)('inline')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ev
+                          PsiElement(identifier)('ev')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n          ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: m
+                                PsiElement(identifier)('m')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: Mirror.ProductOf[T]
+                                  SimpleType: Mirror.ProductOf
+                                    CodeReferenceElement: Mirror.ProductOf
+                                      CodeReferenceElement: Mirror
+                                        PsiElement(identifier)('Mirror')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('ProductOf')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                    PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              ReferenceExpression: ???
+                                PsiElement(identifier)('???')
+                          PsiWhiteSpace('\n          ')
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: m
+                                PsiElement(identifier)('m')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: Mirror.SumOf[T]
+                                  SimpleType: Mirror.SumOf
+                                    CodeReferenceElement: Mirror.SumOf
+                                      CodeReferenceElement: Mirror
+                                        PsiElement(identifier)('Mirror')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('SumOf')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                    PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace('\n            ')
+                            BlockOfExpressions
+                              MatchStatement
+                                PsiElement(inline)('inline')
+                                PsiWhiteSpace(' ')
+                                GenericCall
+                                  ReferenceExpression: erasedValue
+                                    PsiElement(identifier)('erasedValue')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: m.MirroredElemTypes
+                                      CodeReferenceElement: m.MirroredElemTypes
+                                        CodeReferenceElement: m
+                                          PsiElement(identifier)('m')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('MirroredElemTypes')
+                                    PsiElement(])(']')
+                                PsiWhiteSpace(' ')
+                                PsiElement(match)('match')
+                                PsiWhiteSpace('\n              ')
+                                CaseClauses
+                                  CaseClause
+                                    PsiElement(case)('case')
+                                    PsiWhiteSpace(' ')
+                                    Scala3 TypedPattern
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement(:)(':')
+                                      PsiWhiteSpace(' ')
+                                      TypePattern
+                                        TypeInParenthesis: (tpe *: _)
+                                          PsiElement(()('(')
+                                          InfixType: tpe *: _
+                                            TypeVariable: tpe
+                                              PsiElement(identifier)('tpe')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: *:
+                                              PsiElement(identifier)('*:')
+                                            PsiWhiteSpace(' ')
+                                            WildcardType: _
+                                              PsiElement(_)('_')
+                                          PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=>)('=>')
+                                    PsiWhiteSpace(' ')
+                                    BlockOfExpressions
+                                      GenericCall
+                                        ReferenceExpression: summonInline
+                                          PsiElement(identifier)('summonInline')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          ParametrizedType: EnumerateNames[tpe]
+                                            SimpleType: EnumerateNames
+                                              CodeReferenceElement: EnumerateNames
+                                                PsiElement(identifier)('EnumerateNames')
+                                            TypeArgumentsList
+                                              PsiElement([)('[')
+                                              SimpleType: tpe
+                                                CodeReferenceElement: tpe
+                                                  PsiElement(identifier)('tpe')
+                                              PsiElement(])(']')
+                                          PsiElement(])(']')
+                                  PsiWhiteSpace('\n              ')
+                                  CaseClause
+                                    PsiElement(case)('case')
+                                    PsiWhiteSpace(' ')
+                                    Scala3 TypedPattern
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement(:)(':')
+                                      PsiWhiteSpace(' ')
+                                      TypePattern
+                                        SimpleType: EmptyTuple
+                                          CodeReferenceElement: EmptyTuple
+                                            PsiElement(identifier)('EmptyTuple')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=>)('=>')
+                                    BlockOfExpressions
+                                      <empty list>
+                      PsiWhiteSpace('\n        ')
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: MainClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MainClass')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnum: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Point
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: Point
+                  PsiElement(identifier)('Point')
+                  ExtendsBlock
+                    <empty list>
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: auto
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('auto')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: EnumerateNames[T]
+            SimpleType: EnumerateNames
+              CodeReferenceElement: EnumerateNames
+                PsiElement(identifier)('EnumerateNames')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: EnumerateNames.derived
+              ReferenceExpression: EnumerateNames
+                PsiElement(identifier)('EnumerateNames')
+              PsiElement(.)('.')
+              PsiElement(identifier)('derived')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: shapeNames
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('shapeNames')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: EnumerateNames[Shape]
+            SimpleType: EnumerateNames
+              CodeReferenceElement: EnumerateNames
+                PsiElement(identifier)('EnumerateNames')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Shape
+                CodeReferenceElement: Shape
+                  PsiElement(identifier)('Shape')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: EnumerateNames.derived
+              ReferenceExpression: EnumerateNames
+                PsiElement(identifier)('EnumerateNames')
+              PsiElement(.)('.')
+              PsiElement(identifier)('derived')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Shape
+                CodeReferenceElement: Shape
+                  PsiElement(identifier)('Shape')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

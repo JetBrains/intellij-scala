@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
 
 import scala.util.chaining._
 
@@ -75,12 +75,12 @@ object TypeMismatchHints {
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
         Text(text,
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          tooltip = () => tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
       case Leaf(Mismatch(text, tpe)) =>
         Text(text,
           attributes = Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)),
-          tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
+          tooltip = () =>tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
     }
     TypeDiff.forActual(expected, actual)
@@ -93,10 +93,13 @@ object TypeMismatchHints {
   private val typeMismatchHintContextMenu: MenuProvider = MenuProvider(
     new ActionGroup() {
       override def getChildren(e: AnActionEvent): Array[AnAction] = Array(
-        new AnAction(ScalaBundle.message("disable.hints.for.type.mismatch.errors")) {
+        new AnAction(ScalaBundle.message("type.mismatch.hint.context.menu.configure")) {
           override def actionPerformed(e: AnActionEvent): Unit = {
-            ScalaProjectSettings.getInstance(e.getProject).setTypeMismatchHints(false)
-            refreshIn(e.getProject)
+            ShowSettingsUtilImplExt.showSettingsDialog(
+              e.getProject,
+              classOf[ScalaProjectSettingsConfigurable],
+              ScalaBundle.message("scala.project.settings.form.show.type.mismatch.hints")
+            )
           }
         }
       )

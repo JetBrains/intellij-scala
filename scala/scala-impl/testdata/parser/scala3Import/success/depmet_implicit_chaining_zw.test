@@ -31,3 +31,650 @@ object ZipWith {
   // val zw = implicitly[ZipWith[Succ[Succ[Zero]], Int => String => Boolean]{type T = Stream[Int] => Stream[String] => Stream[Boolean]}].x
 }
 -----
+ScalaFile
+  ScTrait: Zero
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Zero')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Succ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Succ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: ZipWith
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZipWith')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('""')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: ZipWith
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZipWith')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: ZeroZipWith
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ZeroZipWith')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: ZipWith[Zero,S]{type T = Stream[S]}
+            ParametrizedType: ZipWith[Zero,S]
+              SimpleType: ZipWith
+                CodeReferenceElement: ZipWith
+                  PsiElement(identifier)('ZipWith')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Zero
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                PsiElement(,)(',')
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+                PsiElement(])(']')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Stream[S]
+                  SimpleType: Stream
+                    CodeReferenceElement: Stream
+                      PsiElement(identifier)('Stream')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    PsiElement(])(']')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: ZipWith[Zero, S]
+                    SimpleType: ZipWith
+                      CodeReferenceElement: ZipWith
+                        PsiElement(identifier)('ZipWith')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Zero
+                        CodeReferenceElement: Zero
+                          PsiElement(identifier)('Zero')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Stream[S]
+                    SimpleType: Stream
+                      CodeReferenceElement: Stream
+                        PsiElement(identifier)('Stream')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: SuccZipWith
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SuccZipWith')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: zWith
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('zWith')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: ZipWith[N, R]
+                    SimpleType: ZipWith
+                      CodeReferenceElement: ZipWith
+                        PsiElement(identifier)('ZipWith')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: ZipWith[Succ[N],S => R]{type T = Stream[S] => zWith.T}
+            ParametrizedType: ZipWith[Succ[N],S => R]
+              SimpleType: ZipWith
+                CodeReferenceElement: ZipWith
+                  PsiElement(identifier)('ZipWith')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Succ[N]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                FunctionalType: S => R
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(])(']')
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                FunctionalType: Stream[S] => zWith.T
+                  ParametrizedType: Stream[S]
+                    SimpleType: Stream
+                      CodeReferenceElement: Stream
+                        PsiElement(identifier)('Stream')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: zWith.T
+                    CodeReferenceElement: zWith.T
+                      CodeReferenceElement: zWith
+                        PsiElement(identifier)('zWith')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: ZipWith[Succ[N], S => R]
+                    SimpleType: ZipWith
+                      CodeReferenceElement: ZipWith
+                        PsiElement(identifier)('ZipWith')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Succ[N]
+                        SimpleType: Succ
+                          CodeReferenceElement: Succ
+                            PsiElement(identifier)('Succ')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      FunctionalType: S => R
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  FunctionalType: Stream[S] => zWith.T
+                    ParametrizedType: Stream[S]
+                      SimpleType: Stream
+                        CodeReferenceElement: Stream
+                          PsiElement(identifier)('Stream')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: zWith.T
+                      CodeReferenceElement: zWith.T
+                        CodeReferenceElement: zWith
+                          PsiElement(identifier)('zWith')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// dependent types replace the associated types functionality')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ?
+          PsiComment(comment)('// can't use implicitly[ZipWith[Succ[Succ[Zero]], Int => String => Boolean]],')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// since that will chop of the {type T = ... } refinement in adapt (pt = ZipWith[Succ[Succ[Zero]], Int => String => Boolean])')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// this works')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// def zipWith(implicit zw: ZipWith[Succ[Succ[Zero]], Int => String => Boolean]): zw.T = zw.x')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// thus, I present ?: implicitly on steroids!')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('?')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyRef
+                CodeReferenceElement: AnyRef
+                  PsiElement(identifier)('AnyRef')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: w
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('w')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: w.type
+            CodeReferenceElement: w
+              PsiElement(identifier)('w')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: w
+            PsiElement(identifier)('w')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: _0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('_0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: _1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('_1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[Zero]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: _2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('_2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[Succ[Zero]]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Succ[Zero]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Zero
+                    CodeReferenceElement: Zero
+                      PsiElement(identifier)('Zero')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: zw
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: zw
+              PsiElement(identifier)('zw')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ?[ZipWith[_2, Int => String => Boolean]](
+    SuccZipWith[_1, Int, String => Boolean](
+      SuccZipWith[_0, String, Boolean])).x
+            MethodCall
+              GenericCall
+                ReferenceExpression: ?
+                  PsiElement(identifier)('?')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: ZipWith[_2, Int => String => Boolean]
+                    SimpleType: ZipWith
+                      CodeReferenceElement: ZipWith
+                        PsiElement(identifier)('ZipWith')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: _2
+                        CodeReferenceElement: _2
+                          PsiElement(identifier)('_2')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      FunctionalType: Int => String => Boolean
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        FunctionalType: String => Boolean
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace('\n    ')
+                MethodCall
+                  GenericCall
+                    ReferenceExpression: SuccZipWith
+                      PsiElement(identifier)('SuccZipWith')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: _1
+                        CodeReferenceElement: _1
+                          PsiElement(identifier)('_1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      FunctionalType: String => Boolean
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n      ')
+                    GenericCall
+                      ReferenceExpression: SuccZipWith
+                        PsiElement(identifier)('SuccZipWith')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: _0
+                          CodeReferenceElement: _0
+                            PsiElement(identifier)('_0')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                        PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('x')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// val zw = implicitly[ZipWith[Succ[Succ[Zero]], Int => String => Boolean]{type T = Stream[Int] => Stream[String] => Stream[Boolean]}].x')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

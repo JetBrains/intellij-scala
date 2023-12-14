@@ -18,3 +18,278 @@ object Client {
   }
 }
 -----
+ScalaFile
+  ScObject: Client
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Client')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: Test.Outer.Nested.sig
+              ReferenceExpression: Test.Outer.Nested
+                ReferenceExpression: Test.Outer
+                  ReferenceExpression: Test
+                    PsiElement(identifier)('Test')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Outer')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Nested')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: Test.Outer.Nested.sig1
+              ReferenceExpression: Test.Outer.Nested
+                ReferenceExpression: Test.Outer
+                  ReferenceExpression: Test
+                    PsiElement(identifier)('Test')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Outer')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Nested')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig1')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: Test.Outer.Nested.sig2
+              ReferenceExpression: Test.Outer.Nested
+                ReferenceExpression: Test.Outer
+                  ReferenceExpression: Test
+                    PsiElement(identifier)('Test')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Outer')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Nested')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig2')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: o
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Test.Outer
+                        CodeReferenceElement: Test.Outer
+                          CodeReferenceElement: Test
+                            PsiElement(identifier)('Test')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Outer')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig1
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig1')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig2
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig2')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: t
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: t
+                  PsiElement(identifier)('t')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Test
+                        CodeReferenceElement: Test
+                          PsiElement(identifier)('Test')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: o
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: t.Outer1
+                        CodeReferenceElement: t.Outer1
+                          CodeReferenceElement: t
+                            PsiElement(identifier)('t')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Outer1')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig1
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig1')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: new o.Nested1().sig2
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: o.Nested1
+                        CodeReferenceElement: o.Nested1
+                          CodeReferenceElement: o
+                            PsiElement(identifier)('o')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Nested1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sig2')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -32,6 +32,10 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
     return myComponent;
   }
 
+  public void selectXRayModeTab() {
+    myPanel.selectXRayModeTab();
+  }
+
   public void selectUpdatesTab() {
     myPanel.selectUpdatesTab();
   }

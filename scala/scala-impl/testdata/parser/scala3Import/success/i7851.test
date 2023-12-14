@@ -36,3 +36,1092 @@ object WrapperTest {
   }
 }
 -----
+ScalaFile
+  ScTrait: Wrappable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrappable')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScGivenDefinition: given_Wrappable_Float
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Wrappable[Float]
+            SimpleType: Wrappable
+              CodeReferenceElement: Wrappable
+                PsiElement(identifier)('Wrappable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Wrapped
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapped')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Wrappable
+          CodeReferenceElement: Wrappable
+            PsiElement(identifier)('Wrappable')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: WrappedT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WrappedT')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Aux
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aux')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: WrappedT0
+              PsiElement(identifier)('WrappedT0')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Wrapper[T] { type WrappedT = WrappedT0 }
+            ParametrizedType: Wrapper[T]
+              SimpleType: Wrapper
+                CodeReferenceElement: Wrapper
+                  PsiElement(identifier)('Wrapper')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: WrappedT
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('WrappedT')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: WrappedT0
+                  CodeReferenceElement: WrappedT0
+                    PsiElement(identifier)('WrappedT0')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: given_Wrapper_EmptyTuple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Wrapper[EmptyTuple]
+            SimpleType: Wrapper
+              CodeReferenceElement: Wrapper
+                PsiElement(identifier)('Wrapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: WrappedT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WrappedT')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: given_Wrapper_T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Wrappable
+          CodeReferenceElement: Wrappable
+            PsiElement(identifier)('Wrappable')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Wrapper[T]
+            SimpleType: Wrapper
+              CodeReferenceElement: Wrapper
+                PsiElement(identifier)('Wrapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: WrappedT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WrappedT')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Wrapped[T]
+            SimpleType: Wrapped
+              CodeReferenceElement: Wrapped
+                PsiElement(identifier)('Wrapped')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: given_Wrapper_*:
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Wrappable
+          CodeReferenceElement: Wrappable
+            PsiElement(identifier)('Wrappable')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: WrappedT0
+        PsiElement(identifier)('WrappedT0')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: Wrapper.Aux[T, WrappedT0]
+              SimpleType: Wrapper.Aux
+                CodeReferenceElement: Wrapper.Aux
+                  CodeReferenceElement: Wrapper
+                    PsiElement(identifier)('Wrapper')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Aux')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: WrappedT0
+                  CodeReferenceElement: WrappedT0
+                    PsiElement(identifier)('WrappedT0')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Wrapper[H *: T]
+            SimpleType: Wrapper
+              CodeReferenceElement: Wrapper
+                PsiElement(identifier)('Wrapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: H *: T
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: WrappedT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WrappedT')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Wrapped[H] *: WrappedT0
+            ParametrizedType: Wrapped[H]
+              SimpleType: Wrapped
+                CodeReferenceElement: Wrapped
+                  PsiElement(identifier)('Wrapped')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: WrappedT0
+              CodeReferenceElement: WrappedT0
+                PsiElement(identifier)('WrappedT0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: wrappedFunction
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('wrappedFunction')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: FArgs
+        PsiElement(identifier)('FArgs')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: WrapperFArgs
+        PsiElement(identifier)('WrapperFArgs')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Wrappable
+          CodeReferenceElement: Wrappable
+            PsiElement(identifier)('Wrappable')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace('\n  ')
+        Parameter: function
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('function')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: input
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('input')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: FArgs
+              CodeReferenceElement: FArgs
+                PsiElement(identifier)('FArgs')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace('\n  ')
+        Parameter: tf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tf')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: util.TupledFunction[F, WrapperFArgs => Wrapped[R]]
+              SimpleType: util.TupledFunction
+                CodeReferenceElement: util.TupledFunction
+                  CodeReferenceElement: util
+                    PsiElement(identifier)('util')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('TupledFunction')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FunctionalType: WrapperFArgs => Wrapped[R]
+                  SimpleType: WrapperFArgs
+                    CodeReferenceElement: WrapperFArgs
+                      PsiElement(identifier)('WrapperFArgs')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Wrapped[R]
+                    SimpleType: Wrapped
+                      CodeReferenceElement: Wrapped
+                        PsiElement(identifier)('Wrapped')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        Parameter: vs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('vs')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Wrapper.Aux[FArgs, WrapperFArgs]
+              SimpleType: Wrapper.Aux
+                CodeReferenceElement: Wrapper.Aux
+                  CodeReferenceElement: Wrapper
+                    PsiElement(identifier)('Wrapper')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Aux')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: FArgs
+                  CodeReferenceElement: FArgs
+                    PsiElement(identifier)('FArgs')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: WrapperFArgs
+                  CodeReferenceElement: WrapperFArgs
+                    PsiElement(identifier)('WrapperFArgs')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (R, R => Option[FArgs])
+      PsiElement(()('(')
+      TypesList
+        SimpleType: R
+          CodeReferenceElement: R
+            PsiElement(identifier)('R')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        FunctionalType: R => Option[FArgs]
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[FArgs]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: FArgs
+                CodeReferenceElement: FArgs
+                  PsiElement(identifier)('FArgs')
+              PsiElement(])(']')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: variableInput
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: variableInput
+            PsiElement(identifier)('variableInput')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: input.asInstanceOf
+            ReferenceExpression: input
+              PsiElement(identifier)('input')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asInstanceOf')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: WrapperFArgs
+              CodeReferenceElement: WrapperFArgs
+                PsiElement(identifier)('WrapperFArgs')
+            PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// This is not correct but it's ok for the sake of this example.')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: result
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: result
+            PsiElement(identifier)('result')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          MethodCall
+            ReferenceExpression: tf.tupled
+              ReferenceExpression: tf
+                PsiElement(identifier)('tf')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tupled')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: function
+                PsiElement(identifier)('function')
+              PsiElement())(')')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: variableInput
+              PsiElement(identifier)('variableInput')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReturnStatement
+        PsiElement(return)('return')
+        PsiWhiteSpace(' ')
+        Tuple
+          PsiElement(()('(')
+          ReferenceExpression: result.value
+            ReferenceExpression: result
+              PsiElement(identifier)('result')
+            PsiElement(.)('.')
+            PsiElement(identifier)('value')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: _
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: None
+              PsiElement(identifier)('None')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: WrapperTest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WrapperTest')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Wrapped[Float]
+                    SimpleType: Wrapped
+                      CodeReferenceElement: Wrapped
+                        PsiElement(identifier)('Wrapped')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Wrapped[Float]
+                    SimpleType: Wrapped
+                      CodeReferenceElement: Wrapped
+                        PsiElement(identifier)('Wrapped')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: z
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('z')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Wrapped[Float]
+                    SimpleType: Wrapped
+                      CodeReferenceElement: Wrapped
+                        PsiElement(identifier)('Wrapped')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Wrapped[Float]
+            SimpleType: Wrapped
+              CodeReferenceElement: Wrapped
+                PsiElement(identifier)('Wrapped')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: test2
+              PsiElement(identifier)('test2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: (Wrapped[Float], Wrapped[Float], Wrapped[Float]) => Wrapped[Float]
+            TupleType: (Wrapped[Float], Wrapped[Float], Wrapped[Float])
+              PsiElement(()('(')
+              TypesList
+                ParametrizedType: Wrapped[Float]
+                  SimpleType: Wrapped
+                    CodeReferenceElement: Wrapped
+                      PsiElement(identifier)('Wrapped')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Wrapped[Float]
+                  SimpleType: Wrapped
+                    CodeReferenceElement: Wrapped
+                      PsiElement(identifier)('Wrapped')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Wrapped[Float]
+                  SimpleType: Wrapped
+                    CodeReferenceElement: Wrapped
+                      PsiElement(identifier)('Wrapped')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                    PsiElement(])(']')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Wrapped[Float]
+              SimpleType: Wrapped
+                CodeReferenceElement: Wrapped
+                  PsiElement(identifier)('Wrapped')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+                PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('x')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: y
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('y')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: z
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('z')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              MethodCall
+                ReferenceExpression: wrappedFunction
+                  PsiElement(identifier)('wrappedFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  TypedExpression
+                    ReferenceExpression: test1
+                      PsiElement(identifier)('test1')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    FunctionalType: (Wrapped[Float], Wrapped[Float], Wrapped[Float]) => Wrapped[Float]
+                      TupleType: (Wrapped[Float], Wrapped[Float], Wrapped[Float])
+                        PsiElement(()('(')
+                        TypesList
+                          ParametrizedType: Wrapped[Float]
+                            SimpleType: Wrapped
+                              CodeReferenceElement: Wrapped
+                                PsiElement(identifier)('Wrapped')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Float
+                                CodeReferenceElement: Float
+                                  PsiElement(identifier)('Float')
+                              PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Wrapped[Float]
+                            SimpleType: Wrapped
+                              CodeReferenceElement: Wrapped
+                                PsiElement(identifier)('Wrapped')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Float
+                                CodeReferenceElement: Float
+                                  PsiElement(identifier)('Float')
+                              PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Wrapped[Float]
+                            SimpleType: Wrapped
+                              CodeReferenceElement: Wrapped
+                                PsiElement(identifier)('Wrapped')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Float
+                                CodeReferenceElement: Float
+                                  PsiElement(identifier)('Float')
+                              PsiElement(])(']')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Wrapped[Float]
+                        SimpleType: Wrapped
+                          CodeReferenceElement: Wrapped
+                            PsiElement(identifier)('Wrapped')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Float
+                            CodeReferenceElement: Float
+                              PsiElement(identifier)('Float')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              ArgumentList
+                PsiElement(()('(')
+                FloatLiteral
+                  PsiElement(float)('5f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('11f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('3f')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              MethodCall
+                ReferenceExpression: wrappedFunction
+                  PsiElement(identifier)('wrappedFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: test1
+                    PsiElement(identifier)('test1')
+                  PsiElement())(')')
+              ArgumentList
+                PsiElement(()('(')
+                FloatLiteral
+                  PsiElement(float)('5f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('11f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('3f')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              MethodCall
+                ReferenceExpression: wrappedFunction
+                  PsiElement(identifier)('wrappedFunction')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: test2
+                    PsiElement(identifier)('test2')
+                  PsiElement())(')')
+              ArgumentList
+                PsiElement(()('(')
+                FloatLiteral
+                  PsiElement(float)('5f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('11f')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FloatLiteral
+                  PsiElement(float)('3f')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

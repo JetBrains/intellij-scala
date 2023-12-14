@@ -24,3 +24,785 @@ object queues:
     case (x :: xs, ys) => Some((x, (xs, ys)))
     case (Nil, ys) => pop((ys.reverse, Nil))
 -----
+ScalaFile
+  ScClass: Elem
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Elem')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: QueueSignature
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueueSignature')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Queue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Queue')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('empty')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Queue
+            CodeReferenceElement: Queue
+              PsiElement(identifier)('Queue')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: append
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('append')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Queue
+            CodeReferenceElement: Queue
+              PsiElement(identifier)('Queue')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: pop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('pop')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[(Elem, Queue)]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Elem, Queue)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+                PsiElement())(')')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: QueueModule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: QueueModule
+        PsiElement(identifier)('QueueModule')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: QueueSignature
+      CodeReferenceElement: QueueSignature
+        PsiElement(identifier)('QueueSignature')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScObject: QueueImpl
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('QueueImpl')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          PsiElement(extends)('extends')
+          PsiWhiteSpace(' ')
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: QueueSignature
+                CodeReferenceElement: QueueSignature
+                  PsiElement(identifier)('QueueSignature')
+          ScTemplateBody
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            ScTypeAliasDefinition: Queue
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Queue')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              TupleType: (List[Elem], List[Elem])
+                PsiElement(()('(')
+                TypesList
+                  ParametrizedType: List[Elem]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[Elem]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                      PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: empty
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('empty')
+              Parameters
+                <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              Tuple
+                PsiElement(()('(')
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: append
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('append')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: q
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('q')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Queue
+                        CodeReferenceElement: Queue
+                          PsiElement(identifier)('Queue')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: e
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('e')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Queue
+                CodeReferenceElement: Queue
+                  PsiElement(identifier)('Queue')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              Tuple
+                PsiElement(()('(')
+                ReferenceExpression: q._1
+                  ReferenceExpression: q
+                    PsiElement(identifier)('q')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('_1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: e
+                    PsiElement(identifier)('e')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: q._2
+                    ReferenceExpression: q
+                      PsiElement(identifier)('q')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_2')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: pop
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('pop')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: q
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('q')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Queue
+                        CodeReferenceElement: Queue
+                          PsiElement(identifier)('Queue')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Option[(Elem, Queue)]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Elem, Queue)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Queue
+                        CodeReferenceElement: Queue
+                          PsiElement(identifier)('Queue')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: q
+                  PsiElement(identifier)('q')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        StableElementPattern
+                          ReferenceExpression: Nil
+                            PsiElement(identifier)('Nil')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        StableElementPattern
+                          ReferenceExpression: Nil
+                            PsiElement(identifier)('Nil')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: None
+                        PsiElement(identifier)('None')
+                  PsiWhiteSpace('\n      ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        InfixPattern
+                          ReferencePattern: x
+                            PsiElement(identifier)('x')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ::
+                            PsiElement(identifier)('::')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: xs
+                            PsiElement(identifier)('xs')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: ys
+                          PsiElement(identifier)('ys')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: Some
+                          PsiElement(identifier)('Some')
+                        ArgumentList
+                          PsiElement(()('(')
+                          Tuple
+                            PsiElement(()('(')
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            Tuple
+                              PsiElement(()('(')
+                              ReferenceExpression: xs
+                                PsiElement(identifier)('xs')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: ys
+                                PsiElement(identifier)('ys')
+                              PsiElement())(')')
+                            PsiElement())(')')
+                          PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        StableElementPattern
+                          ReferenceExpression: Nil
+                            PsiElement(identifier)('Nil')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: ys
+                          PsiElement(identifier)('ys')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: pop
+                          PsiElement(identifier)('pop')
+                        ArgumentList
+                          PsiElement(()('(')
+                          Tuple
+                            PsiElement(()('(')
+                            ReferenceExpression: ys.reverse
+                              ReferenceExpression: ys
+                                PsiElement(identifier)('ys')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('reverse')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: Nil
+                              PsiElement(identifier)('Nil')
+                            PsiElement())(')')
+                          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: QueueImpl
+        PsiElement(identifier)('QueueImpl')
+  PsiWhiteSpace('\n\n')
+  ScObject: queues
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('queues')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Queue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Queue')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: (List[Elem], List[Elem])
+            PsiElement(()('(')
+            TypesList
+              ParametrizedType: List[Elem]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[Elem]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+                  PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: empty
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('empty')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: append
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('append')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Queue
+            CodeReferenceElement: Queue
+              PsiElement(identifier)('Queue')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: q._1
+              ReferenceExpression: q
+                PsiElement(identifier)('q')
+              PsiElement(.)('.')
+              PsiElement(identifier)('_1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: e
+                PsiElement(identifier)('e')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: q._2
+                ReferenceExpression: q
+                  PsiElement(identifier)('q')
+                PsiElement(.)('.')
+                PsiElement(identifier)('_2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: pop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('pop')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[(Elem, Queue)]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Elem, Queue)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Elem
+                    CodeReferenceElement: Elem
+                      PsiElement(identifier)('Elem')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Queue
+                    CodeReferenceElement: Queue
+                      PsiElement(identifier)('Queue')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: q
+              PsiElement(identifier)('q')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    StableElementPattern
+                      ReferenceExpression: Nil
+                        PsiElement(identifier)('Nil')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: Nil
+                        PsiElement(identifier)('Nil')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    InfixPattern
+                      ReferencePattern: x
+                        PsiElement(identifier)('x')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: ::
+                        PsiElement(identifier)('::')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: xs
+                        PsiElement(identifier)('xs')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: ys
+                      PsiElement(identifier)('ys')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      Tuple
+                        PsiElement(()('(')
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Tuple
+                          PsiElement(()('(')
+                          ReferenceExpression: xs
+                            PsiElement(identifier)('xs')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ys
+                            PsiElement(identifier)('ys')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    StableElementPattern
+                      ReferenceExpression: Nil
+                        PsiElement(identifier)('Nil')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: ys
+                      PsiElement(identifier)('ys')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: pop
+                      PsiElement(identifier)('pop')
+                    ArgumentList
+                      PsiElement(()('(')
+                      Tuple
+                        PsiElement(()('(')
+                        ReferenceExpression: ys.reverse
+                          ReferenceExpression: ys
+                            PsiElement(identifier)('ys')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('reverse')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: Nil
+                          PsiElement(identifier)('Nil')
+                        PsiElement())(')')
+                      PsiElement())(')')

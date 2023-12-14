@@ -799,8 +799,8 @@ object JavaToScala {
         val classMembersNodes = classMembers.map(convertPsiToIntermediate(_, externalProperties))
         val objectMembersNodes = objectMembers.map { m =>
           val node = convertPsiToIntermediate(m, externalProperties)
-          //NOTE: for non-anonimous classes we would move static members to the companion object
-          // However in Scala anonimous classes can't have companion object so we can't move them there
+          //NOTE: for non-anonymous classes we would move static members to the companion object
+          // However in Scala anonymous classes can't have companion object so we can't move them there
           node.comments.beforeComments.append(LiteralExpression("//TODO: 'static' modifier is not supported\n"))
           node
         }

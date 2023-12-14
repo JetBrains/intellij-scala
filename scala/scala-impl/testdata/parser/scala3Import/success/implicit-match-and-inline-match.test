@@ -23,3 +23,330 @@ object `implicit-match-and-inline-match` {
   }
 }
 -----
+ScalaFile
+  ScObject: `implicit-match-and-inline-match`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('`implicit-match-and-inline-match`')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Box
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Box')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ibox
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ibox
+              PsiElement(identifier)('ibox')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Box[Int]
+            SimpleType: Box
+              CodeReferenceElement: Box
+                PsiElement(identifier)('Box')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Box
+              PsiElement(identifier)('Box')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: isTheBoxInScopeAnInt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('isTheBoxInScopeAnInt')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: summonFrom
+                    PsiElement(identifier)('summonFrom')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          Scala3 TypedPattern
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            TypePattern
+                              ParametrizedType: Box[t]
+                                SimpleType: Box
+                                  CodeReferenceElement: Box
+                                    PsiElement(identifier)('Box')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeVariable: t
+                                    PsiElement(identifier)('t')
+                                  PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MatchStatement
+                              PsiElement(inline)('inline')
+                              PsiWhiteSpace(' ')
+                              GenericCall
+                                ReferenceExpression: erasedValue
+                                  PsiElement(identifier)('erasedValue')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  SimpleType: t
+                                    CodeReferenceElement: t
+                                      PsiElement(identifier)('t')
+                                  PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiWhiteSpace(' ')
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n        ')
+                              CaseClauses
+                                CaseClause
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  Scala3 TypedPattern
+                                    WildcardPattern
+                                      PsiElement(_)('_')
+                                    PsiElement(:)(':')
+                                    PsiWhiteSpace(' ')
+                                    TypePattern
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  BlockOfExpressions
+                                    BooleanLiteral
+                                      PsiElement(true)('true')
+                              PsiWhiteSpace('\n      ')
+                              PsiElement(})('}')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: wellIsIt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: wellIsIt
+                    PsiElement(identifier)('wellIsIt')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: isTheBoxInScopeAnInt
+                  PsiElement(identifier)('isTheBoxInScopeAnInt')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: isTheBoxInScopeAnInt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('isTheBoxInScopeAnInt')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: summonFrom
+                    PsiElement(identifier)('summonFrom')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n      ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          Scala3 TypedPattern
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            TypePattern
+                              ParametrizedType: Box[t]
+                                SimpleType: Box
+                                  CodeReferenceElement: Box
+                                    PsiElement(identifier)('Box')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeVariable: t
+                                    PsiElement(identifier)('t')
+                                  PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MatchStatement
+                              PsiElement(inline)('inline')
+                              PsiWhiteSpace(' ')
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiWhiteSpace(' ')
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n        ')
+                              CaseClauses
+                                CaseClause
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  Scala3 TypedPattern
+                                    WildcardPattern
+                                      PsiElement(_)('_')
+                                    PsiElement(:)(':')
+                                    PsiWhiteSpace(' ')
+                                    TypePattern
+                                      SimpleType: t
+                                        CodeReferenceElement: t
+                                          PsiElement(identifier)('t')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  BlockOfExpressions
+                                    BooleanLiteral
+                                      PsiElement(true)('true')
+                              PsiWhiteSpace('\n      ')
+                              PsiElement(})('}')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: wellIsIt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: wellIsIt
+                    PsiElement(identifier)('wellIsIt')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: isTheBoxInScopeAnInt
+                  PsiElement(identifier)('isTheBoxInScopeAnInt')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

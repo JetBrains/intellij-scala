@@ -16,3 +16,101 @@ package object bbb {
 }
 */
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: mada
+      PsiElement(identifier)('mada')
+    PsiElement(;)(';')
+    PsiWhiteSpace(' ')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: defects
+        PsiElement(identifier)('defects')
+      PsiElement(;)(';')
+      PsiWhiteSpace(' ')
+      ScPackaging
+        PsiElement(package)('package')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: tests
+          PsiElement(identifier)('tests')
+        PsiWhiteSpace('\n\n')
+        ScObject: bbb
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(package)('package')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bbb')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('bar')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: aaa.foo
+                ReferenceExpression: aaa
+                  PsiElement(identifier)('aaa')
+                PsiElement(.)('.')
+                PsiElement(identifier)('foo')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// value foo is not a member of package mada.defects.tests.aaa')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        ScObject: aaa
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(package)('package')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('aaa')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('foo')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n')
+              PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/* compiles successfully if placed here..\npackage object bbb {\n    def bar = ()\n    aaa.foo // value foo is not a member of package mada.defects.tests.aaa\n}\n*/')

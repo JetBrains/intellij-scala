@@ -2,3 +2,45 @@ object Test {
   scala.util.Try(PosZInt.from(1).get)
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: scala.util.Try
+            ReferenceExpression: scala.util
+              ReferenceExpression: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Try')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: PosZInt.from(1).get
+              MethodCall
+                ReferenceExpression: PosZInt.from
+                  ReferenceExpression: PosZInt
+                    PsiElement(identifier)('PosZInt')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('from')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('get')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

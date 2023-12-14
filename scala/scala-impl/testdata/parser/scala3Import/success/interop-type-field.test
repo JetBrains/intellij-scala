@@ -4,3 +4,64 @@ class S {
   val x: Class[Integer] = java.lang.Integer.TYPE
 }
 -----
+ScalaFile
+  ScClass: S
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('S')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          PsiComment(comment)('// verify that the special TYPE field is non-nullable')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Class[Integer]
+            SimpleType: Class
+              CodeReferenceElement: Class
+                PsiElement(identifier)('Class')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Integer
+                CodeReferenceElement: Integer
+                  PsiElement(identifier)('Integer')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: java.lang.Integer.TYPE
+            ReferenceExpression: java.lang.Integer
+              ReferenceExpression: java.lang
+                ReferenceExpression: java
+                  PsiElement(identifier)('java')
+                PsiElement(.)('.')
+                PsiElement(identifier)('lang')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Integer')
+            PsiElement(.)('.')
+            PsiElement(identifier)('TYPE')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

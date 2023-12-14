@@ -8,3 +8,222 @@ extends mutable.HashMap[K,V] {
   val b = this.toSeq.sortWith(_._2 > _._2)
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection.mutable
+        CodeReferenceElement: scala.collection
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collection')
+        PsiElement(.)('.')
+        PsiElement(identifier)('mutable')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          ClassParameter: conv
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('conv')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Conversion[V, Ordered[V]]
+                SimpleType: Conversion
+                  CodeReferenceElement: Conversion
+                    PsiElement(identifier)('Conversion')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Ordered[V]
+                    SimpleType: Ordered
+                      CodeReferenceElement: Ordered
+                        PsiElement(identifier)('Ordered')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: mutable.HashMap[K,V]
+            SimpleType: mutable.HashMap
+              CodeReferenceElement: mutable.HashMap
+                CodeReferenceElement: mutable
+                  PsiElement(identifier)('mutable')
+                PsiElement(.)('.')
+                PsiElement(identifier)('HashMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+              PsiElement(,)(',')
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: this.toSeq.sortWith
+              ReferenceExpression: this.toSeq
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toSeq')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sortWith')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    TuplePattern
+                      PsiElement(()('(')
+                      ArgumentPatterns
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: v1
+                              PsiElement(identifier)('v1')
+                          PsiElement())(')')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferencePattern: v2
+                              PsiElement(identifier)('v2')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      InfixExpression
+                        ReferenceExpression: v1
+                          PsiElement(identifier)('v1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: >
+                          PsiElement(identifier)('>')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: v2
+                          PsiElement(identifier)('v2')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: this.toSeq.sortWith
+              ReferenceExpression: this.toSeq
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toSeq')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sortWith')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: _._2
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('_2')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: >
+                  PsiElement(identifier)('>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: _._2
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('_2')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

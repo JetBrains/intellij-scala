@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.{Editor, EditorFactory}
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
@@ -88,7 +88,11 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = runWithErrorsFromCompiler(getProject) {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       invokeAndWait {
-        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+        val descriptor = new OpenFileDescriptor(getProject, virtualFile)
+        val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
+        // The tests are running in a headless environment where focus events are not propagated.
+        // We need to call our listener manually.
+        new CompilerHighlightingEditorFocusListener(editor).focusGained()
       }
     }
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)

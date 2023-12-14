@@ -309,12 +309,31 @@ object CompileServerLauncher {
   private def stopInternal(timeout: Option[FiniteDuration], debugReason: Option[String]): Boolean = serverStartLock.synchronized {
     LOG.info(s"compile server process stop: ${serverInstance.map(_.summary).getOrElse("<no info>")}")
     serverInstance.forall { it =>
-      val bool = timeout match {
+      val stopped = timeout match {
         case Some(duration) => it.destroyAndWaitFor(duration.toMillis)
         case None => it.destroyAndWait()
       }
       infoAndPrintOnTeamcity(s"compile server process stopped${debugReason.fold("")(", reason: " + _)}")
-      bool
+
+      if (!stopped) {
+        val message = timeout match {
+          case Some(duration) =>
+            s"Compile server process failed to stop after ${duration.toMillis} ms"
+          case None =>
+            s"Compile server process failed to stop"
+        }
+
+        if (isUnitTestMode) {
+          // Log an error and throw assertion error in tests.
+          LOG.error(message)
+          throw new AssertionError(message)
+        } else {
+          // Log a warning in production code.
+          LOG.warn(message)
+        }
+      }
+
+      stopped
     }
   }
 
@@ -572,7 +591,7 @@ object CompileServerLauncher {
   private def isUsed(portFromSettings: Int): Boolean =
     NetUtils.canConnectToSocket("localhost", portFromSettings)
 
-  private def saveSettings(): Unit = invokeAndWait {
+  private def saveSettings(): Unit = {
     ApplicationManager.getApplication.saveSettings()
   }
 

@@ -13,3 +13,147 @@ package scala {
   package object meta extends scala.meta.config.Aliases
 }
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala
+      PsiElement(identifier)('scala')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: meta
+        PsiElement(identifier)('meta')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n    ')
+      ScPackaging
+        PsiElement(package)('package')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: config
+          PsiElement(identifier)('config')
+        PsiWhiteSpace(' ')
+        PsiElement({)('{')
+        PsiWhiteSpace('\n      ')
+        ScClass: Version
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Version')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n      ')
+        ScTrait: Aliases
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aliases')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n        ')
+              ScTypeAliasDefinition: Version
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Version')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: scala.meta.config.Version
+                  CodeReferenceElement: scala.meta.config.Version
+                    CodeReferenceElement: scala.meta.config
+                      CodeReferenceElement: scala.meta
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('meta')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('config')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Version')
+              PsiWhiteSpace('\n        ')
+              ScPatternDefinition: Version
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: Version
+                    PsiElement(identifier)('Version')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: scala.meta.config.Version
+                  ReferenceExpression: scala.meta.config
+                    ReferenceExpression: scala.meta
+                      ReferenceExpression: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('meta')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('config')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Version')
+              PsiWhiteSpace('\n      ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n    ')
+        PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      PsiElement(})('}')
+    PsiWhiteSpace('\n\n  ')
+    ScObject: meta
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('meta')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: scala.meta.config.Aliases
+              CodeReferenceElement: scala.meta.config.Aliases
+                CodeReferenceElement: scala.meta.config
+                  CodeReferenceElement: scala.meta
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('meta')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('config')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Aliases')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

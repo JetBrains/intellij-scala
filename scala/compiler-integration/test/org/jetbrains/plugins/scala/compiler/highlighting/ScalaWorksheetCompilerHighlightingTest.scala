@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
@@ -47,7 +47,11 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       })
 
       invokeAndWait {
-        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
+        val descriptor = new OpenFileDescriptor(getProject, virtualFile)
+        val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
+        // The tests are running in a headless environment where focus events are not propagated.
+        // We need to call our listener manually.
+        new CompilerHighlightingEditorFocusListener(editor).focusGained()
       }
 
       val timeout = 60.seconds

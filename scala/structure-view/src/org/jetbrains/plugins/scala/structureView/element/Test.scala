@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.structureView.element
 import com.intellij.execution.testframework.PoolOfTestIcons.{IGNORED_ICON, NOT_RAN}
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.icons.Icons
 
 import javax.swing.Icon
@@ -24,6 +25,8 @@ class Test(elem: PsiElement,
   override def getChildren: Array[TreeElement] = myChildren
 
   override def isAlwaysLeaf: Boolean = false
+
+  override def getAccessLevel: Int = PsiUtil.ACCESS_LEVEL_PUBLIC
 }
 
 object Test {

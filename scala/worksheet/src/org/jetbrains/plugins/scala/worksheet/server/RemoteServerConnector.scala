@@ -155,7 +155,14 @@ final class RemoteServerConnector(
   override protected def assemblyRuntimeClasspath(): Seq[File] = {
     val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
     extensionCp.getOrElse {
-      super.assemblyRuntimeClasspath()
+      // This workaround specifically covers the following edge case.
+      // `super.assemblyRuntimeClasspath()` uses platform APIs (OrderEnumerator) to obtain the compilation classpath.
+      // If any of the `target` directories have been deleted manually by a user, they would _not_ be returned by the
+      // OrderEnumerator, so we would still see unresolved classes in the worksheet, even though the classes have
+      // already been produced. I currently do not have time before the release to dig into it more.
+      // External implementations of the `WorksheetCompilerExtension` extension point are not affected by this.
+      // TODO: Explore a more elegant solution to this problem.
+      (super.assemblyRuntimeClasspath() ++ outputDirs).distinct
     }
   }
 }
@@ -215,6 +222,7 @@ object RemoteServerConnector {
 
   private val IgnoredScalacOptions = Set(
     "-Xfatal-warnings", //before 2.12 and in 2.13
-    "-Werror" //since 2.13 only
+    "-Werror", //since 2.13 only
+    "-Wunused:imports", //see SCL-21880
   )
 }

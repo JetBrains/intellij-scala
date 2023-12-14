@@ -2,3 +2,102 @@ object Test {
   (Nil:List[List[Double]]).reduceLeft((_: Any, _: Any) => Nil.indices.map(_ => 0d))
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: (Nil:List[List[Double]]).reduceLeft
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+                PsiElement(:)(':')
+                ParametrizedType: List[List[Double]]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: List[Double]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('reduceLeft')
+          ArgumentList
+            PsiElement(()('(')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: _
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: _
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Nil.indices.map
+                  ReferenceExpression: Nil.indices
+                    ReferenceExpression: Nil
+                      PsiElement(identifier)('Nil')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('indices')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: _
+                          PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    DoubleLiteral
+                      PsiElement(double)('0d')
+                  PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

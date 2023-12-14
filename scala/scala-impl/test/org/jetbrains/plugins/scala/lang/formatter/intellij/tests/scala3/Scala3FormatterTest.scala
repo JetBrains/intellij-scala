@@ -208,21 +208,21 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
     doTextTest(before2, after)
   }
 
-  def testGivenInstance_1(): Unit = doTextTest(
+  def testGivenAlias_1(): Unit = doTextTest(
     """given IntWrapperToDoubleWrapper: Conversion[IntWrapper, DoubleWrapper] = new Conversion[IntWrapper, DoubleWrapper] {
       |  override def apply(i: IntWrapper): DoubleWrapper = new DoubleWrapper(i.a.toDouble)
       |}
       |""".stripMargin
   )
 
-  def testGivenInstance_2(): Unit = doTextTest(
+  def testGivenAlias_2(): Unit = doTextTest(
     """given stringParser: StringParser[String] = baseParser(Success(_))
       |
       |given intParser: StringParser[Int] = baseParser(s ⇒ Try(s.toInt))
       |""".stripMargin
   )
 
-  def testGivenInstance_3(): Unit = doTextTest(
+  def testGivenAlias_3(): Unit = doTextTest(
     """given optionParser[A](using parser: => StringParser[A]): StringParser[Option[A]] = new StringParser[Option[A]] {
       |  override def parse(s: String): Try[Option[A]] = s match {
       |    case "" ⇒ Success(None) // implicit parser not used.
@@ -232,14 +232,14 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
-  def testGivenInstance_4_WithoutEqualsSign(): Unit = doTextTest(
+  def testGivenDefinition_WithoutEqualsSign(): Unit = doTextTest(
     """given Id: Object with {
       |  def msg: String = ""
       |}
       |""".stripMargin
   )
 
-  def testGivenInstance_5_WithIndentationBasedTemplateBody(): Unit = doTextTest(
+  def testGivenDefinition_WithIndentationBasedTemplateBody(): Unit = doTextTest(
     """given intOrd: Ordering[Int] with
       |  def compare(x: Int, y: Int): Int = 42
       |
@@ -249,6 +249,88 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |  def compare(x: Int, y: Int): Int = 42
       |""".stripMargin
   )
+
+  def testGivenDefinition_WithUsingParameterClause(): Unit = doTextTest(
+    """given ByteOrdering(using Int, Short): Ordering[Byte] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_WithUsingParameterClauseAndTypeParameters(): Unit = doTextTest(
+    """given ShortOrdering[T, X](using T, X): Ordering[Short] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous(): Unit = doTextTest(
+    """given Ordering[Int] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous_WithUsingParameterClause(): Unit = doTextTest(
+    """given (using Int, Short): Ordering[Byte] with {}""".stripMargin
+  )
+
+  def testGivenDefinition_Anonymous_WithUsingParameterClauseAndTypeParameters(): Unit = doTextTest(
+    """given [T, X](using T, X): Ordering[Short] with {}""".stripMargin
+  )
+
+  def testGivens_Incomplete(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_CLASS = 0
+
+    doTextTest(
+      """class C {
+        |  class MyClass1
+        |  class MyClass2(using String)
+        |  class MyClass3(using String)
+        |
+        |  given MyClass1()
+        |  given MyClass2(using)
+        |  given MyClass3(using "42")
+        |
+        |  given foo1(using String): String
+        |  given foo2(using String): String =
+        |  given foo3(using String): String = ???
+        |}
+        |
+        |class D {
+        |  class MyClass1[T]
+        |  class MyClass2[T](using String)
+        |  class MyClass3[T](using String)
+        |
+        |  given MyClass1[String]()
+        |  given MyClass2[String](using)
+        |  given MyClass3[String](using "42")
+        |
+        |  given foo1[T](using String): String
+        |  given foo2[T](using String): String =
+        |  given foo3[T](using String): String = ???
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testGivens_Incomplete_Anonymous(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_CLASS = 0
+
+    doTextTest(
+      """class A {
+        |  given ()
+        |  given (using)
+        |  given (using String)
+        |  given (using String): String
+        |  given (using String): String =
+        |  given (using String): String = ???
+        |}
+        |
+        |class B {
+        |  given [T]()
+        |  given [T](using)
+        |  given [T](using String)
+        |  given [T](using String): String
+        |  given [T](using String): String =
+        |  given [T](using String): String = ???
+        |}""".stripMargin
+    )
+  }
+
   def testPackagingWithColon(): Unit = {
     doTextTest(
       """package p1:

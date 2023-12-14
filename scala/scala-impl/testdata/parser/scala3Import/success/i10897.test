@@ -5,3 +5,165 @@ object Foo
 val x = summon[Union[(Foo.type, 1)] =:= (Foo.type | 1)] // doesn't compile
 val y = summon[Union[(Foo.type, 1, String)] =:= (Foo.type | 1 | String)] // compiles
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Tuple.Union
+        CodeReferenceElement: Tuple
+          PsiElement(identifier)('Tuple')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Union')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Union[(Foo.type, 1)] =:= (Foo.type | 1)
+          ParametrizedType: Union[(Foo.type, 1)]
+            SimpleType: Union
+              CodeReferenceElement: Union
+                PsiElement(identifier)('Union')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Foo.type, 1)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Foo.type
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: =:=
+            PsiElement(identifier)('=:=')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Foo.type | 1)
+            PsiElement(()('(')
+            InfixType: Foo.type | 1
+              SimpleType: Foo.type
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// doesn't compile')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y
+        PsiElement(identifier)('y')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Union[(Foo.type, 1, String)] =:= (Foo.type | 1 | String)
+          ParametrizedType: Union[(Foo.type, 1, String)]
+            SimpleType: Union
+              CodeReferenceElement: Union
+                PsiElement(identifier)('Union')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Foo.type, 1, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Foo.type
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: =:=
+            PsiElement(identifier)('=:=')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Foo.type | 1 | String)
+            PsiElement(()('(')
+            InfixType: Foo.type | 1 | String
+              InfixType: Foo.type | 1
+                SimpleType: Foo.type
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// compiles')

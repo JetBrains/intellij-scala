@@ -2,3 +2,132 @@ class Box[T]
 def dep1[T1 <: Singleton, T2 <: T1](t1: T1)(t2: T2): Box[T1] = ???
 val d1 = dep1(1)(2)
 -----
+ScalaFile
+  ScClass: Box
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Box')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: dep1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('dep1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        PsiElement(identifier)('T1')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Singleton
+          CodeReferenceElement: Singleton
+            PsiElement(identifier)('Singleton')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T2
+        PsiElement(identifier)('T2')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: T1
+          CodeReferenceElement: T1
+            PsiElement(identifier)('T1')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T1
+              CodeReferenceElement: T1
+                PsiElement(identifier)('T1')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T2
+              CodeReferenceElement: T2
+                PsiElement(identifier)('T2')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Box[T1]
+      SimpleType: Box
+        CodeReferenceElement: Box
+          PsiElement(identifier)('Box')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: T1
+          CodeReferenceElement: T1
+            PsiElement(identifier)('T1')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: d1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: d1
+        PsiElement(identifier)('d1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      MethodCall
+        ReferenceExpression: dep1
+          PsiElement(identifier)('dep1')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement())(')')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')

@@ -19,3 +19,229 @@ object Test:
     println("ok")
 end Test
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: matches
+      PsiElement(identifier)('matches')
+    PsiWhiteSpace('\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          MatchStatement
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: min
+                PsiElement(identifier)('min')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"OK"')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MatchStatement
+                    StringLiteral
+                      PsiElement(string content)('"?"')
+                    PsiWhiteSpace('\n  ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n    ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        LiteralPattern
+                          StringLiteral
+                            PsiElement(string content)('"OK"')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        BlockOfExpressions
+                          <empty list>
+                      PsiWhiteSpace('\n    ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        LiteralPattern
+                          StringLiteral
+                            PsiElement(string content)('"?"')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ThrowStatement
+                            PsiElement(throw)('throw')
+                            PsiWhiteSpace(' ')
+                            ScNewTemplateDefinition: <anonymous>
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                TemplateParents
+                                  ConstructorInvocation
+                                    SimpleType: AssertionError
+                                      CodeReferenceElement: AssertionError
+                                        PsiElement(identifier)('AssertionError')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('4')
+          PsiWhiteSpace('\n  ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiWhiteSpace('\n     ')
+              ReferenceExpression: ||
+                PsiElement(identifier)('||')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n          ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('4')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      BooleanLiteral
+                        PsiElement(true)('true')
+                  PsiWhiteSpace('\n          ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      InfixExpression
+                        BooleanLiteral
+                          PsiElement(false)('false')
+                        PsiWhiteSpace('\n     ')
+                        ReferenceExpression: ||
+                          PsiElement(identifier)('||')
+                        PsiWhiteSpace(' ')
+                        MatchStatement
+                          ExpressionInParenthesis
+                            PsiElement(()('(')
+                            InfixExpression
+                              IntegerLiteral
+                                PsiElement(integer)('2')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              IntegerLiteral
+                                PsiElement(integer)('2')
+                            PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(match)('match')
+                          PsiWhiteSpace('\n          ')
+                          CaseClauses
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              LiteralPattern
+                                IntegerLiteral
+                                  PsiElement(integer)('4')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                BooleanLiteral
+                                  PsiElement(true)('true')
+                            PsiWhiteSpace('\n          ')
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              WildcardPattern
+                                PsiElement(_)('_')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                BooleanLiteral
+                                  PsiElement(false)('false')
+            PsiWhiteSpace('\n  ')
+            PsiElement(then)('then')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"ok"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          End: Test
+            PsiElement(end)('end')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Test')

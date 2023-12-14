@@ -24,3 +24,293 @@ object Oops {
 // def item: String = Nil map { case e: Any => e }
 }
 -----
+ScalaFile
+  ScObject: Msg
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Msg')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: TSeq
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TSeq')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScObject: TSeq
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TSeq')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: fromSeq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('fromSeq')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: s
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('s')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Seq[T]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: TSeq
+                  CodeReferenceElement: TSeq
+                    PsiElement(identifier)('TSeq')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: sys.error
+                    ReferenceExpression: sys
+                      PsiElement(identifier)('sys')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('error')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"stub"')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: render
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('render')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: msgs
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: msgs
+                  PsiElement(identifier)('msgs')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: TSeq
+                CodeReferenceElement: TSeq
+                  PsiElement(identifier)('TSeq')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  MethodCall
+                    ReferenceExpression: List[(Any, Any)]().flatMap
+                      MethodCall
+                        GenericCall
+                          ReferenceExpression: List
+                            PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TupleType: (Any, Any)
+                              PsiElement(()('(')
+                              TypesList
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                              PsiElement())(')')
+                            PsiElement(])(']')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('flatMap')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n      ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TuplePattern
+                              PsiElement(()('(')
+                              ArgumentPatterns
+                                ReferencePattern: a
+                                  PsiElement(identifier)('a')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: b
+                                  PsiElement(identifier)('b')
+                              PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              BlockExpression
+                                PsiElement({)('{')
+                                PsiWhiteSpace('\n        ')
+                                MatchStatement
+                                  ReferenceExpression: a
+                                    PsiElement(identifier)('a')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(match)('match')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace('\n          ')
+                                  CaseClauses
+                                    CaseClause
+                                      PsiElement(case)('case')
+                                      PsiWhiteSpace(' ')
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=>)('=>')
+                                      PsiWhiteSpace(' ')
+                                      BlockOfExpressions
+                                        MatchStatement
+                                          ReferenceExpression: b
+                                            PsiElement(identifier)('b')
+                                          PsiWhiteSpace(' ')
+                                          PsiElement(match)('match')
+                                          PsiWhiteSpace(' ')
+                                          PsiElement({)('{')
+                                          PsiWhiteSpace('\n            ')
+                                          CaseClauses
+                                            CaseClause
+                                              PsiElement(case)('case')
+                                              PsiWhiteSpace(' ')
+                                              WildcardPattern
+                                                PsiElement(_)('_')
+                                              PsiWhiteSpace(' ')
+                                              PsiElement(=>)('=>')
+                                              PsiWhiteSpace(' ')
+                                              BlockOfExpressions
+                                                MethodCall
+                                                  ReferenceExpression: sys.error
+                                                    ReferenceExpression: sys
+                                                      PsiElement(identifier)('sys')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('error')
+                                                  ArgumentList
+                                                    PsiElement(()('(')
+                                                    StringLiteral
+                                                      PsiElement(string content)('"stub"')
+                                                    PsiElement())(')')
+                                          PsiWhiteSpace('\n          ')
+                                          PsiElement(})('}')
+                                  PsiWhiteSpace('\n        ')
+                                  PsiElement(})('}')
+                                PsiWhiteSpace('\n      ')
+                                PsiElement(})('}')
+                        PsiWhiteSpace('\n    ')
+                        PsiElement(})('}')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Seq[T]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiComment(BlockComment)('/* Adding this type annotation avoids the compile error.*/')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Oops
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Oops')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('// implicit def someImplicit(s: Seq[_]): String = sys.error("stub")')
+        PsiWhiteSpace('\n')
+        PsiComment(comment)('// def item: String = Nil map { case e: Any => e }')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

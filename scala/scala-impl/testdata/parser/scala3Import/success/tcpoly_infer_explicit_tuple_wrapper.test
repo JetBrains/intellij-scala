@@ -12,3 +12,362 @@ object Test {
   tupleOfIterableWrapper(t).unzip
 }
 -----
+ScalaFile
+  ScClass: IterableOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IterableOps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: CC
+        PsiElement(identifier)('CC')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: B
+            PsiElement(identifier)('+')
+            PsiElement(identifier)('B')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Iterable[B]
+          SimpleType: Iterable
+            CodeReferenceElement: Iterable
+              PsiElement(identifier)('Iterable')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A1
+        PsiElement(identifier)('A1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A2
+        PsiElement(identifier)('A2')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: tuple
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('tuple')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TupleType: (CC[A1], Iterable[A2])
+                PsiElement(()('(')
+                TypesList
+                  ParametrizedType: CC[A1]
+                    SimpleType: CC
+                      CodeReferenceElement: CC
+                        PsiElement(identifier)('CC')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A1
+                        CodeReferenceElement: A1
+                          PsiElement(identifier)('A1')
+                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Iterable[A2]
+                    SimpleType: Iterable
+                      CodeReferenceElement: Iterable
+                        PsiElement(identifier)('Iterable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A2
+                        CodeReferenceElement: A2
+                          PsiElement(identifier)('A2')
+                      PsiElement(])(']')
+                PsiElement())(')')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unzip
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unzip')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (CC[A1], CC[A2])
+            PsiElement(()('(')
+            TypesList
+              ParametrizedType: CC[A1]
+                SimpleType: CC
+                  CodeReferenceElement: CC
+                    PsiElement(identifier)('CC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A1
+                    CodeReferenceElement: A1
+                      PsiElement(identifier)('A1')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: CC[A2]
+                SimpleType: CC
+                  CodeReferenceElement: CC
+                    PsiElement(identifier)('CC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A2
+                    CodeReferenceElement: A2
+                      PsiElement(identifier)('A2')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sys.error
+              ReferenceExpression: sys
+                PsiElement(identifier)('sys')
+              PsiElement(.)('.')
+              PsiElement(identifier)('error')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"foo"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: tupleOfIterableWrapper
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tupleOfIterableWrapper')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: CC
+              PsiElement(identifier)('CC')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('+')
+                  PsiElement(identifier)('B')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Iterable[B]
+                SimpleType: Iterable
+                  CodeReferenceElement: Iterable
+                    PsiElement(identifier)('Iterable')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tuple
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tuple')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (CC[A1], Iterable[A2])
+                    PsiElement(()('(')
+                    TypesList
+                      ParametrizedType: CC[A1]
+                        SimpleType: CC
+                          CodeReferenceElement: CC
+                            PsiElement(identifier)('CC')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A1
+                            CodeReferenceElement: A1
+                              PsiElement(identifier)('A1')
+                          PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Iterable[A2]
+                        SimpleType: Iterable
+                          CodeReferenceElement: Iterable
+                            PsiElement(identifier)('Iterable')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A2
+                            CodeReferenceElement: A2
+                              PsiElement(identifier)('A2')
+                          PsiElement(])(']')
+                    PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IterableOps[CC, A1, A2]
+            SimpleType: IterableOps
+              CodeReferenceElement: IterableOps
+                PsiElement(identifier)('IterableOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: CC
+                CodeReferenceElement: CC
+                  PsiElement(identifier)('CC')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A1
+                CodeReferenceElement: A1
+                  PsiElement(identifier)('A1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: A2
+                CodeReferenceElement: A2
+                  PsiElement(identifier)('A2')
+              PsiElement(])(']')
+          PsiWhiteSpace('\n      ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: IterableOps[CC, A1, A2]
+                    SimpleType: IterableOps
+                      CodeReferenceElement: IterableOps
+                        PsiElement(identifier)('IterableOps')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: CC
+                        CodeReferenceElement: CC
+                          PsiElement(identifier)('CC')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A1
+                        CodeReferenceElement: A1
+                          PsiElement(identifier)('A1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A2
+                        CodeReferenceElement: A2
+                          PsiElement(identifier)('A2')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: tuple
+                      PsiElement(identifier)('tuple')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('6')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ReferenceExpression: tupleOfIterableWrapper(t).unzip
+          MethodCall
+            ReferenceExpression: tupleOfIterableWrapper
+              PsiElement(identifier)('tupleOfIterableWrapper')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: t
+                PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('unzip')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

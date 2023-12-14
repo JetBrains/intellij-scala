@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.{Document, Editor, InlayModel}
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass.{hasObviousReturnType, isFollowedByLineEnd, isUnqualifiedReference, methodChainContextMenu, removeLastIfHasTypeMismatch}
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, isTypeObvious, textPartsOf}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsConfigurable, isTypeObvious, textPartsOf}
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPartsHintRenderer}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt, PsiFileExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -34,7 +34,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     collectedHintTemplates =
       if (editor.isOneLineMode ||
         !settings.showMethodChainInlayHints ||
-        root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
+        !ScalaHintsSettings.xRayMode && root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
         Seq.empty
       } else {
         gatherMethodChainHints(editor, root)
@@ -192,7 +192,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    Text(": ") +: textPartsOf(ty, settings.presentationLength)
+    Text(": ") +: textPartsOf(ty, settings.presentationLength, expr)
   }
 }
 
@@ -332,7 +332,9 @@ private object ScalaMethodChainInlayHintsPass {
           override def actionPerformed(e: AnActionEvent): Unit = {
             ScalaMethodChainInlayHintsSettingsModel.navigateTo(e.getProject)
           }
-        }
+        },
+        Separator.getInstance,
+        ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
       )
     }
 

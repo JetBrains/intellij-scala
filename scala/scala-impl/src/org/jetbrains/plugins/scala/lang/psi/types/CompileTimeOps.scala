@@ -216,6 +216,7 @@ private object CompileTimeOps {
       case "||" => Some(BooleanValue(l || r))
       case _ => None
     }
+    case _ => None
   }
 
   private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {

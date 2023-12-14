@@ -5,3 +5,299 @@ object Test {
     ((SortedSet(1, 2): collection.SortedSet[Int]) map identity[Int]): scala.collection.SortedSet[Int]
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.collection
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('collection')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n    ')
+        TypedExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  MethodCall
+                    ReferenceExpression: Map
+                      PsiElement(identifier)('Map')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ->
+                          PsiElement(identifier)('->')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"a"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ->
+                          PsiElement(identifier)('->')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"b"')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: collection.Map[Int, String]
+                    SimpleType: collection.Map
+                      CodeReferenceElement: collection.Map
+                        CodeReferenceElement: collection
+                          PsiElement(identifier)('collection')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Map')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: map
+                PsiElement(identifier)('map')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Int, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.collection.Map[Int,String]
+            SimpleType: scala.collection.Map
+              CodeReferenceElement: scala.collection.Map
+                CodeReferenceElement: scala.collection
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n    ')
+        TypedExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  MethodCall
+                    ReferenceExpression: SortedMap
+                      PsiElement(identifier)('SortedMap')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ->
+                          PsiElement(identifier)('->')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"a"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ->
+                          PsiElement(identifier)('->')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('"b"')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: collection.SortedMap[Int, String]
+                    SimpleType: collection.SortedMap
+                      CodeReferenceElement: collection.SortedMap
+                        CodeReferenceElement: collection
+                          PsiElement(identifier)('collection')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('SortedMap')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: map
+                PsiElement(identifier)('map')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TupleType: (Int, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.collection.SortedMap[Int,String]
+            SimpleType: scala.collection.SortedMap
+              CodeReferenceElement: scala.collection.SortedMap
+                CodeReferenceElement: scala.collection
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('SortedMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n    ')
+        TypedExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  MethodCall
+                    ReferenceExpression: SortedSet
+                      PsiElement(identifier)('SortedSet')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: collection.SortedSet[Int]
+                    SimpleType: collection.SortedSet
+                      CodeReferenceElement: collection.SortedSet
+                        CodeReferenceElement: collection
+                          PsiElement(identifier)('collection')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('SortedSet')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: map
+                PsiElement(identifier)('map')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: scala.collection.SortedSet[Int]
+            SimpleType: scala.collection.SortedSet
+              CodeReferenceElement: scala.collection.SortedSet
+                CodeReferenceElement: scala.collection
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('SortedSet')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

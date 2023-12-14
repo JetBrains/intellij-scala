@@ -46,3 +46,1183 @@ object Foo:
   val _2c: Demote[ReplaceAllStrict[S, ToReplace, Replacement]] = ("b", "len") // ok
   val _2d: Sub[S, ToReplace, Replacement] = ("b", "len") // error, see below
 -----
+ScalaFile
+  ScObject: Meta
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Meta')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: String | Tuple
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Demote
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Demote')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Shape
+            CodeReferenceElement: Shape
+              PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: S match
+    case Tuple1[t] => t & Shape
+    case Tuple => S
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Tuple1[t]
+                  SimpleType: Tuple1
+                    CodeReferenceElement: Tuple1
+                      PsiElement(identifier)('Tuple1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeVariable: t
+                      PsiElement(identifier)('t')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: t & Shape
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: If
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('If')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R1
+              PsiElement(identifier)('R1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R2
+              PsiElement(identifier)('R2')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          InfixType: R1 | R2
+            SimpleType: R1
+              CodeReferenceElement: R1
+                PsiElement(identifier)('R1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: R2
+              CodeReferenceElement: R2
+                PsiElement(identifier)('R2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T match
+    case true => R1
+    case false => R2
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: R1
+                  CodeReferenceElement: R1
+                    PsiElement(identifier)('R1')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: R2
+                  CodeReferenceElement: R2
+                    PsiElement(identifier)('R2')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Contains
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Contains')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T match
+    case X *: r => true
+    case _ *: r => Contains[r, X]
+    case _ => false
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: X *: r
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: r
+                    PsiElement(identifier)('r')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: _ *: r
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: r
+                    PsiElement(identifier)('r')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Contains[r, X]
+                  SimpleType: Contains
+                    CodeReferenceElement: Contains
+                      PsiElement(identifier)('Contains')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: r
+                      CodeReferenceElement: r
+                        PsiElement(identifier)('r')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: RemoveStrict
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RemoveStrict')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T match
+    case head *: tail => head match
+      case X => tail
+      case _ => head *: RemoveStrict[tail, X]
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: head *: tail
+                  TypeVariable: head
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: tail
+                    PsiElement(identifier)('tail')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: head match
+      case X => tail
+      case _ => head *: RemoveStrict[tail, X]
+                  SimpleType: head
+                    CodeReferenceElement: head
+                      PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: head *: RemoveStrict[tail, X]
+                        SimpleType: head
+                          CodeReferenceElement: head
+                            PsiElement(identifier)('head')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: RemoveStrict[tail, X]
+                          SimpleType: RemoveStrict
+                            CodeReferenceElement: RemoveStrict
+                              PsiElement(identifier)('RemoveStrict')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: tail
+                              CodeReferenceElement: tail
+                                PsiElement(identifier)('tail')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: WithoutStrict
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WithoutStrict')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: T2
+              PsiElement(identifier)('T2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T2 match
+    case head *: tail => WithoutStrict[RemoveStrict[T, head], tail]
+    case EmptyTuple => T
+            SimpleType: T2
+              CodeReferenceElement: T2
+                PsiElement(identifier)('T2')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: head *: tail
+                  TypeVariable: head
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: tail
+                    PsiElement(identifier)('tail')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: WithoutStrict[RemoveStrict[T, head], tail]
+                  SimpleType: WithoutStrict
+                    CodeReferenceElement: WithoutStrict
+                      PsiElement(identifier)('WithoutStrict')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: RemoveStrict[T, head]
+                      SimpleType: RemoveStrict
+                        CodeReferenceElement: RemoveStrict
+                          PsiElement(identifier)('RemoveStrict')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: head
+                          CodeReferenceElement: head
+                            PsiElement(identifier)('head')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: tail
+                      CodeReferenceElement: tail
+                        PsiElement(identifier)('tail')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ReplaceAllStrict
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Removes all elems from ToReplace and replaces the first replaced elem with replacement')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ReplaceAllStrict')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ToReplace
+              PsiElement(identifier)('ToReplace')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Replacement
+              PsiElement(identifier)('Replacement')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T match
+    case head *: tail =>
+      If[Contains[ToReplace, head],
+          Replacement *: WithoutStrict[tail, RemoveStrict[ToReplace, head]],
+          head *: ReplaceAllStrict[tail, ToReplace, Replacement]]
+    case EmptyTuple => T
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: head *: tail
+                  TypeVariable: head
+                    PsiElement(identifier)('head')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: tail
+                    PsiElement(identifier)('tail')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n      ')
+                ParametrizedType: If[Contains[ToReplace, head],
+          Replacement *: WithoutStrict[tail, RemoveStrict[ToReplace, head]],
+          head *: ReplaceAllStrict[tail, ToReplace, Replacement]]
+                  SimpleType: If
+                    CodeReferenceElement: If
+                      PsiElement(identifier)('If')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: Contains[ToReplace, head]
+                      SimpleType: Contains
+                        CodeReferenceElement: Contains
+                          PsiElement(identifier)('Contains')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: ToReplace
+                          CodeReferenceElement: ToReplace
+                            PsiElement(identifier)('ToReplace')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: head
+                          CodeReferenceElement: head
+                            PsiElement(identifier)('head')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n          ')
+                    InfixType: Replacement *: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
+                      SimpleType: Replacement
+                        CodeReferenceElement: Replacement
+                          PsiElement(identifier)('Replacement')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
+                        SimpleType: WithoutStrict
+                          CodeReferenceElement: WithoutStrict
+                            PsiElement(identifier)('WithoutStrict')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: tail
+                            CodeReferenceElement: tail
+                              PsiElement(identifier)('tail')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: RemoveStrict[ToReplace, head]
+                            SimpleType: RemoveStrict
+                              CodeReferenceElement: RemoveStrict
+                                PsiElement(identifier)('RemoveStrict')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: ToReplace
+                                CodeReferenceElement: ToReplace
+                                  PsiElement(identifier)('ToReplace')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: head
+                                CodeReferenceElement: head
+                                  PsiElement(identifier)('head')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n          ')
+                    InfixType: head *: ReplaceAllStrict[tail, ToReplace, Replacement]
+                      SimpleType: head
+                        CodeReferenceElement: head
+                          PsiElement(identifier)('head')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ReplaceAllStrict[tail, ToReplace, Replacement]
+                        SimpleType: ReplaceAllStrict
+                          CodeReferenceElement: ReplaceAllStrict
+                            PsiElement(identifier)('ReplaceAllStrict')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: tail
+                            CodeReferenceElement: tail
+                              PsiElement(identifier)('tail')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: ToReplace
+                            CodeReferenceElement: ToReplace
+                              PsiElement(identifier)('ToReplace')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Replacement
+                            CodeReferenceElement: Replacement
+                              PsiElement(identifier)('Replacement')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Sub
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Sub')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ToReplace
+              PsiElement(identifier)('ToReplace')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Replacement
+              PsiElement(identifier)('Replacement')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ParametrizedType: Demote[ReplaceAllStrict[S, ToReplace, Replacement]]
+            SimpleType: Demote
+              CodeReferenceElement: Demote
+                PsiElement(identifier)('Demote')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
+                SimpleType: ReplaceAllStrict
+                  CodeReferenceElement: ReplaceAllStrict
+                    PsiElement(identifier)('ReplaceAllStrict')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ToReplace
+                    CodeReferenceElement: ToReplace
+                      PsiElement(identifier)('ToReplace')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Replacement
+                    CodeReferenceElement: Replacement
+                      PsiElement(identifier)('Replacement')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Meta
+              PsiElement(identifier)('Meta')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _0
+              PsiElement(identifier)('_0')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Sub["batch" *: EmptyTuple, Int *: EmptyTuple, "batch"]
+            SimpleType: Sub
+              CodeReferenceElement: Sub
+                PsiElement(identifier)('Sub')
+            TypeArgumentsList
+              PsiElement([)('[')
+              InfixType: "batch" *: EmptyTuple
+                LiteralType: "batch"
+                  StringLiteral
+                    PsiElement(string content)('"batch"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: Int *: EmptyTuple
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "batch"
+                StringLiteral
+                  PsiElement(string content)('"batch"')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"batch"')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _1
+              PsiElement(identifier)('_1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Sub[("batch", "len"), ("batch", "len"), "batch"]
+            SimpleType: Sub
+              CodeReferenceElement: Sub
+                PsiElement(identifier)('Sub')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: ("batch", "len")
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: "batch"
+                    StringLiteral
+                      PsiElement(string content)('"batch"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "len"
+                    StringLiteral
+                      PsiElement(string content)('"len"')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TupleType: ("batch", "len")
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: "batch"
+                    StringLiteral
+                      PsiElement(string content)('"batch"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "len"
+                    StringLiteral
+                      PsiElement(string content)('"len"')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "batch"
+                StringLiteral
+                  PsiElement(string content)('"batch"')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"batch"')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _2a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _2a
+              PsiElement(identifier)('_2a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ReplaceAllStrict[("batch", "len", "embed"), "batch" *: EmptyTuple, "b"]
+            SimpleType: ReplaceAllStrict
+              CodeReferenceElement: ReplaceAllStrict
+                PsiElement(identifier)('ReplaceAllStrict')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: ("batch", "len", "embed")
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: "batch"
+                    StringLiteral
+                      PsiElement(string content)('"batch"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "len"
+                    StringLiteral
+                      PsiElement(string content)('"len"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "embed"
+                    StringLiteral
+                      PsiElement(string content)('"embed"')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: "batch" *: EmptyTuple
+                LiteralType: "batch"
+                  StringLiteral
+                    PsiElement(string content)('"batch"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "b"
+                StringLiteral
+                  PsiElement(string content)('"b"')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"b"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"len"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"embed"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: S
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('S')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: ("batch", "len")
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "batch"
+                StringLiteral
+                  PsiElement(string content)('"batch"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "len"
+                StringLiteral
+                  PsiElement(string content)('"len"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ToReplace
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToReplace')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: "batch" *: EmptyTuple
+            LiteralType: "batch"
+              StringLiteral
+                PsiElement(string content)('"batch"')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Replacement
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Replacement')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          LiteralType: "b"
+            StringLiteral
+              PsiElement(string content)('"b"')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _2b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _2b
+              PsiElement(identifier)('_2b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
+            SimpleType: ReplaceAllStrict
+              CodeReferenceElement: ReplaceAllStrict
+                PsiElement(identifier)('ReplaceAllStrict')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: ToReplace
+                CodeReferenceElement: ToReplace
+                  PsiElement(identifier)('ToReplace')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Replacement
+                CodeReferenceElement: Replacement
+                  PsiElement(identifier)('Replacement')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"b"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"len"')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _2c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _2c
+              PsiElement(identifier)('_2c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Demote[ReplaceAllStrict[S, ToReplace, Replacement]]
+            SimpleType: Demote
+              CodeReferenceElement: Demote
+                PsiElement(identifier)('Demote')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
+                SimpleType: ReplaceAllStrict
+                  CodeReferenceElement: ReplaceAllStrict
+                    PsiElement(identifier)('ReplaceAllStrict')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ToReplace
+                    CodeReferenceElement: ToReplace
+                      PsiElement(identifier)('ToReplace')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Replacement
+                    CodeReferenceElement: Replacement
+                      PsiElement(identifier)('Replacement')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"b"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"len"')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: _2d
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _2d
+              PsiElement(identifier)('_2d')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Sub[S, ToReplace, Replacement]
+            SimpleType: Sub
+              CodeReferenceElement: Sub
+                PsiElement(identifier)('Sub')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: ToReplace
+                CodeReferenceElement: ToReplace
+                  PsiElement(identifier)('ToReplace')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Replacement
+                CodeReferenceElement: Replacement
+                  PsiElement(identifier)('Replacement')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"b"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"len"')
+            PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error, see below')

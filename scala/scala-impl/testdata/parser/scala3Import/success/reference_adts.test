@@ -31,3 +31,619 @@ object t3:
     def apply[T >: Null](x: T): Option[T] =
       if (x == null) None else Some(x)
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: adts
+      PsiElement(identifier)('adts')
+    PsiWhiteSpace('\n')
+    ScObject: t1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t1')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n  ')
+          ScEnum: Option
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Option')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('+')
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: Some
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumClassCase: Some
+                    PsiElement(identifier)('Some')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          ClassParameter: x
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Option[T]
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: None
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: None
+                    PsiElement(identifier)('None')
+                    ExtendsBlock
+                      <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: t2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t2')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n  ')
+          ScEnum: Option
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Option')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('+')
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: Some
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumClassCase: Some
+                    PsiElement(identifier)('Some')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          ClassParameter: x
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Option[T]
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: None
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: None
+                    PsiElement(identifier)('None')
+                    PsiWhiteSpace('          ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Option[Nothing]
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
+                              PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScEnum: Color
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(enum)('enum')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Color')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: rgb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('rgb')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: Red
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: Red
+              PsiElement(identifier)('Red')
+              PsiWhiteSpace('   ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0xFF0000')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: Green
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: Green
+              PsiElement(identifier)('Green')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0x00FF00')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: Blue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumSingletonCase: Blue
+              PsiElement(identifier)('Blue')
+              PsiWhiteSpace('  ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0x0000FF')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScEnumCases: Mix
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ScEnumClassCase: Mix
+              PsiElement(identifier)('Mix')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    ClassParameter: mix
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('mix')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                PsiElement(extends)('extends')
+                PsiWhiteSpace(' ')
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Color
+                      CodeReferenceElement: Color
+                        PsiElement(identifier)('Color')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: mix
+                        PsiElement(identifier)('mix')
+                      PsiElement())(')')
+    PsiWhiteSpace('\n\n')
+    ScObject: t3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('t3')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n  ')
+          ScEnum: Option
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(enum)('enum')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Option')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('+')
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: Some
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumClassCase: Some
+                    PsiElement(identifier)('Some')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          ClassParameter: x
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      PsiElement(extends)('extends')
+                      PsiWhiteSpace(' ')
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Option[T]
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiElement(])(']')
+                PsiWhiteSpace('\n    ')
+                ScEnumCases: None
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ScEnumSingletonCase: None
+                    PsiElement(identifier)('None')
+                    ExtendsBlock
+                      <empty list>
+                PsiWhiteSpace('\n\n    ')
+                ScFunctionDefinition: isDefined
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('isDefined')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MatchStatement
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n      ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        StableElementPattern
+                          ReferenceExpression: None
+                            PsiElement(identifier)('None')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          BooleanLiteral
+                            PsiElement(false)('false')
+                      PsiWhiteSpace('\n      ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: some
+                          PsiElement(identifier)('some')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          BooleanLiteral
+                            PsiElement(true)('true')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Option
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Option')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: T
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(>:)('>:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Null
+                        CodeReferenceElement: Null
+                          PsiElement(identifier)('Null')
+                    PsiElement(])(']')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: x
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('x')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Option[T]
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ==
+                        PsiElement(identifier)('==')
+                      PsiWhiteSpace(' ')
+                      NullLiteral
+                        PsiElement(null)('null')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: None
+                      PsiElement(identifier)('None')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Some
+                        PsiElement(identifier)('Some')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement())(')')

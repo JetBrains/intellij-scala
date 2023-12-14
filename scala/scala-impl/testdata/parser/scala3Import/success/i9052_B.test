@@ -1,2 +1,32 @@
 val UNone: UOption[Nothing] = ??? // error: Cyclic Reference involving UOption
 -----
+ScalaFile
+  ScPatternDefinition: UNone
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: UNone
+        PsiElement(identifier)('UNone')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: UOption[Nothing]
+      SimpleType: UOption
+        CodeReferenceElement: UOption
+          PsiElement(identifier)('UOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Nothing
+          CodeReferenceElement: Nothing
+            PsiElement(identifier)('Nothing')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error: Cyclic Reference involving UOption')

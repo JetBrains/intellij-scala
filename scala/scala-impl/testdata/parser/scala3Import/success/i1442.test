@@ -21,3 +21,458 @@ object Test1442 {
   }
 }
 -----
+ScalaFile
+  ScObject: Test1442
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test1442')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: sumMinimized
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sumMinimized')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: num
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('num')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Numeric[B]
+                    SimpleType: Numeric
+                      CodeReferenceElement: Numeric
+                        PsiElement(identifier)('Numeric')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            ScVariableDefinition: cse
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: cse
+                  PsiElement(identifier)('cse')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: scala.math.Numeric.type
+                CodeReferenceElement: scala.math.Numeric
+                  CodeReferenceElement: scala.math
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('math')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Numeric')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: null.asInstanceOf
+                  NullLiteral
+                    PsiElement(null)('null')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: scala.math.Numeric.type
+                    CodeReferenceElement: scala.math.Numeric
+                      CodeReferenceElement: scala.math
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('math')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Numeric')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n      ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                BlockExpression
+                  PsiElement({)('{')
+                  AssignStatement
+                    ReferenceExpression: cse
+                      PsiElement(identifier)('cse')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: scala.math.Numeric
+                      ReferenceExpression: scala.math
+                        ReferenceExpression: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('math')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Numeric')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: num
+                      PsiElement(identifier)('num')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cse.IntIsIntegral
+                      ReferenceExpression: cse
+                        PsiElement(identifier)('cse')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('IntIsIntegral')
+                  PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ||
+                  PsiElement(identifier)('||')
+                PsiWhiteSpace('\n               ')
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: num
+                      PsiElement(identifier)('num')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cse.BigDecimalAsIfIntegral
+                      ReferenceExpression: cse
+                        PsiElement(identifier)('cse')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('BigDecimalAsIfIntegral')
+                  PsiElement())(')')
+              PsiElement())(')')
+            PsiWhiteSpace('\n      ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: sum
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sum')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: num
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('num')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Numeric[B]
+                    SimpleType: Numeric
+                      CodeReferenceElement: Numeric
+                        PsiElement(identifier)('Numeric')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n           ')
+            ScVariableDefinition: cse
+              PsiComment(comment)('// arithmetic series formula  can be used for regular addition')
+              PsiWhiteSpace('\n       ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: cse
+                  PsiElement(identifier)('cse')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: scala.math.Numeric.type
+                CodeReferenceElement: scala.math.Numeric
+                  CodeReferenceElement: scala.math
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('math')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Numeric')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: null.asInstanceOf
+                  NullLiteral
+                    PsiElement(null)('null')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: scala.math.Numeric.type
+                    CodeReferenceElement: scala.math.Numeric
+                      CodeReferenceElement: scala.math
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('math')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Numeric')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n       ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          BlockExpression
+                            PsiElement({)('{')
+                            AssignStatement
+                              ReferenceExpression: cse
+                                PsiElement(identifier)('cse')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: scala.math.Numeric
+                                ReferenceExpression: scala.math
+                                  ReferenceExpression: scala
+                                    PsiElement(identifier)('scala')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('math')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Numeric')
+                            PsiElement(;)(';')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              ReferenceExpression: num
+                                PsiElement(identifier)('num')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: eq
+                                PsiElement(identifier)('eq')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: cse.IntIsIntegral
+                                ReferenceExpression: cse
+                                  PsiElement(identifier)('cse')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('IntIsIntegral')
+                            PsiElement(})('}')
+                          ReferenceExpression: ||
+                            PsiElement(identifier)('||')
+                          PsiWhiteSpace('\n               ')
+                          ExpressionInParenthesis
+                            PsiElement(()('(')
+                            InfixExpression
+                              ReferenceExpression: num
+                                PsiElement(identifier)('num')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: eq
+                                PsiElement(identifier)('eq')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: cse.BigIntIsIntegral
+                                ReferenceExpression: cse
+                                  PsiElement(identifier)('cse')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('BigIntIsIntegral')
+                            PsiElement())(')')
+                        ReferenceExpression: ||
+                          PsiElement(identifier)('||')
+                        PsiWhiteSpace('\n               ')
+                        ExpressionInParenthesis
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: num
+                              PsiElement(identifier)('num')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: eq
+                              PsiElement(identifier)('eq')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: cse.ShortIsIntegral
+                              ReferenceExpression: cse
+                                PsiElement(identifier)('cse')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('ShortIsIntegral')
+                          PsiElement())(')')
+                      ReferenceExpression: ||
+                        PsiElement(identifier)('||')
+                      PsiWhiteSpace('\n               ')
+                      ExpressionInParenthesis
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: num
+                            PsiElement(identifier)('num')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: eq
+                            PsiElement(identifier)('eq')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: cse.ByteIsIntegral
+                            ReferenceExpression: cse
+                              PsiElement(identifier)('cse')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('ByteIsIntegral')
+                        PsiElement())(')')
+                    ReferenceExpression: ||
+                      PsiElement(identifier)('||')
+                    PsiWhiteSpace('\n               ')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: num
+                          PsiElement(identifier)('num')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: eq
+                          PsiElement(identifier)('eq')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: cse.CharIsIntegral
+                          ReferenceExpression: cse
+                            PsiElement(identifier)('cse')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('CharIsIntegral')
+                      PsiElement())(')')
+                  ReferenceExpression: ||
+                    PsiElement(identifier)('||')
+                  PsiWhiteSpace('\n               ')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    InfixExpression
+                      ReferenceExpression: num
+                        PsiElement(identifier)('num')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: eq
+                        PsiElement(identifier)('eq')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: cse.LongIsIntegral
+                        ReferenceExpression: cse
+                          PsiElement(identifier)('cse')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('LongIsIntegral')
+                    PsiElement())(')')
+                ReferenceExpression: ||
+                  PsiElement(identifier)('||')
+                PsiWhiteSpace('\n               ')
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: num
+                      PsiElement(identifier)('num')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: cse.BigDecimalIsFractional
+                      ReferenceExpression: cse
+                        PsiElement(identifier)('cse')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('BigDecimalIsFractional')
+                  PsiElement())(')')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n        ')
+                GenericCall
+                  ReferenceExpression: null.asInstanceOf
+                    NullLiteral
+                      PsiElement(null)('null')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('asInstanceOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: null.asInstanceOf
+                  NullLiteral
+                    PsiElement(null)('null')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

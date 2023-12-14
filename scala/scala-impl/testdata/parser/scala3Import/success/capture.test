@@ -36,3 +36,321 @@ class Test {
   runtimeClass.toExpr // only works with skolemization-of-each-param, also works in scalac.
 }
 -----
+ScalaFile
+  ScClass: Test
+    PsiComment(comment)('// A condensation of shonan-hmm/Lifters.scala that shows why the approach')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// of just skolemizing a tree as a hole to prepare it for capture conversion')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// does not work.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// I tried two different stratgegies to adapt a tree whose widened type has wildcard')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// arguments. Say the tree is `t` and the widened type is `C[_]`.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// skolemization-as-a-whole:')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//    Convert `t` to  `t.cast[$i]` where `$i` is a skolem of type C[_]')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//    This then relies on capture conversion for singleton types to do the rest.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// skolemization-of-each-param:')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//    Convert `t` to `t.cast[C[$j.CAP]]` where `$j` is a skolem of type `TypeBox[Nothing, Any`]')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//    (or more generally, `TypeBox[L, U]`) wgere `L` and `U` are the bounds of the wildcard).')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('//')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// skolemization-of-each-param is more robust since it is stable under widening.')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// By contrast, skolemization-as-a-whole risks losing capturing ability if the skolem')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// type is widened in some context. This leads to the difference in behavior shown below.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Liftable
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Liftable')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ClassIsLiftable
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ClassIsLiftable')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Liftable[Class[T]]
+            SimpleType: Liftable
+              CodeReferenceElement: Liftable
+                PsiElement(identifier)('Liftable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Class[T]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Liftable[Class[T]]
+                    SimpleType: Liftable
+                      CodeReferenceElement: Liftable
+                        PsiElement(identifier)('Liftable')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      ParametrizedType: Class[T]
+                        SimpleType: Class
+                          CodeReferenceElement: Class
+                            PsiElement(identifier)('Class')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Expr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Expr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: LiftExprOps
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('LiftExprOps')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: toExpr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('toExpr')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(implicit)('implicit')
+                    PsiWhiteSpace(' ')
+                    Parameter: ev
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('ev')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Liftable[T]
+                          SimpleType: Liftable
+                            CodeReferenceElement: Liftable
+                              PsiElement(identifier)('Liftable')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Expr[T]
+                  SimpleType: Expr
+                    CodeReferenceElement: Expr
+                      PsiElement(identifier)('Expr')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: runtimeClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('runtimeClass')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Class[_]
+            SimpleType: Class
+              CodeReferenceElement: Class
+                PsiElement(identifier)('Class')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: runtimeClass.toExpr
+            ReferenceExpression: runtimeClass
+              PsiElement(identifier)('runtimeClass')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toExpr')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: ClassIsLiftable
+              PsiElement(identifier)('ClassIsLiftable')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK for skolemization-as-a-whole and skolemization-of-each-param')
+        PsiWhiteSpace('\n\n  ')
+        ReferenceExpression: runtimeClass.toExpr
+          ReferenceExpression: runtimeClass
+            PsiElement(identifier)('runtimeClass')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toExpr')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// only works with skolemization-of-each-param, also works in scalac.')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

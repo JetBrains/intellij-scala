@@ -39,3 +39,9 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
       _.hasModifierProperty(name)
     }
 }
+
+object ScModifierListOwner {
+  object accessModifier {
+    def unapply(owner: ScModifierListOwner): Option[ScAccessModifier] = owner.getModifierList.accessModifier
+  }
+}

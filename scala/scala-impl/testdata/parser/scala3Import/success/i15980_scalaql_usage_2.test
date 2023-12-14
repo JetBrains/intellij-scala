@@ -3,3 +3,28 @@ package scalaql
 sealed trait Foo extends Product
 
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql
+      PsiElement(identifier)('scalaql')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Product
+              CodeReferenceElement: Product
+                PsiElement(identifier)('Product')

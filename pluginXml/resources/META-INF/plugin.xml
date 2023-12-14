@@ -39,6 +39,7 @@
     <idea-version since-build="233.11799" until-build="233.*"/>
 
     <depends>com.intellij.modules.java</depends>
+    <depends optional="true" config-file="scala-intellij-bsp-integration.xml">org.jetbrains.bsp</depends>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>

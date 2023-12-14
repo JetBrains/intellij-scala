@@ -8,3 +8,114 @@ object FooBar {
   }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('util')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScObject: FooBar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooBar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: List("1","two","3").collect
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"1"')
+                  PsiElement(,)(',')
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                  PsiElement(,)(',')
+                  StringLiteral
+                    PsiElement(string content)('"3"')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('collect')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: x
+                        PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' \n    ')
+                  BlockOfExpressions
+                    MatchStatement
+                      MethodCall
+                        ReferenceExpression: Try
+                          PsiElement(identifier)('Try')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: x.toInt
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('toInt')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(match)('match')
+                      PsiWhiteSpace(' ')
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' \n      ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          ConstructorPattern
+                            CodeReferenceElement: Success
+                              PsiElement(identifier)('Success')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ReferencePattern: int
+                                PsiElement(identifier)('int')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            ReferenceExpression: int
+                              PsiElement(identifier)('int')
+                      PsiWhiteSpace(' \n    ')
+                      PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

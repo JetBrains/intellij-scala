@@ -109,7 +109,7 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
   )
 
   //SCL-21604
-  def testNamelessUsingParameter_ClashBetweenTypeAndObject_1(): Unit = doResolveTest(
+  def testNamelessUsingParameterType_ClashBetweenTypeAndObject_1(): Unit = doResolveTest(
     s"""type MyClass = Int
        |object MyClass:
        |  def ${REFTGT}test(): String = ""
@@ -121,7 +121,7 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
   )
 
   //SCL-21604
-  def testNamelessUsingParameter_ClashBetweenTypeAndObject_2(): Unit = doResolveTest(
+  def testNamelessUsingParameterType_ClashBetweenTypeAndObject_2(): Unit = doResolveTest(
     s"""type ${REFTGT}MyClass = Int
        |object MyClass:
        |  def test(): String = ""
@@ -129,6 +129,42 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
        |def foo(using MyClass): Unit =
        |  summon[${REFSRC}MyClass]
        |  MyClass.test()
+       |""".stripMargin
+  )
+
+  //SCL-21835
+  def testNamelessUsingParameterSyntheticName_1(): Unit = doResolveTest(
+    s"""def foo(x: Int)
+       |       (using ${REFTGT}Int, String)
+       |       (y: Int)
+       |       (using Short) =
+       |  ${REFSRC}x$$2
+       |  x$$3
+       |  x$$5
+       |""".stripMargin
+  )
+
+  //SCL-21835
+  def testNamelessUsingParameterSyntheticName_2(): Unit = doResolveTest(
+    s"""def foo(x: Int)
+       |       (using Int, ${REFTGT}String)
+       |       (y: Int)
+       |       (using Short) =
+       |  x$$2
+       |  ${REFSRC}x$$3
+       |  x$$5
+       |""".stripMargin
+  )
+
+  //SCL-21835
+  def testNamelessUsingParameterSyntheticName_3(): Unit = doResolveTest(
+    s"""def foo(x: Int)
+       |       (using Int, String)
+       |       (y: Int)
+       |       (using ${REFTGT}Short) =
+       |  x$$2
+       |  x$$3
+       |  ${REFSRC}x$$5
        |""".stripMargin
   )
 }

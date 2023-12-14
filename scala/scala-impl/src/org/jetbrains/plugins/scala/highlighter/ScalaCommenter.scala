@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.highlighter
 
-import com.intellij.codeInsight.generation.{CommenterDataHolder, SelfManagingCommenter, SelfManagingCommenterUtil}
+import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.generation.{SelfManagingCommenter, SelfManagingCommenterUtil}
 import com.intellij.lang.CodeDocumentationAwareCommenter
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
-class ScalaCommenter extends SelfManagingCommenter[CommenterDataHolder] with CodeDocumentationAwareCommenter  {
+class ScalaCommenter extends SelfManagingCommenter[ScalaCommenterDataHolder] with CodeDocumentationAwareCommenter  {
 
   private val ScalaDirectivePrefix = "//>"
 
@@ -42,44 +43,69 @@ class ScalaCommenter extends SelfManagingCommenter[CommenterDataHolder] with Cod
     text == "/**/" ||
       text.equals("/**\n/") // wired case when enter is pressed here /**<CARET>/
 
-  override def createLineCommentingState(startLine: Int, endLine: Int, document: Document, file: PsiFile): CommenterDataHolder = {
-    null
+  override def createLineCommentingState(startLine: Int, endLine: Int, document: Document, file: PsiFile): ScalaCommenterDataHolder =
+    new ScalaCommenterDataHolder(file)
+
+  override def createBlockCommentingState(selectionStart: Int, selectionEnd: Int, document: Document, file: PsiFile): ScalaCommenterDataHolder =
+    new ScalaCommenterDataHolder(file)
+
+  override def commentLine(line: Int, offset: Int, document: Document, data: ScalaCommenterDataHolder): Unit = {
+    val settings = CodeStyle.getLanguageSettings(data.getPsiFile)
+    val prefix = getLineCommentPrefix + (if (settings.LINE_COMMENT_ADD_SPACE) " " else "")
+    document.insertString(offset, prefix)
   }
 
-  override def createBlockCommentingState(selectionStart: Int, selectionEnd: Int, document: Document, file: PsiFile): CommenterDataHolder = {
-    null
+  override def uncommentLine(line: Int, offset: Int, document: Document, data: ScalaCommenterDataHolder): Unit = {
+    val documentText = document.getCharsSequence
+
+    val prefix = getLineCommentPrefix
+    val endOffset = offset + prefix.length
+
+    //when LINE_COMMENT_ADD_SPACE is enabled "uncomment" should still handle both "//comment" and "// comment"
+    val settings = CodeStyle.getLanguageSettings(data.getPsiFile)
+    val trailingSpaceShift = if (settings.LINE_COMMENT_ADD_SPACE && documentText.charAt(endOffset) == ' ') 1 else 0
+
+    document.deleteString(offset, endOffset + trailingSpaceShift)
+
+    deleteSpacesIfLineIsBlank(document, documentText, line)
   }
 
-  override def commentLine(line: Int, offset: Int, document: Document, data: CommenterDataHolder): Unit = {
-    document.insertString(offset, getLineCommentPrefix)
+  /**
+   * Delete whitespace on line if that's all that left after uncommenting
+   *
+   * @note copied from [[com.intellij.codeInsight.generation.CommentByLineCommentHandler.doUncommentLine]]<br>
+   *       which is not applicable for Scala language after we inherited SelfManagingCommenter
+   */
+  private def deleteSpacesIfLineIsBlank(document: Document, documentText: CharSequence, line: Int): Unit = {
+    val lineStartOffset = document.getLineStartOffset(line)
+    val lineEndOffset = document.getLineEndOffset(line)
+    if (CharArrayUtil.isEmptyOrSpaces(documentText, lineStartOffset, lineEndOffset)) {
+      document.deleteString(lineStartOffset, lineEndOffset)
+    }
   }
 
-  override def uncommentLine(line: Int, offset: Int, document: Document, data: CommenterDataHolder): Unit = {
-    document.deleteString(offset, offset + getLineCommentPrefix.length)
-  }
-
-  override def isLineCommented(line: Int, offset: Int, document: Document, data: CommenterDataHolder): Boolean = {
+  override def isLineCommented(line: Int, offset: Int, document: Document, data: ScalaCommenterDataHolder): Boolean = {
     CharArrayUtil.regionMatches(document.getCharsSequence, offset, getLineCommentPrefix) &&
       !CharArrayUtil.regionMatches(document.getCharsSequence, offset, ScalaDirectivePrefix)
   }
 
-  override def getCommentPrefix(line: Int, document: Document, data: CommenterDataHolder): String =
+  override def getCommentPrefix(line: Int, document: Document, data: ScalaCommenterDataHolder): String =
     getLineCommentPrefix()
 
-  override def getBlockCommentRange(selectionStart: Int, selectionEnd: Int, document: Document, data: CommenterDataHolder): TextRange = {
+  override def getBlockCommentRange(selectionStart: Int, selectionEnd: Int, document: Document, data: ScalaCommenterDataHolder): TextRange = {
     null
   }
 
-  override def getBlockCommentPrefix(selectionStart: Int, document: Document, data: CommenterDataHolder): String =
+  override def getBlockCommentPrefix(selectionStart: Int, document: Document, data: ScalaCommenterDataHolder): String =
     getBlockCommentPrefix()
 
-  override def getBlockCommentSuffix(selectionEnd: Int, document: Document, data: CommenterDataHolder): String =
+  override def getBlockCommentSuffix(selectionEnd: Int, document: Document, data: ScalaCommenterDataHolder): String =
     getBlockCommentSuffix()
 
-  override def uncommentBlockComment(startOffset: Int, endOffset: Int, document: Document, data: CommenterDataHolder): Unit =
+  override def uncommentBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): Unit =
     SelfManagingCommenterUtil.uncommentBlockComment(startOffset, endOffset, document, getBlockCommentPrefix, getBlockCommentSuffix)
 
-  override def insertBlockComment(startOffset: Int, endOffset: Int, document: Document, data: CommenterDataHolder): TextRange =
+  override def insertBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): TextRange =
     SelfManagingCommenterUtil.insertBlockComment(startOffset, endOffset, document, getBlockCommentPrefix, getBlockCommentSuffix)
 }
 

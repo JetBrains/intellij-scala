@@ -43,3 +43,878 @@ val _ = null.asInstanceOf[Any] match {
     reply.foreach { cmd.replyTo tell _ } // error
 }
 -----
+ScalaFile
+  ScTrait: ReplicatedData
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ReplicatedData')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: ActorRef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActorRef')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tell
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tell')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: msg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('msg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Key
+    PsiComment(comment)('// shared in both domains')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Key')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T1')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: ReplicatedData
+          CodeReferenceElement: ReplicatedData
+            PsiElement(identifier)('ReplicatedData')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: dd
+    PsiComment(comment)('// domain 1')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('dd')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: GetResponse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetResponse')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('key')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Key[A1]
+                  SimpleType: Key
+                    CodeReferenceElement: Key
+                      PsiElement(identifier)('Key')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A1
+                      CodeReferenceElement: A1
+                        PsiElement(identifier)('A1')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScClass: GetSuccess
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetSuccess')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Key[A2]
+                      SimpleType: Key
+                        CodeReferenceElement: Key
+                          PsiElement(identifier)('Key')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A2
+                          CodeReferenceElement: A2
+                            PsiElement(identifier)('A2')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: GetResponse[A2]
+                  SimpleType: GetResponse
+                    CodeReferenceElement: GetResponse
+                      PsiElement(identifier)('GetResponse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A2
+                      CodeReferenceElement: A2
+                        PsiElement(identifier)('A2')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: GetFailure
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetFailure')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A3
+              PsiElement(identifier)('A3')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Key[A3]
+                      SimpleType: Key
+                        CodeReferenceElement: Key
+                          PsiElement(identifier)('Key')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: GetResponse[A3]
+                  SimpleType: GetResponse
+                    CodeReferenceElement: GetResponse
+                      PsiElement(identifier)('GetResponse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A3
+                      CodeReferenceElement: A3
+                        PsiElement(identifier)('A3')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: JReplicator
+    PsiComment(comment)('// domain 2')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JReplicator')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: Get
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Get')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A4
+              PsiElement(identifier)('A4')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Key[A4]
+                      SimpleType: Key
+                        CodeReferenceElement: Key
+                          PsiElement(identifier)('Key')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A4
+                          CodeReferenceElement: A4
+                            PsiElement(identifier)('A4')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                ClassParameter: replyTo
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('replyTo')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ActorRef[GetResponse[A4]]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: GetResponse[A4]
+                          SimpleType: GetResponse
+                            CodeReferenceElement: GetResponse
+                              PsiElement(identifier)('GetResponse')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: A4
+                              CodeReferenceElement: A4
+                                PsiElement(identifier)('A4')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: GetResponse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetResponse')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A5
+              PsiElement(identifier)('A5')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('key')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Key[A5]
+                  SimpleType: Key
+                    CodeReferenceElement: Key
+                      PsiElement(identifier)('Key')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A5
+                      CodeReferenceElement: A5
+                        PsiElement(identifier)('A5')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScClass: GetSuccess
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetSuccess')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A6
+              PsiElement(identifier)('A6')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Key[A6]
+                      SimpleType: Key
+                        CodeReferenceElement: Key
+                          PsiElement(identifier)('Key')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A6
+                          CodeReferenceElement: A6
+                            PsiElement(identifier)('A6')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: GetResponse[A6]
+                  SimpleType: GetResponse
+                    CodeReferenceElement: GetResponse
+                      PsiElement(identifier)('GetResponse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A6
+                      CodeReferenceElement: A6
+                        PsiElement(identifier)('A6')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: GetFailure
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetFailure')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A7
+              PsiElement(identifier)('A7')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ReplicatedData
+                CodeReferenceElement: ReplicatedData
+                  PsiElement(identifier)('ReplicatedData')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Key[A7]
+                      SimpleType: Key
+                        CodeReferenceElement: Key
+                          PsiElement(identifier)('Key')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A7
+                          CodeReferenceElement: A7
+                            PsiElement(identifier)('A7')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: GetResponse[A7]
+                  SimpleType: GetResponse
+                    CodeReferenceElement: GetResponse
+                      PsiElement(identifier)('GetResponse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A7
+                      CodeReferenceElement: A7
+                        PsiElement(identifier)('A7')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      GenericCall
+        ReferenceExpression: null.asInstanceOf
+          NullLiteral
+            PsiElement(null)('null')
+          PsiElement(.)('.')
+          PsiElement(identifier)('asInstanceOf')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: cmd
+              PsiElement(identifier)('cmd')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: JReplicator.Get[d]
+                SimpleType: JReplicator.Get
+                  CodeReferenceElement: JReplicator.Get
+                    CodeReferenceElement: JReplicator
+                      PsiElement(identifier)('JReplicator')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Get')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeVariable: d
+                    PsiElement(identifier)('d')
+                  PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            ScPatternDefinition: reply
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: reply
+                  PsiElement(identifier)('reply')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                ReferenceExpression: util
+        .Try[dd.GetResponse[d]](???)
+        .map/*[JReplicator.GetResponse[d]]*/ {
+          // Needs at least 2 cases to triger failure
+          case rsp: dd.GetSuccess[d1]  => JReplicator.GetSuccess(rsp.key)
+          case rsp: dd.GetResponse[d2] => JReplicator.GetFailure(rsp.key)
+        }
+        // needs recover to trigger failure
+        .recover
+                  MethodCall
+                    ReferenceExpression: util
+        .Try[dd.GetResponse[d]](???)
+        .map
+                      MethodCall
+                        GenericCall
+                          ReferenceExpression: util
+        .Try
+                            ReferenceExpression: util
+                              PsiElement(identifier)('util')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Try')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: dd.GetResponse[d]
+                              SimpleType: dd.GetResponse
+                                CodeReferenceElement: dd.GetResponse
+                                  CodeReferenceElement: dd
+                                    PsiElement(identifier)('dd')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('GetResponse')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: d
+                                  CodeReferenceElement: d
+                                    PsiElement(identifier)('d')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: ???
+                            PsiElement(identifier)('???')
+                          PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('map')
+                    PsiComment(BlockComment)('/*[JReplicator.GetResponse[d]]*/')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n          ')
+                        PsiComment(comment)('// Needs at least 2 cases to triger failure')
+                        PsiWhiteSpace('\n          ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: rsp
+                                PsiElement(identifier)('rsp')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: dd.GetSuccess[d1]
+                                  SimpleType: dd.GetSuccess
+                                    CodeReferenceElement: dd.GetSuccess
+                                      CodeReferenceElement: dd
+                                        PsiElement(identifier)('dd')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('GetSuccess')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeVariable: d1
+                                      PsiElement(identifier)('d1')
+                                    PsiElement(])(']')
+                            PsiWhiteSpace('  ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              MethodCall
+                                ReferenceExpression: JReplicator.GetSuccess
+                                  ReferenceExpression: JReplicator
+                                    PsiElement(identifier)('JReplicator')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('GetSuccess')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: rsp.key
+                                    ReferenceExpression: rsp
+                                      PsiElement(identifier)('rsp')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('key')
+                                  PsiElement())(')')
+                          PsiWhiteSpace('\n          ')
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: rsp
+                                PsiElement(identifier)('rsp')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: dd.GetResponse[d2]
+                                  SimpleType: dd.GetResponse
+                                    CodeReferenceElement: dd.GetResponse
+                                      CodeReferenceElement: dd
+                                        PsiElement(identifier)('dd')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('GetResponse')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeVariable: d2
+                                      PsiElement(identifier)('d2')
+                                    PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              MethodCall
+                                ReferenceExpression: JReplicator.GetFailure
+                                  ReferenceExpression: JReplicator
+                                    PsiElement(identifier)('JReplicator')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('GetFailure')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: rsp.key
+                                    ReferenceExpression: rsp
+                                      PsiElement(identifier)('rsp')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('key')
+                                  PsiElement())(')')
+                        PsiWhiteSpace('\n        ')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n        ')
+                  PsiComment(comment)('// needs recover to trigger failure')
+                  PsiWhiteSpace('\n        ')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('recover')
+                PsiWhiteSpace(' ')
+                ArgumentList
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: JReplicator.GetFailure
+                                    CodeReferenceElement: JReplicator.GetFailure
+                                      CodeReferenceElement: JReplicator
+                                        PsiElement(identifier)('JReplicator')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('GetFailure')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    ReferenceExpression: cmd.key
+                                      ReferenceExpression: cmd
+                                        PsiElement(identifier)('cmd')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('key')
+                                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: reply.foreach
+                ReferenceExpression: reply
+                  PsiElement(identifier)('reply')
+                PsiElement(.)('.')
+                PsiElement(identifier)('foreach')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: cmd.replyTo
+                      ReferenceExpression: cmd
+                        PsiElement(identifier)('cmd')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('replyTo')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: tell
+                      PsiElement(identifier)('tell')
+                    PsiWhiteSpace(' ')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// error')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

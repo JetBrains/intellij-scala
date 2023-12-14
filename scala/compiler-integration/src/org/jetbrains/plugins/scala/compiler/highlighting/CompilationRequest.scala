@@ -16,13 +16,15 @@ private sealed trait CompilationRequest {
   val document: Document
   val debugReason: String
 
-  val compilationDelay: FiniteDuration
+  final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
 
   private val timestamp: Long = System.nanoTime()
 
-  private def deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
+  private val deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
 
   def remaining: FiniteDuration = deadline.timeLeft
+
+  def delayed: CompilationRequest
 }
 
 private object CompilationRequest {
@@ -38,8 +40,7 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
-    override val compilationDelay: FiniteDuration =
-      if (isFirstTimeHighlighting) Duration.Zero else ScalaHighlightingMode.compilationDelay
+    override def delayed: WorksheetRequest = this.copy()
   }
 
   final case class IncrementalRequest(
@@ -52,7 +53,7 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 1
 
-    override val compilationDelay: FiniteDuration = Duration.Zero
+    override def delayed: IncrementalRequest = this.copy()
   }
 
   final case class DocumentRequest(
@@ -64,9 +65,24 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override val priority: Int = 2
 
-    override val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
+    override def delayed: DocumentRequest = this.copy()
   }
 
+  /**
+   * Used for determining the order of compilation requests in a priority queue. Compilation requests with higher
+   * importance should be processed before compilation requests with lower importance. For example, incremental
+   * compilation requests have higher priority compared to document compilation requests, since document compilation
+   * depends on successful incremental compilation.
+   *
+   * There is a second part to this process. After a compilation request has been processed, requests that would
+   * be subsumed by this request are removed from the priority queue. For example, when an incremental compilation
+   * request is processed, there is no need to also run a document compilation request for the same file, since that
+   * file will already be compiled by the incremental compilation request.
+   *
+   * @note Two compilation requests are first compared by their priority field. If the priorities are the same, they are
+   *       then ordered by their deadlines. If it happens that the deadlines match, ties are broken by the path of the
+   *       file they are scheduled for.
+   */
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
     if (x.priority != y.priority)
       implicitly[Ordering[Int]].compare(x.priority, y.priority)

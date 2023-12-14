@@ -11,3 +11,188 @@ object `package`: // must be a package object
         case that1 @ (_: Baz) => Baz.this.i == that1.i // error: symbol for `==` changed
         case _ => true
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: opaquetypes
+      PsiElement(identifier)('opaquetypes')
+    PsiWhiteSpace('\n\n')
+    ScObject: `package`
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('`package`')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// must be a package object')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: Foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(opaque)('opaque')
+            PsiWhiteSpace(' ')
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Foo')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Double
+              CodeReferenceElement: Double
+                PsiElement(identifier)('Double')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// `Foo` must be an opaque type, reference must be primitive')
+          PsiWhiteSpace('\n\n  ')
+          ScObject: Bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Bar')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// must have a wrapper object')
+                PsiWhiteSpace('\n\n    ')
+                ScClass: Baz
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(class)('class')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Baz')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: i
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('i')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Foo
+                              CodeReferenceElement: Foo
+                                PsiElement(identifier)('Foo')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// must be an unqualified reference to `Foo`')
+                      PsiWhiteSpace('\n      ')
+                      ScFunctionDefinition: foo
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('foo')
+                        Parameters
+                          ParametersClause
+                            PsiElement(()('(')
+                            Parameter: that
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(identifier)('that')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              ParameterType
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                            PsiElement())(')')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        MatchStatement
+                          ReferenceExpression: that
+                            PsiElement(identifier)('that')
+                          PsiWhiteSpace(' ')
+                          PsiElement(match)('match')
+                          PsiWhiteSpace('\n        ')
+                          CaseClauses
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              NamingPattern: that1
+                                PsiElement(identifier)('that1')
+                                PsiWhiteSpace(' ')
+                                PsiElement(@)('@')
+                                PsiWhiteSpace(' ')
+                                PatternInParenthesis
+                                  PsiElement(()('(')
+                                  Scala3 TypedPattern
+                                    WildcardPattern
+                                      PsiElement(_)('_')
+                                    PsiElement(:)(':')
+                                    PsiWhiteSpace(' ')
+                                    TypePattern
+                                      SimpleType: Baz
+                                        CodeReferenceElement: Baz
+                                          PsiElement(identifier)('Baz')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                InfixExpression
+                                  ReferenceExpression: Baz.this.i
+                                    ThisReference
+                                      CodeReferenceElement: Baz
+                                        PsiElement(identifier)('Baz')
+                                      PsiElement(.)('.')
+                                      PsiElement(this)('this')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('i')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ==
+                                    PsiElement(identifier)('==')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: that1.i
+                                    ReferenceExpression: that1
+                                      PsiElement(identifier)('that1')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('i')
+                            PsiWhiteSpace(' ')
+                            PsiComment(comment)('// error: symbol for `==` changed')
+                            PsiWhiteSpace('\n        ')
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              WildcardPattern
+                                PsiElement(_)('_')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                BooleanLiteral
+                                  PsiElement(true)('true')

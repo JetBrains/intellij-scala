@@ -1,2 +1,37 @@
 @main def Test = println(example.Trait.get)
 -----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: example.Trait.get
+          ReferenceExpression: example.Trait
+            ReferenceExpression: example
+              PsiElement(identifier)('example')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Trait')
+          PsiElement(.)('.')
+          PsiElement(identifier)('get')
+        PsiElement())(')')

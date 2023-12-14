@@ -13,3 +13,489 @@ def test =
   val c2: (Int, Int, String, String) = ??? : Tuple.FlatMap[(Int, String), Twice]
   val c3: (Int, List[Int], String, List[String]) = ??? : Tuple.FlatMap[(Int, String), [X] =>> (X, List[X])]
 -----
+ScalaFile
+  ScTypeAliasDefinition: Empty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Empty')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: EmptyTuple
+      CodeReferenceElement: EmptyTuple
+        PsiElement(identifier)('EmptyTuple')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Twice
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Twice')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TupleType: (X, X)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: X
+          CodeReferenceElement: X
+            PsiElement(identifier)('X')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: X
+          CodeReferenceElement: X
+            PsiElement(identifier)('X')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a1
+            PsiElement(identifier)('a1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[EmptyTuple, Empty]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Empty
+                CodeReferenceElement: Empty
+                  PsiElement(identifier)('Empty')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a2
+            PsiElement(identifier)('a2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[(Int, String), Empty]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Empty
+                CodeReferenceElement: Empty
+                  PsiElement(identifier)('Empty')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: b1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: b1
+            PsiElement(identifier)('b1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[EmptyTuple, Tuple1]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple1
+                CodeReferenceElement: Tuple1
+                  PsiElement(identifier)('Tuple1')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: b2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: b2
+            PsiElement(identifier)('b2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (Int, String)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[(Int, String), Tuple1]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple1
+                CodeReferenceElement: Tuple1
+                  PsiElement(identifier)('Tuple1')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: c1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: c1
+            PsiElement(identifier)('c1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyTuple
+          CodeReferenceElement: EmptyTuple
+            PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[EmptyTuple, Twice]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Twice
+                CodeReferenceElement: Twice
+                  PsiElement(identifier)('Twice')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: c2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: c2
+            PsiElement(identifier)('c2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (Int, Int, String, String)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[(Int, String), Twice]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Twice
+                CodeReferenceElement: Twice
+                  PsiElement(identifier)('Twice')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: c3
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: c3
+            PsiElement(identifier)('c3')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (Int, List[Int], String, List[String])
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ParametrizedType: List[Int]
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ParametrizedType: List[String]
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(])(']')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple.FlatMap[(Int, String), [X] =>> (X, List[X])]
+            SimpleType: Tuple.FlatMap
+              CodeReferenceElement: Tuple.FlatMap
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('FlatMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (Int, String)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeLambda: [X] =>> (X, List[X])
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                TupleType: (X, List[X])
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: List[X]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                        PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(])(']')

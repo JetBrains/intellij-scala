@@ -24,3 +24,732 @@ def compiling[R, E](using
 ) =
   new InferAsyncArg[ForZManaged[R, E], CpsMonadInstanceContextBody[ForZManaged[R, E]]]
 -----
+ScalaFile
+  ScTrait: CpsMonad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CpsMonad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Context
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Context')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CpsMonadContext[F]
+            SimpleType: CpsMonadContext
+              CodeReferenceElement: CpsMonadContext
+                PsiElement(identifier)('CpsMonadContext')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Aux
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Aux')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: CpsMonadContext[F]
+          SimpleType: CpsMonadContext
+            CodeReferenceElement: CpsMonadContext
+              PsiElement(identifier)('CpsMonadContext')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: CpsMonad[F] { type Context = C }
+      ParametrizedType: CpsMonad[F]
+        SimpleType: CpsMonad
+          CodeReferenceElement: CpsMonad
+            PsiElement(identifier)('CpsMonad')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Context
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Context')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: C
+            CodeReferenceElement: C
+              PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: CpsMonadContext
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CpsMonadContext')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: CpsMonadInstanceContext
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CpsMonadInstanceContext')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: CpsMonad[F]
+            SimpleType: CpsMonad
+              CodeReferenceElement: CpsMonad
+                PsiElement(identifier)('CpsMonad')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Context
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Context')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CpsMonadInstanceContextBody[F]
+            SimpleType: CpsMonadInstanceContextBody
+              CodeReferenceElement: CpsMonadInstanceContextBody
+                PsiElement(identifier)('CpsMonadInstanceContextBody')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScClass: CpsMonadInstanceContextBody
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CpsMonadInstanceContextBody')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: m
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('m')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: CpsMonadInstanceContext[F]
+                SimpleType: CpsMonadInstanceContext
+                  CodeReferenceElement: CpsMonadInstanceContext
+                    PsiElement(identifier)('CpsMonadInstanceContext')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: CpsMonadContext[F]
+            SimpleType: CpsMonadContext
+              CodeReferenceElement: CpsMonadContext
+                PsiElement(identifier)('CpsMonadContext')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScClass: InferAsyncArg
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InferAsyncArg')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: CpsMonadContext[F]
+          SimpleType: CpsMonadContext
+            CodeReferenceElement: CpsMonadContext
+              PsiElement(identifier)('CpsMonadContext')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: am
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('am')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Aux[F, C]
+                SimpleType: Aux
+                  CodeReferenceElement: Aux
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: ZManaged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZManaged')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: RManaged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RManaged')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: ZManaged[R, Throwable, A]
+      SimpleType: ZManaged
+        CodeReferenceElement: ZManaged
+          PsiElement(identifier)('ZManaged')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: R
+          CodeReferenceElement: R
+            PsiElement(identifier)('R')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Throwable
+          CodeReferenceElement: Throwable
+            PsiElement(identifier)('Throwable')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ForZManaged
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ForZManaged')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [X] =>> ZManaged[R, E, X]
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: X
+          PsiElement(identifier)('X')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      ParametrizedType: ZManaged[R, E, X]
+        SimpleType: ZManaged
+          CodeReferenceElement: ZManaged
+            PsiElement(identifier)('ZManaged')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: zManagedCpsMonad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('zManagedCpsMonad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: CpsMonadInstanceContext[ForZManaged[R, E]]
+      SimpleType: CpsMonadInstanceContext
+        CodeReferenceElement: CpsMonadInstanceContext
+          PsiElement(identifier)('CpsMonadInstanceContext')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: ForZManaged[R, E]
+          SimpleType: ForZManaged
+            CodeReferenceElement: ForZManaged
+              PsiElement(identifier)('ForZManaged')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: failing
+    PsiComment(comment)('// Usage')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('failing')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace('\n    ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: CpsMonad[ForZManaged[R, E]]
+              SimpleType: CpsMonad
+                CodeReferenceElement: CpsMonad
+                  PsiElement(identifier)('CpsMonad')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ForZManaged[R, E]
+                  SimpleType: ForZManaged
+                    CodeReferenceElement: ForZManaged
+                      PsiElement(identifier)('ForZManaged')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: InferAsyncArg[ForZManaged[R, E], CpsMonadInstanceContextBody[ForZManaged[R, E]]]
+      SimpleType: InferAsyncArg
+        CodeReferenceElement: InferAsyncArg
+          PsiElement(identifier)('InferAsyncArg')
+      TypeArgumentsList
+        PsiElement([)('[')
+        ParametrizedType: ForZManaged[R, E]
+          SimpleType: ForZManaged
+            CodeReferenceElement: ForZManaged
+              PsiElement(identifier)('ForZManaged')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: CpsMonadInstanceContextBody[ForZManaged[R, E]]
+          SimpleType: CpsMonadInstanceContextBody
+            CodeReferenceElement: CpsMonadInstanceContextBody
+              PsiElement(identifier)('CpsMonadInstanceContextBody')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: ForZManaged[R, E]
+              SimpleType: ForZManaged
+                CodeReferenceElement: ForZManaged
+                  PsiElement(identifier)('ForZManaged')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: InferAsyncArg
+              CodeReferenceElement: InferAsyncArg
+                PsiElement(identifier)('InferAsyncArg')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: compiling
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('compiling')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace('\n    ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: CpsMonad[ForZManaged[R, E]]
+              SimpleType: CpsMonad
+                CodeReferenceElement: CpsMonad
+                  PsiElement(identifier)('CpsMonad')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ForZManaged[R, E]
+                  SimpleType: ForZManaged
+                    CodeReferenceElement: ForZManaged
+                      PsiElement(identifier)('ForZManaged')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: InferAsyncArg[ForZManaged[R, E], CpsMonadInstanceContextBody[ForZManaged[R, E]]]
+              SimpleType: InferAsyncArg
+                CodeReferenceElement: InferAsyncArg
+                  PsiElement(identifier)('InferAsyncArg')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ForZManaged[R, E]
+                  SimpleType: ForZManaged
+                    CodeReferenceElement: ForZManaged
+                      PsiElement(identifier)('ForZManaged')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: CpsMonadInstanceContextBody[ForZManaged[R, E]]
+                  SimpleType: CpsMonadInstanceContextBody
+                    CodeReferenceElement: CpsMonadInstanceContextBody
+                      PsiElement(identifier)('CpsMonadInstanceContextBody')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    ParametrizedType: ForZManaged[R, E]
+                      SimpleType: ForZManaged
+                        CodeReferenceElement: ForZManaged
+                          PsiElement(identifier)('ForZManaged')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')

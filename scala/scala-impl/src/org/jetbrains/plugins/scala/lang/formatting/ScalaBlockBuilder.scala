@@ -438,41 +438,33 @@ final class ScalaBlockBuilder(
   private def getIfSubBlocks(node: ASTNode, alignment: Alignment): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    val firstChildFirstNode = node.getFirstChildNode // `if`
-    val firstChildLastNode = firstChildFirstNode
+    val ifAndThenBlockFirstNode = node.getFirstChildNode // `if`
+    val ifAndThenBlockLastNode = ifAndThenBlockFirstNode
       .treeNextNodes
       .takeWhile(_.getElementType != kELSE)
+      .filterNot(_.isInstanceOf[PsiWhiteSpace])
       .lastOption
-      .getOrElse(firstChildFirstNode)
+      .getOrElse(ifAndThenBlockFirstNode)
 
-    val firstBlock = subBlock(firstChildFirstNode, firstChildLastNode, alignment)
+    val firstBlock = subBlock(ifAndThenBlockFirstNode, ifAndThenBlockLastNode, alignment)
     subBlocks.add(firstBlock)
 
-    val elseFirstChild: ASTNode = {
-      val commentsHandled = firstChildLastNode
-        .treeNextNodes
-        .takeWhile(isComment)
-        .map { c =>
-          val next = c.getTreeNext
-          subBlocks.add(subBlock(c, next))
-          next
+    val elseBlockFirstNodeOpt = ifAndThenBlockLastNode.treeNextNodes.dropWhile(_.isInstanceOf[PsiWhiteSpace]).nextOption()
+
+    elseBlockFirstNodeOpt match {
+      case Some(elseBlockFirstNode) =>
+        val elseLastNode = elseBlockFirstNode.treeNextNodes
+          .filterNot(_.isInstanceOf[PsiWhiteSpace])
+          .takeWhile(n => if (cs.SPECIAL_ELSE_IF_TREATMENT) n.getElementType != kIF else true)
+          .lastOption
+          .getOrElse(elseBlockFirstNode)
+
+        subBlocks.add(subBlock(elseBlockFirstNode, elseLastNode, alignment, Some(firstBlock.indent)))
+        val next = elseLastNode.getTreeNext
+        if (next != null && next.getElementType == kIF) {
+          subBlocks.addAll(getIfSubBlocks(next, alignment))
         }
-        .lastOption
-        .getOrElse(firstChildLastNode)
-      commentsHandled.getTreeNext
-    }
-
-    if (elseFirstChild != null) {
-      val elseLastNode = elseFirstChild.treeNextNodes
-        .takeWhile(n => if (cs.SPECIAL_ELSE_IF_TREATMENT) n.getElementType != kIF else true)
-        .lastOption
-        .getOrElse(elseFirstChild)
-
-      subBlocks.add(subBlock(elseFirstChild, elseLastNode, alignment, Some(firstBlock.indent)))
-      val next = elseLastNode.getTreeNext
-      if (next != null && next.getElementType == kIF) {
-        subBlocks.addAll(getIfSubBlocks(next, alignment))
-      }
+      case None =>
     }
 
     subBlocks

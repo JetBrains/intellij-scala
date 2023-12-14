@@ -4,14 +4,14 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueOrVariable, ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.structureView.element.AbstractItemPresentation.withSimpleNames
 
 import javax.swing.Icon
 
-abstract class ValOrVar(element: ScNamedElement, inherited: Boolean)
+abstract class ValOrVar(element: ScNamedElement, private[element] val parent: ScValueOrVariable, inherited: Boolean)
   extends AbstractTreeElementDelegatingChildrenToPsi(element, inherited)
     with InheritedLocationStringItemPresentation {
 
@@ -40,8 +40,10 @@ abstract class ValOrVar(element: ScNamedElement, inherited: Boolean)
 
   override def isAlwaysLeaf: Boolean = false
 
+  override def getAccessLevel: Int = getAccessLevel(parent)
+
   private def value: Option[ScValueOrVariable] = element.parentsInFile.findByType[ScValueOrVariable]
 }
 
-final class Value(element: ScNamedElement, inherited: Boolean) extends ValOrVar(element, inherited)
-final class Variable(element: ScNamedElement, inherited: Boolean) extends ValOrVar(element, inherited)
+final class Value(element: ScNamedElement, parent: ScValue, inherited: Boolean) extends ValOrVar(element, parent, inherited)
+final class Variable(element: ScNamedElement, parent: ScVariable, inherited: Boolean) extends ValOrVar(element, parent, inherited)

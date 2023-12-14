@@ -4,3 +4,61 @@ object Test {
   Foo.wrong().size()
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: pack
+              PsiElement(identifier)('pack')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Foo.okay().size
+            MethodCall
+              ReferenceExpression: Foo.okay
+                ReferenceExpression: Foo
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('okay')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('size')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Foo.wrong().size
+            MethodCall
+              ReferenceExpression: Foo.wrong
+                ReferenceExpression: Foo
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('wrong')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('size')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

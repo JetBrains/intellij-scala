@@ -9,8 +9,8 @@
             "sbtIcon.svg": "org/jetbrains/sbt/images/sbtIcon.svg",
             "sbtLoadChanges.svg": "org/jetbrains/sbt/images/sbtLoadChanges.svg",
             "sbtShell.svg": "org/jetbrains/sbt/images/sbtShell.svg",
-            "sbtIcon@20x20.svg": "org/jetbrains/sbt/images/sbtToolwin.svg",
-            "sbtShell@20x20.svg": "org/jetbrains/sbt/images/sbtShellToolwin.svg"
+            "sbtToolwin.svg": "org/jetbrains/sbt/images/sbtToolwin.svg",
+            "sbtShellToolwin.svg": "org/jetbrains/sbt/images/sbtShellToolwin.svg"
           }
         }
       }

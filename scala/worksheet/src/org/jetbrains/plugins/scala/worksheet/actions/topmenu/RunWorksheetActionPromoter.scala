@@ -15,7 +15,7 @@ class RunWorksheetActionPromoter extends SingleActionPromoterBase {
     val fileEditor = context.getData(PlatformCoreDataKeys.FILE_EDITOR)
     fileEditor != null && {
       val vFile = fileEditor.getFile
-      vFile != null || hasScalaWorksheetExtension(vFile)
+      vFile != null && hasScalaWorksheetExtension(vFile)
     }
   }
 

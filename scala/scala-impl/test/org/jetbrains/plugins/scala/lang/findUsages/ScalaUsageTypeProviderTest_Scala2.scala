@@ -49,7 +49,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |new MyClass with MyTrait1 with MyTrait2
         |new MyClass
         |
-        |//new anonimous class instance creation
+        |//new anonymous class instance creation
         |new MyClass with MyTrait1 with MyTrait2 {}
         |new MyClass {}
         |
@@ -494,11 +494,11 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
     myFixture.addFileToProject("definitions.scala", MyBaseClassWithFunctionDefinitions)
     doTest(
       s"""|class MyChildClass_DelegateToSuper_DifferentParameters extends MyBaseClass[String] {
-         |  override def foo1(x: Int) = super.foo1(42)
-         |  override def foo2(t: String) = super.foo2("42")
-         |  override def foo3[E](e: E) = super.foo3(???)
-         |  override def foo4[E](e: E, t: String) = super.foo4(???, ???)
-         |}""".stripMargin,
+          |  override def foo1(x: Int) = super.foo1(42)
+          |  override def foo2(t: String) = super.foo2("42")
+          |  override def foo3[E](e: E) = super.foo3(???)
+          |  override def foo4[E](e: E, t: String) = super.foo4(???, ???)
+          |}""".stripMargin,
       """scala.FILE
         |  ScClass[MyChildClass_DelegateToSuper_DifferentParameters]
         |    extends block
@@ -1229,6 +1229,181 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            reference[Int] -> Field declaration
         |          Reference expression[foo1] -> Value read
         |            Reference expression[delegate] -> Value read
+        |""".stripMargin
+    )
+  }
+
+  def testAnnotation(): Unit = {
+    doTest(
+      s"""object MyScalaClass {
+         |  @Deprecated def foo1(): Unit = ()
+         |  @Deprecated() def foo2(): Unit = ()
+         |  @Deprecated(forRemoval = true) def foo3(): Unit = ()
+         |  @Deprecated("description") def foo4(): Unit = ()
+         |  @Deprecated(since = "description") def foo5(): Unit = ()
+         |
+         |  @java.lang.Deprecated def bar1(): Unit = ()
+         |  @java.lang.Deprecated() def bar2(): Unit = ()
+         |  @java.lang.Deprecated(forRemoval = true) def bar3(): Unit = ()
+         |  @java.lang.Deprecated("description") def bar4(): Unit = ()
+         |  @java.lang.Deprecated(since = "description") def bar5(): Unit = ()
+         |}""".stripMargin,
+      """scala.FILE
+        |  ScObject[MyScalaClass]
+        |    extends block
+        |      template body -> Value read
+        |        function definition[foo1] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[foo2] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                  arguments of function -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[foo3] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                  arguments of function -> Value read
+        |                    assign statement -> Value read
+        |                      Reference expression[forRemoval] -> Value write
+        |                      BooleanLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[foo4] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                  arguments of function -> Value read
+        |                    StringLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[foo5] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                  arguments of function -> Value read
+        |                    assign statement -> Value read
+        |                      Reference expression[since] -> Value write
+        |                      StringLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[bar1] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                      reference[lang] -> Annotation
+        |                        reference[java] -> Annotation
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[bar2] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                      reference[lang] -> Annotation
+        |                        reference[java] -> Annotation
+        |                  arguments of function -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[bar3] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                      reference[lang] -> Annotation
+        |                        reference[java] -> Annotation
+        |                  arguments of function -> Value read
+        |                    assign statement -> Value read
+        |                      Reference expression[forRemoval] -> Value write
+        |                      BooleanLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[bar4] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                      reference[lang] -> Annotation
+        |                        reference[java] -> Annotation
+        |                  arguments of function -> Value read
+        |                    StringLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        function definition[bar5] -> Value read
+        |          annotations -> Value read
+        |            annotation -> Value read
+        |              annotation expression -> Value read
+        |                constructor -> Annotation
+        |                  simple type -> Annotation
+        |                    reference[Deprecated] -> Annotation
+        |                      reference[lang] -> Annotation
+        |                        reference[java] -> Annotation
+        |                  arguments of function -> Value read
+        |                    assign statement -> Value read
+        |                      Reference expression[since] -> Value write
+        |                      StringLiteral -> Value read
+        |          parameter clauses -> Value read
+        |            parameter clause -> Value read
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
         |""".stripMargin
     )
   }

@@ -2,3 +2,58 @@ import poly.*
 
 def failing: Tuple1[Label] = Sized(new Label("foo"))
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: poly
+        PsiElement(identifier)('poly')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: failing
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('failing')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple1[Label]
+      SimpleType: Tuple1
+        CodeReferenceElement: Tuple1
+          PsiElement(identifier)('Tuple1')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Label
+          CodeReferenceElement: Label
+            PsiElement(identifier)('Label')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Sized
+        PsiElement(identifier)('Sized')
+      ArgumentList
+        PsiElement(()('(')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Label
+                  CodeReferenceElement: Label
+                    PsiElement(identifier)('Label')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"foo"')
+                  PsiElement())(')')
+        PsiElement())(')')

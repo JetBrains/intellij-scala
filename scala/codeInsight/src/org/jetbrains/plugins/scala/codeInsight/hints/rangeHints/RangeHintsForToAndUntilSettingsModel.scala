@@ -42,7 +42,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
 
   override def getCases: util.List[ImmediateConfigurable.Case] = util.Collections.emptyList()
 
-  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.range.hints.for.to.and.until")
+  override def getMainCheckBoxLabel: String = getName
 
   override def getName: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until")
 
@@ -83,7 +83,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
   override def reset(): Unit =
     settings.reset()
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until.description", ScalaCodeInsightBundle.message("xray.mode.tip"))
+  override def getDescription: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until.description", ScalaCodeInsightBundle.message("xray.mode.tip", ScalaHintsSettings.xRayModeShortcut))
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

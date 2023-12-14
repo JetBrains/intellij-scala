@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.protocol.session
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
@@ -104,8 +105,14 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       }
     }
 
-  override def future: Future[(T, A)] = promise.future.recoverWith{
-    case err  => Future.failed(Bsp4JJobFailure(err, a))
+  override def future: Future[(T, A)] = promise.future.recoverWith {
+    //canceled exceptions should not be logged or transformed
+    //It matters later in `org.jetbrains.bsp.project.importing.BspProjectResolver.runImport` when errors are handled
+    //NOTE: under the hood the implementation will be BspTaskCancelled most likely
+    case canceled: ProcessCanceledException =>
+      Future.failed(canceled)
+    case err =>
+      Future.failed(Bsp4JJobFailure(err, a))
   }
 
   override def cancel() : Unit =

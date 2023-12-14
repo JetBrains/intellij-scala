@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Caret, Editor, RawText}
+import com.intellij.openapi.editor.{Caret, Document, Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.calcIndentationString
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
 import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
@@ -37,7 +39,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return text
 
     val caret = editor.getCaretModel.getCurrentCaret
-    val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, caret.getSelectionStart)
+    val elementAtCaret = getElementAtCaretOrCommonParentForSelection(file, editor.getDocument, caret)
     if (elementAtCaret == null)
       return text
     if (isInsideStringLiteralOrComment(caret, elementAtCaret))
@@ -59,7 +61,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return text
 
     val targetCaretIndentSize: Int =
-      getTargetCaretIndentSize(caretPosition, caretIndentWhitespace, caret, tabSize, codeStyleSettings)
+      getTargetCaretIndentSize(caretPosition, caretIndentWhitespace, tabSize, codeStyleSettings)
 
     val firstNonBlankLineIndentWhitespace = text
       .linesWithSeparators
@@ -92,6 +94,20 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     // don't add redundant indentation for the first line, as caret is already located at this position
     textWithFixedIndent.stripPrefix(caretIndentWhitespace)
   }
+
+  private def getElementAtCaretOrCommonParentForSelection(file: PsiFile, document: Document, caret: Caret): PsiElement = {
+    val start = caret.getSelectionStart
+    val end = caret.getSelectionEnd - 1
+    val startElement = findElementAtCaret_WithFixedEOF(file, document, start)
+    if (end > start) {
+      val endElement = file.findElementAt(end)
+      if (startElement != null && endElement != null)
+        PsiTreeUtil.findCommonParent(startElement, endElement)
+      else
+        startElement
+    }
+    else startElement
+  }
 }
 
 object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
@@ -111,7 +127,7 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     //def foo =\n<caret>
     val prevElement = elementAtCaret.prevLeafNotWhitespaceComment
     prevElement match {
-      case Some(e: PsiErrorElement)  if isIncompleteDefinitionError(e) =>
+      case Some(e: PsiErrorElement) if isIncompleteDefinitionError(e) =>
         return CaretPosition.AfterIncompleteDefinitionBody(e)
       case _ =>
     }
@@ -133,15 +149,14 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
   private def getTargetCaretIndentSize(
     elementAtCaretPosition: CaretPosition,
     caretIndentWhitespace: String,
-    caret: Caret,
     tabSize: Int,
     codeStyleSettings: CodeStyleSettings
   ): Int =
     elementAtCaretPosition match {
       case CaretPosition.InTheMiddleBodyIndentationBased(block) =>
-        getIndentOfFirstElementInBody(caret, tabSize, block)
+        getIndentOfFirstElementInBody(tabSize, block).getOrElse(codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE))
       case CaretPosition.InTheMiddleBodyWithBraces(block) =>
-        getIndentOfFirstElementInBody(caret, tabSize, block)
+        getIndentOfFirstElementInBody(tabSize, block).getOrElse(codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE))
       case CaretPosition.AfterIncompleteDefinitionBody(e) =>
         val parentDefinitionIndentSize = IndentUtil.calcRegionIndent(e, 1)
         val indentSize = codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE)
@@ -150,16 +165,18 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
         IndentUtil.calcIndent(caretIndentWhitespace, tabSize)
     }
 
-  private def getIndentOfFirstElementInBody(caret: Caret, tabSize: Int, block: ScOptionalBracesOwner): Int = {
+  private def getIndentOfFirstElementInBody(tabSize: Int, block: ScOptionalBracesOwner): Option[Int] = {
     val element = getFirstElementInBody(block)
-    val indentStr = calcIndentationString(element, caret.getSelectionStart)
-    indentStr.fold(0)(IndentUtil.calcIndent(_, tabSize))
+    val indentStr = element.flatMap(el => calcIndentationString(el, el.getTextRange.getStartOffset))
+    indentStr.map(IndentUtil.calcIndent(_, tabSize))
   }
 
-  private def getFirstElementInBody(block: ScOptionalBracesOwner): PsiElement = {
+  private def getFirstElementInBody(block: ScOptionalBracesOwner): Option[PsiElement] = {
     val braceOrColon = block.getEnclosingStartElement
-    val firstElementInBody = braceOrColon.map(_.getNextSiblingNotWhitespaceComment)
-    firstElementInBody.getOrElse(block.getFirstChildNotWhitespaceComment)
+    //get some element between `{` and `}` or
+    braceOrColon
+      .map(_.getNextSiblingNotWhitespaceComment)
+      .filterNot(el => TokenSets.RBRACE_OR_END_STMT.contains(el.elementType))
   }
 
   /**

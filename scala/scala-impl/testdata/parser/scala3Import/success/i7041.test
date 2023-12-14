@@ -13,3 +13,255 @@ def test: Unit = {
   9 / 0 rescue { case _: ArithmeticException => 10 }
 }
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util.control.NonLocalReturns
+        CodeReferenceElement: scala.util.control
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('control')
+        PsiElement(.)('.')
+        PsiElement(identifier)('NonLocalReturns')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  Extension on T
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Throwable
+          CodeReferenceElement: Throwable
+            PsiElement(identifier)('Throwable')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: op
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('op')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: rescue
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('rescue')
+        PsiWhiteSpace(' ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: fallback
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('fallback')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: PartialFunction[E, T]
+                  SimpleType: PartialFunction
+                    CodeReferenceElement: PartialFunction
+                      PsiElement(identifier)('PartialFunction')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: op
+            PsiElement(identifier)('op')
+          PsiWhiteSpace('\n    ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: ex
+                      PsiElement(identifier)('ex')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      ParametrizedType: ReturnThrowable[_]
+                        SimpleType: ReturnThrowable
+                          CodeReferenceElement: ReturnThrowable
+                            PsiElement(identifier)('ReturnThrowable')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeVariable: _
+                            PsiElement(_)('_')
+                          PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ThrowStatement
+                      PsiElement(throw)('throw')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ex
+                        PsiElement(identifier)('ex')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: ex
+                      PsiElement(identifier)('ex')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n        ')
+                  BlockOfExpressions
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: fallback.isDefinedAt
+                          ReferenceExpression: fallback
+                            PsiElement(identifier)('fallback')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('isDefinedAt')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: ex
+                            PsiElement(identifier)('ex')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                      PsiWhiteSpace('  ')
+                      MethodCall
+                        ReferenceExpression: fallback
+                          PsiElement(identifier)('fallback')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: ex
+                            PsiElement(identifier)('ex')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      ThrowStatement
+                        PsiElement(throw)('throw')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ex
+                          PsiElement(identifier)('ex')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('9')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: /
+            PsiElement(identifier)('/')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: rescue
+          PsiElement(identifier)('rescue')
+        PsiWhiteSpace(' ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: ArithmeticException
+                    CodeReferenceElement: ArithmeticException
+                      PsiElement(identifier)('ArithmeticException')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                IntegerLiteral
+                  PsiElement(integer)('10')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

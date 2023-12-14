@@ -17,3 +17,496 @@ object Test {
   val hint2: foo.Shape[foo.FlatShapeLevel, (Int, Int), (Int, Int), _] = hint
 }
 -----
+ScalaFile
+  ScObject: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ShapeLevel
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ShapeLevel')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTrait: FlatShapeLevel
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FlatShapeLevel')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: ShapeLevel
+                  CodeReferenceElement: ShapeLevel
+                    PsiElement(identifier)('ShapeLevel')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ColumnsShapeLevel
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ColumnsShapeLevel')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: FlatShapeLevel
+                  CodeReferenceElement: FlatShapeLevel
+                    PsiElement(identifier)('FlatShapeLevel')
+        PsiWhiteSpace('\n  ')
+        ScClass: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Level
+              PsiElement(identifier)('Level')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: ShapeLevel
+                CodeReferenceElement: ShapeLevel
+                  PsiElement(identifier)('ShapeLevel')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Mixed
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('Mixed')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Unpacked
+              PsiElement(identifier)('Unpacked')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Packed
+              PsiElement(identifier)('Packed')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: Shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shape')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: TupleShapeImplicits
+                  CodeReferenceElement: TupleShapeImplicits
+                    PsiElement(identifier)('TupleShapeImplicits')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TupleShapeImplicits
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TupleShapeImplicits')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: tuple2Shape
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
+                  PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('tuple2Shape')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: Level
+                    PsiElement(identifier)('Level')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: ShapeLevel
+                      CodeReferenceElement: ShapeLevel
+                        PsiElement(identifier)('ShapeLevel')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: M1
+                    PsiElement(identifier)('M1')
+                  PsiElement(,)(',')
+                  TypeParameter: M2
+                    PsiElement(identifier)('M2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: U1
+                    PsiElement(identifier)('U1')
+                  PsiElement(,)(',')
+                  TypeParameter: U2
+                    PsiElement(identifier)('U2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: P1
+                    PsiElement(identifier)('P1')
+                  PsiElement(,)(',')
+                  TypeParameter: P2
+                    PsiElement(identifier)('P2')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(implicit)('implicit')
+                    PsiWhiteSpace(' ')
+                    Parameter: u1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('u1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Shape[_ <: Level, M1, U1, P1]
+                          SimpleType: Shape
+                            CodeReferenceElement: Shape
+                              PsiElement(identifier)('Shape')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            WildcardType: _ <: Level
+                              PsiElement(_)('_')
+                              PsiWhiteSpace(' ')
+                              PsiElement(<:)('<:')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Level
+                                CodeReferenceElement: Level
+                                  PsiElement(identifier)('Level')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: M1
+                              CodeReferenceElement: M1
+                                PsiElement(identifier)('M1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: U1
+                              CodeReferenceElement: U1
+                                PsiElement(identifier)('U1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: P1
+                              CodeReferenceElement: P1
+                                PsiElement(identifier)('P1')
+                            PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Parameter: u2
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('u2')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Shape[_ <: Level, M2, U2, P2]
+                          SimpleType: Shape
+                            CodeReferenceElement: Shape
+                              PsiElement(identifier)('Shape')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            WildcardType: _ <: Level
+                              PsiElement(_)('_')
+                              PsiWhiteSpace(' ')
+                              PsiElement(<:)('<:')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Level
+                                CodeReferenceElement: Level
+                                  PsiElement(identifier)('Level')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: M2
+                              CodeReferenceElement: M2
+                                PsiElement(identifier)('M2')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: U2
+                              CodeReferenceElement: U2
+                                PsiElement(identifier)('U2')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: P2
+                              CodeReferenceElement: P2
+                                PsiElement(identifier)('P2')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shape[Level, (M1,M2), (U1,U2), (P1,P2)]
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Level
+                      CodeReferenceElement: Level
+                        PsiElement(identifier)('Level')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TupleType: (M1,M2)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: M1
+                          CodeReferenceElement: M1
+                            PsiElement(identifier)('M1')
+                        PsiElement(,)(',')
+                        SimpleType: M2
+                          CodeReferenceElement: M2
+                            PsiElement(identifier)('M2')
+                      PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TupleType: (U1,U2)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: U1
+                          CodeReferenceElement: U1
+                            PsiElement(identifier)('U1')
+                        PsiElement(,)(',')
+                        SimpleType: U2
+                          CodeReferenceElement: U2
+                            PsiElement(identifier)('U2')
+                      PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TupleType: (P1,P2)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: P1
+                          CodeReferenceElement: P1
+                            PsiElement(identifier)('P1')
+                        PsiElement(,)(',')
+                        SimpleType: P2
+                          CodeReferenceElement: P2
+                            PsiElement(identifier)('P2')
+                      PsiElement())(')')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: shape
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: shape
+              PsiElement(identifier)('shape')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Shape[_ <: FlatShapeLevel, Int, Int, _]
+            SimpleType: Shape
+              CodeReferenceElement: Shape
+                PsiElement(identifier)('Shape')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType: _ <: FlatShapeLevel
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: FlatShapeLevel
+                  CodeReferenceElement: FlatShapeLevel
+                    PsiElement(identifier)('FlatShapeLevel')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: hint
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('hint')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Shape.tuple2Shape
+              ReferenceExpression: Shape
+                PsiElement(identifier)('Shape')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tuple2Shape')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: shape
+                PsiElement(identifier)('shape')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: shape
+                PsiElement(identifier)('shape')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: hint2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: hint2
+              PsiElement(identifier)('hint2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: foo.Shape[foo.FlatShapeLevel, (Int, Int), (Int, Int), _]
+            SimpleType: foo.Shape
+              CodeReferenceElement: foo.Shape
+                CodeReferenceElement: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Shape')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: foo.FlatShapeLevel
+                CodeReferenceElement: foo.FlatShapeLevel
+                  CodeReferenceElement: foo
+                    PsiElement(identifier)('foo')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('FlatShapeLevel')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TupleType: (Int, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TupleType: (Int, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              WildcardType: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: hint
+            PsiElement(identifier)('hint')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -14,3 +14,222 @@ def test =
   val b = 2
   a + b
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.Annotation
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n\n')
+  ScClass: AnAnnotation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AnAnnotation')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: function
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('function')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: Int => String
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Annotation
+            CodeReferenceElement: Annotation
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: AnAnnotation
+              CodeReferenceElement: AnAnnotation
+                PsiElement(identifier)('AnAnnotation')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.toString
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toString')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('1')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: AnAnnotation
+              CodeReferenceElement: AnAnnotation
+                PsiElement(identifier)('AnAnnotation')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.toString.length.toString
+                ReferenceExpression: _.toString.length
+                  ReferenceExpression: _.toString
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('length')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toString')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: AnAnnotation
+                  CodeReferenceElement: AnAnnotation
+                    PsiElement(identifier)('AnAnnotation')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.toString
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  PsiElement())(')')
+        Modifiers
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a
+            PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('1')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: b
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: AnAnnotation
+                  CodeReferenceElement: AnAnnotation
+                    PsiElement(identifier)('AnAnnotation')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.toString.length.toString
+                    ReferenceExpression: _.toString.length
+                      ReferenceExpression: _.toString
+                        UnderscoreSection
+                          PsiElement(_)('_')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('toString')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  PsiElement())(')')
+        Modifiers
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: b
+            PsiElement(identifier)('b')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('2')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: +
+          PsiElement(identifier)('+')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: b
+          PsiElement(identifier)('b')

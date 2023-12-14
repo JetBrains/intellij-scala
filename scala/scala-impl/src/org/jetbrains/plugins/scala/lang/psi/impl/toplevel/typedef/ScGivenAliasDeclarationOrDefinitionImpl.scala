@@ -33,5 +33,10 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
       .getOrElse(ScalaPsiUtil.generateGivenName(typeElement.toSeq: _*))
   }
 
-  override def nameId: PsiElement = nameElement.orElse(typeElement).orNull
+
+  override def nameId: PsiElement = {
+    // TODO: returning this is a hack to not return null and has to be improved later
+    //       see SCL-21867 for further details
+    nameElement.orElse(typeElement).getOrElse(this)
+  }
 }

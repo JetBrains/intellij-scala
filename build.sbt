@@ -52,6 +52,7 @@ lazy val scalaCommunity: sbt.Project =
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
+      intellijBspIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       intellijBspIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
@@ -75,7 +76,8 @@ lazy val scalaCommunity: sbt.Project =
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
-      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct ++ Seq(
+      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      intellijRuntimePlugins := Seq(
         //Below are some other useful plugins which you might be interested to inspect
         //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
         //You can uncomment any of them locally
@@ -84,7 +86,7 @@ lazy val scalaCommunity: sbt.Project =
         //(note there is also PsiViewer plugin, but it's a different plugin)
         //"com.intellij.dev".toPlugin,
 
-        //"org.jetbrains.kotlin".toPlugin
+        "org.jetbrains.kotlin".toPlugin
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten

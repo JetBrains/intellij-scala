@@ -38,3 +38,747 @@ object Main {
 
 }
 -----
+ScalaFile
+  ScTrait: Mapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mapper')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Mapper[T]
+          SimpleType: Mapper
+            CodeReferenceElement: Mapper
+              PsiElement(identifier)('Mapper')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: KeyedMapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('KeyedMapper')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KeyType
+        PsiElement(identifier)('KeyType')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: KeyedMapper[KeyType, T]
+          SimpleType: KeyedMapper
+            CodeReferenceElement: KeyedMapper
+              PsiElement(identifier)('KeyedMapper')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: KeyType
+              CodeReferenceElement: KeyType
+                PsiElement(identifier)('KeyType')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Mapper[T]
+            SimpleType: Mapper
+              CodeReferenceElement: Mapper
+                PsiElement(identifier)('Mapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n\n')
+  ScTrait: KeyedMetaMapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('KeyedMetaMapper')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KeyType
+        PsiElement(identifier)('KeyType')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: KeyedMapper[KeyType, T]
+          SimpleType: KeyedMapper
+            CodeReferenceElement: KeyedMapper
+              PsiElement(identifier)('KeyedMapper')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: KeyType
+              CodeReferenceElement: KeyType
+                PsiElement(identifier)('KeyType')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: MappedForeignKey
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MappedForeignKey')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: KeyType
+        PsiElement(identifier)('KeyType')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Owner
+        PsiElement(identifier)('Owner')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Mapper[Owner]
+          SimpleType: Mapper
+            CodeReferenceElement: Mapper
+              PsiElement(identifier)('Mapper')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Owner
+              CodeReferenceElement: Owner
+                PsiElement(identifier)('Owner')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Other
+        PsiElement(identifier)('Other')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: KeyedMapper[KeyType, Other]
+          SimpleType: KeyedMapper
+            CodeReferenceElement: KeyedMapper
+              PsiElement(identifier)('KeyedMapper')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: KeyType
+              CodeReferenceElement: KeyType
+                PsiElement(identifier)('KeyType')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Other
+              CodeReferenceElement: Other
+                PsiElement(identifier)('Other')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: IdPK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IdPK')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: TestSubject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestSubject')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: KeyedMapper[Long, TestSubject]
+            SimpleType: KeyedMapper
+              CodeReferenceElement: KeyedMapper
+                PsiElement(identifier)('KeyedMapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: TestSubject
+                CodeReferenceElement: TestSubject
+                  PsiElement(identifier)('TestSubject')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: IdPK
+            CodeReferenceElement: IdPK
+              PsiElement(identifier)('IdPK')
+  PsiWhiteSpace('\n\n')
+  ScClass: TestRun
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestRun')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: KeyedMapper[Long, TestRun]
+            SimpleType: KeyedMapper
+              CodeReferenceElement: KeyedMapper
+                PsiElement(identifier)('KeyedMapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: TestRun
+                CodeReferenceElement: TestRun
+                  PsiElement(identifier)('TestRun')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: IdPK
+            CodeReferenceElement: IdPK
+              PsiElement(identifier)('IdPK')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScObject: testSubject
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testSubject')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: MappedForeignKey[Long, TestRun, TestSubject]
+                  SimpleType: MappedForeignKey
+                    CodeReferenceElement: MappedForeignKey
+                      PsiElement(identifier)('MappedForeignKey')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TestRun
+                      CodeReferenceElement: TestRun
+                        PsiElement(identifier)('TestRun')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: TestSubject
+                      CodeReferenceElement: TestSubject
+                        PsiElement(identifier)('TestSubject')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: TestRun
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestRun')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TestRun
+            CodeReferenceElement: TestRun
+              PsiElement(identifier)('TestRun')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: KeyedMetaMapper[Long, TestRun]
+            SimpleType: KeyedMetaMapper
+              CodeReferenceElement: KeyedMetaMapper
+                PsiElement(identifier)('KeyedMetaMapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: TestRun
+                CodeReferenceElement: TestRun
+                  PsiElement(identifier)('TestRun')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: MetaTestSubject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MetaTestSubject')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TestSubject
+            CodeReferenceElement: TestSubject
+              PsiElement(identifier)('TestSubject')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          ParametrizedType: KeyedMetaMapper[Long, TestSubject]
+            SimpleType: KeyedMetaMapper
+              CodeReferenceElement: KeyedMetaMapper
+                PsiElement(identifier)('KeyedMetaMapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: TestSubject
+                CodeReferenceElement: TestSubject
+                  PsiElement(identifier)('TestSubject')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: TestSubject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestSubject')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: MetaTestSubject
+            CodeReferenceElement: MetaTestSubject
+              PsiElement(identifier)('MetaTestSubject')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: oneToOneJoin
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('oneToOneJoin')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: PType
+              PsiElement(identifier)('PType')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              CompoundType: KeyedMapper[Long, PType] with IdPK
+                ParametrizedType: KeyedMapper[Long, PType]
+                  SimpleType: KeyedMapper
+                    CodeReferenceElement: KeyedMapper
+                      PsiElement(identifier)('KeyedMapper')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: PType
+                      CodeReferenceElement: PType
+                        PsiElement(identifier)('PType')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: IdPK
+                  CodeReferenceElement: IdPK
+                    PsiElement(identifier)('IdPK')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n                   ')
+            TypeParameter: CType
+              PsiElement(identifier)('CType')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              CompoundType: KeyedMapper[Long, CType] with IdPK
+                ParametrizedType: KeyedMapper[Long, CType]
+                  SimpleType: KeyedMapper
+                    CodeReferenceElement: KeyedMapper
+                      PsiElement(identifier)('KeyedMapper')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: CType
+                      CodeReferenceElement: CType
+                        PsiElement(identifier)('CType')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: IdPK
+                  CodeReferenceElement: IdPK
+                    PsiElement(identifier)('IdPK')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n                   ')
+            TypeParameter: CMetaType
+              PsiElement(identifier)('CMetaType')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              CompoundType: CType with KeyedMetaMapper[Long, CType]
+                SimpleType: CType
+                  CodeReferenceElement: CType
+                    PsiElement(identifier)('CType')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ParametrizedType: KeyedMetaMapper[Long, CType]
+                  SimpleType: KeyedMetaMapper
+                    CodeReferenceElement: KeyedMetaMapper
+                      PsiElement(identifier)('KeyedMetaMapper')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: CType
+                      CodeReferenceElement: CType
+                        PsiElement(identifier)('CType')
+                    PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n                   ')
+            TypeParameter: FKType
+              PsiElement(identifier)('FKType')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: MappedForeignKey[Long, PType, CType]
+                SimpleType: MappedForeignKey
+                  CodeReferenceElement: MappedForeignKey
+                    PsiElement(identifier)('MappedForeignKey')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: PType
+                    CodeReferenceElement: PType
+                      PsiElement(identifier)('PType')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: CType
+                    CodeReferenceElement: CType
+                      PsiElement(identifier)('CType')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n  ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: parents
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('parents')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[PType]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: PType
+                        CodeReferenceElement: PType
+                          PsiElement(identifier)('PType')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: metaMapper
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('metaMapper')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: CMetaType
+                    CodeReferenceElement: CMetaType
+                      PsiElement(identifier)('CMetaType')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: keyGetter
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('keyGetter')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (PType) => FKType
+                    TypeInParenthesis: (PType)
+                      PsiElement(()('(')
+                      SimpleType: PType
+                        CodeReferenceElement: PType
+                          PsiElement(identifier)('PType')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: FKType
+                      CodeReferenceElement: FKType
+                        PsiElement(identifier)('FKType')
+              PsiWhiteSpace(' ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ParametrizedType: Map[Long, CType]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Long
+                CodeReferenceElement: Long
+                  PsiElement(identifier)('Long')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: CType
+                CodeReferenceElement: CType
+                  PsiElement(identifier)('CType')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Map.empty
+            ReferenceExpression: Map
+              PsiElement(identifier)('Map')
+            PsiElement(.)('.')
+            PsiElement(identifier)('empty')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: callIt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('callIt')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              GenericCall
+                ReferenceExpression: oneToOneJoin
+                  PsiElement(identifier)('oneToOneJoin')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: TestRun
+                    CodeReferenceElement: TestRun
+                      PsiElement(identifier)('TestRun')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: TestSubject
+                    CodeReferenceElement: TestSubject
+                      PsiElement(identifier)('TestSubject')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: MetaTestSubject
+                    CodeReferenceElement: MetaTestSubject
+                      PsiElement(identifier)('MetaTestSubject')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n                 ')
+                  ParametrizedType: MappedForeignKey[Long, TestRun, TestSubject]
+                    SimpleType: MappedForeignKey
+                      CodeReferenceElement: MappedForeignKey
+                        PsiElement(identifier)('MappedForeignKey')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: TestRun
+                        CodeReferenceElement: TestRun
+                          PsiElement(identifier)('TestRun')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: TestSubject
+                        CodeReferenceElement: TestSubject
+                          PsiElement(identifier)('TestSubject')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace('\n    ')
+                MethodCall
+                  ReferenceExpression: List
+                    PsiElement(identifier)('List')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: TestSubject
+                  PsiElement(identifier)('TestSubject')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: tr
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('tr')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: TestRun
+                            CodeReferenceElement: TestRun
+                              PsiElement(identifier)('TestRun')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: tr.testSubject
+                    ReferenceExpression: tr
+                      PsiElement(identifier)('tr')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('testSubject')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

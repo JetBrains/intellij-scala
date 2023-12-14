@@ -9,3 +9,166 @@ trait Map2[K] {
   }
 }
 -----
+ScalaFile
+  ScTrait: Map2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Map2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: get
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('get')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: k
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('k')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: K
+            CodeReferenceElement: K
+              PsiElement(identifier)('K')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: k
+            PsiElement(identifier)('k')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: K
+            CodeReferenceElement: K
+              PsiElement(identifier)('K')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ThisReference
+                PsiElement(this)('this')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: that
+                      PsiElement(identifier)('that')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      ParametrizedType: Map2[b]
+                        SimpleType: Map2
+                          CodeReferenceElement: Map2
+                            PsiElement(identifier)('Map2')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeVariable: b
+                            PsiElement(identifier)('b')
+                          PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: that.get
+                        ReferenceExpression: that
+                          PsiElement(identifier)('that')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('get')
+                      ArgumentList
+                        PsiElement(()('(')
+                        GenericCall
+                          ReferenceExpression: 3.asInstanceOf
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('asInstanceOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: b
+                              CodeReferenceElement: b
+                                PsiElement(identifier)('b')
+                            PsiElement(])(']')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                PsiComment(comment)('//case that: Map2[c] => that.get(4.asInstanceOf[K])')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: get
+                        PsiElement(identifier)('get')
+                      ArgumentList
+                        PsiElement(()('(')
+                        GenericCall
+                          ReferenceExpression: 5.asInstanceOf
+                            IntegerLiteral
+                              PsiElement(integer)('5')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('asInstanceOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: K
+                              CodeReferenceElement: K
+                                PsiElement(identifier)('K')
+                            PsiElement(])(']')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

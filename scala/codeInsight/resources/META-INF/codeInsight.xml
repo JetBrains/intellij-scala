@@ -320,11 +320,12 @@
         </intentionAction>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$ConfigureShortcuts"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeTip"/>
+
+        <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">
-        <parameterNameHints language="Scala"
-                            implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
         <delegateMethods language="Scala"
                          implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
     </extensions>
@@ -342,14 +343,14 @@
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
         </action>
 
-        <action id="Scala.XRayMode" text="X-Ray Mode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction" />
+        <action id="Scala.XRayModeTip" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$XRayModeTipAction"/>
 
-        <action id="ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.annotator.TypeMismatchToggleAction"/>
         <action id="Scala.ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction" />
         <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
         <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />
         <action id="Scala.ToggleRangeExclusiveHintAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeExclusiveHintAction" />
 
+        <action id="Scala.ToggleParametersHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleParameterHintsAction" />
         <action id="Scala.ToggleMethodResultTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodResultTypeAction" />
         <action id="Scala.ToggleMemberVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMemberVariableTypeAction" />
         <action id="Scala.ToggleLocalVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleLocalVariableTypeAction" />
@@ -369,6 +370,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
 
         <group id="ImplicitArgumentsMenu">
@@ -376,6 +379,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
 
         <group id="ExplicitArgumentsMenu">
@@ -383,6 +388,8 @@
             <separator/>
             <reference ref="Scala.ShowImplicits" />
             <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
         </group>
     </actions>
 </idea-plugin>

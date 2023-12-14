@@ -39,6 +39,8 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
     metrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
+  protected def adjustedBoxStart(r: Rectangle, m: Insets): Int = r.x + m.left
+
   override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
     if (!editor.is[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
@@ -55,7 +57,7 @@ class TextPartsHintRenderer(var parts: Seq[Text], menuProvider: MenuProvider)
       val fontMetrics = getFontMetrics0(editor)
 
       val widthMinusMargins = r.width - m.left - m.right
-      val xPlusLeftMargin = r.x + m.left
+      val xPlusLeftMargin = adjustedBoxStart(r, m)
 
       val backgroundColor = attributes.getBackgroundColor
       if (backgroundColor != null) {

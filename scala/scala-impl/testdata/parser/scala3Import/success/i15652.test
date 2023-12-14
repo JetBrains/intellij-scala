@@ -11,3 +11,273 @@ def optionalOneOf[T](in: Map[String, NodeParser[? <: T]]): Option[T] =
   }
   mappings.headOption map (_._2())
 -----
+ScalaFile
+  ScTrait: Node
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: NodeParser
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeParser')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionalType: Node => T
+      SimpleType: Node
+        CodeReferenceElement: Node
+          PsiElement(identifier)('Node')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: child
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('child')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: key
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('key')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Node]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Node
+          CodeReferenceElement: Node
+            PsiElement(identifier)('Node')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: optionalOneOf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('optionalOneOf')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: in
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('in')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Map[String, NodeParser[? <: T]]
+              SimpleType: Map
+                CodeReferenceElement: Map
+                  PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NodeParser[? <: T]
+                  SimpleType: NodeParser
+                    CodeReferenceElement: NodeParser
+                      PsiElement(identifier)('NodeParser')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    WildcardType: ? <: T
+                      PsiElement(?)('?')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[T]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: mappings
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: mappings
+            PsiElement(identifier)('mappings')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: in
+            PsiElement(identifier)('in')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: flatMap
+            PsiElement(identifier)('flatMap')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: key
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('key')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: parser
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('parser')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              BlockOfExpressions
+                InfixExpression
+                  MethodCall
+                    ReferenceExpression: child
+                      PsiElement(identifier)('child')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: key
+                        PsiElement(identifier)('key')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: map
+                    PsiElement(identifier)('map')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          Parameter: node
+                            PsiElement(identifier)('node')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace('\n      ')
+                      BlockOfExpressions
+                        InfixExpression
+                          ReferenceExpression: key
+                            PsiElement(identifier)('key')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ->
+                            PsiElement(identifier)('->')
+                          PsiWhiteSpace(' ')
+                          ExpressionInParenthesis
+                            PsiElement(()('(')
+                            FunctionExpression
+                              Parameters
+                                ParametersClause
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              MethodCall
+                                ReferenceExpression: parser
+                                  PsiElement(identifier)('parser')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: node
+                                    PsiElement(identifier)('node')
+                                  PsiElement())(')')
+                            PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: mappings.headOption
+          ReferenceExpression: mappings
+            PsiElement(identifier)('mappings')
+          PsiElement(.)('.')
+          PsiElement(identifier)('headOption')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: map
+          PsiElement(identifier)('map')
+        PsiWhiteSpace(' ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: _._2
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('_2')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')

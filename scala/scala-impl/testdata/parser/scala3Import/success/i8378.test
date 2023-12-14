@@ -16,3 +16,325 @@ val live: ZLayer[Has[A] & Has[B], Nothing, Has[C]] =
     new C {}
   }
 -----
+ScalaFile
+  ScTrait: Has
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Has')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: ZLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZLayer')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: RIn
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('RIn')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: ROut
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('ROut')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: ZLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZLayer')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fromServices
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromServices')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A0
+              PsiElement(identifier)('A0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (A0, A1) => B
+                    TupleType: (A0, A1)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: A0
+                          CodeReferenceElement: A0
+                            PsiElement(identifier)('A0')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: A1
+                          CodeReferenceElement: A1
+                            PsiElement(identifier)('A1')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZLayer[Has[A0] with Has[A1], Nothing, Has[B]]
+            SimpleType: ZLayer
+              CodeReferenceElement: ZLayer
+                PsiElement(identifier)('ZLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              CompoundType: Has[A0] with Has[A1]
+                ParametrizedType: Has[A0]
+                  SimpleType: Has
+                    CodeReferenceElement: Has
+                      PsiElement(identifier)('Has')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A0
+                      CodeReferenceElement: A0
+                        PsiElement(identifier)('A0')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Has[A1]
+                  SimpleType: Has
+                    CodeReferenceElement: Has
+                      PsiElement(identifier)('Has')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A1
+                      CodeReferenceElement: A1
+                        PsiElement(identifier)('A1')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Has[B]
+                SimpleType: Has
+                  CodeReferenceElement: Has
+                    PsiElement(identifier)('Has')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: live
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: live
+        PsiElement(identifier)('live')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: ZLayer[Has[A] & Has[B], Nothing, Has[C]]
+      SimpleType: ZLayer
+        CodeReferenceElement: ZLayer
+          PsiElement(identifier)('ZLayer')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Has[A] & Has[B]
+          ParametrizedType: Has[A]
+            SimpleType: Has
+              CodeReferenceElement: Has
+                PsiElement(identifier)('Has')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Has[B]
+            SimpleType: Has
+              CodeReferenceElement: Has
+                PsiElement(identifier)('Has')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Nothing
+          CodeReferenceElement: Nothing
+            PsiElement(identifier)('Nothing')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Has[C]
+          SimpleType: Has
+            CodeReferenceElement: Has
+              PsiElement(identifier)('Has')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: ZLayer.fromServices
+        ReferenceExpression: ZLayer
+          PsiElement(identifier)('ZLayer')
+        PsiElement(.)('.')
+        PsiElement(identifier)('fromServices')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace('\n    ')
+            BlockOfExpressions
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')

@@ -4,3 +4,53 @@ abstract class ClassPath {
   type ClassRep
 }
 -----
+ScalaFile
+  ScClass: ClassPath
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassPath')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: AnyClassRep
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AnyClassRep')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypeProjection: ClassPath#ClassRep
+            SimpleType: ClassPath
+              CodeReferenceElement: ClassPath
+                PsiElement(identifier)('ClassPath')
+            PsiElement(#)('#')
+            PsiElement(identifier)('ClassRep')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: ClassRep
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ClassRep')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

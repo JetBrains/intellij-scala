@@ -8,3 +8,97 @@ object Test {
   s1
 }
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: s1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('s1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('47')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: s2
+              PsiElement(identifier)('s2')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: s2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('s2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('48')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: s3
+              PsiElement(identifier)('s3')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: s3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('s3')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('49')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Tuple
+                PsiElement(identifier)('Tuple')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ReferenceExpression: s1
+          PsiElement(identifier)('s1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

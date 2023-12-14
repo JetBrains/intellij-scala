@@ -38,3 +38,861 @@ object Test {
   }
 }
 -----
+ScalaFile
+  ScTrait: Complex
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Complex')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Product2[Double, Double]
+            SimpleType: Product2
+              CodeReferenceElement: Product2
+                PsiElement(identifier)('Product2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: canEqual
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('canEqual')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: other
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('other')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: other.isInstanceOf
+              ReferenceExpression: other
+                PsiElement(identifier)('other')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isInstanceOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Complex
+                CodeReferenceElement: Complex
+                  PsiElement(identifier)('Complex')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ComplexRect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ComplexRect')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: _1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('_1')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: _2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('_2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Complex
+            CodeReferenceElement: Complex
+              PsiElement(identifier)('Complex')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: toString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toString')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                InfixExpression
+                  StringLiteral
+                    PsiElement(string content)('"ComplexRect("')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  ReferenceExpression: _1
+                    PsiElement(identifier)('_1')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                StringLiteral
+                  PsiElement(string content)('","')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              ReferenceExpression: _2
+                PsiElement(identifier)('_2')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            StringLiteral
+              PsiElement(string content)('")"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ComplexPolar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ComplexPolar')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: _1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('_1')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: _2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('_2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Complex
+            CodeReferenceElement: Complex
+              PsiElement(identifier)('Complex')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: toString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toString')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                InfixExpression
+                  StringLiteral
+                    PsiElement(string content)('"ComplexPolar("')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  ReferenceExpression: _1
+                    PsiElement(identifier)('_1')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                StringLiteral
+                  PsiElement(string content)('","')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              ReferenceExpression: _2
+                PsiElement(identifier)('_2')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            StringLiteral
+              PsiElement(string content)('")"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: ComplexRect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ComplexRect')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: z
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('z')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: Complex
+                    CodeReferenceElement: Complex
+                      PsiElement(identifier)('Complex')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Complex]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Complex
+                CodeReferenceElement: Complex
+                  PsiElement(identifier)('Complex')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              GenericCall
+                ReferenceExpression: z.isInstanceOf
+                  ReferenceExpression: z
+                    PsiElement(identifier)('z')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: ComplexRect
+                    CodeReferenceElement: ComplexRect
+                      PsiElement(identifier)('ComplexRect')
+                  PsiElement(])(']')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Some
+                  PsiElement(identifier)('Some')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: z
+                    PsiElement(identifier)('z')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: z
+                  PsiElement(identifier)('z')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: ComplexPolar
+                        PsiElement(identifier)('ComplexPolar')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: mod
+                          PsiElement(identifier)('mod')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: arg
+                          PsiElement(identifier)('arg')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n        ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: Some
+                          PsiElement(identifier)('Some')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: ComplexRect
+                                    CodeReferenceElement: ComplexRect
+                                      PsiElement(identifier)('ComplexRect')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    InfixExpression
+                                      ReferenceExpression: mod
+                                        PsiElement(identifier)('mod')
+                                      ReferenceExpression: *
+                                        PsiElement(identifier)('*')
+                                      MethodCall
+                                        ReferenceExpression: math.cos
+                                          ReferenceExpression: math
+                                            PsiElement(identifier)('math')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('cos')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: arg
+                                            PsiElement(identifier)('arg')
+                                          PsiElement())(')')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    InfixExpression
+                                      ReferenceExpression: mod
+                                        PsiElement(identifier)('mod')
+                                      ReferenceExpression: *
+                                        PsiElement(identifier)('*')
+                                      MethodCall
+                                        ReferenceExpression: math.sin
+                                          ReferenceExpression: math
+                                            PsiElement(identifier)('math')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('sin')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: arg
+                                            PsiElement(identifier)('arg')
+                                          PsiElement())(')')
+                                    PsiElement())(')')
+                          PsiElement())(')')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: ComplexPolar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ComplexPolar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: z
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('z')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: Complex
+                    CodeReferenceElement: Complex
+                      PsiElement(identifier)('Complex')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Complex]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Complex
+                CodeReferenceElement: Complex
+                  PsiElement(identifier)('Complex')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              GenericCall
+                ReferenceExpression: z.isInstanceOf
+                  ReferenceExpression: z
+                    PsiElement(identifier)('z')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: ComplexPolar
+                    CodeReferenceElement: ComplexPolar
+                      PsiElement(identifier)('ComplexPolar')
+                  PsiElement(])(']')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Some
+                  PsiElement(identifier)('Some')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: z
+                    PsiElement(identifier)('z')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: z
+                  PsiElement(identifier)('z')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: ComplexRect
+                        PsiElement(identifier)('ComplexRect')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: re
+                          PsiElement(identifier)('re')
+                        PsiElement(,)(',')
+                        ReferencePattern: im
+                          PsiElement(identifier)('im')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n        ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: Some
+                          PsiElement(identifier)('Some')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: ComplexPolar
+                                    CodeReferenceElement: ComplexPolar
+                                      PsiElement(identifier)('ComplexPolar')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    MethodCall
+                                      ReferenceExpression: math.sqrt
+                                        ReferenceExpression: math
+                                          PsiElement(identifier)('math')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('sqrt')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        InfixExpression
+                                          InfixExpression
+                                            ReferenceExpression: re
+                                              PsiElement(identifier)('re')
+                                            ReferenceExpression: *
+                                              PsiElement(identifier)('*')
+                                            ReferenceExpression: re
+                                              PsiElement(identifier)('re')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          InfixExpression
+                                            ReferenceExpression: im
+                                              PsiElement(identifier)('im')
+                                            ReferenceExpression: *
+                                              PsiElement(identifier)('*')
+                                            ReferenceExpression: im
+                                              PsiElement(identifier)('im')
+                                        PsiElement())(')')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    MethodCall
+                                      ReferenceExpression: math.atan
+                                        ReferenceExpression: math
+                                          PsiElement(identifier)('math')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('atan')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        InfixExpression
+                                          ReferenceExpression: re
+                                            PsiElement(identifier)('re')
+                                          ReferenceExpression: /
+                                            PsiElement(identifier)('/')
+                                          ReferenceExpression: im
+                                            PsiElement(identifier)('im')
+                                        PsiElement())(')')
+                                    PsiElement())(')')
+                          PsiElement())(')')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: ComplexRect
+                        CodeReferenceElement: ComplexRect
+                          PsiElement(identifier)('ComplexRect')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: ComplexPolar
+                      PsiElement(identifier)('ComplexPolar')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ReferencePattern: mod
+                        PsiElement(identifier)('mod')
+                      PsiElement(,)(',')
+                      ReferencePattern: arg
+                        PsiElement(identifier)('arg')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// z @ ???')
+                  PsiWhiteSpace('\n        ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: Console.println
+                        ReferenceExpression: Console
+                          PsiElement(identifier)('Console')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              StringLiteral
+                                PsiElement(string content)('"mod"')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              ReferenceExpression: mod
+                                PsiElement(identifier)('mod')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            StringLiteral
+                              PsiElement(string content)('"arg"')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          ReferenceExpression: arg
+                            PsiElement(identifier)('arg')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: Komplex
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: Komplex
+                  PsiElement(identifier)('Komplex')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ComplexRect
+                PsiElement(identifier)('ComplexRect')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: ComplexPolar
+                        CodeReferenceElement: ComplexPolar
+                          PsiElement(identifier)('ComplexPolar')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: math.sqrt
+                            ReferenceExpression: math
+                              PsiElement(identifier)('math')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('sqrt')
+                          ArgumentList
+                            PsiElement(()('(')
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                            PsiElement())(')')
+                        PsiElement(,)(',')
+                        InfixExpression
+                          ReferenceExpression: math.Pi
+                            ReferenceExpression: math
+                              PsiElement(identifier)('math')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Pi')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: /
+                            PsiElement(identifier)('/')
+                          PsiWhiteSpace(' ')
+                          DoubleLiteral
+                            PsiElement(double)('4.0')
+                        PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Komplex
+                      PsiElement(identifier)('Komplex')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ReferencePattern: re
+                        PsiElement(identifier)('re')
+                      PsiElement(,)(',')
+                      ReferencePattern: im
+                        PsiElement(identifier)('im')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// z @ ???')
+                  PsiWhiteSpace('\n        ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: Console.println
+                        ReferenceExpression: Console
+                          PsiElement(identifier)('Console')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('println')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              StringLiteral
+                                PsiElement(string content)('"re"')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              ReferenceExpression: re
+                                PsiElement(identifier)('re')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            StringLiteral
+                              PsiElement(string content)('" im"')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          ReferenceExpression: im
+                            PsiElement(identifier)('im')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

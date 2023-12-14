@@ -29,3 +29,932 @@ object Test {
 }
 
 -----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: JValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JValue')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: ++
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('++')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: JValue
+                          CodeReferenceElement: JValue
+                            PsiElement(identifier)('JValue')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScFunctionDefinition: append
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('append')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: value1
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('value1')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: JValue
+                              CodeReferenceElement: JValue
+                                PsiElement(identifier)('JValue')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Parameter: value2
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('value2')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: JValue
+                              CodeReferenceElement: JValue
+                                PsiElement(identifier)('JValue')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: JValue
+                      CodeReferenceElement: JValue
+                        PsiElement(identifier)('JValue')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MatchStatement
+                      Tuple
+                        PsiElement(()('(')
+                        ReferenceExpression: value1
+                          PsiElement(identifier)('value1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: value2
+                          PsiElement(identifier)('value2')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(match)('match')
+                      PsiWhiteSpace(' ')
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n    ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              StableElementPattern
+                                ReferenceExpression: JNothing
+                                  PsiElement(identifier)('JNothing')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferencePattern: x
+                                PsiElement(identifier)('x')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ReferencePattern: x
+                                PsiElement(identifier)('x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              StableElementPattern
+                                ReferenceExpression: JNothing
+                                  PsiElement(identifier)('JNothing')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ConstructorPattern
+                                CodeReferenceElement: JObject
+                                  PsiElement(identifier)('JObject')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiElement())(')')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              Scala3 TypedPattern
+                                ReferencePattern: x
+                                  PsiElement(identifier)('x')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JField
+                                    CodeReferenceElement: JField
+                                      PsiElement(identifier)('JField')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JObject
+                                PsiElement(identifier)('JObject')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: :::
+                                    PsiElement(identifier)(':::')
+                                  PsiWhiteSpace(' ')
+                                  MethodCall
+                                    ReferenceExpression: List
+                                      PsiElement(identifier)('List')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: x
+                                        PsiElement(identifier)('x')
+                                      PsiElement())(')')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              Scala3 TypedPattern
+                                ReferencePattern: x
+                                  PsiElement(identifier)('x')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JField
+                                    CodeReferenceElement: JField
+                                      PsiElement(identifier)('JField')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ConstructorPattern
+                                CodeReferenceElement: JObject
+                                  PsiElement(identifier)('JObject')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiElement())(')')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JObject
+                                PsiElement(identifier)('JObject')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: x
+                                    PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: xs
+                                    PsiElement(identifier)('xs')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ConstructorPattern
+                                CodeReferenceElement: JArray
+                                  PsiElement(identifier)('JArray')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiElement())(')')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ConstructorPattern
+                                CodeReferenceElement: JArray
+                                  PsiElement(identifier)('JArray')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: ys
+                                    PsiElement(identifier)('ys')
+                                  PsiElement())(')')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JArray
+                                PsiElement(identifier)('JArray')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: :::
+                                    PsiElement(identifier)(':::')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ys
+                                    PsiElement(identifier)('ys')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ConstructorPattern
+                                CodeReferenceElement: JArray
+                                  PsiElement(identifier)('JArray')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiElement())(')')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              Scala3 TypedPattern
+                                ReferencePattern: v
+                                  PsiElement(identifier)('v')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JValue
+                                    CodeReferenceElement: JValue
+                                      PsiElement(identifier)('JValue')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JArray
+                                PsiElement(identifier)('JArray')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: :::
+                                    PsiElement(identifier)(':::')
+                                  PsiWhiteSpace(' ')
+                                  MethodCall
+                                    ReferenceExpression: List
+                                      PsiElement(identifier)('List')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: v
+                                        PsiElement(identifier)('v')
+                                      PsiElement())(')')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              Scala3 TypedPattern
+                                ReferencePattern: v
+                                  PsiElement(identifier)('v')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JValue
+                                    CodeReferenceElement: JValue
+                                      PsiElement(identifier)('JValue')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ConstructorPattern
+                                CodeReferenceElement: JArray
+                                  PsiElement(identifier)('JArray')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: xs
+                                    PsiElement(identifier)('xs')
+                                  PsiElement())(')')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JArray
+                                PsiElement(identifier)('JArray')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: v
+                                    PsiElement(identifier)('v')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: xs
+                                    PsiElement(identifier)('xs')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              Scala3 TypedPattern
+                                ReferencePattern: f1
+                                  PsiElement(identifier)('f1')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JField
+                                    CodeReferenceElement: JField
+                                      PsiElement(identifier)('JField')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              Scala3 TypedPattern
+                                ReferencePattern: f2
+                                  PsiElement(identifier)('f2')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JField
+                                    CodeReferenceElement: JField
+                                      PsiElement(identifier)('JField')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JObject
+                                PsiElement(identifier)('JObject')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: f1
+                                    PsiElement(identifier)('f1')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  InfixExpression
+                                    ReferenceExpression: f2
+                                      PsiElement(identifier)('f2')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: ::
+                                      PsiElement(identifier)('::')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: Nil
+                                      PsiElement(identifier)('Nil')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ConstructorPattern
+                                CodeReferenceElement: JField
+                                  PsiElement(identifier)('JField')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: n
+                                    PsiElement(identifier)('n')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  ReferencePattern: v1
+                                    PsiElement(identifier)('v1')
+                                  PsiElement())(')')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              Scala3 TypedPattern
+                                ReferencePattern: v2
+                                  PsiElement(identifier)('v2')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                TypePattern
+                                  SimpleType: JValue
+                                    CodeReferenceElement: JValue
+                                      PsiElement(identifier)('JValue')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JField
+                                PsiElement(identifier)('JField')
+                              ArgumentList
+                                PsiElement(()('(')
+                                ReferenceExpression: n
+                                  PsiElement(identifier)('n')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                MethodCall
+                                  ReferenceExpression: append
+                                    PsiElement(identifier)('append')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    ReferenceExpression: v1
+                                      PsiElement(identifier)('v1')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: v2
+                                      PsiElement(identifier)('v2')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                        PsiWhiteSpace('\n    ')
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          TuplePattern
+                            PsiElement(()('(')
+                            ArgumentPatterns
+                              ReferencePattern: x
+                                PsiElement(identifier)('x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferencePattern: y
+                                PsiElement(identifier)('y')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          BlockOfExpressions
+                            MethodCall
+                              ReferenceExpression: JArray
+                                PsiElement(identifier)('JArray')
+                              ArgumentList
+                                PsiElement(()('(')
+                                InfixExpression
+                                  ReferenceExpression: x
+                                    PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  InfixExpression
+                                    ReferenceExpression: y
+                                      PsiElement(identifier)('y')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: ::
+                                      PsiElement(identifier)('::')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: Nil
+                                      PsiElement(identifier)('Nil')
+                                PsiElement())(')')
+                      PsiWhiteSpace('\n      ')
+                      PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: append
+                      PsiElement(identifier)('append')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ThisReference
+                        PsiElement(this)('this')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: other
+                        PsiElement(identifier)('other')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: JNothing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JNothing')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScObject: JNull
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JNull')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JString')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JDouble
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JDouble')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: num
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('num')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JInt')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: num
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('num')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: BigInt
+                      CodeReferenceElement: BigInt
+                        PsiElement(identifier)('BigInt')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JBool
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JBool')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JField
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JField')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: JValue
+                      CodeReferenceElement: JValue
+                        PsiElement(identifier)('JValue')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JObject
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JObject')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: obj
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('obj')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: List[JField]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: JField
+                          CodeReferenceElement: JField
+                            PsiElement(identifier)('JField')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: JArray
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('JArray')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: arr
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('arr')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: List[JValue]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: JValue
+                          CodeReferenceElement: JValue
+                            PsiElement(identifier)('JValue')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: JValue
+                  CodeReferenceElement: JValue
+                    PsiElement(identifier)('JValue')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

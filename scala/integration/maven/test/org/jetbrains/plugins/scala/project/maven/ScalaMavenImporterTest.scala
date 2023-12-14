@@ -1,30 +1,24 @@
 package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.maven.testFramework.MavenImportingTestCase
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.module
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
+import com.intellij.openapi.roots.{DependencyScope, ProjectRootManager}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.SystemProperties
 import org.jetbrains.idea.maven.utils.MavenUtil
-import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
-import org.jetbrains.plugins.scala.base.{LibrariesOwner, ScalaVersionProvider}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
-import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
-import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
+import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
 
 import java.io.File
 
@@ -89,6 +83,26 @@ abstract class ScalaMavenImporterTest
     importProject(pomVFile)
     assertProjectsEqual(expected, myProject)
   }
+
+  private def scalaLibrary_3_0_0: library =
+    new library(s"Maven: org.scala-lang:scala3-library_3:3.0.0") {
+      libClasses := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
+      scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_0, Seq(
+        "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
+        "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
+        "org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar",
+        "org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar",
+        "org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar",
+        "org/scala-lang/modules/scala-asm/9.1.0-scala-1/scala-asm-9.1.0-scala-1.jar",
+        "org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar",
+        "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
+        "org/scala-lang/scala3-interfaces/3.0.0/scala3-interfaces-3.0.0.jar",
+        "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
+        "org/scala-lang/tasty-core_3/3.0.0/tasty-core_3-3.0.0.jar",
+        "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
+        "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
+      ).map(mavenLocalArtifact), extraClasspath = Nil))
+    }
 
   private lazy val mavenRepositoryRoot: String = {
     val mavenOpts = MavenUtil.getPropertiesFromMavenOpts
@@ -155,24 +169,7 @@ abstract class ScalaMavenImporterTest
         libClasses := Seq("org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar").map(mavenLocalArtifact)
         scalaSdkSettings := None
       },
-      new library(s"Maven: org.scala-lang:scala3-library_3:3.0.0") {
-        libClasses := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
-        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_0, Seq(
-          "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
-          "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
-          "org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar",
-          "org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar",
-          "org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar",
-          "org/scala-lang/modules/scala-asm/9.1.0-scala-1/scala-asm-9.1.0-scala-1.jar",
-          "org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar",
-          "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
-          "org/scala-lang/scala3-interfaces/3.0.0/scala3-interfaces-3.0.0.jar",
-          "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
-          "org/scala-lang/tasty-core_3/3.0.0/tasty-core_3-3.0.0.jar",
-          "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
-          "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
-        ).map(mavenLocalArtifact), extraClasspath = Nil))
-      }
+      scalaLibrary_3_0_0
     ))
 
   def testWithScala3_1(): Unit =
@@ -286,7 +283,7 @@ abstract class ScalaMavenImporterTest
   }
 
   def testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
-    val expectedLibraries = Seq(
+    val expectedCompileLibraries = Seq(
       new library(s"Maven: org.scala-lang:scala-library:2.13.0") {
         libClasses := Seq(
           "org/scala-lang/scala-library/2.13.0/scala-library-2.13.0.jar"
@@ -297,7 +294,9 @@ abstract class ScalaMavenImporterTest
           "org/scala-lang/scala-reflect/2.13.0/scala-reflect-2.13.0.jar",
           "jline/jline/2.14.6/jline-2.14.6.jar",
         ).map(mavenLocalArtifact), extraClasspath = Nil))
-      },
+      }
+    )
+    val expectedTestLibraries = Seq(
       new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
         libClasses := Seq(
           "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
@@ -307,9 +306,34 @@ abstract class ScalaMavenImporterTest
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
     runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope") {
+      libraries := expectedCompileLibraries ++ expectedTestLibraries
+      modules := Seq(new module("dummy-artifact-id") {
+        libraryDependencies := expectedCompileLibraries.map(library2libraryDependency(_, Some(DependencyScope.COMPILE))) ++
+          expectedTestLibraries.map(library2libraryDependency(_, Some(DependencyScope.TEST)))
+      })
+    })
+  }
+
+  def testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope(): Unit = {
+    val expectedLibraries = Seq(
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
+          "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
+          "org/jline/jline/3.19.0/jline-3.19.0.jar",
+          "org/scala-lang/scala-compiler/2.13.6/scala-compiler-2.13.6.jar",
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar",
+          "org/scala-lang/scala-reflect/2.13.6/scala-reflect-2.13.6.jar",
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
+      }
+    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+
+    runImportingTest(new project("testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope") {
       libraries := expectedLibraries
       modules := Seq(new module("dummy-artifact-id") {
-        libraryDependencies := expectedLibraries.map(library2libraryDependency)
+        libraryDependencies := expectedLibraries.map(library2libraryDependency(_, Some(DependencyScope.TEST)))
       })
     })
   }
@@ -320,27 +344,5 @@ abstract class ScalaMavenImporterTest
         compileOrder := CompileOrder.ScalaThenJava
       })
     })
-  }
-
-  private def kotlinLibraryDetectionTest(expectedIncrementalityType: IncrementalityType): Unit = {
-    val pomFile = testProjectDir / "pom.xml"
-
-    val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
-    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
-
-    val incrementalityTypeBeforeImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
-    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeBeforeImport)
-
-    importProject(pomVFile)
-    val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
-    Assert.assertEquals(expectedIncrementalityType, incrementalityTypeAfterImport)
-  }
-
-  def testWithKotlinIncrementalCompiler(): Unit = {
-    kotlinLibraryDetectionTest(IncrementalityType.IDEA)
-  }
-
-  def testOnlyKotlinNoScalaIncrementalCompiler(): Unit = {
-    kotlinLibraryDetectionTest(IncrementalityType.SBT)
   }
 }

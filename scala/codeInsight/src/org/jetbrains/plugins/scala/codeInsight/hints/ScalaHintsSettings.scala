@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight
 package hints
 
+import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 trait ScalaHintsSettings {
+  def showParameters: Boolean
   def showMethodResultType: Boolean
   def showMemberVariableType: Boolean
   def showLocalVariableType: Boolean
@@ -20,7 +22,15 @@ trait ScalaHintsSettings {
 object ScalaHintsSettings {
   var xRayMode = false
 
+  def xRayModeShortcut: String = {
+    val key = if (SystemInfo.isMac) "Cmd" else "Ctrl"
+    if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD) s"double-press and hold $key"
+    else if (ScalaApplicationSettings.getInstance.XRAY_PRESS_AND_HOLD) s"press and hold $key"
+    else "enable Settings | Languages | Scala | X-Ray Mode"
+  }
+
   class Defaults extends ScalaHintsSettings {
+    override def showParameters: Boolean = ScalaCodeInsightSettings.SHOW_PARAMETER_NAMES_DEFAULT
     override def showMethodResultType: Boolean = ScalaCodeInsightSettings.SHOW_METHOD_RESULT_TYPE_DEFAULT
     override def showMemberVariableType: Boolean = ScalaCodeInsightSettings.SHOW_MEMBER_VARIABLE_TYPE_DEFAULT
     override def showLocalVariableType: Boolean = ScalaCodeInsightSettings.SHOW_LOCAL_VARIABLE_TYPE_DEFAULT
@@ -38,9 +48,10 @@ object ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
     private val applicationSettings = ScalaApplicationSettings.getInstance
 
-    override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showFunctionReturnType
-    override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showPropertyType
-    override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS) || settings.showLocalVariableType
+    override def showParameters: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_PARAMETER_HINTS) || settings.showParameterNames
+    override def showMethodResultType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS) || settings.showFunctionReturnType
+    override def showMemberVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS) || settings.showPropertyType
+    override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS) || settings.showLocalVariableType
     override def showMethodChainInlayHints: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS) || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
     override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains
