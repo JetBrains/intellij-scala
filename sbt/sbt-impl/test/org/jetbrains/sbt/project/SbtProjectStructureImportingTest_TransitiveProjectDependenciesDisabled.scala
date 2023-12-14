@@ -310,12 +310,12 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         sbtBuildURI := buildURI.resolve("c2/")
         moduleDependencies := Seq()
       }
-      val rootC3: module = new module("root1") {
+      val rootC3: module = new module("root~1") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
         moduleDependencies := Seq()
       }
-      val rootC4: module = new module("root2") {
+      val rootC4: module = new module("root~2") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
         moduleDependencies := Seq()
@@ -359,21 +359,21 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       )
       val modulesFromC3: Seq[module] = Seq(
         rootC3,
-        new module("project1InC3", Array("root1")),
-        new module("project2InC3", Array("root1")),
-        new module("project3InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project4InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project5InC3WithSameGlobalName", Array("root1", "same global name")),
-        new module("project6InC3WithSameGlobalName", Array("root1", "same global name")),
+        new module("project1InC3", Array("root~1")),
+        new module("project2InC3", Array("root~1")),
+        new module("project3InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project4InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project5InC3WithSameGlobalName", Array("root~1", "same global name")),
+        new module("project6InC3WithSameGlobalName", Array("root~1", "same global name")),
       )
       val modulesFromC4: Seq[module] = Seq(
         rootC4,
-        new module("project1InC4", Array("root2")),
-        new module("project2InC4", Array("root2")),
-        new module("project3InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project4InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project5InC4WithSameGlobalName", Array("root2", "same global name")),
-        new module("project6InC4WithSameGlobalName", Array("root2", "same global name")),
+        new module("project1InC4", Array("root~2")),
+        new module("project2InC4", Array("root~2")),
+        new module("project3InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project4InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project5InC4WithSameGlobalName", Array("root~2", "same global name")),
+        new module("project6InC4WithSameGlobalName", Array("root~2", "same global name")),
       )
 
       modules := root +:
@@ -708,17 +708,17 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
       modules := Seq(
         new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
-        new module ("U_MY_MODULE_ID2", Array("same module name")),
-        new module ("U_My_Module_Id1", Array("same module name")),
+        new module ("U_MY_MODULE_ID~2", Array("same module name")),
+        new module ("U_My_Module_Id~1", Array("same module name")),
         new module ("U_my_module_id", Array("same module name")),
-        new module ("X_MY_MODULE_ID2"),
-        new module ("X_My_Module_Id1"),
+        new module ("X_MY_MODULE_ID~2"),
+        new module ("X_My_Module_Id~1"),
         new module ("X_my_module_id"),
-        new module ("Y_MY_MODULE_Name2"),
-        new module ("Y_My_Module_Name1"),
+        new module ("Y_MY_MODULE_Name~2"),
+        new module ("Y_My_Module_Name~1"),
         new module ("Y_my_module_name"),
-        new module ("Z_MY_MODULE_Name2"),
-        new module ("Z_My_Module_Name1"),
+        new module ("Z_MY_MODULE_Name~2"),
+        new module ("Z_My_Module_Name~1"),
         new module ("Z_my_module_name"),
       )
     }
@@ -831,7 +831,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
           sbtProjectId := "mod1"
           sbtBuildURI := buildURI.resolve("c1/")
         },
-        new module("ro_t1", Array("c1")) {
+        new module("ro_t~1", Array("c1")) {
           libraryDependencies := scalaLibraries
           sbtProjectId := "mod2"
           sbtBuildURI := buildURI.resolve("c1/")
