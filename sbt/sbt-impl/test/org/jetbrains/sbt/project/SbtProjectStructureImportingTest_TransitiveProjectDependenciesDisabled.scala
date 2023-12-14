@@ -724,7 +724,8 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     }
   )
 
-  def testMultiBUILDProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
+  //corresponds to logic described in org.jetbrains.sbt.project.SbtProjectResolver.generateUniqueModuleInternalNameForRootProject
+  def testMultiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
     new project("ro//o.t.") {
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
 
@@ -752,8 +753,8 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     }
   )
 
-  def testSharedSourcesInsideMultiBUILDProject(): Unit = runTest(
-      new project("sharedSourcesInsideMultiBUILDProject") {
+  def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
+      new project("sharedSourcesInsideMultiBuildProject") {
         lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
         libraries := scalaLibraries
 
@@ -766,9 +767,9 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
           libraryDependencies := scalaLibraries
         }
 
-        lazy val root: module = new module("sharedSourcesInsideMultiBUILDProject") {
+        lazy val root: module = new module("sharedSourcesInsideMultiBuildProject") {
           contentRoots := Seq(getProjectPath)
-          sbtProjectId := "sharedSourcesInsideMultiBUILDProject"
+          sbtProjectId := "sharedSourcesInsideMultiBuildProject"
           sbtBuildURI := buildURI
           libraryDependencies := scalaLibraries
           moduleDependencies += new dependency(c1) { isExported := true }
@@ -798,11 +799,11 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       }
     )
 
-  // SBT guarantees us that project ids inside BUILDs are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
+  // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
   // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
   // In such case we should handle it and append number suffix to one of the module name
-  def testMultiBUILDProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
-    new project("multiBUILDProjectWithTheSameProjectIdFromIDEAPerspective") {
+  def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
+    new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
       libraries := scalaLibraries
 
@@ -815,9 +816,9 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         libraryDependencies := scalaLibraries
       }
 
-      lazy val root: module = new module("multiBUILDProjectWithTheSameProjectIdFromIDEAPerspective") {
+      lazy val root: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
         contentRoots := Seq(getProjectPath)
-        sbtProjectId := "multiBUILDProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
         sbtBuildURI := buildURI
         libraryDependencies := scalaLibraries
         moduleDependencies += new dependency(c1) { isExported := true }
