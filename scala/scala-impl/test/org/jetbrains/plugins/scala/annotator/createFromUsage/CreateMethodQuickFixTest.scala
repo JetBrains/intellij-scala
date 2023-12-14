@@ -23,17 +23,22 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   private def doCompoundTest(methodUsageText: String, methodDefinitionText: String): Unit = {
     doTestInObject(methodUsageText, methodDefinitionText)
     doTestInClass(methodUsageText, methodDefinitionText)
+    doTestInSameClass(methodUsageText, methodDefinitionText)
+    doTestInSameClassWithThis(methodUsageText, methodDefinitionText)
   }
 
   private def doTestInObject(methodUsageText: String, methodDefinitionText: String): Unit = {
     val before =
       s"""object Bar {
+         |  def someOtherMethod = 42
          |}
          |object Usage {
          |  Bar.$Caret$methodUsageText
          |}""".stripMargin
     val after  =
       s"""object Bar {
+         |  def someOtherMethod = 42
+         |
          |  $methodDefinitionText
          |}
          |object Usage {
@@ -45,16 +50,57 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   private def doTestInClass(methodUsageText: String, methodDefinitionText: String): Unit = {
     val before =
       s"""class Bar {
+         |  def someOtherMethod = 42
          |}
          |object Usage {
          |  new Bar().$Caret$methodUsageText
          |}""".stripMargin
     val after  =
       s"""class Bar {
+         |  def someOtherMethod = 42
+         |
          |  $methodDefinitionText
          |}
          |object Usage {
          |  new Bar().$methodUsageText
+         |}""".stripMargin
+
+    doTest(before, after)
+  }
+
+  private def doTestInSameClass(methodUsageText: String, methodDefinitionText: String): Unit = {
+    val before =
+      s"""class Foo {
+         |  def test = $Caret$methodUsageText
+         |
+         |  def someOtherMethod = 42
+         |}""".stripMargin
+    val after  =
+      s"""class Foo {
+         |  def test = $methodUsageText
+         |
+         |  private $methodDefinitionText
+         |
+         |  def someOtherMethod = 42
+         |}""".stripMargin
+
+    doTest(before, after)
+  }
+
+  private def doTestInSameClassWithThis(methodUsageText: String, methodDefinitionText: String): Unit = {
+    val before =
+      s"""class Foo {
+         |  def test = this.$Caret$methodUsageText
+         |
+         |  def someOtherMethod = 42
+         |}""".stripMargin
+    val after  =
+      s"""class Foo {
+         |  def test = this.$methodUsageText
+         |
+         |  private $methodDefinitionText
+         |
+         |  def someOtherMethod = 42
          |}""".stripMargin
 
     doTest(before, after)
