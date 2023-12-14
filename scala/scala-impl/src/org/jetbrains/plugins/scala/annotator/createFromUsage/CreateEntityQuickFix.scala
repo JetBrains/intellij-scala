@@ -71,10 +71,11 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)
 
-    val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    val unimplementedBody = " = ???"
+    val methodName = ref.nameId.getText
     val params = (genericParams ++ parameters).mkString
-    val text = placeholder.format(keyword, ref.nameId.getText, params) + unimplementedBody
+    val typeAnnotation = if (entityType.isDefined) ": Int" else ""
+    val unimplementedBody = " = ???"
+    val text = s"$keyword $methodName$params$typeAnnotation$unimplementedBody"
 
     val block = ref match {
       case it if it.isQualified       => ref.qualifier.flatMap(tryToFindBlock)
@@ -143,7 +144,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
   private def blockFor(exp: ScExpression): Try[ScExtendsBlock] = {
     object ParentExtendsBlock {
-      def unapply(e: PsiElement): Option[ScExtendsBlock] = exp.parentOfType(classOf[ScExtendsBlock])
+      def unapply(exp: ScExpression): Option[ScExtendsBlock] = exp.parentOfType(classOf[ScExtendsBlock])
     }
 
     exp match {
@@ -171,9 +172,11 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     val templateBody = block.getOrCreateTemplateBody
     val children = templateBody.children.toSeq
 
-    def findAnchor(): Option[PsiElement] = {
+    def findAnchor(): Option[(PsiElement, Boolean)] = {
       // ref inside the block, so find a suitable position directly after the member that contains ref
-      def childWithRef = children.find(_.getTextRange.contains(ref.getTextOffset))
+      def childWithRef = children
+        .find(_.getTextRange.contains(ref.getTextOffset))
+        .map(_ -> true)
 
       // the last thing that is not { or whitespace
       def lastMember = children
@@ -181,13 +184,15 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         .drop(1) // drop }
         .filterNot(_.is[PsiWhiteSpace])
         .nextOption()
+        .map(_ -> false)
 
       childWithRef.orElse(lastMember)
     }
 
-    for (anchor <- findAnchor()) yield {
+    for (case (anchor, makePrivate) <- findAnchor()) yield {
       val holder = anchor.getParent
-      holder.addAfter(createElementFromText(text, block), anchor)
+      val textWithAccess = if (makePrivate) s"private $text" else text
+      holder.addAfter(createElementFromText(textWithAccess, block), anchor)
     }
   }
 
@@ -203,7 +208,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         holder.addAfter(createNewLine("\n\n"), entity)
         entity
       } else {
-        holder.addAfter(createElementFromText(text, ref), anchor)
+        holder.addAfter(createElementFromText(s"private $text", ref), anchor)
       }
     }
 
