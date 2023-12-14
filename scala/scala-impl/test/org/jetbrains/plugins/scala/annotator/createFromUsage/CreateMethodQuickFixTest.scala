@@ -59,7 +59,7 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
       s"""class Bar {
          |  def someOtherMethod = 42
          |
-         |  $methodDefinitionText
+         |  private $methodDefinitionText
          |}
          |object Usage {
          |  new Bar().$methodUsageText
@@ -79,7 +79,7 @@ class CreateMethodQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
       s"""class Foo {
          |  def test = $methodUsageText
          |
-         |  $methodDefinitionText
+         |  private $methodDefinitionText
          |
          |  def someOtherMethod = 42
          |}""".stripMargin
