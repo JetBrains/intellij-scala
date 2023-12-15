@@ -111,7 +111,7 @@ object ScalaDirectoryCompletionContributorBase {
 
   private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, project: Project, moduleId: String): Option[DataNode[_ <: ModuleData]]  = {
     if (projectSystemId == SbtProjectSystem.Id) {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, Some(SbtNestedModuleData.key))
+      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, Some(SbtNestedModuleData.Key))
     } else {
       ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, None)
     }
