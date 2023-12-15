@@ -9,6 +9,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
+import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -35,7 +36,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
         val children = new util.LinkedHashSet[TreeElement]()
         try {
           if (!clazz.isValid) return children
-          for (sign <- clazz.allSignatures) {
+          for (sign <- clazz.allSignatures if !sign.isPrivate) {
             sign match {
               case sign: PhysicalMethodSignature =>
                 sign.method match {
@@ -60,16 +61,17 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
             }
           }
 
-          clazz.allTypeSignatures.map(_.namedElement).foreach {
+          clazz.allTypeSignatures.withFilter(!_.isPrivate).map(_.namedElement).foreach {
             case alias: ScTypeAlias if alias.containingClass != clazz =>
               children.addAll(Element.forPsi(alias, inherited = true).asJava)
             case _ =>
           }
 
-          clazz.getAllInnerClasses.foreach {
-            case td: ScTypeDefinition if td.containingClass != clazz =>
+          val innerClasses = clazz.getAllInnerClasses
+          innerClasses.foreach {
+            case td: ScTypeDefinition if !td.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) && td.containingClass != clazz =>
               children.addAll(Element.forPsi(td, inherited = true).asJava)
-            case psiClass if psiClass.getLanguage.is(JavaLanguage.INSTANCE) && psiClass.containingClass != clazz =>
+            case psiClass if psiClass.getLanguage.is(JavaLanguage.INSTANCE) && PsiUtil.isAccessible(psiClass, clazz, null) && psiClass.containingClass != clazz =>
               children.add(new JavaClassTreeElement(psiClass, true))
             case _ =>
           }
