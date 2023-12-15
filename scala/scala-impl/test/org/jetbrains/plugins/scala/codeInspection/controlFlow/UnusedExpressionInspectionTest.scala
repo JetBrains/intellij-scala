@@ -462,14 +462,41 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |""".stripMargin
   )
 
-  def test_some_prefixes_without_sideeffects(): Unit = checkTextHasError(
+  def test_part_of_equals(): Unit = checkTextHasError(
     s"""
-       |def isGood: Boolean = ???
-       |def canBeGood: Boolean = ???
-       |
-       |def test(x: Any): Unit = {
-       |  ${START}isGood$END
-       |  ${START}canBeGood$END
+       |def test(f: => Any): Unit = {
+       |  f${START} == 3$END
+       |  ${START}3 == ${END}f
+       |  f$START != 3$END
+       |  ${START}3 != ${END}f
+       |}
+       |""".stripMargin
+  )
+
+  def test_part_of_tuple(): Unit = checkTextHasError(
+    s"""
+       |def test(f: => Any): Unit = {
+       |  $START(3, 4)$END
+       |  $START(3,${END}f$START)$END
+       |  $START(${END}f$START, ${END}f$START)$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_typed_expr(): Unit = checkTextHasError(
+    s"""
+       |def test(f: => Int): Unit = {
+       |  f$START: Any$END
+       |  f: @nowarn
+       |}
+       |""".stripMargin
+  )
+
+  def test_synchronized(): Unit = checkTextHasNoErrors(
+    s"""
+       |def test(f: => Int): Unit = {
+       |  synchronized(f)
+       |  this synchronized f
        |}
        |""".stripMargin
   )

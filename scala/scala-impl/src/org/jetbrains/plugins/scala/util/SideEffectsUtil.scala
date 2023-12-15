@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.nameFitToPatterns
 
+import scala.annotation.unused
 import scala.collection.immutable.ArraySeq
 
 object SideEffectsUtil {
@@ -48,6 +49,7 @@ object SideEffectsUtil {
     "equals"
   )
 
+  @unused
   private val methodPrefixesIndicatingNoSideEffect: ArraySeq[String] = ArraySeq(
     "to",
     "is",
@@ -57,12 +59,17 @@ object SideEffectsUtil {
 
   def hasNoSideEffects(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = false)
 
+  def hasNoSideEffectsItself(expr: ScExpression): Boolean =
+    hasNoSideEffectsInner(expr, asArg = false, checkSubExpression = false)(allowThrows = false)
+
   def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = true)
 
   private def hasNoSideEffectsInner(expr: ScExpression)(implicit allowThrows: Boolean): Boolean =
     hasNoSideEffectsInner(expr, asArg = false)
 
-  private def hasNoSideEffectsInner(expr: ScExpression, asArg: Boolean)(implicit allowThrows: Boolean): Boolean = {
+  private def hasNoSideEffectsInner(expr: ScExpression,
+                                    asArg: Boolean,
+                                    checkSubExpression: Boolean = true)(implicit allowThrows: Boolean): Boolean = {
 
     expr match {
       case lit: ScInterpolatedStringLiteral =>
@@ -76,8 +83,8 @@ object SideEffectsUtil {
       case _: ScLiteral => true
       case _: ScThisReference => true
       case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
-      case ScParenthesisedExpr(inner) => hasNoSideEffectsInner(inner)
-      case typed: ScTypedExpression => hasNoSideEffectsInner(typed.expr)
+      case ScParenthesisedExpr(inner) => !checkSubExpression || hasNoSideEffectsInner(inner)
+      case typed: ScTypedExpression => (!checkSubExpression && !typed.hasAnnotation) || hasNoSideEffectsInner(typed.expr)
       case ref: ScReferenceExpression =>
         if (hasImplicitConversion(ref)) false
         else {
@@ -95,18 +102,20 @@ object SideEffectsUtil {
             case _ => false
           })
         }
-      case t: ScTuple => t.exprs.forall(hasNoSideEffectsInner)
+      case t: ScTuple => !checkSubExpression || t.exprs.forall(hasNoSideEffectsInner)
       case inf: ScInfixExpr if inf.isAssignmentOperator => false
-      case ScSugarCallExpr(baseExpr, operation, args) =>
+      case call@ScSugarCallExpr(baseExpr, operation, args) =>
         val checkOperation = operation match {
           case ref if hasImplicitConversion(ref) => false
           case ref if ref.refName.endsWith("_=") => false
-          case ResolvesTo(_: ScSyntheticFunction) => true
+          case ResolvesTo(fun: ScSyntheticFunction) => syntheticMethodHasNoSideEffects(fun)
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`().toOption)
           case _ => false
         }
-        checkOperation && hasNoSideEffectsInner(baseExpr) && args.forall(hasNoSideEffectsInner(_, asArg = true))
-      case ScMethodCall(baseExpr, args) =>
+        checkOperation &&
+          (!checkSubExpression || hasNoSideEffectsInner(baseExpr)) &&
+          argsHaveNoSideEffectInner(call, args, checkSubExpression)
+      case call@ScMethodCall(baseExpr, args) =>
         val (checkQual, typeOfQual) = baseExpr match {
           case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffectsInner(qual), qual.`type`().toOption)
           case _ => (true, None)
@@ -116,7 +125,7 @@ object SideEffectsUtil {
           case _: ScUnderscoreSection => false
           case Resolved(rr) if rr.isAssignment => false
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
-          case ResolvesTo(_: ScSyntheticFunction) => true
+          case ResolvesTo(fun: ScSyntheticFunction) => syntheticMethodHasNoSideEffects(fun)
           case ResolvesTo(_: ScTypedDefinition) =>
             val withApplyText = baseExpr.getText + ".apply" + args.map(_.getText).mkString("(", ", ", ")")
             val withApply = ScalaPsiElementFactory.createExpressionWithContextFromText(withApplyText, expr.getContext, expr)
@@ -127,9 +136,23 @@ object SideEffectsUtil {
             }
           case _ => hasNoSideEffectsInner(baseExpr)
         }
-        checkQual && checkBaseExpr && args.forall(hasNoSideEffectsInner(_, asArg = true))
+        checkQual && checkBaseExpr && argsHaveNoSideEffectInner(call, args, checkSubExpression)
       case _: ScNewTemplateDefinition => false
       case _ => false
+    }
+  }
+
+  private def argsHaveNoSideEffectInner(invoc: ScExpression, args: Seq[ScExpression], checkSubExpression: Boolean)(implicit allowThrows: Boolean): Boolean = {
+    if (args.isEmpty) true
+    else if (args.exists(_.is[ScBlock])) false
+    else if (checkSubExpression) {
+      args.forall(hasNoSideEffectsInner(_, asArg = true))
+    } else {
+      invoc.matchedParameters.forall {
+        case (arg, param) if param.isByName || FunctionType.isFunctionType(param.paramType) =>
+          hasNoSideEffectsInner(arg, asArg = true)
+        case _ => true
+      }
     }
   }
 
@@ -163,6 +186,10 @@ object SideEffectsUtil {
         ref.bind().exists(rr => rr.implicitFunction.isDefined)
       case _ => false
     }
+  }
+
+  private def syntheticMethodHasNoSideEffects(m: ScSyntheticFunction): Boolean = {
+    m.name != "synchronized"
   }
 
   private def methodHasNoSideEffects(m: PsiMethod, typeOfQual: Option[ScType] = None)
@@ -200,7 +227,7 @@ object SideEffectsUtil {
   }
 
   private def methodNameIndicatesNoSideEffects(name: String): Boolean =
-    knownMethodsWithoutSideEffects.contains(name) ||
-      methodPrefixesIndicatingNoSideEffect.exists(prefix => name.startsWith(prefix) && name.lift(prefix.length).forall(_.isUpper))
+    knownMethodsWithoutSideEffects.contains(name)
+      // || methodPrefixesIndicatingNoSideEffect.exists(prefix => name.startsWith(prefix) && name.lift(prefix.length).forall(_.isUpper))
 }
 
