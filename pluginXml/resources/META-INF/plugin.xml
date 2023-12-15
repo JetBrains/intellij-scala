@@ -36,7 +36,7 @@
     <version>VERSION</version>
     <change-notes></change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="233.11799" until-build="233.*"/>
+    <idea-version since-build="233.13135" until-build="233.*"/>
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="scala-intellij-bsp-integration.xml">org.jetbrains.bsp</depends>
