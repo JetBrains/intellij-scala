@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -18,8 +18,11 @@ object BlockInIndentationRegion extends ParsingRule {
       builder.findPreviousIndent.exists(_ <= indentionWidthBefore)
     }
 
+    val blockIndentation = BlockIndentation.create
+
     @tailrec
     def parseNext(): Unit = {
+      blockIndentation.fromHere()
       builder.getTokenType match {
         case _ if hasOutdent || builder.eof() =>
           return
@@ -43,7 +46,7 @@ object BlockInIndentationRegion extends ParsingRule {
     }
 
     parseNext()
-
+    blockIndentation.drop()
     blockMarker.done(ScalaElementType.BLOCK)
     true
   }
