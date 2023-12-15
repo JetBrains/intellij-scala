@@ -507,5 +507,82 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |        PsiElement(})('}')""".stripMargin
   )
 
+  // SCL-20880
+  def test_end_marker_in_block_of_expressions(): Unit = checkTree(
+    """
+      |a match
+      |  case b => 1 // <- to make it extra nasty
+      |    class X
+      |    end X
+      |
+      |    if c then
+      |      x
+      |    end if
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MatchStatement
+      |    ReferenceExpression: a
+      |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n  ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        ReferencePattern: b
+      |          PsiElement(identifier)('b')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace(' ')
+      |        BlockOfExpressions
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiWhiteSpace(' ')
+      |          PsiComment(comment)('// <- to make it extra nasty')
+      |          PsiWhiteSpace('\n    ')
+      |          ScClass: X
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(class)('class')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(identifier)('X')
+      |            PrimaryConstructor
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              Parameters
+      |                <empty list>
+      |            ExtendsBlock
+      |              <empty list>
+      |            PsiWhiteSpace('\n    ')
+      |            End: X
+      |              PsiElement(end)('end')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(identifier)('X')
+      |          PsiWhiteSpace('\n\n    ')
+      |          IfStatement
+      |            PsiElement(if)('if')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: c
+      |              PsiElement(identifier)('c')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(then)('then')
+      |            PsiWhiteSpace('\n      ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiWhiteSpace('\n    ')
+      |            End: if
+      |              PsiElement(end)('end')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(if)('if')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
   // todo: add tests for given
 }
