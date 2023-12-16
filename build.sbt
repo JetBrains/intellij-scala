@@ -138,12 +138,14 @@ lazy val conversion = newProject(
   codeInsight % "test->test;compile->compile"
 )
 
-lazy val uast = newProject(
-  "uast",
-  file("scala/uast")
-).dependsOn(
-  scalaImpl % "test->test;compile->compile"
-)
+lazy val uast =
+  newProject("uast", file("scala/uast"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile"
+    )
+    .settings(
+      intellijPlugins += "JUnit".toPlugin,
+    )
 
 lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
