@@ -101,10 +101,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     debugReason: String
   ): Unit = {
     if (platformAutomakeEnabled(project)) {
-      //we need to save documents right away or automake won't happen
-      TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
-      BuildManager.getInstance().scheduleAutoMake()
-      // clearOutputDirectories is invoked in AutomakeBuildManagerListener
+      invokeLater {
+        //we need to save documents right away or automake won't happen
+        TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+        BuildManager.getInstance().scheduleAutoMake()
+        // clearOutputDirectories is invoked in AutomakeBuildManagerListener
+      }
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
       schedule(CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, psiFile, debugReason))
