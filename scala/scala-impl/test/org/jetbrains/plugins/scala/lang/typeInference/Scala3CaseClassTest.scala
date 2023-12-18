@@ -175,6 +175,33 @@ object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTes
       |
       | val _z: A[T] = A.unapply(a)
       |}
+      |""".stripMargin,
+    """
+      |// testRepeatedParam
+      |case class A[T](x: Int, t: T*)
+      |
+      |def test[T](a: A[T]): Unit = {
+      |  {
+      |    val _i: Int = a._1
+      |    val _t: Seq[T] = a._2
+      |  }
+      |  {
+      |    val A(i) = a
+      |    val _i: Int = i
+      |  }
+      |  {
+      |    val A(i, t1) = a
+      |    val _i: Int = i
+      |    val _t1: T = t1
+      |  }
+      |  {
+      |    val A(i, t1, t2, tt*) = a
+      |    val _i: Int = i
+      |    val _t1: T = t1
+      |    val _t2: T = t2
+      |    val _tt: Seq[T] = tt
+      |  }
+      |}
       |""".stripMargin
   ).map(testDataFromCode)
 }
