@@ -97,19 +97,19 @@ object Scala3UnapplySeqTest extends GeneratedTestSuiteFactory.withHighlightingTe
       |
       |$tester_bs
       |""".stripMargin,
-//    """
-//      |// noDirectProductSequenceMatchBecauseProductIsMissing
-//      |class Custom:
-//      |  val _1 : String = ???
-//      |  val _2 : Int = ???
-//      |  val _3 : Seq[Unit] = ???
-//      |
-//      |object A:
-//      |  def unapplySeq(i: Int): Custom = ???
-//      |
-//      |val A(s, i) = 1 // Error
-//      |
-//      |""".stripMargin,
+    """
+      |// noDirectProductSequenceMatchBecauseProductIsMissing
+      |class Custom:
+      |  val _1 : String = ???
+      |  val _2 : Int = ???
+      |  val _3 : Seq[Unit] = ???
+      |
+      |object A:
+      |  def unapplySeq(i: Int): Custom = ???
+      |
+      |val A(s, i) = 1 // Error
+      |
+      |""".stripMargin,
 
     // ============= Indirect Sequence match =============
     s"""
