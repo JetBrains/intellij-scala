@@ -5,13 +5,13 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -48,45 +48,51 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
         implicit val ctx: ProjectContext = args
 
         val color: Color = context.getDefaultParameterColor
-        val index = context.getCurrentParameterIndex
+        val hoverIndex = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
           case (sign: PhysicalMethodSignature, _: Int) =>
             //i  can be -1 (it's update method)
             val method = sign.method
-            val methodName = method.name
 
             val subst = sign.substitutor
             val returnType = method match {
               case function: ScFunction => subst(function.returnType.getOrAny)
               case method: PsiMethod => subst(method.getReturnType.toScType())
             }
+            val argCount = args.getArgsCount + (if (args.missedLastExpr) 1 else 0)
+            val matches = ScPattern.extractorMatches(returnType, args, method.asInstanceOf[ScFunction])
+            if (matches.isEmpty) {
+              buffer.append(ScalaBundle.message("parameter.info.not.matchable"))
+            } else {
+              val extractorMatch = matches.bestMatch(argCount).get
 
-            val isUnapplySeq = methodName == CommonNames.UnapplySeq
-            val params = ScPattern.unapplySubpatternTypes(returnType, args, method.asInstanceOf[ScFunction], args.getArgsCount).zipWithIndex
+              if (extractorMatch.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+              else {
+                val params =
+                  extractorMatch.productTypes.map(_ -> false) ++
+                    extractorMatch.sequenceTypeOption.map(_ -> true)
 
-            if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-            else {
-              buffer.append(params.map {
-                case (param, i) =>
-                  val sb = new StringBuilder()
-                  sb.append(param.presentableText(method))
+                buffer.append(params.zipWithIndex.map {
+                  case ((param, isSeq), i) =>
+                    val sb = new StringBuilder()
+                    sb.append(param.presentableText(method))
 
-                  val isSeq = isUnapplySeq && i == args.getArgsCount - 1
-                  if (isSeq) sb.append("*")
+                    if (isSeq) sb.append("*")
 
-                  val isBold =
-                    if (i == index || (isSeq && i <= index)) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                  val paramTypeText = sb.toString()
-                  val paramText = paramTextFor(sign, i, paramTypeText)
+                    val isBold =
+                      if (i == hoverIndex || (isSeq && i <= hoverIndex)) true
+                      else {
+                        //todo: check type
+                        false
+                      }
+                    val paramTypeText = sb.toString()
+                    val paramText = paramTextFor(sign, i, paramTypeText)
 
-                  if (isBold) "<b>" + paramText + "</b>" else paramText
-              }.mkString(", "))
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                }.mkString(", "))
+              }
             }
           case _ =>
         }

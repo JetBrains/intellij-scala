@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.{UniqueNameSuggester, suggestNamesByType}
@@ -119,14 +118,11 @@ object PhysicalExtractorPatternComponents {
     for {
       Extractor(method) <- `class`.baseCompanion
       returnType        <- method.returnType.toOption
-      types = ScPattern.unapplySubpatternTypes(
-        returnType,
-        parameters.place,
-        method,
-        // we obviously don't know the amount of expected components, so give -1
-        // (see ScPattern.unapplySubpatternTypes)
-        expectedComponents = -1
-      )
+      types =
+        ScPattern.extractorMatches(returnType, parameters.place, method)
+          .headOption
+          .map(_.productTypes)
+          .getOrElse(Seq.empty)
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }
 
