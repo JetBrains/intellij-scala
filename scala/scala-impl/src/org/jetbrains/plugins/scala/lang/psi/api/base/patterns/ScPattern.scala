@@ -429,7 +429,7 @@ object ScPattern {
       }
 
     /*
-     * Scala 3 product match for types that implement scala.Product
+     * Scala 3 boolean match
      */
     if (tpe.widenIfLiteral.isBoolean) {
       // if tpe is a boolean then it cannot be any of the other matches
@@ -509,12 +509,14 @@ object ScPattern {
        * Scala 3 product sequence match for types that implement Product and have _1..._N methods,
        * where N > 0 and _N conforms to the sequence type (see [[extractSequenceMatchType]])
        */
-      def productSequenceMatch = {
-        val productComponents = extractPossibleProductParts(v, place)
-        productComponents.lastOption
-          .flatMap(extractSequenceMatchType(_, place))
-          .map(UnapplySeqMatch.ProductSequence(productComponents.init, _))
-      }
+      def productSequenceMatch =
+        if (!isProduct(v)) LazyList.empty
+        else {
+          val productComponents = extractPossibleProductParts(v, place)
+          productComponents.lastOption
+            .flatMap(extractSequenceMatchType(_, place))
+            .map(UnapplySeqMatch.ProductSequence(productComponents.init, _))
+        }
 
       /**
        * If it is not a sequence match or product match we see if it conforms to the following
