@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkType}
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 object CompileServerJdkManager {
 
-  def compileServerJdk(project: Project): Option[Jdk] =
+  def compileServerJdk(project: Project): Option[JdkWithVersion] =
     for {
       sdk <- CompileServerLauncher.compileServerSdk(project).toOption
       version <- getJdkVersion(sdk)
     } yield (sdk, version)
   
-  def recommendedJdk(project: Project): Jdk =
+  def recommendedJdk(project: Project): JdkWithVersion =
     getProjectJdk(project)
       .filter { case (_, version) => isCompatible(version) }
       .filter { case (_, version) => isRecommendedVersionForProject(project, version) }
@@ -41,21 +41,23 @@ object CompileServerJdkManager {
    * The method isn't thread-safe, so the synchronized is used.
    * @see SCL-17710
    */
-  private[compiler] def getBuildProcessRuntimeJdk(project: Project): Jdk = synchronized {
+  private[compiler] def getBuildProcessRuntimeJdk(project: Project): JdkWithVersion = synchronized {
     val pair = BuildManager.getBuildProcessRuntimeSdk(project)
     (pair.first, pair.second)
   }
   
-  private def getProjectJdk(project: Project): Option[Jdk] =
+  private def getProjectJdk(project: Project): Option[JdkWithVersion] =
     for {
       sdk <- Option(ProjectRootManager.getInstance(project).getProjectSdk)
       version <- getJdkVersion(sdk)
     } yield (sdk, version)
 
   private def getJdkVersion(sdk: Sdk): Option[JavaSdkVersion] =
-    Option(sdk.getSdkType).collect {
-      case javaType: JavaSdk => javaType.getVersion(sdk)
+    sdk.getSdkType match {
+      case javaSdkType: JavaSdk =>
+        Option(javaSdkType.getVersion(sdk))
+      case _ => None
     }
 
-  type Jdk = (Sdk, JavaSdkVersion)
+  private type JdkWithVersion = (Sdk, JavaSdkVersion)
 }
