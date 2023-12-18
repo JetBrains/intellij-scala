@@ -154,21 +154,32 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Right(rt) =>
                   val substitutor = PatternTypeInference.doTypeInference(pattern, exprType)
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns)
-                  val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
-                  if (expected != numPatterns && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
-                    val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
-                    holder.createErrorAnnotation(pattern, message)
+                  val unapplyType = substitutor(rt)
+                  val matches = ScPattern.unapplyExtractorMatches(unapplyType, pattern)
+                  if (!matches.exists(_.isApplicable(numPatterns))) {
+                    if (matches.isEmpty) {
+                      holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapply.method", unapplyType.presentableText))
+                    } else {
+                      val expected = matches.map(_.productTypes.length).max
+                      val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
+                      holder.createErrorAnnotation(pattern, message)
+                    }
                   }
                 case _ =>
               }
               case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapplySeq" => fun.returnType match {
                 case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns) - 1
-                  if (expected > numPatterns) {
-                    val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected.toString)
-                    holder.createErrorAnnotation(pattern, message)
+                  val unapplyType = substitutor(rt)
+                  val matches = ScPattern.unapplySeqExtractorMatches(unapplyType, pattern)
+                  if (!matches.exists(_.isApplicable(numPatterns))) {
+                    if (matches.isEmpty) {
+                      holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapplyseq.method", unapplyType.presentableText))
+                    } else {
+                      val expected = matches.map(_.productTypes.length).max
+                      val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected)
+                      holder.createErrorAnnotation(pattern, message)
+                    }
                   }
                 case _ =>
               }
