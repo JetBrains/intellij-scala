@@ -34,9 +34,10 @@ abstract class GeneratedTestSuiteFactory {
     override protected def supportedIn(version: ScalaVersion): Boolean = version >= minScalaVersion
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-      if (!testData.isFailing)
-        checkTextHasNoErrors(testData.testCode)
+      checkTextHasNoErrors(testData.testCode)
     }
+
+    override protected def shouldPass: Boolean = !testData.isFailing
   }
 
   //noinspection JUnitMalformedDeclaration
@@ -48,6 +49,8 @@ abstract class GeneratedTestSuiteFactory {
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = runActualTest()
     def runActualTest(): Unit
+
+    override protected def shouldPass: Boolean = !testData.isFailing
   }
 
 }
