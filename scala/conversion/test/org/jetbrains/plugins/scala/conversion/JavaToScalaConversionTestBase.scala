@@ -6,6 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -76,7 +77,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
     assert(testFile != null, s"file $filePath not found")
 
     val testFileText = readFileContent(testFile)
-    val javaFile = configureFromFileText(testFileName, testFileText).asInstanceOf[PsiJavaFile]
+    val javaFile: PsiJavaFile = configureFromFileText(testFileName, testFileText).asInstanceOf[PsiJavaFile]
 
     val expectedResult: String = javaFile.findElementAt(javaFile.getText.length - 1) match {
       case lastPsiComment: PsiComment =>
@@ -105,8 +106,28 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
         }
     }
 
-    val startMarkerOffset = testFileText.indexOf(startMarker)
-    val endMarkerOffset = testFileText.indexOf(endMarker)
+    doTest(
+      javaFile,
+      expectedResult
+    )
+  }
+
+  protected def doTest(
+    @Language("JAVA") javaFileText: String,
+    @Language("Scala") expectedScalaFileText: String
+  ): Unit = {
+    val javaFile: PsiJavaFile = configureFromFileText("dummy.java", javaFileText).asInstanceOf[PsiJavaFile]
+    doTest(javaFile, expectedScalaFileText)
+  }
+
+  private def doTest(
+    javaFile: PsiJavaFile,
+    expectedScalaFileText: String
+  ): Unit = {
+    val javaFileText = javaFile.getText
+
+    val startMarkerOffset = javaFileText.indexOf(startMarker)
+    val endMarkerOffset = javaFileText.indexOf(endMarker)
 
     val factory = PsiFileFactory.getInstance(getProject)
     val scalaFile = factory.createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, "")
@@ -132,7 +153,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
 
     val scalaFileText = scalaFile.getText
     val actualResult = scalaFileText.trim.stripPrefix(startMarker).stripSuffix(endMarker).trim
-    assertEquals(expectedResult, actualResult)
+    assertEquals(expectedScalaFileText, actualResult)
   }
 
   private def updateDocumentTextAndCommit(scalaFile: PsiFile, convertedScalaText: String): Unit = {
