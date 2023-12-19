@@ -84,7 +84,7 @@ class ScalaFileImpl(
 
     typeDefinitions match {
       // Handle package object
-      case Seq(obj: ScObject) if obj.isPackageObject && obj.name != ScObjectImpl.LegacyPackageObjectNameInBackticks =>
+      case Seq(obj: ScObject) if obj.isPackageObjectNonLegacy =>
         val (packageName, objectName) = name match {
           case QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case _ => ("", name)

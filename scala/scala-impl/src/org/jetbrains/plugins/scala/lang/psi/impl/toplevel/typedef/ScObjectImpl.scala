@@ -71,8 +71,14 @@ class ScObjectImpl(
   override def isObject : Boolean = true
 
   override def isPackageObject: Boolean = byStubOrPsi(_.isPackageObject) {
-    hasPackageKeyword || name == LegacyPackageObjectNameInBackticks
+    hasPackageKeyword || isPackageObjectLegacy
   }
+
+  override def isPackageObjectNonLegacy: Boolean =
+    isPackageObject && name != LegacyPackageObjectNameInBackticks
+
+  override def isPackageObjectLegacy: Boolean =
+    name == LegacyPackageObjectNameInBackticks
 
   override def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
@@ -91,7 +97,7 @@ class ScObjectImpl(
   ): Boolean =
     if (DumbService.getInstance(getProject).isDumb) true
     else if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) false
-    else if (isPackageObject && name != LegacyPackageObjectNameInBackticks) {
+    else if (isPackageObjectNonLegacy) {
       JavaPsiFacade.getInstance(getProject)
         // do not wrap into ScPackage to avoid SOE
         .findPackage(qualifiedName) match {

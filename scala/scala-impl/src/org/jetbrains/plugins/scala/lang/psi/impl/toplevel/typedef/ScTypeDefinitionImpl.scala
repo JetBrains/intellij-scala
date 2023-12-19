@@ -329,7 +329,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   //TODO: also check this
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
-      case o: ScObject if o.isPackageObject && o.name == ScObjectImpl.LegacyPackageObjectNameInBackticks =>
+      case o: ScObject if o.isPackageObjectLegacy =>
         val packageName = ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(o.qualifiedName)
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
@@ -443,7 +443,7 @@ object ScTypeDefinitionImpl {
   ): QualifiedNameList = {
     @tailrec
     def inner(element: PsiElement, acc: QualifiedNameList): QualifiedNameList = element.getContext match {
-      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == ScObjectImpl.LegacyPackageObjectNameInBackticks =>
+      case packageObject: ScObject if packageObject.isPackageObjectLegacy =>
         inner(packageObject, acc)
       case packageObject: ScObject if packageObject.isPackageObject =>
         inner(

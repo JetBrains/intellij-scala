@@ -168,7 +168,7 @@ object ScSyntheticPackage {
                       }
                     }
                     p.immediateTypeDefinitions.foreach {
-                      case o: ScObject if o.isPackageObject && o.getName != ScObjectImpl.LegacyPackageObjectNameInBackticks =>
+                      case o: ScObject if o.isPackageObjectNonLegacy =>
                         addPackage(o.name)
                       case _ =>
                     }
