@@ -209,7 +209,7 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              ScPattern.unapplyExtractorMatches(subst(rt), pattern)
+              ScPattern.unapplyExtractorMatches(subst(rt), pattern, fun)
                 .bestMatch(totalNumberOfPatterns)
                 .flatMap(_.productTypes.lift(argIndex))
                 .map(subst)
@@ -225,7 +225,7 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              ScPattern.unapplySeqExtractorMatches(subst(rt), pattern)
+              ScPattern.unapplySeqExtractorMatches(subst(rt), pattern, fun)
                 .bestMatch(totalNumberOfPatterns)
                 .flatMap { m =>
                   Some(subst(m.productTypes.lift(argIndex).getOrElse {
@@ -362,6 +362,23 @@ object ScPattern {
     }
   }
 
+  /**
+   * Helps avoid flattening TupleTypes in cases such as:
+   * {{{
+   *  case class Foo(f: (String, String))
+   *
+   *  foo match {
+   *    case Foo(t) => ??? // One pattern expected, not two
+   *  }
+   * }}}
+   */
+  private[this] def isOneArgSyntheticUnapply(fun: ScFunction): Boolean =
+    fun.isSynthetic &&
+      (fun.syntheticCaseClass match {
+        case null  => false
+        case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+      })
+
   private def isProduct(tpe: ScType): Boolean = {
     val productFqn = "scala.Product"
     val baseTpes = Iterator(tpe) ++ BaseTypes.iterator(tpe)
@@ -484,7 +501,7 @@ object ScPattern {
     ).flatten.map(ExtractorMatch.Unapply)
   }
 
-  private def scala2UnapplyExtractorMatches(tpe: ScType, place: PsiElement): LazyList[ExtractorMatch.Unapply] = {
+  private def scala2UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
     /*
      * Scala 2 boolean match
      */
@@ -510,6 +527,17 @@ object ScPattern {
         def nameBased = {
           val byNameExtractor = ByNameExtractor(place)
           extractorType match {
+            case _ if isOneArgSyntheticUnapply(fun) =>
+              /*
+               * if a case class without a custom unapply method is matched, we have a Constructor Pattern,
+               * which has slightly different semantics than an extractor pattern.
+               * (https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#constructor-patterns)
+               *
+               * Especially, it will not untuple a single tuple param.
+               *   case class Test(p: (A, B))
+               *   val Test(a, b) = Test(???) // Illegal
+               */
+              LazyList.empty
             case TupleType(comps)       => LazyList(ExtractorMatch.Unapply(comps))
             case byNameExtractor(comps) => LazyList(ExtractorMatch.Unapply(comps))
             case _                      => LazyList.empty
@@ -521,9 +549,9 @@ object ScPattern {
   }
 
 
-  def unapplyExtractorMatches(returnTpe: ScType, place: PsiElement): LazyList[ExtractorMatch.Unapply] = {
+  def unapplyExtractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
     if (place.isInScala3File) scala3UnapplyExtractorMatches(returnTpe, place)
-    else scala2UnapplyExtractorMatches(returnTpe, place)
+    else scala2UnapplyExtractorMatches(returnTpe, place, fun)
   }
 
   /**
@@ -611,7 +639,7 @@ object ScPattern {
         memberBased ++ extractorMatch
     }
 
-  def unapplySeqExtractorMatches(returnTpe: ScType, place: PsiElement): LazyList[ExtractorMatch.UnapplySeq] = {
+  def unapplySeqExtractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
     if (place.isInScala3File) scala3UnapplySeqMatches(returnTpe, place)
     else scala2UnapplySeqMatches(returnTpe, place)
   }
@@ -621,8 +649,8 @@ object ScPattern {
    * The matches are ordered by precedence (highest precedence first).
    */
   def extractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch] = {
-    if (fun.name == CommonNames.Unapply) unapplyExtractorMatches(returnTpe, place)
-    else                                 unapplySeqExtractorMatches(returnTpe, place)
+    if (fun.name == CommonNames.Unapply) unapplyExtractorMatches(returnTpe, place, fun)
+    else                                 unapplySeqExtractorMatches(returnTpe, place, fun)
   }
 
   def isQuasiquote(fun: ScFunction): Boolean = {

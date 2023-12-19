@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
@@ -155,7 +155,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                 case Right(rt) =>
                   val substitutor = PatternTypeInference.doTypeInference(pattern, exprType)
                   val unapplyType = substitutor(rt)
-                  val matches = ScPattern.unapplyExtractorMatches(unapplyType, pattern)
+                  val matches = ScPattern.unapplyExtractorMatches(unapplyType, pattern, fun)
                   if (!matches.exists(_.isApplicable(numPatterns))) {
                     if (matches.isEmpty) {
                       holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapply.method", unapplyType.presentableText))
@@ -171,7 +171,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                 case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
                   val unapplyType = substitutor(rt)
-                  val matches = ScPattern.unapplySeqExtractorMatches(unapplyType, pattern)
+                  val matches = ScPattern.unapplySeqExtractorMatches(unapplyType, pattern, fun)
                   if (!matches.exists(_.isApplicable(numPatterns))) {
                     if (matches.isEmpty) {
                       holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapplyseq.method", unapplyType.presentableText))
