@@ -230,13 +230,14 @@ class ScalaDocStubGenerationEnterTest extends ScalaDocEnterTestBase {
          |class A""".stripMargin,
     )
 
+  //SCL-16279
   def testSCL16279_ShouldNotCompleteDocIfCaretIsNotInsideDocContent(): Unit =
     doTest(
       s"""object Hello {}
          |/**${|}/""".stripMargin,
       s"""object Hello {}
          |/**
-         |${|}/""".stripMargin,
+         | ${|}/""".stripMargin,
     )
 
   def testCompleteInTheEndOfTheFile(): Unit = {
