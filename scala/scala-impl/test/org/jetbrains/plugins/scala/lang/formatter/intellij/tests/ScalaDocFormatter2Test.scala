@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import org.jetbrains.plugins.scala.util.MarkersUtils.{endMarker, startMarker}
 
 final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
 
@@ -469,4 +470,27 @@ final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
       repeats = 3,
       checkAfterEachIteration = true
     )
+
+  def testFormatRangeWithLineWithoutLeadingAsterisk(): Unit = {
+    doTextTest(
+      s"""object Wrapper {
+        |  /**
+        |   * 000
+        |${startMarker}111
+        |222$endMarker
+        |   */
+        |  class A
+        |}
+        |""".stripMargin,
+      s"""object Wrapper {
+        |  /**
+        |   * 000
+        |   ${startMarker}111
+        |   222$endMarker
+        |   */
+        |  class A
+        |}
+        |""".stripMargin
+    )
+  }
 }
