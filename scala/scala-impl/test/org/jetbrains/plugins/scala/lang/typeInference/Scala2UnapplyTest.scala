@@ -65,6 +65,39 @@ object Scala2UnapplyTest extends GeneratedTestSuiteFactory.withHighlightingTest(
       |
       |val A() = true
       |""".stripMargin,
+    // ============= Constructor Patterns =============
+    """
+      |// testConstructorPatternWithTuple
+      |case class Test(param: (Int, Boolean))
+      |
+      |val Test(t) = Test(1, true)
+      |val _t: (Int, Boolean) = t
+      |
+      |val Test((i, b)) = Test(1, true)
+      |val _i: Int = i
+      |val _b: Boolean = b
+      |""".stripMargin,
+    """
+      |// testConstructorPatternNoUntupling
+      |case class Test(param: (Int, Boolean))
+      |
+      |val Test(i, b) = Test(1, true)   // Error
+      |""".stripMargin,
+    """
+      |// testNoConstructorPatternWithCustomUnapply
+      |case class Test(param: (Int, Boolean))
+      |
+      |object Test {
+      |  def unapply(t: Test): Some[(Int, Boolean)] = ???
+      |}
+      |
+      |val Test(t) = Test(1, true)
+      |val _t: (Int, Boolean) = t
+      |
+      |val Test(i, b) = Test(1, true)
+      |val _i: Int = i
+      |val _b: Boolean = b
+      |""".stripMargin,
     // ============= Extractor Pattern =============
     """
       |// extractorPattern
