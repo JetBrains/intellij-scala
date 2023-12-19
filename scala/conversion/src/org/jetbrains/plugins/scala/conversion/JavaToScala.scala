@@ -1115,14 +1115,7 @@ object JavaToScala {
       case list =>
         for {
           annotation <- list.getAnnotations.toIndexedSeq
-          if (annotation.getQualifiedName match {
-            case null |
-                 "java.lang.Override" |
-                 "org.jetbrains.annotations.Nullable" |
-                 "org.jetbrains.annotations.NotNull" |
-                 "org.jetbrains.annotations.NonNls" => false
-            case _ => true
-          })
+          if (!dropAnnotation(annotation))
         } yield convertPsiToIntermediate(annotation, null).asInstanceOf[AnnotationConstruction]
     }
 
@@ -1191,6 +1184,15 @@ object JavaToScala {
       modifiers.setComments(comments)
     }
     modifiers
+  }
+
+  //TODO: finish with tests SCL-21949
+  private def dropAnnotation(annotation: PsiAnnotation): Boolean = {
+    val fqn = annotation.getQualifiedName
+    fqn match {
+      case null | "java.lang.Override" => true
+      case _ => false
+    }
   }
 
   import visitors.PrintWithComments
