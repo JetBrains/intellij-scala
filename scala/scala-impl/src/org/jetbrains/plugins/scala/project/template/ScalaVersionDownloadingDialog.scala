@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.project.template
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, preselectLatestScala2Version}
+import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, createScalaVersionResolveResult, preselectLatestScala2Version}
 import org.jetbrains.sbt.project.template.SComboBox
 
 import java.awt.Point
@@ -49,27 +51,10 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
       }
 
       val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersionStr), canBeCanceled = true) { manager =>
-        import org.jetbrains.plugins.scala.DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
         }
-
-        val (compiler, librarySources) = (
-          DependencyDescription.scalaArtifact("compiler", scalaVersion).transitive(),
-          // scala3-library has also dependency on scala-library, so set transitive
-          DependencyDescription.scalaArtifact("library", scalaVersion).transitive().sources(),
-        )
-        val compilerClasspathResolveResult = dependencyManager.resolve(compiler)
-        // ATTENTION:
-        // Sources jars should be resolved in a separate request to dependency manager
-        // Otherwise resolved jars will contain only "sources" jar, without "classes"
-        val librarySourcesResolveResult = dependencyManager.resolve(librarySources)
-
-        ScalaVersionResolveResult(
-          scalaVersion.minor,
-          compilerClasspathResolveResult.map(_.file),
-          librarySourcesResolveResult.map(_.file)
-        )
+        createScalaVersionResolveResult(scalaVersion, dependencyManager)
       }
       tri.fold({
         case _: ProcessCanceledException =>
@@ -89,7 +74,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
 
 object ScalaVersionDownloadingDialog {
 
-  final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[File], librarySourcesJars: Seq[File])
+  final case class ScalaVersionResolveResult(scalaVersion: String, allJars: Seq[File])
 
   /**
    * While Scala 3 support is WIP we do not want preselect Scala 3 version
@@ -107,6 +92,38 @@ object ScalaVersionDownloadingDialog {
     }
   }
 
+  @VisibleForTesting
+  def createScalaVersionResolveResult(scalaVersion: ScalaVersion, dependencyManager: DependencyManagerBase): ScalaVersionResolveResult = {
+    import org.jetbrains.plugins.scala.DependencyManagerBase._
+
+    val (compiler, librarySources) = (
+      DependencyDescription.scalaArtifact("compiler", scalaVersion).transitive(),
+      // There is no need for transitive in "library" kind because of scala3-library, because scala2-library is already downloaded from "compiler" kind (because it is marked as transitive)
+      DependencyDescription.scalaArtifact("library", scalaVersion).sources(),
+    )
+    val resolvedDependencies = dependencyManager.resolve(compiler, librarySources)
+
+    def getScala2LibrarySources: Seq[ResolvedDependency] = {
+      val scala2Library = resolvedDependencies.filter(_.file.getName.startsWith(ScalaLibrary.prefix))
+      val scala2VersionString = scala2Library.head.info.version
+      ScalaVersion.fromString(scala2VersionString).map { scala2Version =>
+        val scala2LibrarySources = DependencyDescription.scalaArtifact("library", scala2Version).sources()
+        dependencyManager.resolve(scala2LibrarySources)
+      }.getOrElse(Seq.empty)
+    }
+
+    // It is necessary to download scala2-library sources explicitly.
+    // At least I couldn't find a way to force Ivy to download sources of transitive dependencies.
+    // If this were possible, creating separate dependency descriptions ("compiler" and "library") would not be necessary either
+    val scala2LibraryDependency =
+      if (scalaVersion.isScala3) getScala2LibrarySources
+      else Seq.empty
+
+    ScalaVersionResolveResult(
+      scalaVersion.minor,
+      (resolvedDependencies ++ scala2LibraryDependency).map(_.file),
+    )
+  }
   object UiUtils {
 
     def scrollToTheTop(versionComboBox: SComboBox[_]): Unit = {
