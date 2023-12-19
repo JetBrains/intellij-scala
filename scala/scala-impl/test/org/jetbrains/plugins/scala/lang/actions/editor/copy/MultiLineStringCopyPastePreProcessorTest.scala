@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProj
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-// TODO: maybe, taking into account that there is too much escaping, we should move these tests to files?
+// Q: maybe, taking into account that there is too much escaping, we should move these tests to files? Not sure...
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,

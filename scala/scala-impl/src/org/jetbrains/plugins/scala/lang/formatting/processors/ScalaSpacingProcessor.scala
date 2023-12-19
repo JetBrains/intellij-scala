@@ -307,7 +307,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITH_SPACING
 
     val scaladocSpacing = elementTypesWithParents match {
-      case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => NO_SPACING_WITH_NEWLINE
+      case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) =>
+        NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
         //val version = docCommentOf(rightNode).version
         if (false /*version == 1*/)
@@ -323,7 +324,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         ScalaDocElementTypes.AllElementAndTokenTypes.contains(x) &&
         ScalaDocElementTypes.AllElementAndTokenTypes.contains(y) =>
         Spacing.getReadOnlySpacing
-      case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, rightType, _, _)              =>
+      case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, rightType, _, _) =>
         rightType match {
           case t if isScalaDocListStart(t)      => Spacing.getReadOnlySpacing
           case ScalaDocTokenType.DOC_INNER_CODE => Spacing.getReadOnlySpacing
@@ -334,14 +335,35 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         Spacing.getReadOnlySpacing
       case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
         WITH_SPACING
-      case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _)                                                   =>
+      case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
         if (nodeTextStartsWith(rightNode, fileText, ' ')) WITH_SPACING
         else tagSpacing
-      case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => tagSpacing
-      case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
-      case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => WITH_SPACING
-      case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
-      case _ => null
+      case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) =>
+        tagSpacing
+      case (
+        ScalaDocTokenType.DOC_COMMENT_DATA,
+        ScalaDocTokenType.DOC_COMMENT_DATA,
+        ScalaDocElementTypes.DOC_PARAGRAPH,
+        ScalaDocElementTypes.DOC_PARAGRAPH
+     ) if leftNodeParentElementType eq rightNodeParentElementType=>
+        //Handle case when there are two lines of same paragraph without leading asterisk.
+        //Example:
+        //   /**
+        //    * hello
+        //    world
+        //    */
+        //   class Example
+        //This branch is primarily needed for range formatting inside scaladoc.
+        //It can be invoked during some other actions like pasting to scaladoc
+        return WITH_SPACING
+      case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>
+        Spacing.getReadOnlySpacing
+      case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>
+        WITH_SPACING
+      case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>
+        Spacing.getReadOnlySpacing
+      case _ =>
+        null
     }
 
     if (scaladocSpacing != null)
