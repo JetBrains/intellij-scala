@@ -41,7 +41,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
-    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer(originalElement, substitutor)
+    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)
     val buffer = new StringBuilder
     element match {
       case scGiven: ScGiven                              => generateGivenInfo(buffer, scGiven)

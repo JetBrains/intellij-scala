@@ -88,6 +88,7 @@ class TypeParamsRenderer(
       buffer.append(boundsRenderer.lowerBoundText(tp)(typeRenderer))
     }
     upper.foreach { tp =>
+      boundsRenderer.upperBoundText(tp)(typeRenderer)
       buffer.append(boundsRenderer.upperBoundText(tp)(typeRenderer))
     }
     view.foreach { tp =>
