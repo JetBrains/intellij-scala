@@ -297,7 +297,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
                                            range: TextRange,
                                            highlightInfoType: HighlightInfoType): Seq[IntentionAction] = {
     // e.g. on opening project we are in dump mode, and can't do resolve to search quickfixes
-    if (highlightInfoType != HighlightInfoType.WRONG_REF || DumbService.isDumb(file.getProject))
+    if (file.getProject.isDisposed || highlightInfoType != HighlightInfoType.WRONG_REF || DumbService.isDumb(file.getProject))
       return Seq.empty
 
     val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
