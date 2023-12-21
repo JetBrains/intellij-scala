@@ -4,13 +4,16 @@ import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElem
 import com.intellij.ide.util.treeView.smartTree.*
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScExtensionBody, ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.structureView.element.Element
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
@@ -18,6 +21,7 @@ import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaByPositionSorter, ScalaVisibilitySorter}
 
 import java.util
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
 
 class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
@@ -84,29 +88,38 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
       new ScalaAnonymousClassesNodeProvider()
     ).asJava
 
-  override def isSuitable(element: PsiElement): Boolean = element match {
-    case t: ScTypeDefinition => t.getParent match {
-      case _: ScalaFile | _: ScPackaging => true
-      case tb: ScTemplateBody if tb.getParent.is[ScExtendsBlock] =>
-        isSuitable(tb.getParent.getParent)
-      case _ => false
-    }
-    case f: ScFunction => f.getParent match {
-      case b: ScBlockExpr => b.getParent.is[ScFunction]
-      case tb: ScTemplateBody if tb.getParent.is[ScExtendsBlock] =>
-        isSuitable(tb.getParent.getParent)
-      case _ => false
-    }
-    case m: ScMember => m.getParent match {
-      case tb: ScTemplateBody if tb.getParent.is[ScExtendsBlock] =>
-        isSuitable(tb.getParent.getParent)
-      case _ => false
-    }
+  @tailrec
+  final override def isSuitable(element: PsiElement): Boolean = element match {
+    case enumCase: ScEnumCase =>
+      isSuitable(enumCase.enumParent)
+    case classParam: ScClassParameter =>
+      isSuitable(classParam.containingClass)
+    case (named: ScTypedDefinition) & (_: ScFieldId | _: ScBindingPattern) =>
+      named.nameContext match
+        case variable: ScValueOrVariable =>
+          isSuitable(variable)
+        case _ => false
+    case function: ScFunction =>
+      function.getParent match
+        case (_: ScBlockExpr) & Parent(_: ScFunction) => true
+        case (_: ScExtensionBody) & Parent(ext: ScExtension) =>
+          isSuitable(ext)
+        case _ => isToplevelOrInsideSuitableTypeDef(function)
+    case member: ScMember =>
+      isToplevelOrInsideSuitableTypeDef(member)
     case _ => false
   }
 
   override def shouldEnterElement(o: Object): Boolean = o match {
-    case t : ScTypeDefinition => t.membersWithSynthetic.nonEmpty || t.typeDefinitions.nonEmpty
+    case t: ScTypeDefinition => t.membersWithSynthetic.nonEmpty || t.typeDefinitions.nonEmpty
     case _ => false
   }
+
+  @tailrec
+  private def isToplevelOrInsideSuitableTypeDef(member: ScMember): Boolean =
+    member.getParent match
+      case _: ScalaFile | _: ScPackaging => true
+      case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
+        isToplevelOrInsideSuitableTypeDef(td)
+      case _ => false
 }

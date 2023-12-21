@@ -19,6 +19,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
   protected lazy val BlockIcon = getPlatformIcon(PlatformIcons.ClassInitializer)
   protected lazy val MethodIcon = getPlatformIcon(PlatformIcons.Method)
   protected lazy val AbstractMethodIcon = getPlatformIcon(PlatformIcons.AbstractMethod)
+  protected lazy val ProtectedIcon = getPlatformIcon(PlatformIcons.Protected)
   protected lazy val PrivateIcon = getPlatformIcon(PlatformIcons.Private)
 
   protected val EmptyBlockNodeText = ""
