@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.settings.{CompilerIndicesSbtSettings, Compile
 import java.awt.FlowLayout
 import java.awt.event.ActionEvent
 import javax.swing._
+import scala.annotation.nowarn
 
 private object ImplicitUsagesSearchDialogs {
   class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean, usageType: UsageType)
@@ -79,7 +80,7 @@ private object ImplicitUsagesSearchDialogs {
     canBeParent: Boolean,
     element:     PsiNamedElement,
     title:       String
-  ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
+  ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT: @nowarn("cat=deprecation")) {
 
     private[this] val shouldCompileCB = {
       val checkBox = new JBCheckBox(
