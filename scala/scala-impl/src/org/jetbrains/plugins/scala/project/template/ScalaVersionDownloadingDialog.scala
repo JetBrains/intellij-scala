@@ -98,7 +98,7 @@ object ScalaVersionDownloadingDialog {
 
     val (compiler, librarySources) = (
       DependencyDescription.scalaArtifact("compiler", scalaVersion).transitive(),
-      // There is no need for transitive in "library" kind because of scala3-library, because scala2-library is already downloaded from "compiler" kind (because it is marked as transitive)
+      // Because of scala3-library there is no need to add transitive in "library" kind, because scala2-library is already downloaded from "compiler" kind (because it is marked as transitive)
       DependencyDescription.scalaArtifact("library", scalaVersion).sources(),
     )
     val resolvedDependencies = dependencyManager.resolve(compiler, librarySources)
