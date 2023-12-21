@@ -53,6 +53,10 @@ class ScalaVersionDownloadingDialogTest extends TestCase {
   private def checkWhetherJarNamesAreEqual(allJars: Seq[File], expected: Seq[String]): Unit = {
     val jarsNames = allJars.map(_.getName).sorted
     val expectedOrdered = expected.sorted
+    println("jarsNames")
+    println(jarsNames)
+    println("expectedOrdered")
+    println(expectedOrdered)
     assertCollectionEquals("Downloaded jar names are not equal", expectedOrdered, jarsNames)
   }
 
