@@ -200,10 +200,10 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
   def testIncrementalCompilerSetUp(): Unit = {
     importProject()
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
     NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
-    assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
+    assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
   }
 }
