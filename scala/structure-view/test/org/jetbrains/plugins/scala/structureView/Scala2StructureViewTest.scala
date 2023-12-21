@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.lang.Language
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{PlatformTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
@@ -72,6 +72,83 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
 //  def testTopLevelDefinitions_InPackage(): Unit = {
 //    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
 //  }
+
+  def testAnonymousClasses_InsideValAndVarBody(): Unit = {
+    val code =
+      """object MyClass {
+        |  //`val`, fields
+        |  val value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |  val value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |  val value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |  val (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |  val (value5, value6) = (
+        |    new Runnable() { override def run(): Unit = () },
+        |    { new Runnable() { override def run(): Unit = () } },
+        |  )
+        |
+        |  //`var`, local members
+        |  def main(args: Array[String]): Unit = {
+        |    var value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |    var value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |    var value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |    var (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |    var (value5, value6) = (
+        |      new Runnable() { override def run(): Unit = () },
+        |      { new Runnable() { override def run(): Unit = () } },
+        |    )
+        |  }
+        |}
+        |""".stripMargin
+
+    val expectedStructureWithAnonymousEnabled =
+      s"""-AnonymousClasses_InsideValAndVarBody.scala
+         | -MyClass
+         |  value1: Runnable
+         |  -$$1
+         |   run(): Unit
+         |  -value2: Runnable
+         |   -$$2
+         |    run(): Unit
+         |  -value3: Runnable
+         |   -$EmptyBlockNodeText
+         |    -$$3
+         |     run(): Unit
+         |  value4
+         |  value5
+         |  value6
+         |  -$$5
+         |   run(): Unit
+         |  -$$6
+         |   run(): Unit
+         |  -main(Array[String]): Unit
+         |   -$$7
+         |    run(): Unit
+         |   -$$8
+         |    run(): Unit
+         |   -$$9
+         |    run(): Unit
+         |   -$$10
+         |    run(): Unit
+         |   -$$11
+         |    run(): Unit
+         |   -$$12
+         |    run(): Unit
+         |""".stripMargin.trim
+
+    myFixture.configureByText(s"${getTestName(false)}.scala", code)
+
+    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
+    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
+    //In IntelliJ tests they test it using this fixture method
+    myFixture.testStructureView { svc =>
+      val tree = svc.getTree
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
+    }
+  }
 
   /**
    * NOTE: kind of a hack for Scala 3.<br>
