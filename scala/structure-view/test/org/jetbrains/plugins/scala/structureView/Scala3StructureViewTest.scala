@@ -18,6 +18,9 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
   override protected def check(@org.intellij.lang.annotations.Language("Scala 3") code: String, nodes: Node*): Unit =
     super.check(code, nodes: _*)
 
+  override protected def checkNavigationFromSource(@org.intellij.lang.annotations.Language("Scala 3") code: String, expectedNodes: Node*): Unit =
+    super.checkNavigationFromSource(code, expectedNodes: _*)
+
   private lazy val EnumCaseIcon = ENUM
 
   private val TopLevelDefinitionsText =
@@ -581,4 +584,105 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       )
     }
   }
+
+  def testNavigationFromSourceScala3(): Unit = checkNavigationFromSource(
+    s"""
+       |val to${CARET}pX = 1
+       |private var (_, to${CARET}pY) = (true, 2)
+       |
+       |def to${CARET}pM(using I${CARET}nt) = {${CARET}}
+       |
+       |abstract class Exa${CARET}mple(
+       |  classParam1${CARET}UnusedInBody: String,
+       |  classParam2UsedI${CARET}nBody: String,
+       |  val clas${CARET}sParam3: String
+       |):
+       |  def th${CARET}is() = th${CARET}is(???, ???, ???)
+       |
+       |  val myV${CARET}al1 = ???
+       |  val (myVal2, myV${CARET}al3) = ???
+       |  protected lazy val myV${CARET}al4: Int
+       |
+       |  private var my${CARET}Var: Boolean = true
+       |
+       |  def myD${CARET}ef(par${CARET}am: String): String = classParam${CARET}2UsedInBody
+       |  def myAbstra${CARET}ctDef(using Int)(s: String)(using Boolean): Unit
+       |
+       |  extens${CARET}ion (s${CARET}: String)
+       |    def myExtens${CARET}ionMethod: String = ???
+       |
+       |  given myG${CARET}iven: String = ???
+       |  protected gi${CARET}ven myAbstractGiven: Int
+       |
+       |  given Lo${CARET}ng = ???
+       |
+       |  given c${CARET}s: CharSequence with:
+       |    override def length(): Int = ???
+       |    override def cha${CARET}rAt(index: Int): Char = ???
+       |    override def subSequence(start: Int, end: Int): CharSequence = ???
+       |
+       |  given AutoC${CARET}loseable with:
+       |    override de${CARET}f close(): Unit = {}
+       |
+       |  type MyTy${CARET}peAlias = String
+       |  type MyAbst${CARET}ractTypeAlias[T]
+       |
+       |  class My${CARET}Class
+       |  trait My${CARET}Trait
+       |  object MyO${CARET}bject
+       |
+       |  enum My${CARET}Enum:
+       |    case MyCase1
+       |    case MyCase2, MyC${CARET}ase3
+       |    case MyCa${CARET}se4(x: Int) extends MyEnum
+       |
+       |    private def myEnu${CARET}mFun() = this.toString
+       |    val myEnu${CARET}mVal: Boolean = false
+       |  end MyEnum
+       |e${CARET}nd Exam${CARET}ple
+       |""".stripMargin,
+    Node(VAL, "topX"), // toplevel val topX
+    Node(VAR, PrivateIcon, "topY"), // toplevel var topY
+    Node(FUNCTION, "topM(?=> Int)"), // toplevel def topM
+    Node(FUNCTION, "topM(?=> Int)"), // topM function param `using Int`
+    Node(FUNCTION, "topM(?=> Int)"), // topM function body
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class Example
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam1UnusedInBody
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam2UsedInBody
+    Node(FIELD_VAL, "classParam3: String"), // class val param classParam3
+    Node(MethodIcon, "this()"), // def this()
+    Node(MethodIcon, "this()"), // def this() body
+    Node(FIELD_VAL, "myVal1"), // val myVal1
+    Node(FIELD_VAL, "myVal3"), // val myVal3
+    Node(ABSTRACT_FIELD_VAL, ProtectedIcon, "myVal4: Int"), // lazy val myVal4
+    Node(FIELD_VAR, PrivateIcon, "myVar: Boolean"), // var myVar
+    Node(MethodIcon, "myDef(String): String"), // def myDef
+    Node(MethodIcon, "myDef(String): String"), // myDef method param `param`
+    Node(MethodIcon, "myDef(String): String"), // myDef method body
+    Node(AbstractMethodIcon, "myAbstractDef(?=> Int)(String)(?=> Boolean): Unit"), // def myAbstractDef
+    Node(EXTENSION, "extension (String)"), // extension (s: String)
+    Node(EXTENSION, "extension (String)"), // extension param s
+    Node(FUNCTION, "myExtensionMethod: String"), // extension method def myExtensionMethod
+    Node(MethodIcon, "myGiven: String"), // given myGiven
+    Node(AbstractMethodIcon, ProtectedIcon, "myAbstractGiven: Int"), // protected given myAbstractImplicitDef
+    Node(MethodIcon, "given_Long: Long"), // given Long
+    Node(CLASS, "cs"), // given cs: CharSequence...
+    Node(MethodIcon, "charAt(Int): Char"), // method charAt inside given cs
+    Node(CLASS,
+      """AutoCloseable with:
+        |    override def close(): Unit = {}""".stripMargin), // given AutoCloseable...
+    Node(MethodIcon, "close(): Unit"), // method close inside given AutoCloseable
+    Node(TYPE_ALIAS, "MyTypeAlias"), // type MyTypeAlias
+    Node(ABSTRACT_TYPE_ALIAS, "MyAbstractTypeAlias"), // type MyAbstractTypeAlias
+    Node(CLASS, "MyClass"), // class MyClass
+    Node(TRAIT, "MyTrait"), // class MyTrait
+    Node(OBJECT, "MyObject"), // class MyObject
+    Node(ENUM, "MyEnum"), // class MyObject
+    Node(EnumCaseIcon, "MyCase3"), // enum case MyCase3
+    Node(EnumCaseIcon, "MyCase4(Int)"), // enum case MyCase4
+    Node(MethodIcon, PrivateIcon, "myEnumFun()"), // enum method myEnumFun
+    Node(FIELD_VAL, "myEnumVal: Boolean"), // enum variable val myEnumVal
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // end keyword of Example class end marker
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // identifier of Example class end marker
+  )
 }
