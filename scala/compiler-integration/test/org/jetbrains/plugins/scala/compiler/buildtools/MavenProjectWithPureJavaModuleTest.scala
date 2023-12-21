@@ -167,11 +167,11 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
   def testImportAndCompile(): Unit = {
     importProject()
 
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
+    ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementality
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>

@@ -79,7 +79,7 @@ private object ImplicitUsagesSearchDialogs {
     canBeParent: Boolean,
     element:     PsiNamedElement,
     title:       String
-  ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
+  ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.IDE) {
 
     private[this] val shouldCompileCB = {
       val checkBox = new JBCheckBox(

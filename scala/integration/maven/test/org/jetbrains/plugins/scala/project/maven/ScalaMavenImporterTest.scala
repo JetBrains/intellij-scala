@@ -46,7 +46,7 @@ abstract class ScalaMavenImporterTest
     projectJdkVersion.foreach { jdkVersion =>
       inWriteAction {
         jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
-        ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
+        ProjectRootManager.getInstance(getProject).setProjectSdk(jdk)
       }
     }
   }
@@ -79,7 +79,7 @@ abstract class ScalaMavenImporterTest
     Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
 
     importProject(pomVFile)
-    assertProjectsEqual(expected, myProject)
+    assertProjectsEqual(expected, getProject)
   }
 
   private def runImportingTest_Common(
