@@ -11,6 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isOpCharacter
 
 final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
@@ -42,8 +43,14 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     if (upperMostInfixExpr == null || !upperMostInfixExpr.isValid) return
 
     def inner(expr: ScExpression): String = expr match {
-      case ScInfixExpr(left, op, right) if op.refName == targetOpName =>
-        s"${inner(left)} ${Replacement(targetOpName)} ${inner(right)}"
+      case infix@ScInfixExpr(left, op, right) if op.refName == targetOpName =>
+        val (wsLeftOrg, wsRightOrg) = infixWhitespaces(infix)
+        val leftR = inner(left)
+        val rightR = inner(right)
+        val wsLeft = if (wsLeftOrg.isEmpty) " " else wsLeftOrg
+        val wsRight = if (wsRightOrg.isEmpty) " " else wsRightOrg
+
+        s"${leftR}$wsLeft${Replacement(targetOpName)}$wsRight${rightR}"
       case _ => negate(expr)
     }
 
@@ -58,4 +65,11 @@ object DeMorganLawIntention {
     "&&" -> "||",
     "||" -> "&&"
   )
+
+  private def infixWhitespaces(infix: ScInfixExpr): (String, String) = {
+    def followingWhitespace(element: PsiElement): String =
+      element.nextSiblings.takeWhile(_.isWhitespaceOrComment).map(_.getText).mkString
+
+    followingWhitespace(infix.left) -> followingWhitespace(infix.operation)
+  }
 }
