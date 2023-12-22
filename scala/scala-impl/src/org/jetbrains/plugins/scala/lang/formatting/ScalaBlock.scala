@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtIndents
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScTypeElement}
@@ -397,6 +397,10 @@ object ScalaBlock {
         // NOTE: compare only type text, do not
         val hasUnitReturnType: Boolean = ret.method.exists(_.returnTypeElement.exists(isUnitTypeText))
         !hasUnitReturnType
+      case _: ScFunctionExpr =>
+        // call: arg => <caret>
+        val elementType = lastChild.getElementType
+        elementType == ScalaTokenTypes.tFUNTYPE || elementType == ScalaTokenType.ImplicitFunctionArrow
       case _ => false
     }
     if (isCurrentIncomplete)
