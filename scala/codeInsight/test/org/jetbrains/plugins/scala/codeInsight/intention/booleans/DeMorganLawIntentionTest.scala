@@ -252,7 +252,6 @@ class DeMorganLawIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-
   def testMixedChain4(): Unit = {
     val text =
       s"""
@@ -261,6 +260,57 @@ class DeMorganLawIntentionTest extends intentions.ScalaIntentionTestBase {
     val resultText =
       s"""
          |a op !(!a && !(b + b) &$CARET& !(c * c))
+      """.stripMargin
+
+    doTestBothWays(text, resultText)
+  }
+
+  def testWhitespace(): Unit = {
+    val text =
+      s"""
+         |a ||
+         |  b |$CARET|
+         |  c
+      """.stripMargin
+    val resultText =
+      s"""
+         |!(!a &&
+         |  !b &$CARET&
+         |  !c)
+      """.stripMargin
+
+    doTestBothWays(text, resultText)
+  }
+
+  def testWhitespace2(): Unit = {
+    val text =
+      s"""
+         |a || !b || c |$CARET|
+         |  d || !e || !f
+      """.stripMargin
+    val resultText =
+      s"""
+         |!(!a && b && !c &$CARET&
+         |  !d && e && f)
+      """.stripMargin
+
+    doTestBothWays(text, resultText)
+  }
+
+  def testComments(): Unit = {
+    val text =
+      s"""
+         |a || // a
+         |  b |$CARET|
+         |  c || // c
+         |  /* before d */ d
+      """.stripMargin
+    val resultText =
+      s"""
+         |!(!a && // a
+         |  !b &$CARET&
+         |  !c && // c
+         |  /* before d */ !d)
       """.stripMargin
 
     doTestBothWays(text, resultText)
