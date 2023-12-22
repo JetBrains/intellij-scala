@@ -287,7 +287,8 @@ object Scala3TestDataBracelessCode {
       s"""val test = (param: Int) ?=> $Caret""",
 
       // argument blocks
-      s"""val test = x.foreach:$Caret""",
+      s"""val test = x.foreach: $Caret""",
+      s"""val test = x.foreach: a => $Caret""",
 
       /** case clause body
        * (test data for typing in single clause body
