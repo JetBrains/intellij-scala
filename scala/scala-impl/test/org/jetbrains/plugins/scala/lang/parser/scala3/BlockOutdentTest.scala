@@ -981,4 +981,50 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |      PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  def testIncompleteArgBlockInCaseClause(): Unit = checkTree(
+    """1 match
+      |  case 1 =>
+      |    func:
+      |  case _ =>
+      |""".stripMargin,
+    """ScalaFile
+      |  MatchStatement
+      |    IntegerLiteral
+      |      PsiElement(integer)('1')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n  ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        LiteralPattern
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace('\n    ')
+      |        BlockOfExpressions
+      |          TypedExpression
+      |            ReferenceExpression: func
+      |              PsiElement(identifier)('func')
+      |            PsiElement(:)(':')
+      |            AnnotationsList
+      |              <empty list>
+      |            PsiErrorElement:Annotation or type expected
+      |              <empty list>
+      |      PsiWhiteSpace('\n  ')
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        WildcardPattern
+      |          PsiElement(_)('_')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        BlockOfExpressions
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
