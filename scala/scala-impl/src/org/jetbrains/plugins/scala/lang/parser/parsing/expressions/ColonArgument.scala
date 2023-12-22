@@ -42,7 +42,7 @@ object ColonArgument {
           builder.advanceLexer() // ate ':'
 
           // if there is no lambda after ':' then there must be a newline
-          builder.findPreviousNewLine.isDefined &&
+          builder.findPreviousIndent.exists(_ > builder.currentIndentationWidth) &&
             parseCaseClausesOrBlock(builder.findPreviousIndent, needBlockNode = false)
         }
 
