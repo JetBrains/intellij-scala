@@ -8,11 +8,11 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
+import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
-import org.jetbrains.jps.incremental.scala.remote.SourceScope
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.extensions._
@@ -125,13 +125,13 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private def doTriggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
     val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
-      val sourceScope = calculateSourceScope(virtualFile)
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, module, sourceScope, document, psiFile, debugReason)
+        .triggerIncrementalCompilation(virtualFile, module, document, psiFile, debugReason)
     }
   }
 
-  def beforeIncrementalCompilation(): Unit = invokeAndWait {
+  @RequiresEdt
+  def beforeIncrementalCompilation(): Unit = {
     val fileDocumentManager = FileDocumentManager.getInstance()
     val psiDocumentManager = PsiDocumentManager.getInstance(project)
     val unsaved = fileDocumentManager.getUnsavedDocuments
@@ -164,8 +164,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   ): Unit = {
     val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
-      val sourceScope = calculateSourceScope(virtualFile)
-      CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, sourceScope, document, debugReason)
+      CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, document, debugReason)
     }
   }
 
@@ -182,10 +181,6 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       isFirstTimeHighlighting = !documentCompilerAvailable.contains(virtualFile),
       debugReason
     )
-
-  private def calculateSourceScope(file: VirtualFile): SourceScope =
-    if (TestSourcesFilter.isTestSources(file, project)) SourceScope.Test
-    else SourceScope.Production
 }
 
 private[scala] object TriggerCompilerHighlightingService {

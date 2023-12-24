@@ -1982,9 +1982,7 @@
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift X"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift X" remove="true"/>
         </action>
-        <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
-            <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
-        </action>
+        <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction"/>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ENTER"/>

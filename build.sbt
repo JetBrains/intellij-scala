@@ -630,6 +630,13 @@ lazy val copyrightIntegration =
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
+lazy val intellijBspIntegration =
+  newProject("intellij-bsp", file("scala/integration/intellij-bsp"))
+    .dependsOn(scalaImpl)
+    .settings(
+      intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin
+    )
+
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile", sbtImpl % "test->test")

@@ -599,7 +599,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case c @ Constant(v) => Constants.constantExpression(c).getOrElse(annotArgText(v))
       case Ref(v) => annotArgText(v)
       case AnnotArgArray(args) =>
-        args.map(ref => annotArgText(ref.get)).mkString("_root_.scala.Array(", ", ", ")")
+        args.map { ref =>
+          val arg = ref.get
+          if (arg != AnnotInfo) annotArgText(ref.get)
+          else                  ""
+        }.mkString("_root_.scala.Array(", ", ", ")")
       case t: Type => "_root_.scala.Predef.classOf[%s]" format toString(t)
       case null => "null"
       case _ => arg.toString
@@ -899,7 +903,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
 object ScalaSigPrinter {
   val keywordList =
-    Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
+    Set(":", "=", "=>", "<-", "<:", "<%", ">:", "#", "@",
+      "true", "false", "null", "abstract", "case", "catch", "class", "def",
       "do", "else", "extends", "final", "finally", "for", "forSome", "if",
       "implicit", "import", "lazy", "macro", "match", "new", "object", "override",
       "package", "private", "protected", "return", "sealed", "super",
@@ -962,7 +967,7 @@ object ScalaSigPrinter {
 
     def escapeNonIdentifiers: String = {
       if (str == "<empty>") str
-      else if (!isIdentifier(str) || keywordList.contains(str) || str == "=" || str == "=>") "`" + str + "`"
+      else if (!isIdentifier(str) || keywordList.contains(str)) "`" + str + "`"
       else str
     }
 

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompil
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
-import scala.util.Success
 
 abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerHighlightingTestBase {
 
@@ -38,9 +37,10 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       val promise = Promise[Unit]()
       getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
         override def eventReceived(event: CompilerEvent): Unit = event match {
-          case CompilerEvent.CompilationFinished(_, _, _) =>
-            // todo (minor): we should also ensure that the file is actually the tested file
-            promise.complete(Success(()))
+          case CompilerEvent.CompilationFinished(_, _, sources) =>
+            if (sources.map(_.getCanonicalPath).contains(virtualFile.getCanonicalPath)) {
+              promise.success(())
+            }
           case _ =>
             ()
         }

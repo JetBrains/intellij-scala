@@ -71,9 +71,14 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
         val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>
           replaceOrAppendFileState(acc, file, emptyState)
-        }.copy(progress = 1.0)
+        }
         val toHighlight = intermediateState.highlightOnCompilationFinished
-        val newState = intermediateState.copy(highlightOnCompilationFinished = Set.empty)
+        // Do not hold highlighting information for invalid virtual files, such as deleted ones.
+        val newState = CompilerGeneratedState(
+          files = intermediateState.files.filter(_._1.isValid),
+          progress = 1.0,
+          highlightOnCompilationFinished = Set.empty
+        )
 
         CompilerGeneratedStateManager.update(project, newState)
 

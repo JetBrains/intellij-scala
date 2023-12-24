@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.project.bsp
 
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import org.jetbrains.plugins.bsp.scala.sdk.{ScalaSdk, ScalaSdkExtension}
+import org.jetbrains.plugins.bsp.scala.sdk.ScalaSdkExtension
+import org.jetbrains.plugins.bsp.scala.sdk.ScalaSdk
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 

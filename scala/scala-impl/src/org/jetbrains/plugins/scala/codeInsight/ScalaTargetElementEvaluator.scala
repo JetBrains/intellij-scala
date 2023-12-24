@@ -7,11 +7,12 @@ import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference, ScStableCodeReference, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScTypeAliasDefinition, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAliasDefinition, ScValueOrVariable, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -201,5 +202,12 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
       case _ =>
         None
     }
+  }
+
+  override def includeSelfInGotoImplementation(element: PsiElement): Boolean = element match {
+    case variable: ScValueOrVariable if variable.isAbstract => false
+    case typedDef: ScTypedDefinition if typedDef.isAbstractMember => false
+    case modifierListOwner: PsiModifierListOwner if modifierListOwner.hasAbstractModifier => false
+    case _ => super.includeSelfInGotoImplementation(element)
   }
 }

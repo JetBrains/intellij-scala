@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
-import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
+import org.jetbrains.plugins.scala.annotator.hints.{Hint, Corners, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
@@ -69,7 +69,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
 
   private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings) = {
     if (inParentheses)
-      Seq(Hint(Seq(Text("(")), e, suffix = false), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Seq(Text("(")), e, suffix = false, corners = Corners.Left), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true, corners = Corners.Right))
     else
       Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, suffix = true, relatesToPrecedingElement = true))
   }

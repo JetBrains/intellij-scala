@@ -19,9 +19,10 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
   protected lazy val BlockIcon = getPlatformIcon(PlatformIcons.ClassInitializer)
   protected lazy val MethodIcon = getPlatformIcon(PlatformIcons.Method)
   protected lazy val AbstractMethodIcon = getPlatformIcon(PlatformIcons.AbstractMethod)
+  protected lazy val ProtectedIcon = getPlatformIcon(PlatformIcons.Protected)
   protected lazy val PrivateIcon = getPlatformIcon(PlatformIcons.Private)
 
-  private val EmptyBlockNodeText = ""
+  protected val EmptyBlockNodeText = ""
 
   def testEmptyFile(): Unit = {
     check("")
@@ -977,83 +978,6 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     })
   }
 
-  def testAnonymousClasses_InsideValAndVarBody(): Unit = {
-    val code =
-      """object MyClass {
-        |  //`val`, fields
-        |  val value1: Runnable = new Runnable() { override def run(): Unit = () }
-        |  val value2: Runnable = { new Runnable() { override def run(): Unit = () } }
-        |  val value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
-        |  val (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
-        |  val (value5, value6) = (
-        |    new Runnable() { override def run(): Unit = () },
-        |    { new Runnable() { override def run(): Unit = () } },
-        |  )
-        |
-        |  //`var`, local members
-        |  def main(args: Array[String]): Unit = {
-        |    var value1: Runnable = new Runnable() { override def run(): Unit = () }
-        |    var value2: Runnable = { new Runnable() { override def run(): Unit = () } }
-        |    var value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
-        |    var (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
-        |    var (value5, value6) = (
-        |      new Runnable() { override def run(): Unit = () },
-        |      { new Runnable() { override def run(): Unit = () } },
-        |    )
-        |  }
-        |}
-        |""".stripMargin
-
-    val expectedStructureWithAnonymousEnabled =
-      s"""-AnonymousClasses_InsideValAndVarBody.scala
-         | -MyClass
-         |  value1: Runnable
-         |  -$$1
-         |   run(): Unit
-         |  -value2: Runnable
-         |   -$$2
-         |    run(): Unit
-         |  -value3: Runnable
-         |   -$EmptyBlockNodeText
-         |    -$$3
-         |     run(): Unit
-         |  value4
-         |  value5
-         |  value6
-         |  -$$5
-         |   run(): Unit
-         |  -$$6
-         |   run(): Unit
-         |  -main(Array[String]): Unit
-         |   -$$7
-         |    run(): Unit
-         |   -$$8
-         |    run(): Unit
-         |   -$$9
-         |    run(): Unit
-         |   -$$10
-         |    run(): Unit
-         |   -$$11
-         |    run(): Unit
-         |   -$$12
-         |    run(): Unit
-         |""".stripMargin.trim
-
-    myFixture.configureByText(s"${getTestName(false)}.scala", code)
-
-    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
-    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
-    //In IntelliJ tests they test it using this fixture method
-    myFixture.testStructureView((svc: StructureViewComponent) => {
-      val tree = svc.getTree
-
-      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
-
-      PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
-    })
-  }
-
   def testAnonymousClass_ShowWithInheritedMembers(): Unit = {
     val code =
       """class MyBaseClass {
@@ -1136,14 +1060,46 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |  object InnerObject
         |  trait InnerTrait
         |
+        |  protected class ProtectedInnerClass
+        |  protected[this] class ProtectedThisInnerClass // it is available inside derived class
+        |  protected[tests] class ProtectedScopeInnerClass
+        |
+        |  private class PrivateInnerClass // unavailable
+        |  private[this] class PrivateThisInnerClass // unavailable
+        |  private[tests] class PrivateScopeInnerClass // available inside this package
+        |
         |  def m1(): Unit = {}
         |  def m2(i: Int)(implicit s: String): Unit = ()
+        |
+        |  protected def protectedM(): Unit = {}
+        |  protected[this] def protectedThisM(): Unit = {}
+        |  protected[tests] def protectedScopeM(): Unit = {}
+        |
+        |  private def privateM(): Unit = {}
+        |  private[this] def privateThisM(): Unit = {}
+        |  private[tests] def privateScopeM(): Unit = {}
         |
         |  val v1: Int = 1
         |  var (v2, v3) = (true, "v3")
         |
+        |  protected val protectedV: Int = 2
+        |  protected[this] val protectedThisV: Int = 3
+        |  protected[tests] val protectedScopeV: Int = 4
+        |
+        |  private val privateV: Int = 5
+        |  private[this] val privateThisV: Int = 6
+        |  private[tests] val privateScopeV: Int = 7
+        |
         |  type IntAlias = Int
         |  type ListAlias[T] = List[T]
+        |
+        |  protected type ProtectedStringAlias = String
+        |  protected[this] type ProtectedThisStringAlias = String
+        |  protected[tests] type ProtectedScopeStringAlias = String
+        |
+        |  private type PrivateStringAlias = String
+        |  private[this] type PrivateThisStringAlias = String
+        |  private[tests] type PrivateScopeStringAlias = String
         |}
         |""".stripMargin
     myFixture.addFileToProject("tests/Base.scala", baseClass)
@@ -1197,6 +1153,26 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  notifyAll(): Unit
            |  param1: Int
            |  param2: String
+           |  -PrivateScopeInnerClass
+           |   ${inheritedFromObject()}
+           |  privateScopeM(): Unit
+           |  PrivateScopeStringAlias
+           |  privateScopeV: Int
+           |  -ProtectedInnerClass
+           |   ${inheritedFromObject()}
+           |  protectedM(): Unit
+           |  -ProtectedScopeInnerClass
+           |   ${inheritedFromObject()}
+           |  protectedScopeM(): Unit
+           |  ProtectedScopeStringAlias
+           |  protectedScopeV: Int
+           |  ProtectedStringAlias
+           |  -ProtectedThisInnerClass
+           |   ${inheritedFromObject()}
+           |  protectedThisM(): Unit
+           |  ProtectedThisStringAlias
+           |  protectedThisV: Int
+           |  protectedV: Int
            |  toString(): String
            |  v1: Int
            |  v2
@@ -1220,6 +1196,18 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |   m2(Int)(?=> String): Unit
            |   param1: Int
            |   param2: String
+           |   privateScopeM(): Unit
+           |   PrivateScopeStringAlias
+           |   privateScopeV: Int
+           |   protectedM(): Unit
+           |   protectedScopeM(): Unit
+           |   ProtectedScopeStringAlias
+           |   protectedScopeV: Int
+           |   ProtectedStringAlias
+           |   protectedThisM(): Unit
+           |   ProtectedThisStringAlias
+           |   protectedThisV: Int
+           |   protectedV: Int
            |   v1: Int
            |   v2
            |   v3
@@ -1234,6 +1222,18 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |    ${inheritedFromObject(indent = 4)}
            |  -Object
            |   ${inheritedFromObject()}
+           |  -PrivateScopeInnerClass
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -ProtectedInnerClass
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -ProtectedScopeInnerClass
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
+           |  -ProtectedThisInnerClass
+           |   -Object
+           |    ${inheritedFromObject(indent = 4)}
            |""".stripMargin
       )
     }
@@ -1247,14 +1247,20 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |class Base {
         |  class InnerClass {}
         |  static class InnerStaticClass {}
+        |  private class PrivateInnerClass {}
+        |  private static class PrivateInnerStaticClass {}
         |
         |  void m1() {}
         |  int m2(String s) { return s.length(); }
         |  static void m3(boolean b) {}
+        |  private void privateM() {}
+        |  private static void privateStaticM(boolean b) {}
         |
         |  final int v1 = 1;
+        |  private final int privateV = 1;
         |  boolean v2 = true;
         |  static String v3 = "v3";
+        |  private static String privateStaticV = "...";
         |}
         |""".stripMargin
     myFixture.addFileToProject("tests/Base.java", baseClass)
@@ -1407,7 +1413,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           """  x
             |  i
             |""".stripMargin +
-          // derived private
+          // derived private with scope
           """  setZ(Int): Unit
             |""".stripMargin
       )
