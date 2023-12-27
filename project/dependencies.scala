@@ -138,6 +138,9 @@ object Dependencies {
     fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
       fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
   }
+
+  val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
 }
 
 object DependencyGroups {

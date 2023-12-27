@@ -344,7 +344,7 @@ lazy val scalaImpl: sbt.Project =
       libraryDependencies ++= DependencyGroups.scalaCommunity,
 
       //for ExternalSystemTestCase and ExternalSystemImportingTestCase
-      libraryDependencies += "com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
+      libraryDependencies += Dependencies.intellijExternalSystemTestFramework % Test,
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars :=
@@ -393,7 +393,7 @@ lazy val compilerIntegration =
         "com.intellij.gradle",
         "org.jetbrains.idea.maven"
       ).map(_.toPlugin), // Used only in tests
-      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive()
+      libraryDependencies += Dependencies.intellijMavenTestFramework % Test
     )
     .withCompilerPluginIn(scalacPatches)
 
@@ -672,7 +672,7 @@ lazy val mavenIntegration =
     )
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
+      libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies
     )
 
