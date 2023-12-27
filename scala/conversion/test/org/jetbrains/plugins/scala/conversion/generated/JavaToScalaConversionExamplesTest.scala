@@ -78,13 +78,20 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
       alwaysAddType(getDefaultSettings)
     ))
 
-
-  def testNullReturnValue_DefaultSettings(): Unit = {
-    doTest(getDefaultSettings, "NullReturnValue.java")
+  def testReturnValueIsNull_DefaultSettings(): Unit = {
+    doTest(getDefaultSettings, "ReturnValueIsNull.java")
   }
 
-  def testNullReturnValue_RemoveAnnotationsSettings(): Unit = {
-    doTest(getRemoveTypeAnnotationsForAllMembersSettings, "NullReturnValue.java")
+  def testReturnValueIsNull_RemoveAnnotationsSettings(): Unit = {
+    doTest(getRemoveTypeAnnotationsForAllMembersSettings, "ReturnValueIsNull.java")
+  }
+
+  def testReturnValueIsThrows_DefaultSettings(): Unit = {
+    doTest(getDefaultSettings, "ReturnValueIsThrows.java")
+  }
+
+  def testReturnValueIsThrows_RemoveAnnotationsSettings(): Unit = {
+    doTest(getRemoveTypeAnnotationsForAllMembersSettings, "ReturnValueIsThrows.java")
   }
 
   def testAbstractMethods_DefaultSettings(): Unit = {
