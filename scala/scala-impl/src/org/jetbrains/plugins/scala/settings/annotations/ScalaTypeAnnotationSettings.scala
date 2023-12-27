@@ -53,14 +53,14 @@ object ScalaTypeAnnotationSettings {
 
       import style._
 
-      def reasonToEnforce: Option[String] =
+      lazy val reasonToEnforce: Option[String] =
         (TYPE_ANNOTATION_IMPLICIT_MODIFIER && !entity.isParameter && declaration.isImplicit).option("implicit definition")
           .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit definition"))
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
           .orElse((TYPE_ANNOTATION_STRUCTURAL_TYPE && !entity.isParameter && declaration.hasAccidentalStructuralType).option("structural type definition"))
-          .orElse((!entity.isParameter && declaration.isAbstractOrReturnsNull).option("abstract or returns null"))
+          .orElse((!entity.isParameter && declaration.isAbstractOrReturnsNullOrThrows).option("abstract or returns null"))
 
-      def reasonToUse: Option[String] = entity match {
+      lazy val reasonToUse: Option[String] = entity match {
         case Entity.Parameter => TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")
         case Entity.UnderscoreParameter => TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
         case _ =>
@@ -72,7 +72,7 @@ object ScalaTypeAnnotationSettings {
           }
       }
 
-      def reasonToExclude: Option[String] =
+      lazy val reasonToExclude: Option[String] =
         (TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant).option("constant")
           .orElse(location.isInCodeFragment.option("in code fragment"))
           .orElse((TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES && location.isInDialectSources).option("in dialect source"))
