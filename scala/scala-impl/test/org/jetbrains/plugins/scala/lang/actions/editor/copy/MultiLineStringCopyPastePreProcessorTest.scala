@@ -885,12 +885,11 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
          |""".stripMargin
 
     val after =
-      """val testTarget =
-        |  s'''Test
-        |     |  a = ${a}
-        |     |  b = ${b}
-        |     |  c = ${c}
-        |     |'''.stripMargin
+      """val testTarget = s'''Test
+        |                    |  a = ${a}
+        |                    |  b = ${b}
+        |                    |  c = ${c}
+        |                    |'''.stripMargin
         |""".stripMargin
     doTestMultiline(from, to, after)
   }
@@ -899,12 +898,11 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     val from =
       s"""val a = 1
          |
-         |val testSource =
-         |  $Start${Caret}s'''Test
-         |    |  a = $${a}
-         |    |  b = $${b}
-         |    |  c = $${c}
-         |    |'''.stripMargin$End
+         |val testSource = $Start${Caret}s'''Test
+         |                   |  a = $${a}
+         |                   |  b = $${b}
+         |                   |  c = $${c}
+         |                   |'''.stripMargin$End
          |""".stripMargin
 
     val to =
@@ -912,12 +910,11 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
          |""".stripMargin
 
     val after =
-      """val testTarget =
-        |  s'''Test
-        |     |  a = ${a}
-        |     |  b = ${b}
-        |     |  c = ${c}
-        |     |'''.stripMargin
+      """val testTarget = s'''Test
+        |                    |  a = ${a}
+        |                    |  b = ${b}
+        |                    |  c = ${c}
+        |                    |'''.stripMargin
         |""".stripMargin
     doTestMultiline(from, to, after)
   }
@@ -935,9 +932,8 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
          |""".stripMargin
 
     val after =
-      """val t =
-        |  s'''$println
-        |     |'''
+      """val t = s'''$println
+        |           |'''
         |""".stripMargin
     doTestMultiline(from, to, after)
   }

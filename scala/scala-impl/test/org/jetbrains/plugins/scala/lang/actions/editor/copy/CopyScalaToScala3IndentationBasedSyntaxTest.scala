@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.openapi.actionSystem.IdeActions
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 
 class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
@@ -758,7 +760,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
+  // ignored, not sure what should be the expected data
   def _testInnerMethod_FromObject_Comment_2(): Unit = {
     val from =
       s"""object Example:
@@ -811,7 +813,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
+  // ignored, not sure what should be the expected data
   def _testInnerMethod_FromObject_Comment_4(): Unit = {
     val from =
       s"""object Example:
@@ -864,8 +866,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  //IGNORED: not sure if this expected data is indeed what should be expected
-  def _testLesserIndentation_PasteToTheBlockEnd(): Unit = {
+  //not sure if this expected data is indeed what should be expected
+  def testLesserIndentation_PasteToTheBlockEnd(): Unit = {
     val from =
       s"""object A:
          |  def foo() =
@@ -881,13 +883,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
       s"""def bar() =
          |  print(2)
          |  1
-         |2
+         |  2
          |""".stripMargin
     doTestWithAllSelections(from, to, after)
   }
 
-  //IGNORED: not sure if this expected data is indeed what should be expected
-  def _testLesserIndentation_Tabs(): Unit = {
+  //not sure if this expected data is indeed what should be expected
+  def testLesserIndentation_Tabs(): Unit = {
     val from =
       s"""object A:
          |${tab}def foo() =
@@ -903,7 +905,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
       s"""def bar() =
          |  print(2)
          |  1
-         |2
+         |  2
          |""".stripMargin
     doTestWithAllSelections(from, to, after)
   }
@@ -1223,6 +1225,22 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     )
   }
 
+  def testPasteToEmptyPendingMethodBody_CopiedTextAlreadyHasIndentation(): Unit = {
+    doPasteTest(
+      s"""     1
+         |     2
+         |     3""".stripMargin,
+      s"""def foo =
+         |$Caret
+         |""".stripMargin,
+      s"""def foo =
+         |  1
+         |  2
+         |  3$Caret
+         |""".stripMargin,
+    )
+  }
+
   def testPasteToEmptyPendingMethodBody_Nested(): Unit = {
     doTestWithAllSelections(
       s"""object Source:
@@ -1399,6 +1417,52 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
       """def foo = {
         |  42
         |}""".stripMargin
+    )
+  }
+
+  //SCL-21933
+  def testCopyPasteFullLineWithoutSelection(): Unit = {
+    val file = myFixture.configureByText(s"to.scala",
+      s"""import java.lang
+         |
+         |enum A:
+         |  case B, C
+         |
+         |object Main:
+         |  def main(args: Array[String]): Unit = {
+         |    val a: A = ???
+         |    a match
+         |      case A.B => ???
+         |      case A.C => ???
+         |        ${Caret}println(1)
+         |        println(2)
+         |        println(3)
+         |  }""".stripMargin.withNormalizedSeparator)
+
+    myASTHardRefs += file.getNode
+    myFixture.performEditorAction(IdeActions.ACTION_COPY) //selects current line and copies it
+    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //replaces current line with same content, removes selection, moves caret to the next line
+    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //adds duplicate line
+    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //adds another duplicate line
+
+    myFixture.checkResult(
+      s"""import java.lang
+         |
+         |enum A:
+         |  case B, C
+         |
+         |object Main:
+         |  def main(args: Array[String]): Unit = {
+         |    val a: A = ???
+         |    a match
+         |      case A.B => ???
+         |      case A.C => ???
+         |        println(1)
+         |        println(1)
+         |        println(1)
+         |$Caret        println(2)
+         |        println(3)
+         |  }""".stripMargin.withNormalizedSeparator
     )
   }
 }

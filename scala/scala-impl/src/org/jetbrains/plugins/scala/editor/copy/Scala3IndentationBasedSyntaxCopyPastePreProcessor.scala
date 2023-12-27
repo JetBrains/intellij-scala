@@ -173,10 +173,10 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
 
   private def getFirstElementInBody(block: ScOptionalBracesOwner): Option[PsiElement] = {
     val braceOrColon = block.getEnclosingStartElement
-    //get some element between `{` and `}` or
-    braceOrColon
-      .map(_.getNextSiblingNotWhitespaceComment)
-      .filterNot(el => TokenSets.RBRACE_OR_END_STMT.contains(el.elementType))
+    //get some element between `{` and `}`, or first element after `=` (in case of def/val/var)
+    val preFirstElement = braceOrColon.getOrElse(block.getFirstChild)
+    val firstElement = Option(preFirstElement.getNextSiblingNotWhitespaceComment)
+    firstElement.filterNot(el => TokenSets.RBRACE_OR_END_STMT.contains(el.elementType))
   }
 
   /**
