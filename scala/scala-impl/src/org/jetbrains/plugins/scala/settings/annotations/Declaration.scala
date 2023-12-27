@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiElement, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScNullLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScExpression, ScThrow, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -28,10 +28,14 @@ sealed trait Declaration {
   def isAnnotatedWith(annotations: collection.Set[String]): Boolean
 
   /**
-   * @return true - for abstract methods or if RHS of definition is `null`
+   * @return true when
+   *         - method is abstract
+   *         - method returns `null`
+   *         - method throws an exception
+   *
    *         false - otherwise
    */
-  def isAbstractOrReturnsNull: Boolean
+  def isAbstractOrReturnsNullOrThrows: Boolean
 }
 
 object Declaration {
@@ -100,7 +104,7 @@ object Declaration {
     override def hasAccidentalStructuralType: Boolean = {
       def effectivelyEmpty(comps: Iterable[ScType]): Boolean =
         comps.isEmpty || (comps.size == 1 && comps.head.canonicalText == "_root_.java.lang.Object")
-      
+
       element match {
         case Typeable(tpe @ ScCompoundType(comps, defs, _)) if !effectivelyEmpty(comps) =>
           implicit val ctx: ProjectContext = tpe.projectContext
@@ -110,12 +114,15 @@ object Declaration {
       }
     }
 
-    override def isAbstractOrReturnsNull: Boolean = {
+    override def isAbstractOrReturnsNullOrThrows: Boolean = {
       element match {
         case member: ScMember =>
           //NOTE: Unfortunately there is no general API to get body of val/var/def for us here it's enough to use this AST-based approach
           val body = PsiTreeUtil.findChildOfType(member, classOf[ScExpression], false)
-          body == null || getStatementAtReturnPosition(body).exists(_.is[ScNullLiteral])
+          body == null || {
+            val lastStatement = getStatementAtReturnPosition(body)
+            lastStatement.exists(_.is[ScNullLiteral, ScThrow])
+          }
         case _ => false
       }
     }
@@ -165,6 +172,6 @@ object Declaration {
     override def isAnnotatedWith(annotations: collection.Set[String]): Boolean = false
 
     //always returning false just because in all usages where SyntheticDeclaration this value seems to be irrelevant
-    override def isAbstractOrReturnsNull: Boolean = false
+    override def isAbstractOrReturnsNullOrThrows: Boolean = false
   }
 }

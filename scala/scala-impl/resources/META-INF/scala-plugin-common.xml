@@ -181,7 +181,7 @@
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.StringLiteralPreProcessor"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.MultiLineStringCopyPastePreProcessor" order="first"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor"/>
-        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.ReformatCodeAfterDefinitionWithAssignCopyPastePreProcessor"/>
+        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.ScaladocCopyPastePreProcessor"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>

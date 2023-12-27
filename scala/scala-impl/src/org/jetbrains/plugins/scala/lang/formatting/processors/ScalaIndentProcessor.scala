@@ -130,6 +130,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     }
 
     if (childElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
+      //handle DOC_COMMENT_DATA for the case when we don't have leading asterisk,
+      //it can happen e.g. during pasting text to some broken scaladoc
+      childElementType == ScalaDocTokenType.DOC_COMMENT_DATA ||
       childElementType == ScalaDocTokenType.DOC_COMMENT_END) {
       return Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
     }

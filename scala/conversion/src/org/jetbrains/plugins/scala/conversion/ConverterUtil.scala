@@ -163,9 +163,8 @@ object ConverterUtil {
   def cleanCode(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
     runInspections(file, project, offset, endOffset, editor)
 
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-      ConverterUtil.collectTopElements(offset, endOffset, file).toIndexedSeq
-    )
+    val topElements = ConverterUtil.collectTopElements(offset, endOffset, file).toIndexedSeq
+    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(topElements)
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
