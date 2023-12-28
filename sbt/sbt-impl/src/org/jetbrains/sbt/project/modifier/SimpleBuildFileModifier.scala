@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
+import org.jetbrains.plugins.scala.lang.formatting.ScalaFormatterUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier._
@@ -105,7 +105,7 @@ object SimpleBuildFileModifier {
   private def createSeqPsiExpr(project: Project, inScope: Seq[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
     if (seq.isEmpty) None
     else {
-      val valueString = createSeqString(FormatterUtil.getNormalIndentString(project), seq)
+      val valueString = createSeqString(ScalaFormatterUtil.getNormalIndentString(project), seq)
       val scope = if (inScope.isEmpty) Seq("ThisBuild") else inScope
       val scopePath = scope.mkString(" / ")
       val text = s"$scopePath / $prefix ++= $valueString"

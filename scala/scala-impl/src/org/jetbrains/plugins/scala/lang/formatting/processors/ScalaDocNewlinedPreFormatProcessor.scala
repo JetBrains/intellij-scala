@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, PsiElementExt, inWriteAction}
-import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil.isDocWhiteSpace
+import org.jetbrains.plugins.scala.lang.formatting.ScalaFormatterUtil.isDocWhiteSpace
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocLeadingAsterisk, createScalaDocWhiteSpaceWithNewLine}

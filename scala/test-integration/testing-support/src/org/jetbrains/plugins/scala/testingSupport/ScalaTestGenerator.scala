@@ -15,7 +15,7 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
+import org.jetbrains.plugins.scala.lang.formatting.ScalaFormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -329,7 +329,7 @@ object ScalaTestGenerator {
     import templateBody.projectContext
 
     val testNames = methods.map("test" + _.name.capitalize)
-    val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
+    val normalIndent = ScalaFormatterUtil.getNormalIndentString(projectContext)
     val doubleIndent = normalIndent + normalIndent
 
     val checkMethodsString =
@@ -353,7 +353,7 @@ object ScalaTestGenerator {
 
     withAnnotation("org.specs2.specification.Groups", typeDef, templateBody) { closingBrace =>
       val testNames = methods.map("test" + _.name.capitalize)
-      val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
+      val normalIndent = ScalaFormatterUtil.getNormalIndentString(projectContext)
       val doubleIndent = normalIndent + normalIndent
       val checkMethodsString =
         if (methods.nonEmpty) {
@@ -388,7 +388,7 @@ object ScalaTestGenerator {
 
   private def generateUTestMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody): Unit = {
     import templateBody.projectContext
-    val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
+    val normalIndent = ScalaFormatterUtil.getNormalIndentString(projectContext)
     templateBody.addBefore(createElementWithContext("val tests = TestSuite{}", templateBody, null)(Def.parse(_)), templateBody.getLastChild)
     if (methods.nonEmpty) {
       val methodStrings = methods.map(m => s"$normalIndent${m.nameQuoted} - {}\n")
