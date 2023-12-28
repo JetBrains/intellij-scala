@@ -11,7 +11,7 @@ import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlockBuilder._
-import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
+import org.jetbrains.plugins.scala.lang.formatting.ScalaDocBlockBuilderUtils._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
