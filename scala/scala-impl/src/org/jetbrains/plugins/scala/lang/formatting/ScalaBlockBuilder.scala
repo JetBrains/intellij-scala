@@ -546,8 +546,8 @@ final class ScalaBlockBuilder(
     subBlocks
   }
 
-  private def getInfixBlocks(node: ASTNode, parentAlignment: Alignment = null): util.ArrayList[Block] = {
-    val subBlocks = new util.ArrayList[Block]
+  private def getInfixBlocks(node: ASTNode, parentAlignment: Alignment = null): util.ArrayList[ScalaBlock] = {
+    val subBlocks = new util.ArrayList[ScalaBlock]
     val children = node.getChildren(null)
     val alignment =
       if (parentAlignment != null) parentAlignment
@@ -556,10 +556,60 @@ final class ScalaBlockBuilder(
       if (InfixElementsTokenSet.contains(child.getElementType) && infixPriority(node) == infixPriority(child)) {
         subBlocks.addAll(getInfixBlocks(child, alignment))
       } else if (isNotEmptyNode(child)) {
-        subBlocks.add(subBlock(child, null, alignment))
+        // Do not indent infix operator which follows indentation-based block (see SCL-21539)
+        //  Foo(42):
+        //    """hi"""
+        //  :: Nil
+        val indent =
+          if (isInfixChildAfterIndentationBlock(child)) Some(Indent.getNoneIndent)
+          else None //calculate indent using `ScalaIndentProcessor`
+        subBlocks.add(subBlock(child, null, alignment, indent))
       }
     }
     subBlocks
+  }
+
+  /**
+   * @return true for `++` in {{{
+   *         StringBuilder:
+   *         "42"
+   *         ++ StringBuilder:
+   *         "23"
+   *         }}}
+   * @note for chained method calls with dot notation a different logic is used to avoid indentation for dot in such cases {{{
+   *         List:
+   *           42
+   *         .toString
+   *       }}}
+   *       (see [[ChainedMethodCallsBlockBuilder.chainSubBlock]])
+   *
+   *       Ideally, to support mixed chains (with infix notation, dot notation, with different operators, like ++ and ::)
+   *       we would need to unify the code with [[ChainedMethodCallsBlockBuilder]].
+   *       However it would be quite tricky and it's not clear if worth the effort (do people even write code with mixed chain?)
+   */
+  private def isInfixChildAfterIndentationBlock(infixChild: ASTNode): Boolean = {
+    val childPsi = infixChild.getPsi
+    if (childPsi.startsFromNewLine(ignoreComments = true)) {
+      val prev = childPsi.getPrevSiblingNotWhitespaceComment
+      if (prev != null)
+        endsWithIndentationBlock(prev.getNode)
+      else
+        false
+    }
+    else false
+  }
+
+  @tailrec
+  private def endsWithIndentationBlock(prevNode: ASTNode): Boolean = {
+    val last = prevNode.getLastChildNode
+    last != null && (last.getPsi match {
+      case args: ScArgumentExprList =>
+        args.isColonArgs
+      case methodCall: ScMethodCall =>
+        endsWithIndentationBlock(methodCall.getNode)
+      case _ =>
+        false
+    })
   }
 
   private def createAlignment(node: ASTNode): Alignment = {
