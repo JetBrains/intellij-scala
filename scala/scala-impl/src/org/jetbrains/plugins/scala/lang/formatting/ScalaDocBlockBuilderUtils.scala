@@ -6,8 +6,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 private object ScalaDocBlockBuilderUtils {
 
-  // TODO: rename FormatterUtil to ScalaFormatterUtil
-  // NOTE: maybe com.intellij.psi.impl.source.tree.LazyParseableElement ?
   // ATTENTION: current implementation will traverse the whole node together with all it's children
 
   /** Originally copied from private method [[com.intellij.psi.formatter.java.SimpleJavaBlock.isNotEmptyNode]] */

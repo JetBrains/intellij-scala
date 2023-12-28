@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 /**
  * @todo consider unifying with [[org.jetbrains.plugins.scala.util.IndentUtil]]
  */
-object FormatterUtil {
+object ScalaFormatterUtil {
 
   def calcIndent(node: ASTNode): Int =
     node.getTreeParent.getPsi match {
