@@ -4,9 +4,8 @@ import com.intellij.lang.ASTNode
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
-private object getDummyBlocksUtils {
+private object ScalaDocBlockBuilderUtils {
 
-  // TODO: rename to isNonEmptyNode
   // TODO: rename FormatterUtil to ScalaFormatterUtil
   // NOTE: maybe com.intellij.psi.impl.source.tree.LazyParseableElement ?
   // ATTENTION: current implementation will traverse the whole node together with all it's children
