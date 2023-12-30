@@ -290,6 +290,7 @@ lazy val repl = newProject("repl", file("scala/repl"))
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
+  .dependsOn(scalaLanguageUtilsRt)
   .settings(
     name := "tasty-reader",
     organization := "JetBrains",

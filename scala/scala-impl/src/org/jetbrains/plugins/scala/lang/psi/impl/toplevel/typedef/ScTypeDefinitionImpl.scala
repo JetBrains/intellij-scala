@@ -37,6 +37,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
 import org.jetbrains.plugins.scala.projectView.FileKind
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectClassName, PackageObjectClassPackageSuffix, PackageObjectSingletonClassPackageSuffix}
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -235,7 +237,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
     val packageDollar = this.containingClass match {
       case o: ScObject if o.isPackageObject && isImplicitValueClass =>
-        "package$"
+        ScalaBytecodeConstants.PackageObjectSingletonClassName
       case _ => ""
     }
 
@@ -272,7 +274,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     else {
       byStubOrPsi(_.javaQualifiedName) {
         val suffix = this match {
-          case o: ScObject if o.isPackageObject => ".package$"
+          case o: ScObject if o.isPackageObject => PackageObjectSingletonClassPackageSuffix
           case _: ScObject => "$"
           case _ => ""
         }
@@ -307,7 +309,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case td: ScTypeDefinition =>
         td.getQualifiedNameForDebugger + "$" + toJavaName(name)
       case _ if isPackageObject =>
-        qualifiedName("", forJvmRepresentation = true)(toJavaName) + ".package"
+        qualifiedName("", forJvmRepresentation = true)(toJavaName) + PackageObjectClassPackageSuffix
       case _ =>
         qualifiedName("$", forJvmRepresentation = true)(s => toJavaName(withoutBackticks(s)))
     }
@@ -460,7 +462,7 @@ object ScTypeDefinitionImpl {
           //it can be reference from scala using both org.example.Inner and org.example.`package`.Inner
           //however the latter is considered an implementation detail and generally shouldn't be used in scala sources
           if (forJvmRepresentation)
-            Right(packageObject) :: Left(separator) :: Left("package") :: Left(separator) :: acc
+            Right(packageObject) :: Left(separator) :: Left(PackageObjectClassName) :: Left(separator) :: acc
           else
             Right(packageObject) :: Left(separator) :: acc
         )

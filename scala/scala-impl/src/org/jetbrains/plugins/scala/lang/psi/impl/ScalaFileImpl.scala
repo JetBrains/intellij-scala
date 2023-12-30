@@ -28,14 +28,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 
 import java.{util => ju}
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
@@ -334,7 +334,7 @@ class ScalaFileImpl(
       val hasTopLevelMembers = topLevelMembers.nonEmpty
 
       Option.when(hasTopLevelMembers) {
-        val wrapperName = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(getName)) + "$package"
+        val wrapperName = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(getName)) + TopLevelDefinitionsClassNameSuffix
         val wrapper = new LightPsiClassBuilder(this, wrapperName)
 
         members.foreach {

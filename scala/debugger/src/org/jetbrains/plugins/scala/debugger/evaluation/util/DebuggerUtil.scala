@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.JvmUtil.getJVMStringForType
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.PackageObjectSingletonClassPackageSuffix
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -38,7 +39,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 object DebuggerUtil {
-  val packageSuffix = ".package$"
 
   class JVMNameBuffer {
     def append(evaluator: JVMName): Unit = {
@@ -472,10 +472,10 @@ object DebuggerUtil {
     val cacheManager = ScalaShortNamesCacheManager.getInstance(elementScope.project)
 
     def classesInScope(scope: GlobalSearchScope): Seq[PsiClass] =
-      if (qName.endsWith(packageSuffix))
-        cacheManager.findPackageObjectByName(qName.stripSuffix(packageSuffix), scope).toSeq
+      if (qName.endsWith(PackageObjectSingletonClassPackageSuffix))
+        cacheManager.findPackageObjectByName(qName.stripSuffix(PackageObjectSingletonClassPackageSuffix), scope).toSeq
       else
-        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), scope)
+        cacheManager.getClassesByFQName(qName.replace(PackageObjectSingletonClassPackageSuffix, "."), scope)
 
     val classes = classesInScope(elementScope.scope) match {
       case Seq() if fallbackToProjectScope => classesInScope(GlobalSearchScope.allScope(elementScope.project))
@@ -486,12 +486,12 @@ object DebuggerUtil {
 
   def findPsiClassByQName(refType: ReferenceType, elementScope: ElementScope): Option[PsiClass] = {
     val originalQName = NameTransformer.decode(refType.name)
-    val endsWithPackageSuffix = originalQName.endsWith(packageSuffix)
+    val endsWithPackageSuffix = originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)
     val withoutSuffix =
-      if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
+      if (endsWithPackageSuffix) originalQName.stripSuffix(PackageObjectSingletonClassPackageSuffix)
       else originalQName.stripSuffix("$").stripSuffix("$class")
-    val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
-    val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
+    val withDots = withoutSuffix.replace(PackageObjectSingletonClassPackageSuffix, ".").replace('$', '.')
+    val transformed = if (endsWithPackageSuffix) withDots + PackageObjectSingletonClassPackageSuffix else withDots
 
     val isScalaObject = originalQName.endsWith("$")
     val predicate: PsiClass => Boolean = {

@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.PackageObjectSingletonClassName
 
 import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
@@ -75,7 +76,7 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
         return None
 
       val className = stackTraceElement.getClassName
-      if (className.isEmpty || !className.contains("package$"))
+      if (className.isEmpty || !className.contains(PackageObjectSingletonClassName))
         return None
 
       for {

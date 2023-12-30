@@ -5,7 +5,7 @@ import TreePrinter.Keywords
 
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
-import org.jetbrains.plugins.scala.util.CommonQualifiedNames
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, ScalaBytecodeConstants}
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
@@ -89,8 +89,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           textOfPackage(sb, indent, node)
 
         case children =>
+
           val containsPackageObject = children match {
-            case Seq(Node2(VALDEF, Seq("package")), Node2(TYPEDEF, Seq("package$")), _: _*) => true // TODO use name type, not contents
+            case Seq(
+              Node2(VALDEF, Seq(ScalaBytecodeConstants.PackageObjectClassName)),
+              Node2(TYPEDEF, Seq(ScalaBytecodeConstants.PackageObjectSingletonClassName)), _: _*
+            ) => true // TODO use name type, not contents
             case _ => false
           }
           if (name != "<empty>" && (!containsPackageObject || name.contains('.'))) {
@@ -106,7 +110,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           // TODO extract method, de-duplicate
           var delimiterRequired = false
           children match {
-            case Seq(Node2(VALDEF, Seq(name1)), tpe @ Node3(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
+            case Seq(
+              Node2(VALDEF, Seq(name1)),
+              tpe @ Node3(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*
+            //TODO: revert `if false`
+            ) if name1.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix) &&
+              name2.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsSingletonClassNameSuffix) => // TODO use name type, not contents
               readSourceFileAnnotationIn(tpe)
               template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
                 val previousLength = sb.length
@@ -483,21 +492,40 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         val literal = textOfConstant(tail)
         if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
       case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + id(name)
-      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + id(name) + // TODO why there's "package" in some cases?
-          (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
+      case Node3(TERMREF, Seq(name), Seq(tail)) =>
+        // TODO why there's "package" in some cases?
+        if (name == ScalaBytecodeConstants.PackageObjectClassName || name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
+          textOfType(tail)
+        else {
+          textOfType(tail) + "." + id(name) +
+            (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
+        }
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
-        if (qualifier.endsWith("package$")) { val i = qualifier.lastIndexOf('.'); qualifier.substring(0, if (i == -1) qualifier.length - 8 else i) }
-        else if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
-        else if (qualifier == "_root_.`<empty>`") "" else qualifier.split('.').last + ".this"
+        if (qualifier.endsWith(ScalaBytecodeConstants.PackageObjectSingletonClassName)) {
+          val i = qualifier.lastIndexOf('.')
+          qualifier.substring(0, if (i == -1) qualifier.length - 8 else i)
+        }
+        else if (qualifier.endsWith("$"))
+          qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
+        else if (qualifier == "_root_.`<empty>`")
+          ""
+        else
+          qualifier.split('.').last + ".this"
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
       case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
         val prefix = if (node.refTag.contains(TYPEPARAM)) "" else tail.headOption.map(textOfType(_)).getOrElse("")
         val name = node.refName.getOrElse("")
-        if (name == "package" || name.endsWith("$package")) prefix
-        else (if (prefix.isEmpty) id(name) else prefix + "." + id(name)) + (if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else "") // TODO rely on name kind
+        if (name == ScalaBytecodeConstants.PackageObjectClassName || name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
+          prefix
+        else {
+          // TODO rely on name kind
+          val part1 = if (prefix.isEmpty) id(name) else prefix + "." + id(name)
+          val part2 = if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else ""
+          part1 + part2
+        }
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
         val qualifier = textOfType(tail)
