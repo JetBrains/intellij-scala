@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
@@ -14,8 +15,6 @@ import _root_.java.nio.charset.StandardCharsets
 import _root_.java.nio.file.Files
 import _root_.java.{util => ju}
 import _root_.scala.jdk.CollectionConverters._
-import _root_.scala.util.Try
-
 
 /**
   * For tasks that should be performed once per compilation
@@ -40,7 +39,11 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
         incrementalityTypeStorageFile(context).foreach { file =>
           val parentDir = file.getParentFile
           if (!parentDir.exists()) parentDir.mkdirs()
-          Try(Files.write(file.toPath, incrementalityType.name().getBytes(StandardCharsets.UTF_8)))
+          try Files.write(file.toPath, incrementalityType.name().getBytes(StandardCharsets.UTF_8))
+          catch {
+            case e: IOException =>
+              Log.error(s"Could not write incremental compiler setting $incrementalityType to disk", e)
+          }
         }
     }
   }
@@ -51,7 +54,14 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
     val previousIncrementalityType = readPreviousIncrementalityType(context)
+    previousIncrementalityType match {
+      case Some(incrementality) =>
+        Log.info(s"Previous incremental compiler setting read from disk: $incrementality [${chunk.getPresentableShortName}]")
+      case None =>
+        Log.info(s"Could not read previous incremental compiler setting from disk [${chunk.getPresentableShortName}]")
+    }
     val incrementalityType = ScalaBuilder.projectSettings(context).getIncrementalityType
+    Log.info(s"Current project incremental compiler setting: $incrementalityType [${chunk.getPresentableShortName}]")
 
     previousIncrementalityType match {
       case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
@@ -73,16 +83,22 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
 
   private def readPreviousIncrementalityType(context: CompileContext): Option[IncrementalityType] =
     incrementalityTypeStorageFile(context).filter(_.exists()).flatMap { file =>
-      val result = Try {
-        val str = new String(Files.readAllBytes(file.toPath), StandardCharsets.UTF_8)
-        IncrementalityType.valueOf(str)
-      }.toOption
+      val result = try {
+        val bytes = Files.readAllBytes(file.toPath)
+        val str = new String(bytes, StandardCharsets.UTF_8)
+        Some(IncrementalityType.valueOf(str))
+      } catch {
+        case e: IOException =>
+          Log.error("Could not read incremental compiler settings from disk", e)
+          None
+      }
       if (result.isEmpty) file.delete()
       result
     }
 }
 
 object InitialScalaBuilder {
+  private val Log: Logger = Logger.getInstance(classOf[InitialScalaBuilder])
 
   private val scalaModulesKey: Key[Set[JpsModule]] =
     Key.create[Set[JpsModule]]("jps.scala.modules")
