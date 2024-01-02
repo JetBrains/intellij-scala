@@ -9,7 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isOpCharacter
 
 final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
@@ -30,13 +32,29 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
-    if (infixExpr == null || !infixExpr.isValid) return
+    val infixExpr@ScInfixExpr(_, op, _) = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
+    val targetOpName = op.refName
+    val upperMostInfixExpr: ScInfixExpr = infixExpr
+        .withParents
+        .takeWhile(_.is[ScInfixExpr])
+        .filterByType[ScInfixExpr]
+        .takeWhile(_.operation.refName == targetOpName)
+        .lastOption.get
+    if (upperMostInfixExpr == null || !upperMostInfixExpr.isValid) return
 
-    val ScInfixExpr(base, operation, argument) = infixExpr
-    val text = s"${negate(base)} ${Replacement(operation.refName)} ${negate(argument)}"
+    def inner(expr: ScExpression): String = expr match {
+      case infix@ScInfixExpr(left, op, right) if op.refName == targetOpName =>
+        val (wsLeftOrg, wsRightOrg) = infixWhitespaces(infix)
+        val leftR = inner(left)
+        val rightR = inner(right)
+        val wsLeft = if (wsLeftOrg.isEmpty) " " else wsLeftOrg
+        val wsRight = if (wsRightOrg.isEmpty) " " else wsRightOrg
 
-    negateAndValidateExpression(infixExpr, text)(project, editor)
+        s"${leftR}$wsLeft${Replacement(targetOpName)}$wsRight${rightR}"
+      case _ => negate(expr)
+    }
+
+    negateAndValidateExpression(upperMostInfixExpr, inner(upperMostInfixExpr))(project, editor)
   }
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.demorgan.law")
@@ -47,4 +65,11 @@ object DeMorganLawIntention {
     "&&" -> "||",
     "||" -> "&&"
   )
+
+  private def infixWhitespaces(infix: ScInfixExpr): (String, String) = {
+    def followingWhitespace(element: PsiElement): String =
+      element.nextSiblings.takeWhile(_.isWhitespaceOrComment).map(_.getText).mkString
+
+    followingWhitespace(infix.left) -> followingWhitespace(infix.operation)
+  }
 }
