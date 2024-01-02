@@ -109,8 +109,8 @@ object ScalaVersionDownloadingDialog {
 
     def getScala2LibrarySources: Seq[ResolvedDependency] = {
       val scala2Library = compilerClasspathResolveResult.filter(_.file.getName.startsWith(ScalaLibrary.prefix))
-      val scala2VersionString = scala2Library.head.info.version
-      ScalaVersion.fromString(scala2VersionString).map { scala2Version =>
+      val scala2VersionOpt = scala2Library.headOption.flatMap { rd => ScalaVersion.fromString(rd.info.version) }
+      scala2VersionOpt.map { scala2Version =>
         val scala2LibrarySources = DependencyDescription.scalaArtifact("library", scala2Version).sources()
         dependencyManager.resolve(scala2LibrarySources)
       }.getOrElse(Seq.empty)
