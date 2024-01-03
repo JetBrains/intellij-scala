@@ -28,7 +28,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         val maybeParametersOwner = position.findContextOfType(classOf[ScConstructorPattern]).collect {
           case ScConstructorPattern(ScReference(function: ScFunctionDefinition), _) => function
         }.flatMap { function =>
-          Option(function.syntheticCaseClass).orElse {
+          function.syntheticCaseClass.orElse {
             if (function.isUnapplyMethod) Some(function) else None
           }
         }

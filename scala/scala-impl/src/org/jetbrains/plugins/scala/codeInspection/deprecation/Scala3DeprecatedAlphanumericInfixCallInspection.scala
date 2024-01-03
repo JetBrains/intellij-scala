@@ -53,7 +53,7 @@ object Scala3DeprecatedAlphanumericInfixCallInspection {
 
   private def isDeclaredInfix(element: PsiElement): Boolean = element match {
     case fun: ScFunction if fun.isUnapplyMethod =>
-      hasInfixModifier(fun) || Option(fun.syntheticCaseClass).exists(hasInfixModifier)
+      hasInfixModifier(fun) || fun.syntheticCaseClass.exists(hasInfixModifier)
     case modListOwner: ScModifierListOwner => hasInfixModifier(modListOwner)
     case _ => false
   }

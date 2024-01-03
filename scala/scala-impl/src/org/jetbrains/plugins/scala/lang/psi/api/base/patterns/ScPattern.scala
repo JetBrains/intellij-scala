@@ -374,10 +374,9 @@ object ScPattern {
    */
   private[this] def isOneArgSyntheticUnapply(fun: ScFunction): Boolean =
     fun.isSynthetic &&
-      (fun.syntheticCaseClass match {
-        case null  => false
-        case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
-      })
+      fun.syntheticCaseClass
+        .flatMap(_.constructor)
+        .exists(_.effectiveFirstParameterSection.length == 1)
 
   private def isProduct(tpe: ScType): Boolean = {
     val productFqn = "scala.Product"
