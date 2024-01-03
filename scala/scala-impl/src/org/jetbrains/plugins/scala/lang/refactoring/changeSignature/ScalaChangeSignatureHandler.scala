@@ -61,10 +61,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
       case null => None
       case isWrapper(fun: ScFunction) => unwrapMethod(fun)
       case fun: ScFunction if fun.isSynthetic =>
-        fun.syntheticCaseClass match {
-          case null => None
-          case clazz => clazz.constructor
-        }
+        fun.syntheticCaseClass.flatMap(_.constructor)
       case m: PsiMethod => Some(m)
       case _ => None
     }

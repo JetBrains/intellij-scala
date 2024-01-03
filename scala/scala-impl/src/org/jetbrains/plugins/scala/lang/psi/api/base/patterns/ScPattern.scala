@@ -209,11 +209,10 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun, totalNumberOfPatterns)
-
-              if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
-              else if (argIndex < args.length)                   Some(subst(args(argIndex)).unpackedType)
-              else                                               None
+              ScPattern.unapplyExtractorMatches(subst(rt), pattern, fun)
+                .bestMatch(totalNumberOfPatterns)
+                .flatMap(_.productTypes.lift(argIndex))
+                .map(subst)
             case _ => None
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
@@ -226,19 +225,16 @@ object ScPattern {
 
           fun.returnType match {
             case Right(rt) =>
-              val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun, totalNumberOfPatterns)
-
-              if (subpatternTpes.isEmpty) None
-              else {
-                val tpe =
-                  if (argIndex < subpatternTpes.length) subpatternTpes(argIndex)
-                  else                                  subpatternTpes.last
-
-                pattern match {
-                  case SeqExpectingPattern() => subst(tpe).tryWrapIntoSeqType.toOption
-                  case _                     => subst(tpe).toOption
+              ScPattern.unapplySeqExtractorMatches(subst(rt), pattern, fun)
+                .bestMatch(totalNumberOfPatterns)
+                .flatMap { m =>
+                  Some(subst(m.productTypes.lift(argIndex).getOrElse {
+                    pattern match {
+                      case SeqExpectingPattern() => m.sequenceType.tryWrapIntoSeqType
+                      case _                     => m.sequenceType
+                    }
+                  }))
                 }
-              }
 
             case _ => None
           }
@@ -291,14 +287,6 @@ object ScPattern {
     collect(1)
     builder.result()
   }
-
-  def expectedNumberOfExtractorArguments(
-    returnType:         ScType,
-    place:              PsiElement,
-    fun:                ScFunction,
-    expectedComponents: Int
-  ): Int =
-    unapplySubpatternTypes(returnType, place, fun, expectedComponents).size
 
   case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
@@ -386,26 +374,9 @@ object ScPattern {
    */
   private[this] def isOneArgSyntheticUnapply(fun: ScFunction): Boolean =
     fun.isSynthetic &&
-      (fun.syntheticCaseClass match {
-        case null  => false
-        case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
-      })
-
-
-  private[this] def scala2ProductElementTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] =
-    if (returnTpe.widenIfLiteral.isBoolean) Seq.empty
-    else {
-      lazy val byNameExtractor = ByNameExtractor(place)
-      val extracted            = extractedType(returnTpe, place)
-
-      extracted.map {
-        case tpe if !place.isInScala3File && isOneArgSyntheticUnapply(fun) => Seq(tpe)
-        case TupleType(comps)                                              => comps
-        case byNameExtractor(comps)                                        => comps
-        case tpe                                                           => Seq(tpe)
-      }.getOrElse(Seq.empty)
-    }
-
+      fun.syntheticCaseClass
+        .flatMap(_.constructor)
+        .exists(_.effectiveFirstParameterSection.length == 1)
 
   private def isProduct(tpe: ScType): Boolean = {
     val productFqn = "scala.Product"
@@ -417,11 +388,62 @@ object ScPattern {
   }
 
 
+  sealed abstract class ExtractorMatch {
+    def isApplicable(subPatternCount: Int): Boolean
+    def productTypes: Seq[ScType]
+    def sequenceTypeOption: Option[ScType]
+    def isEmpty: Boolean
+  }
+
+  object ExtractorMatch {
+    sealed case class Unapply(override val productTypes: Seq[ScType]) extends ExtractorMatch {
+      def applicableSubPatternCount: Int = productTypes.length
+
+      override def isApplicable(subPatternCount: Int): Boolean = subPatternCount == applicableSubPatternCount
+      override def isEmpty: Boolean = productTypes.isEmpty
+      override def sequenceTypeOption: None.type = None
+    }
+
+    // for types like (String, Boolean, Seq[Int])
+    // for types like Seq[Int], productTypes is empty
+    sealed case class UnapplySeq(override val productTypes: Seq[ScType], sequenceType: ScType) extends ExtractorMatch {
+      def minSubPatternCount: Int = productTypes.length
+
+      override def isApplicable(subPatternCount: Int): Boolean = subPatternCount >= minSubPatternCount
+      override def isEmpty: Boolean = false
+      override def sequenceTypeOption: Some[ScType] = Some(sequenceType)
+    }
+
+    /**
+     * Returns the best extractor match for the given pattern count.
+     * "best match" is defined as:
+     * 1. if there are applicable matches, the one with the highest precedence is returned
+     * 2. otherwise the match with the least missing patterns is returned
+     * 3. if there are only matches with too few patterns, the one with the most patterns is returned
+     */
+    def bestMatch[T <: ExtractorMatch](matches: LazyList[T], patternCount: Int): Option[T] = {
+      def matchWithLeastMissingPatterns = matches.iterator
+        .filter(_.productTypes.length > patternCount)
+        .minByOption(_.productTypes.length)
+
+      def matchWithMostPatterns = matches
+        .maxByOption(_.productTypes.length)
+
+      matches.find(_.isApplicable(patternCount))
+        .orElse(matchWithLeastMissingPatterns)
+        .orElse(matchWithMostPatterns)
+    }
+
+    implicit class LazyListExt[T <: ExtractorMatch](private val list: LazyList[T]) extends AnyVal {
+      def bestMatch(patternCount: Int): Option[T] = ExtractorMatch.bestMatch(list, patternCount)
+    }
+  }
+
   /**
    * Returns the types of subpatterns for all applicable matching methods in scala 3 in the order of precedence.
    * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
    */
-  private[this] def scala3ProductElementTypes(tpe: ScType, place: PsiElement): LazyList[Seq[ScType]] = {
+  private[this] def scala3UnapplyExtractorMatches(tpe: ScType, place: PsiElement): LazyList[ExtractorMatch.Unapply] = {
     def withAutoTupling(types: Seq[ScType]): Option[Seq[ScType]] =
       types match {
         case Seq(TupleType(comps)) => Some(comps)
@@ -429,12 +451,12 @@ object ScPattern {
       }
 
     /*
-     * Scala 3 product match for types that implement scala.Product
+     * Scala 3 boolean match
      */
     if (tpe.widenIfLiteral.isBoolean) {
       // if tpe is a boolean then it cannot be any of the other matches
       // so we don't even need to try them and can just return
-      return LazyList(Seq.empty)
+      return LazyList(ExtractorMatch.Unapply(Seq.empty))
     }
 
     /*
@@ -475,46 +497,99 @@ object ScPattern {
       singleMatch.map(Seq(_)) #::
       nameBasedMatch #::
       LazyList.empty
-    ).flatten
+    ).flatten.map(ExtractorMatch.Unapply)
   }
 
-  sealed abstract class UnapplySeqMatch {
-    def minArgPatterns: Int
-  }
-  object UnapplySeqMatch {
-    // for types like Seq[Int]
-    final case class Sequence(tpe: ScType) extends UnapplySeqMatch {
-      override def minArgPatterns: Int = 0
+  private def scala2UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
+    /*
+     * Scala 2 boolean match
+     */
+    if (tpe.widenIfLiteral.isBoolean) {
+      // if tpe is a boolean then it cannot be any of the other matches
+      // so we don't even need to try them and can just return
+      return LazyList(ExtractorMatch.Unapply(Seq.empty))
     }
 
-    // for types like (String, Boolean, Seq[Int])
-    final case class ProductSequence(productComponents: Seq[ScType], tpe: ScType) extends UnapplySeqMatch {
-      override def minArgPatterns: Int = productComponents.length
+    val extractorType = extractedType(tpe, place)
+
+    /*
+     * Scala 2 Constructor match
+     *
+     * If fun is the synthetic unapply method of a case class, then we have a Constructor Pattern.
+     * In that case only the exact parameters of the first constructor clause are matched.
+     * We still use the extractorType, because that has generic parameters resolved correctly.
+     */
+    fun.syntheticCaseClass match {
+      case Some(caseClass) if fun.isSynthetic =>
+        // Ok, we have a synthetic unapply method of a case class.
+        // That means we have a Constructor Pattern.
+        val hasOnlyOneParameter = caseClass.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+
+        val comps = extractorType match {
+          case Some(extractorType) if hasOnlyOneParameter => Seq(extractorType)
+          case Some(TupleType(comps)) => comps
+          case _ =>
+            // Hmm... something went wrong...
+            Seq.empty
+        }
+        return LazyList(ExtractorMatch.Unapply(comps))
+      case _ => ()
     }
+
+    extractorType match {
+      case None => LazyList.empty
+      case Some(extractorType) =>
+        /*
+         * First the extractedType can be a matched itself
+         */
+        val extractorMatch = ExtractorMatch.Unapply(Seq(extractorType))
+
+        /*
+         * Next check if it has _1, _2, ... _N methods (N >= 2)
+         */
+        def nameBased = {
+          val byNameExtractor = ByNameExtractor(place)
+          extractorType match {
+            case TupleType(comps)       => LazyList(ExtractorMatch.Unapply(comps))
+            case byNameExtractor(comps) => LazyList(ExtractorMatch.Unapply(comps))
+            case _                      => LazyList.empty
+          }
+        }
+
+        extractorMatch #:: nameBased
+    }
+  }
+
+
+  def unapplyExtractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
+    if (place.isInScala3File) scala3UnapplyExtractorMatches(returnTpe, place)
+    else scala2UnapplyExtractorMatches(returnTpe, place, fun)
   }
 
   /**
    * Returns the types of subpatterns for all applicable matching methods in scala 3 in the order of precedence.
    * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
    */
-  private[this] def scala3UnapplySeqMatches(tpe: ScType, place: PsiElement): LazyList[UnapplySeqMatch] = {
+  private[this] def scala3UnapplySeqMatches(tpe: ScType, place: PsiElement): LazyList[ExtractorMatch.UnapplySeq] = {
     // v is the V from https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
-    def inner(v: ScType, extract: Boolean): LazyList[UnapplySeqMatch] = {
+    def inner(v: ScType, extract: Boolean): LazyList[ExtractorMatch.UnapplySeq] = {
       /**
        * Scala 3 sequence match for types that conform to sequence type (see [[extractSequenceMatchType]])
        */
-      def sequenceMatch = extractSequenceMatchType(v, place).map(UnapplySeqMatch.Sequence)
+      val sequenceMatch = extractSequenceMatchType(v, place).map(ExtractorMatch.UnapplySeq(Seq.empty, _))
 
       /**
        * Scala 3 product sequence match for types that implement Product and have _1..._N methods,
        * where N > 0 and _N conforms to the sequence type (see [[extractSequenceMatchType]])
        */
-      def productSequenceMatch = {
-        val productComponents = extractPossibleProductParts(v, place)
-        productComponents.lastOption
-          .flatMap(extractSequenceMatchType(_, place))
-          .map(UnapplySeqMatch.ProductSequence(productComponents.init, _))
-      }
+      def productSequenceMatch =
+        if (!isProduct(v)) LazyList.empty
+        else {
+          val productComponents = extractPossibleProductParts(v, place)
+          productComponents.lastOption
+            .flatMap(extractSequenceMatchType(_, place))
+            .map(ExtractorMatch.UnapplySeq(productComponents.init, _))
+        }
 
       /**
        * If it is not a sequence match or product match we see if it conforms to the following
@@ -541,50 +616,54 @@ object ScPattern {
     inner(tpe, extract = true)
   }
 
-  private def unapplySubpatternTypesScala3(returnTpe: ScType, place: PsiElement, fun: ScFunction, expectedSubPatterns: Int): Seq[ScType] = {
-    if (fun.name == CommonNames.Unapply) {
-      val tpes = scala3ProductElementTypes(returnTpe, place)
-      tpes
-        .find(_.length == expectedSubPatterns)
-        .orElse(tpes.headOption) // return types of the highest precedence
-        .getOrElse(Seq.empty)
-    } else {
-      scala3UnapplySeqMatches(returnTpe, place)
-        .find(_.minArgPatterns <= expectedSubPatterns)
-        .map {
-          case UnapplySeqMatch.Sequence(tpe) => Seq(tpe)
-          case UnapplySeqMatch.ProductSequence(productComponents, tpe) =>
-            productComponents ++ Seq(tpe)
+  private def scala2UnapplySeqMatches(tpe: ScType, place: PsiElement): LazyList[ExtractorMatch.UnapplySeq] =
+    extractedType(tpe, place) match {
+      case None => LazyList.empty
+      case Some(extractorType) =>
+        def typesToUnapplySeqMatch(types: Seq[ScType]): LazyList[ExtractorMatch.UnapplySeq] = {
+          extractSeqElementType(types.last, place)
+            .map(ExtractorMatch.UnapplySeq(types.init, _))
+            .to(LazyList)
         }
-        .getOrElse(Seq.empty)
+
+        /*
+         * first check if the extracted type has _1, _2, ... _N methods (N >= 2) where _N conforms to Seq[_]
+         *
+         * example:
+         *   def unapplySeq(a: A): Option[(String, Int, Seq[Boolean])]
+         */
+        val memberBased = {
+          val byNameExtractor = ByNameExtractor(place)
+          extractorType match {
+            case TupleType(comps)       => typesToUnapplySeqMatch(comps)
+            case byNameExtractor(comps) => typesToUnapplySeqMatch(comps)
+            case _                      => LazyList.empty
+          }
+        }
+
+        /*
+          * if that didn't work, check if the extracted type itself conforms to Seq[_]
+          * example:
+          *   def unapplySeq(a: A): Option[Seq[Boolean]]
+         */
+        def extractorMatch = typesToUnapplySeqMatch(Seq(extractorType))
+
+        memberBased ++ extractorMatch
     }
-  }
 
-  private def unapplySubpatternTypesScala2(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] = {
-    val isUnapplySeq = fun.name == CommonNames.UnapplySeq
-    val tpes         = scala2ProductElementTypes(returnTpe, place, fun)
-
-    if (tpes.isEmpty)       Seq.empty
-    else if (!isUnapplySeq) tpes
-    else
-      extractSeqElementType(tpes.last, place).fold(Seq.empty[ScType])(tpes.init :+ _)
+  def unapplySeqExtractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
+    if (place.isInScala3File) scala3UnapplySeqMatches(returnTpe, place)
+    else scala2UnapplySeqMatches(returnTpe, place)
   }
 
   /*
-   * Returns the types of the subpatterns when matching `returnTpe`
-   * In Scala3's matching semantics the matching method that is applicable depends
-   * on the number of receiving subpatterns, here given by `expectedComponents`.
-   * If you are in a situation where you don't know the amount of receiving subpatterns,
-   * you can just give -1 and receive the types of the subpatterns for the applicable matching method that
-   * has the highest precedence.
-   *
-   * TODO: Ideally this method should not take `expectedComponents` and simply return all applicable matching methods
-   *       And it should be split into unapplySeq and unapply
-   *       But this would require me to implement this for Scala2 as well, which I don't want to do right now
+   * Returns all possible extractor matches for `returnTpe` returned by `fun` in `place`.
+   * The matches are ordered by precedence (highest precedence first).
    */
-  def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction, expectedComponents: Int): Seq[ScType] =
-    if (place.isInScala3File) unapplySubpatternTypesScala3(returnTpe, place, fun, expectedComponents)
-    else                      unapplySubpatternTypesScala2(returnTpe, place, fun)
+  def extractorMatches(returnTpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch] = {
+    if (fun.name == CommonNames.Unapply) unapplyExtractorMatches(returnTpe, place, fun)
+    else                                 unapplySeqExtractorMatches(returnTpe, place, fun)
+  }
 
   def isQuasiquote(fun: ScFunction): Boolean = {
     val fqnO = Option(fun.containingClass).flatMap(_.qualifiedName.toOption)

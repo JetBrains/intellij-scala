@@ -46,13 +46,13 @@ trait ScFunction
     probablyRecursive.value = value
   }
 
-  final def syntheticCaseClass: ScClass = name match {
+  final def syntheticCaseClass: Option[ScClass] = name match {
     case Apply | Unapply | UnapplySeq =>
       syntheticContainingClass match {
-        case ObjectWithCaseClassCompanion(_, cl) => cl
-        case _                                   => null
+        case ObjectWithCaseClassCompanion(_, cl) => Some(cl)
+        case _                                   => None
       }
-    case _ => null
+    case _ => None
   }
 
   def hasUnitResultType: Boolean
@@ -169,7 +169,7 @@ object ScFunction {
   }
 
   object inSynthetic {
-    def unapply(func: ScFunction): Option[ScClass] = Option(func.syntheticCaseClass)
+    def unapply(func: ScFunction): Option[ScClass] = func.syntheticCaseClass
   }
 
   object CommonNames {

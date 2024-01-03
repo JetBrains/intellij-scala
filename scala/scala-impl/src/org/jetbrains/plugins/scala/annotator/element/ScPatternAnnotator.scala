@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
@@ -154,21 +154,32 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Right(rt) =>
                   val substitutor = PatternTypeInference.doTypeInference(pattern, exprType)
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns)
-                  val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
-                  if (expected != numPatterns && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
-                    val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
-                    holder.createErrorAnnotation(pattern, message)
+                  val unapplyType = substitutor(rt)
+                  val matches = ScPattern.unapplyExtractorMatches(unapplyType, pattern, fun)
+                  if (!matches.exists(_.isApplicable(numPatterns)) && !fun.is[ScMacroDefinition]) {
+                    if (matches.isEmpty) {
+                      holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapply.method", unapplyType.presentableText))
+                    } else {
+                      val expected = matches.map(_.productTypes.length).max
+                      val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
+                      holder.createErrorAnnotation(pattern, message)
+                    }
                   }
                 case _ =>
               }
               case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapplySeq" => fun.returnType match {
                 case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor(rt), pattern, fun, numPatterns) - 1
-                  if (expected > numPatterns) {
-                    val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected.toString)
-                    holder.createErrorAnnotation(pattern, message)
+                  val unapplyType = substitutor(rt)
+                  val matches = ScPattern.unapplySeqExtractorMatches(unapplyType, pattern, fun)
+                  if (!matches.exists(_.isApplicable(numPatterns)) && !fun.is[ScMacroDefinition]) {
+                    if (matches.isEmpty) {
+                      holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapplyseq.method", unapplyType.presentableText))
+                    } else {
+                      val expected = matches.map(_.productTypes.length).max
+                      val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected)
+                      holder.createErrorAnnotation(pattern, message)
+                    }
                   }
                 case _ =>
               }

@@ -9,10 +9,13 @@ import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.TestData
 
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
-abstract class CheckTestDataTestBase(testData: Seq[TestData]) extends ScalaCompilerTestBase {
-  def this(factory: GeneratedTestSuiteFactory) = this(factory.testData)
+abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: ScalaVersion)
+  extends ScalaCompilerTestBase
+{
+  def this(factory: GeneratedTestSuiteFactory, minScalaVersion: ScalaVersion) =
+    this(factory.testData, minScalaVersion)
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= minScalaVersion
 
   private def wrapIntoObject(x: (TestData, Int)): String = {
     val (data, idx) = x

@@ -5,7 +5,6 @@ import junit.framework.{Test, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions.BooleanExt
-import org.jetbrains.plugins.scala.lang.typeInference.Scala3CaseClassTest
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.junit.Ignore
@@ -31,13 +30,14 @@ abstract class GeneratedTestSuiteFactory {
   protected class SimpleHighlightingActualTest(testData: TestData, minScalaVersion: ScalaVersion) extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
     this.setName(testData.testName)
 
-    override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(Scala3CaseClassTest)
+    override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(GeneratedTestSuiteFactory)
     override protected def supportedIn(version: ScalaVersion): Boolean = version >= minScalaVersion
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-      if (!testData.isFailing)
-        checkTextHasNoErrors(testData.testCode)
+      checkTextHasNoErrors(testData.testCode)
     }
+
+    override protected def shouldPass: Boolean = !testData.isFailing
   }
 
   //noinspection JUnitMalformedDeclaration
@@ -49,6 +49,8 @@ abstract class GeneratedTestSuiteFactory {
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = runActualTest()
     def runActualTest(): Unit
+
+    override protected def shouldPass: Boolean = !testData.isFailing
   }
 
 }

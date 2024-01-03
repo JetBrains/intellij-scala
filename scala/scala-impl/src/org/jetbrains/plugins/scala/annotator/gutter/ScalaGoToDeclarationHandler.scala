@@ -181,10 +181,7 @@ object ScalaGoToDeclarationHandler {
     val actualElement = result.getActualElement
     result.element match {
       case function: ScFunction if function.isSynthetic =>
-        Seq(function.syntheticCaseClass match {
-          case null => actualElement
-          case clazz => clazz
-        })
+        Seq(function.syntheticCaseClass.getOrElse(actualElement))
       case constr@Constructor.ofClass(`actualElement`) => Seq(constr)
       case element => Seq(actualElement, element) ++ result.innerResolveResult.map(_.getElement)
     }

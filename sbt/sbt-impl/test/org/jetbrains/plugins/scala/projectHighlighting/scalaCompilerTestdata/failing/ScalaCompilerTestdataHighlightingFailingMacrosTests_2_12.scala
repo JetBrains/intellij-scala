@@ -4,6 +4,4 @@ class ScalaCompilerTestdataHighlightingFailingMacrosTests_2_12 extends ScalaComp
   override def getTestDirName = "macros"
 
   def test_t8781(): Unit = doTest()
-
-  def test_t8934a(): Unit = doTest()
 }

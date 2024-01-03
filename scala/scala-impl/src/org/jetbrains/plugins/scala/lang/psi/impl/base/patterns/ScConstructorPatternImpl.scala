@@ -46,7 +46,7 @@ object ScConstructorPatternImpl {
     val typedParamsOpt = for {
       matchedType <- typeOpt
       unapplyMethod <- resolveUnapplyMethodFromReference(ref)
-      caseClass <- Option(unapplyMethod.syntheticCaseClass)
+      caseClass <- unapplyMethod.syntheticCaseClass
       (clazz: ScClass, substitutor) <- matchedType.extractClassType
       if clazz.isCase && clazz == caseClass
       constr <- clazz.constructor
