@@ -512,6 +512,30 @@ object ScPattern {
 
     val extractorType = extractedType(tpe, place)
 
+    /*
+     * Scala 2 Constructor match
+     *
+     * If fun is the synthetic unapply method of a case class, then we have a Constructor Pattern.
+     * In that case only the exact parameters of the first constructor clause are matched.
+     * We still use the extractorType, because that has generic parameters resolved correctly.
+     */
+    fun.syntheticCaseClass match {
+      case Some(caseClass) if fun.isSynthetic =>
+        // Ok, we have a synthetic unapply method of a case class.
+        // That means we have a Constructor Pattern.
+        val hasOnlyOneParameter = caseClass.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+
+        val comps = extractorType match {
+          case Some(extractorType) if hasOnlyOneParameter => Seq(extractorType)
+          case Some(TupleType(comps)) => comps
+          case _ =>
+            // Hmm... something went wrong...
+            Seq.empty
+        }
+        return LazyList(ExtractorMatch.Unapply(comps))
+      case _ => ()
+    }
+
     extractorType match {
       case None => LazyList.empty
       case Some(extractorType) =>
@@ -526,17 +550,6 @@ object ScPattern {
         def nameBased = {
           val byNameExtractor = ByNameExtractor(place)
           extractorType match {
-            case _ if isOneArgSyntheticUnapply(fun) =>
-              /*
-               * if a case class without a custom unapply method is matched, we have a Constructor Pattern,
-               * which has slightly different semantics than an extractor pattern.
-               * (https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#constructor-patterns)
-               *
-               * Especially, it will not untuple a single tuple param.
-               *   case class Test(p: (A, B))
-               *   val Test(a, b) = Test(???) // Illegal
-               */
-              LazyList.empty
             case TupleType(comps)       => LazyList(ExtractorMatch.Unapply(comps))
             case byNameExtractor(comps) => LazyList(ExtractorMatch.Unapply(comps))
             case _                      => LazyList.empty

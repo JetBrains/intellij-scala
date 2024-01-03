@@ -223,5 +223,51 @@ object Scala2UnapplyTest extends GeneratedTestSuiteFactory.withHighlightingTest(
       |val A(c) = 1
       |val _c: Custom = c
       |""".stripMargin,
+    """
+      |//caseClassSimple
+      |case class A(i: Int)
+      |
+      |val A(i) = A(1)
+      |val _i: Int = i
+      |""".stripMargin,
+    """
+      |//caseClassTwoArgs
+      |case class A(i: Int, s: String)
+      |
+      |val A(i, s) = A(???, ???)
+      |val _i: Int = i
+      |val _s: String = s
+      |""".stripMargin,
+    """
+      |//caseClassNoUntupling
+      |case class A(i: (Int, String))
+      |
+      |val A(tup) = A(???)
+      |val _tup: (Int, String) = tup
+      |
+      |val A(wrong1, wrong2) = A(???)    // Error
+      |""".stripMargin,
+    """
+      |// caseClassNoTupleCrushing
+      |case class A(i: Int, s: String)
+      |
+      |val A(tup) = A(???, ???)    // Error
+      |val _tup: (Int, String) = tup
+      |""".stripMargin,
+    """
+      |// caseClassTupleCrushingWithCustomUnapply
+      |case class A(i: Int, s: String)
+      |object A {
+      |  def unapply(t: A): Some[(Int, String)] = Some((t.i, t.s))
+      |}
+      |
+      |// Crushing is allowed here
+      |val A(tup) = A(???, ???)
+      |val _tup: (Int, String) = tup
+      |
+      |val A(i, s) = A(???, ???)
+      |val _i: Int = i
+      |val _s: String = s
+      |""".stripMargin
   ).map(testDataFromCode)
 }
