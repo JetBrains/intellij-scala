@@ -44,8 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
-import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
-import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectSingletonClassName, PackageObjectSingletonClassPackageSuffix, TopLevelDefinitionsSingletonClassNameSuffix}
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
 
 import java.{util => ju}
@@ -127,7 +126,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val qName = getSpecificNameForDebugger(td)
         val additional = td match {
           case _: ScTrait =>
-            qName.stripSuffix("$class") :: Nil
+            qName.stripSuffix(TraitImplementationClassSuffix_211) :: Nil
           case c: ScClass if ValueClassType.isValueClass(c) =>
             s"$qName$$" :: Nil
           case c if isDelayedInit(c) =>
@@ -606,8 +605,17 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     val originalQName = NameTransformer.decode(refType.name)
     val withoutSuffix =
-      if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)) originalQName
-      else originalQName.replace(PackageObjectSingletonClassPackageSuffix, ".").stripSuffix("$").stripSuffix("$class")
+      if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix))
+        originalQName //Q: isn't it a bug? Do we indeed not remove the suffix here?
+      else {
+        //This line handles multiple possible cases
+        //For example in scala 2.11 trait with a concrete method, defined in package object will have
+        // a "trait implementation class" with fqn `org.example.package$MyTrait$class`
+        originalQName
+          .replace(PackageObjectSingletonClassPackageSuffix, ".")
+          .stripSuffix("$")
+          .stripSuffix(TraitImplementationClassSuffix_211)
+      }
     val lastDollar = withoutSuffix.lastIndexOf('$')
     val lastDot = withoutSuffix.lastIndexOf('.')
     val index = Seq(lastDollar, lastDot, 0).max + 1
@@ -845,8 +853,8 @@ object ScalaPositionManager {
     val name = td.getQualifiedNameForDebugger
 
     td match {
-      case _: ScObject => s"$name$$"
-      case _: ScTrait => s"$name$$class"
+      case _: ScObject => name + "$"
+      case _: ScTrait => name + TraitImplementationClassSuffix_211 //is valid only before scala 2.12
       case _ => name
     }
   }
@@ -990,7 +998,7 @@ object ScalaPositionManager {
       val name = refType.name()
 
       exactName match {
-        case Some(qName) => qName == name || qName.stripSuffix("$class") == name
+        case Some(qName) => qName == name || qName.stripSuffix(TraitImplementationClassSuffix_211) == name
         case None => checkParts(name)
       }
     }

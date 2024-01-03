@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
 import java.awt.BorderLayout
 import java.util
@@ -62,7 +63,8 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   private def fakeCompanionClassRename(typeDef: ScTypeDefinition, newName: String): Option[(PsiClass, String)] =
     typeDef match {
       case o: ScObject => o.fakeCompanionClass.map(_ -> newName)
-      case t: ScTrait  => Some(t.fakeCompanionClass -> (newName + "$class"))
+      //Q: shouldn't we handle trait differently since scala 2.12? Does it matter in this code?
+      case t: ScTrait  => Some(t.fakeCompanionClass -> (newName + TraitImplementationClassSuffix_211))
       case _           => None
     }
 

@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.JvmUtil.getJVMStringForType
-import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.PackageObjectSingletonClassPackageSuffix
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectSingletonClassPackageSuffix, TraitImplementationClassSuffix_211}
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -281,9 +281,13 @@ object DebuggerUtil {
     }
   }
 
-  def classnamePostfix(t: ScTemplateDefinition, withPostfix: Boolean = false): String = {
+  private def classnamePostfix(t: ScTemplateDefinition, withPostfix: Boolean = false): String = {
     t match {
-      case _: ScTrait if withPostfix => "$class"
+      case _: ScTrait if withPostfix =>
+        // this also works versions after 2.11 because we have a workaround
+        // in org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaTypeEvaluator
+        // TODO: somehow detect scala version and don't append the suffix since scala 2.12
+        TraitImplementationClassSuffix_211
       case o: ScObject if withPostfix || o.isPackageObject => "$"
       case c: ScClass if withPostfix && ValueClassType.isValueClass(c) => "$" //methods from a value class always delegate to the companion object
       case _ => ""
@@ -488,8 +492,10 @@ object DebuggerUtil {
     val originalQName = NameTransformer.decode(refType.name)
     val endsWithPackageSuffix = originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)
     val withoutSuffix =
-      if (endsWithPackageSuffix) originalQName.stripSuffix(PackageObjectSingletonClassPackageSuffix)
-      else originalQName.stripSuffix("$").stripSuffix("$class")
+      if (endsWithPackageSuffix)
+        originalQName.stripSuffix(PackageObjectSingletonClassPackageSuffix)
+      else
+        originalQName.stripSuffix("$").stripSuffix(TraitImplementationClassSuffix_211)
     val withDots = withoutSuffix.replace(PackageObjectSingletonClassPackageSuffix, ".").replace('$', '.')
     val transformed = if (endsWithPackageSuffix) withDots + PackageObjectSingletonClassPackageSuffix else withDots
 

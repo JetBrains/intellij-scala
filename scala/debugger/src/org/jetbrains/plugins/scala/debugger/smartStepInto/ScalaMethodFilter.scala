@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
 class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[Integer]) extends MethodFilter {
   private val unknownName: String = "!unknownName!"
@@ -36,12 +37,13 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
 
     val locationTypeName = location.declaringType().name()
 
-    if (locationTypeName.endsWith("$class")) className == locationTypeName.stripSuffix("$class")
-    else if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process)) false
-    else {
+    if (locationTypeName.endsWith(TraitImplementationClassSuffix_211))
+      className == locationTypeName.stripSuffix(TraitImplementationClassSuffix_211)
+    else if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process))
+      false
+    else
       DebuggerUtilsEx.isAssignableFrom(locationTypeName, location.declaringType) &&
         !ScalaPositionManager.shouldSkip(location, process)
-    }
   }
 
   override def getCallingExpressionLines: Range[Integer] = callingExpressionLines

@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
 import javax.swing.Icon
 
@@ -27,7 +28,7 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
     with ScTypeParametersOwner
     with ScNamedBeginImpl {
 
-  override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
+  override def additionalClassJavaName: Option[String] = Option(getName).map(withImplementationClassSuffix)
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor
@@ -71,10 +72,11 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   }
 
   override def fakeCompanionClass: PsiClass = {
-    new PsiClassWrapper(this, withSuffix(getQualifiedName), withSuffix(getName))
+    new PsiClassWrapper(this, withImplementationClassSuffix(getQualifiedName), withImplementationClassSuffix(getName))
   }
 
-  private def withSuffix(name: String) = s"$name$$class"
+  //Q: shouldn't we handle it differently since scala 2.12? Does it matter in this code?
+  private def withImplementationClassSuffix(name: String) = name + TraitImplementationClassSuffix_211
 
   override def constructor: Option[ScPrimaryConstructor] =
     this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)

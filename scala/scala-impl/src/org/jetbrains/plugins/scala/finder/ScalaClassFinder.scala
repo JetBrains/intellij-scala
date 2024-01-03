@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{TopLevelDefinitionsClassNameSuffix, TraitImplementationClassSuffix_211}
 import org.jetbrains.plugins.scala.util.TopLevelMembers
 
 import java.util
@@ -41,7 +41,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
         c.fakeCompanionModule
     }
 
-    val x$class: Seq[Option[PsiClass]] = classesWoSuffix("$class").collect {
+    val x$class: Seq[Option[PsiClass]] = classesWoSuffix(TraitImplementationClassSuffix_211).collect {
       case c: ScTrait =>
         Option(c.fakeCompanionClass)
     }
