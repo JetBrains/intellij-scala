@@ -38,6 +38,10 @@ public class SComboBox<T> extends ComboBox<T> {
     ComboBoxModel<T> model = new DefaultComboBoxModel<>(items);
     if (selectedItem.isDefined()) model.setSelectedItem(selectedItem.get());
     super.setModel(model);
+    // note: change of data model does not fire selected item change, so the GraphProperty associated with it is not updated.
+    // It is necessary for graph properties that exist in com.intellij.scala.play.projectTemplate.PlayNewProjectWizardStep.
+    // The same hack is done in com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkVersionVendorCombobox.setModel
+    selectedItemChanged();
   }
 
   @SuppressWarnings("unchecked")
