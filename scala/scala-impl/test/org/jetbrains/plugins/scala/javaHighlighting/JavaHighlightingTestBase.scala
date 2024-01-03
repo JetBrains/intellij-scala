@@ -15,6 +15,9 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
 
   private var myFilesCreated: Boolean = false
 
+  def errorsFromJavaCode(javaFileText: String, javaClassName: String): List[Message] =
+    errorsFromJavaCode("", javaFileText, javaClassName)
+
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     if (myFilesCreated) throw new AssertionError("Don't add files 2 times in a single test")
 

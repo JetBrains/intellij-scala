@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
 
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 
   def testSCL12136(): Unit = {
     val scala =
@@ -115,4 +118,42 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala))
   }
 
+  //SCL-10385 (also SCL-21216, SCL-21217)
+  def testSCL10385(): Unit = {
+    addDummyJavaFile(
+      """public @interface Singleton {
+        |}
+        |""".stripMargin)
+    addDummyJavaFile(
+      """
+        |public @interface Inject {
+        |    boolean optional() default false;
+        |}""".stripMargin
+    )
+
+    //FIXME: we expect no errors in this code, but currently it doesn't work
+    assertErrorsText(
+      """case class IdeBugFail @Inject() @Singleton()(var1: String)""".stripMargin,
+      """Error(IdeBugFail,case classes without a parameter list are not allowed)
+        |Error(Singleton()(var1: String),Annotation type expected)
+        |Error(var1,Cannot resolve symbol var1)""".stripMargin,
+    )
+  }
+
+  //SCL-11283
+  def testSCL11283(): Unit = {
+    assertNothing(errorsFromJavaCode(
+      """import scala.collection.JavaConverters$;
+        |import scala.collection.immutable.Map;
+        |
+        |public class Whatever {
+        |    public <K, V> Map<K, V> convert(java.util.Map<K, V> m) {
+        |        return JavaConverters$.MODULE$.mapAsScalaMapConverter(m).asScala().toMap(
+        |                scala.Predef$.MODULE$.<scala.Tuple2<K, V>>conforms()
+        |        );
+        |    }
+        |}""".stripMargin,
+      "Whatever"
+    ))
+  }
 }
