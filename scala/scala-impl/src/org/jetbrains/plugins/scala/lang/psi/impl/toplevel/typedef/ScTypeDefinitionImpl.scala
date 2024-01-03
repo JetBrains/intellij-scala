@@ -280,12 +280,16 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
         }
 
         import ScalaNamesUtil.{isBacktickedName, toJavaName}
-        val result = qualifiedName(DefaultSeparator, forJvmRepresentation = true)(toJavaName)
+        val fqn = qualifiedName(DefaultSeparator, forJvmRepresentation = true)(toJavaName)
           .split('.')
           .map(isBacktickedName(_).orNull)
           .mkString(DefaultSeparator)
 
-        result + suffix
+        //We need to handle legacy package object in order we can access it from java like this:
+        // `org.legacy.package$.MODULE$.fooStringType()`
+        //Without this handling the jvm qualified name will be `org.legacy.package.package$` which is wrong
+        val result = fqn.stripSuffix(ScObjectImpl.LegacyPackageObjectPackageSuffix) + suffix
+        result
       }
     }
   })
@@ -328,7 +332,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     toQualifiedName(packageName)(nameTransformer)
   }
 
-  //TODO: also check this
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
       case o: ScObject if o.isPackageObjectLegacy =>
@@ -445,27 +448,31 @@ object ScTypeDefinitionImpl {
   ): QualifiedNameList = {
     @tailrec
     def inner(element: PsiElement, acc: QualifiedNameList): QualifiedNameList = element.getContext match {
+      case packageObject: ScObject if packageObject.isPackageObjectNonLegacy =>
+        //NOTE: in JVM bytecode scala package object is represented by a class with name "package"
+        //Even though it's not possible to reference it in Java (because "package" is a keyword)
+        // you can still reference it from Scala or Kotlin using backticks (``).
+        //For example this Scala code:
+        //```scala
+        //  package org
+        //  package object example { class Inner }
+        //```
+        //class "Inner" can be referenced from Kotlin using org.example.`package`.Inner
+        //it can be reference from scala using both org.example.Inner and org.example.`package`.Inner
+        //however the latter is considered an implementation detail and generally shouldn't be used in scala sources
+        val newAcc =  if (forJvmRepresentation)
+          Right(packageObject) :: Left(separator) :: Left(PackageObjectClassName) :: Left(separator) :: acc
+        else
+          Right(packageObject) :: Left(separator) :: acc
+        inner(packageObject, newAcc)
+
       case packageObject: ScObject if packageObject.isPackageObjectLegacy =>
-        inner(packageObject, acc)
-      case packageObject: ScObject if packageObject.isPackageObject =>
-        inner(
-          packageObject,
-          //NOTE: in JVM bytecode scala package object is represented by a class with name "package"
-          //Even though it's not possible to reference it in Java (because "package" is a keyword)
-          // you can still reference it from Scala or Kotlin using backticks (``).
-          //For example this Scala code:
-          //```scala
-          //  package org
-          //  package object example { class Inner }
-          //```
-          //class "Inner" can be referenced from Kotlin using org.example.`package`.Inner
-          //it can be reference from scala using both org.example.Inner and org.example.`package`.Inner
-          //however the latter is considered an implementation detail and generally shouldn't be used in scala sources
-          if (forJvmRepresentation)
-            Right(packageObject) :: Left(separator) :: Left(PackageObjectClassName) :: Left(separator) :: acc
-          else
-            Right(packageObject) :: Left(separator) :: acc
-        )
+        val newAcc = if (forJvmRepresentation)
+          Left(PackageObjectClassName) :: Left(separator) :: acc
+        else
+          acc
+        inner(packageObject, newAcc)
+
       case definition: ScTypeDefinition =>
         inner(
           definition,

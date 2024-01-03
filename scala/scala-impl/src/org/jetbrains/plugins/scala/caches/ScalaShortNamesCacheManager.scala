@@ -38,15 +38,15 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       return Nil
     }
 
-    ScClassFqnIndex.instance.getElements(fqn, project, scope).asScala
-      .filter(cls => cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName))
-      .flatMap {
-        case cls: ScTypeDefinition => // Add fakeCompanionModule when ScTypeDefinition
-          Seq(cls) ++ cls.fakeCompanionModule.toSeq
-        case cls =>
-          Seq(cls)
-      }
-      .toIndexedSeq
+    val elements = ScClassFqnIndex.instance.getElements(fqn, project, scope).asScala
+    val withSameFqn = elements.filter(cls => cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName))
+    val withFakeCompanions = withSameFqn.flatMap {
+      case cls: ScTypeDefinition => // Add fakeCompanionModule when ScTypeDefinition
+        Seq(cls) ++ cls.fakeCompanionModule.toSeq
+      case cls =>
+        Seq(cls)
+    }
+    withFakeCompanions.toIndexedSeq
   }
 
   def methodsByName(name: String)
