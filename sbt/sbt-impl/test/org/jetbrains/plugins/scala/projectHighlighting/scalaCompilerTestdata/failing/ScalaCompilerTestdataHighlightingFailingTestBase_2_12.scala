@@ -25,7 +25,6 @@ abstract class ScalaCompilerTestdataHighlightingFailingTestBase_2_12 extends Sca
       case "_t5545" => Map("t5545/S_2.scala" -> Set((64, 66)), "S_1.scala" -> Set((64, 66)))
       case "_t6169" => Map("t6169/skinnable.scala" -> Set(), "t6169/t6169.scala" -> Set())
       case "_t8497" => Map("t8497/A_1.scala" -> Set())
-      case "_t8934a" => Map("t8934a/Test_2.scala" -> Set((36, 49)))
       case "_t8781" => Map("t8781/Test_2.scala" -> Set((82, 91)))
       case _ => Map(("failed/" + NameTransformer.decode(fileName) + ".scala", Set.empty))
     }
