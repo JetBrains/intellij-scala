@@ -159,6 +159,7 @@ object ScalaPsiElementFactory {
     name:                String,
     body:                String,
     needsBlock:          Boolean,
+    forceBraces:         Boolean,
     scalaFeatures:       Option[ScalaFeatures] = None,
     projectContext:      Option[ProjectContext] = None,
   ) {
@@ -169,6 +170,7 @@ object ScalaPsiElementFactory {
       name:                String                 = this.name,
       body:                String                 = this.body,
       needsBlock:          Boolean                = this.needsBlock,
+      forceBraces:         Boolean                = this.forceBraces,
       scalaFeatures:       Option[ScalaFeatures]  = this.scalaFeatures,
       projectContext:      Option[ProjectContext] = this.projectContext,
     ): TemplateDefinitionBuilder =
@@ -179,8 +181,9 @@ object ScalaPsiElementFactory {
         name,
         body,
         needsBlock,
+        forceBraces,
         scalaFeatures,
-        projectContext
+        projectContext,
       )
 
     def withScalaFeatures(features: ScalaFeatures): TemplateDefinitionBuilder =
@@ -200,7 +203,7 @@ object ScalaPsiElementFactory {
       val features: ScalaFeatures = scalaFeatures.getOrElse(firstNonNullOfContextAndChild)
 
       if (needsBlock || body.nonEmpty) {
-        val braceless = ctx.project.indentationBasedSyntaxEnabled(features)
+        val braceless = !forceBraces && ctx.project.indentationBasedSyntaxEnabled(features)
         if (kind == TemplateDefKind.Given) {
           textBuilder.append(" with")
           if (!braceless)
@@ -236,6 +239,7 @@ object ScalaPsiElementFactory {
       name: String = "td",
       body: String = "",
       needsBlock: Boolean = false,
+      forceBraces: Boolean = false,
     ): TemplateDefinitionBuilder =
       new TemplateDefinitionBuilder(
         kind,
@@ -244,6 +248,7 @@ object ScalaPsiElementFactory {
         name,
         body,
         needsBlock,
+        forceBraces,
       )
   }
 
@@ -1731,7 +1736,13 @@ object ScalaPsiElementFactory {
   )(implicit
     ctx: ProjectContext
   ): ScMember = {
-    val clazz = createClassWithBody(text, features)
+    // We need to force braces here, otherwise the indentation needs to be correct in `text`
+    // If we would adjust it ourselves, we change the intended indentation of text, that leads to problems downstream
+    val clazz = TemplateDefinitionBuilder(kind = TemplateDefKind.Class, body = s"\n$text\n", forceBraces = true)
+      .withScalaFeatures(features)
+      .withProjectContext(ctx)
+      .createTemplateDefinition()
+      .asInstanceOf[ScClass]
     clazz.members.head
   }
 

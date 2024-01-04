@@ -73,7 +73,7 @@ class TemplateDefinitionBuilderTest extends TemplateDefinitionBuilderTestBase {
 
 class TemplateDefinitionBuilderTest_Scala3 extends TemplateDefinitionBuilderTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= LatestScalaVersions.Scala_3
 
   def testClassWithBlockGivenContext(): Unit = doTest[ScClass](
     TemplateDefinitionBuilder(kind = TemplateDefKind.Class, needsBlock = true, context = getFile),
@@ -92,5 +92,12 @@ class TemplateDefinitionBuilderTest_Scala3 extends TemplateDefinitionBuilderTest
     """class td:
       |  val field: Int = 2
       |end td""".stripMargin
+  )
+
+  def testMultilineBody(): Unit = doTest[ScClass](
+    TemplateDefinitionBuilder(kind = TemplateDefKind.Class, body = "\n  call(3):\n    some_expr\n", context = getFile),
+    """class td:
+      |  call(3):
+      |    some_expr""".stripMargin
   )
 }
