@@ -393,7 +393,6 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
-
   def test_move_package_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
     checkTextHasError(
       s"""package ${START}subdir.`something.wrong`$END
@@ -424,8 +423,39 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
       hint      = "Move to package 'subdir.`something wrong`'",
     )
   }
-}
 
+  def test_legacy_package_object_no_warnings(): Unit = inDirectory("org/example") {
+    checkTextHasNoErrors(
+      """package org.example
+        |
+        |object `package` {
+        |  def foo: String = "42"
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def test_legacy_package_object_set_correct_name(): Unit = inDirectory("org/example") {
+    checkTextHasError(
+      s"""package ${START}org.example.inner$END
+         |
+         |object $START`package`$END {}
+         |""".stripMargin
+    )
+
+    testQuickFix(
+      s"""package ${CARET}org.example.inner
+         |
+         |object `package` {}
+         |""".stripMargin,
+      s"""package org.example
+         |
+         |object `package` {}
+         |""".stripMargin,
+      "Set package name to 'org.example'"
+    )
+  }
+}
 
 class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >=  ScalaVersion.Latest.Scala_3_0
