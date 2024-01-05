@@ -346,6 +346,11 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
+    val expectedContent2 =
+      """
+        |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style="color:#20999d;"><span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span></span>
+        |""".stripMargin
+
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
@@ -415,4 +420,21 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(i: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, s: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = …, b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>): <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
+
+  def testNestedTraits(): Unit = {
+    val fileContent =
+      s"""
+       |trait MyTrait[T]
+       |abstract class Class1[T, V]
+       |class ${|}Class2[T]() extends Class1[T, MyTrait[T]]
+       |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">Class2</span>[<span style="color:#20999d;">T</span>]()
+         |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://Class1"><code>Class1</code></a></span>[<span style="color:#20999d;">T</span>, <span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>[<span style="color:#20999d;">T</span>]]
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }

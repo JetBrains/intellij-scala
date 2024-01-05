@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import org.jetbrains.plugins.scala.project.ProjectContext
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
@@ -41,7 +42,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
-    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)
+    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
     val buffer = new StringBuilder
     element match {
       case scGiven: ScGiven                              => generateGivenInfo(buffer, scGiven)
