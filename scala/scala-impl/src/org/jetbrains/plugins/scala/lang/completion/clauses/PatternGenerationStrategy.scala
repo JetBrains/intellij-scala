@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{JavaEnum, ObjectExt, ScalaEnumeration}
 import org.jetbrains.plugins.scala.lang.completion.{ScalaKeyword, toValueType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
@@ -89,8 +89,11 @@ object PatternGenerationStrategy {
       case ExtractClass(DirectInheritors(inheritors)) =>
         new DirectInheritorsGenerationStrategy(inheritors)
       case ExtractClass(scEnum: ScEnum) =>
-        val inheritors = Inheritors(scEnum.cases.toList, isSealed = true, isExhaustive = true)
-        new DirectInheritorsGenerationStrategy(inheritors)
+        val cases = scEnum.cases
+        if (cases.nonEmpty) {
+          val inheritors = Inheritors(cases.toList, isSealed = true, isExhaustive = true)
+          new DirectInheritorsGenerationStrategy(inheritors)
+        } else null
       case _ =>
         null
     }
