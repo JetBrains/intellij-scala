@@ -12,6 +12,7 @@ import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.ui.util._
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 
 import java.util.concurrent.CompletableFuture
 import scala.jdk.CollectionConverters._
@@ -75,7 +76,7 @@ class ScalaClassRenderer extends ClassRenderer {
 }
 
 private object ScalaClassRenderer {
-  private val Module: String = "MODULE$"
+  private val Module: String = ScalaBytecodeConstants.ObjectSingletonInstanceName
 
   private val Bitmap: String = "bitmap$"
 

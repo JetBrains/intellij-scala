@@ -205,7 +205,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def stableObjectEvaluator(qual: String): ScalaFieldEvaluator = {
     val jvm = JVMNameUtil.getJVMRawText(qual)
-    ScalaFieldEvaluator(new TypeEvaluator(jvm), "MODULE$")
+    ScalaFieldEvaluator(new TypeEvaluator(jvm), ScalaBytecodeConstants.ObjectSingletonInstanceName)
   }
 
   def stableObjectEvaluator(obj: ScObject): Evaluator = {

@@ -4,57 +4,74 @@ package org.jetbrains.plugins.scala.util
  * Contains constants representing internal JVM representation of scala entities
  */
 object ScalaBytecodeConstants {
+
   /**
-   * In JVM, Scala package object {{{
-   *   package example
+   * The name of object singleton instance:<br>
+   * `public static final MyObject$ MODULE$ = new MyObject$();`
    *
-   *   package object inner {
-   *     def foo: String
+   * ===Details===
+   * When Scala compiles an object, it creates two JVM classes to represent it:
+   *  1. Class with suffix `$`, which holds all the original declarations.<br>
+   *     Inside this class it creates a static field named MODULE$ to hold the singleton instance of that object.
+   *  1. Class with static forwarders, which are needed to use the methods from java without referencing cryptic `MyObject$.MODULE$`
+   *
+   * ===Example===
+   * Scala Object:
+   * {{{
+   *   object MyObject {
+   *     def foo: String = null
    *   }
    * }}}
-   * will be represented by two special classes {{{
-   *  public final class package {
-   *      public static String foo() {
-   *          return package$.MODULE$.foo();
-   *      }
-   *  }
+   * Decompiled Java classes:
+   * {{{
+   *   public final class MyObject$ {
+   *       public static final MyObject$ MODULE$ = new MyObject$();
    *
-   *  public final class package$ {
-   *      public static final package$ MODULE$ = new package$();
-   *      public String foo() {
-   *          return "42";
-   *      }
-   *  }
+   *       private MyObject$() {}
+   *
+   *       public String foo() { return null; }
+   *   }
+   *
+   *   public final class MyObject {
+   *       public static String foo() {
+   *           return MyObject$.MODULE$.foo();
+   *       }
+   *   }
    * }}}
+   *
+   * @see [[scala.reflect.NameTransformer.MODULE_INSTANCE_NAME]]
+   */
+  @inline final val ObjectSingletonInstanceName = "MODULE$"
+
+  /**
+   * Package objects are represented as ordinary object with special name "package".<br>
+   * See [[ObjectSingletonInstanceName]] for the details
    */
   @inline final val PackageObjectClassName = "package"
+
+  /**
+   * Package objects are represented as ordinary object with special name "package".<br>
+   * See [[ObjectSingletonInstanceName]] for the details
+   */
   @inline final val PackageObjectClassPackageSuffix = ".package"
 
+  /**
+   * Package objects are represented as ordinary object with special name "package".<br>
+   * See [[ObjectSingletonInstanceName]] for the details
+   */
   @inline final val PackageObjectSingletonClassName = "package$"
+
+  /**
+   * Package objects are represented as ordinary object with special name "package".<br>
+   * See [[ObjectSingletonInstanceName]] for the details
+   */
   @inline final val PackageObjectSingletonClassPackageSuffix = ".package$"
 
   /**
-   * In Scala 3 top-level non-scala definitions are located in a synthetic class.
-   * If a file name is `definitions.scala` then there will be two classes generated: {{{
-   *   package org.example;
-   *
-   *   public final class definitions$package {
-   *       // Static forwarders, like:
-   *       public static String topLevelFoo() {
-   *           return definitions$package$.MODULE$.topLevelFoo();
-   *       }
-   *       ...
-   *   }
-   *
-   *   public final class definitions$package$ implements Serializable {
-   *       public static final definitions$package$ MODULE$ = new definitions$package$();
-   *       ...
-   *       public String topLevelFoo() {
-   *           return "23";
-   *       }
-   *       ...
-   *   }
-   * }}}
+   * In Scala 3 top-level non-scala definitions are added to a special synthetic scala object.
+   * The name of the object is `fileName + "$package"`.<br>
+   * In JVM the object is represented according to the common rules.<br>
+   * See [[ObjectSingletonInstanceName]] for the details
    */
   @inline final val TopLevelDefinitionsClassNameSuffix = "$package"
   @inline final val TopLevelDefinitionsSingletonClassNameSuffix = "$package$"

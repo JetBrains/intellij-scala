@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
-package typedef
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
@@ -18,13 +17,14 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.{LegacyPackageObjectNameInBackticks, moduleFieldName}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.LegacyPackageObjectNameInBackticks
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.ObjectSingletonInstanceName
 
 class ScObjectImpl(
   stub:      ScTemplateDefinitionStub[ScObject],
@@ -140,7 +140,7 @@ class ScObjectImpl(
     if (Option(getQualifiedName).forall(hasJavaKeywords))
       None
     else
-      Some(ScLightField(moduleFieldName, ScDesignatorType(this), this, PUBLIC, FINAL, STATIC))
+      Some(ScLightField(ObjectSingletonInstanceName, ScDesignatorType(this), this, PUBLIC, FINAL, STATIC))
   })
 
   override def psiFields: Array[PsiField] = {
@@ -149,7 +149,8 @@ class ScObjectImpl(
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     name match {
-      case `moduleFieldName` => getModuleField().orNull
+      case ObjectSingletonInstanceName =>
+        getModuleField().orNull
       case _ => null
     }
   }
@@ -184,8 +185,6 @@ class ScObjectImpl(
 }
 
 object ScObjectImpl {
-  private val moduleFieldName: String = "MODULE$"
-
   /**
    * Long time ago, prior to Scala 2.8, package objects were defined using this syntax: {{{
    *   package org.example
