@@ -479,4 +479,32 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
+  def testTypeLambda(): Unit = {
+    val fileContent =
+      s"""
+         |trait R
+         |type ${|}T = [X] =>> R
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">T</span> = [<span style="color:#20999d;">X</span>] =>> <span style="color:#000000;"><a href="psi_element://R"><code>R</code></a></span>
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testTypeLambda2(): Unit = {
+    val fileContent =
+      s"""
+         |type ${|}TL = [X] =>> [Y] =>> (X, Y)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">TL</span> = [<span style="color:#20999d;">X</span>] =>> [<span style="color:#20999d;">Y</span>] =>> (<span style="color:#20999d;">X</span>, <span style="color:#20999d;">Y</span>)
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }
