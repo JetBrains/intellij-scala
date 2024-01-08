@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionPlaces, AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
@@ -11,7 +11,8 @@ import com.intellij.openapi.project.{DumbService, IndexNotReadyException, Projec
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.annotations.{NonNls, TestOnly}
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -26,6 +27,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
+// "Evaluate Worksheet" shouldn't be present in context menu in project view always
 class RunWorksheetAction extends AnAction(
   WorksheetBundle.message("run.scala.worksheet.action.text"),
   WorksheetBundle.message("run.scala.worksheet.action.description"),
@@ -47,12 +49,17 @@ class RunWorksheetAction extends AnAction(
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
 
-    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts(RunWorksheetAction.ShortcutId)
+    val selectedFile = ScalaActionUtil.getFileFrom(e)
+    val isEnabledAndVisible = selectedFile.exists(_.is[WorksheetFile])
+    e.getPresentation.setEnabledAndVisible(isEnabledAndVisible)
 
-    if (shortcuts.nonEmpty) {
-      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
-      //noinspection ReferencePassedToNls
-      e.getPresentation.setText(genericText + shortcutText)
+    if (isEnabledAndVisible) {
+      val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts(RunWorksheetAction.ShortcutId)
+      if (shortcuts.nonEmpty) {
+        val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+        //noinspection ReferencePassedToNls
+        e.getPresentation.setText(genericText + shortcutText)
+      }
     }
   }
 }
