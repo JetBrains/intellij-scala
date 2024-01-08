@@ -1392,12 +1392,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doPasteTest(
       "42",
       s"""def foo = {
-        |  $START{
-        |    1
-        |    2
-        |    3
-        |  }$END
-        |}""".stripMargin,
+         |  $START{
+         |    1
+         |    2
+         |    3
+         |  }$END
+         |}""".stripMargin,
       """def foo = {
         |  42
         |}""".stripMargin
@@ -1408,12 +1408,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doPasteTest(
       "42",
       s"""def foo = {
-        |$START  {
-        |    1
-        |    2
-        |    3
-        |  }  $END
-        |}""".stripMargin,
+         |$START  {
+         |    1
+         |    2
+         |    3
+         |  }  $END
+         |}""".stripMargin,
       """def foo = {
         |  42
         |}""".stripMargin
@@ -1463,6 +1463,125 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |$Caret        println(2)
          |        println(3)
          |  }""".stripMargin.withNormalizedSeparator
+    )
+  }
+
+  def testPasteToTemplateDefinitionBody_WholeBody(): Unit = {
+    doPasteTest(
+      """1
+        |2
+        |3""".stripMargin,
+      s"""object Wrapper0:
+         |  $Start${Caret}val cond1 = true
+         |  if cond1 then
+         |    println(1)
+         |  else if !cond1 then
+         |    println(2)$End
+         |""".stripMargin,
+      s"""object Wrapper0:
+         |  1
+         |  2
+         |  3$Caret
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToTemplateDefinitionBody_InTheMiddle(): Unit = {
+    doPasteTest(
+      """1
+        |2
+        |3""".stripMargin,
+      s"""object Wrapper0:
+         |  println()
+         |
+         |  $Start${Caret}val cond1 = true
+         |  if cond1 then
+         |    println(1)
+         |  else if !cond1 then
+         |    println(2)$End
+         |
+         |  println()
+         |""".stripMargin,
+      s"""object Wrapper0:
+         |  println()
+         |
+         |  1
+         |  2
+         |  3$Caret
+         |
+         |  println()
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToFunctionBody_WholeBody(): Unit = {
+    doPasteTest(
+      """1
+        |2
+        |3""".stripMargin,
+      s"""def foo =
+         |  $Start${Caret}val cond1 = true
+         |  if cond1 then
+         |    println(1)
+         |  else if !cond1 then
+         |    println(2)$End
+         |""".stripMargin,
+      s"""def foo =
+         |  1
+         |  2
+         |  3$Caret
+         |""".stripMargin,
+    )
+  }
+
+
+  def testPasteToFunctionBody_WholeBody_SelectionEndIsAtWhitespace(): Unit = {
+    doPasteTest(
+      """1
+        |2
+        |3""".stripMargin,
+      s"""def foo =
+         |  $Start${Caret}val cond1 = true
+         |  if cond1 then
+         |    println(1)
+         |  else if !cond1 then
+         |    println(2)
+         |
+         |$End
+         |""".stripMargin,
+      s"""def foo =
+         |  1
+         |  2
+         |  3$Caret
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToFunctionBody_InTheMiddle(): Unit = {
+    doPasteTest(
+      """1
+        |2
+        |3""".stripMargin,
+      s"""def foo =
+         |  println()
+         |
+         |  $Start${Caret}val cond1 = true
+         |  if cond1 then
+         |    println(1)
+         |  else if !cond1 then
+         |    println(2)$End
+         |
+         |  println()
+         |""".stripMargin,
+      s"""def foo =
+         |  println()
+         |
+         |  1
+         |  2
+         |  3$Caret
+         |
+         |  println()
+         |""".stripMargin,
     )
   }
 }

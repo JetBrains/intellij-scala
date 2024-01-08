@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Caret, Document, Editor, RawText}
+import com.intellij.openapi.editor.{Caret, Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.apache.commons.lang3.StringUtils
@@ -39,26 +40,28 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return text
 
     val caret = editor.getCaretModel.getCurrentCaret
-    val elementAtCaret = getElementAtCaretOrCommonParentForSelection(file, editor.getDocument, caret)
-    if (elementAtCaret == null)
+    val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, editor.getSelectionModel.getSelectionStart)
+    val elementAtCaretOrCommonParent = getElementAtCaretOrCommonParentForSelection(elementAtCaret, file, caret)
+    if (elementAtCaretOrCommonParent == null)
       return text
-    if (isInsideStringLiteralOrComment(caret, elementAtCaret))
+    if (isInsideStringLiteralOrComment(caret, elementAtCaretOrCommonParent))
       return text
-
-    val codeStyleSettings = CodeStyle.getSettings(file)
-    val tabSize = codeStyleSettings.getTabSize(ScalaFileType.INSTANCE)
-    val useTabCharacter = codeStyleSettings.useTabCharacter(ScalaFileType.INSTANCE)
 
     val caretIndentWhitespace: String =
       calcIndentationString(elementAtCaret, caret.getSelectionStart) match {
         case Some(value) => value
         case None =>
+          //the element doesn't start from the new lines, stop processing
           return text
       }
 
-    val caretPosition = getCaretPosition(elementAtCaret)
+    val caretPosition = getCaretPosition(elementAtCaretOrCommonParent)
     if (caretPosition == CaretPosition.NotInTheBeginningOfNewLine)
       return text
+
+    val codeStyleSettings = CodeStyle.getSettings(file)
+    val tabSize = codeStyleSettings.getTabSize(ScalaFileType.INSTANCE)
+    val useTabCharacter = codeStyleSettings.useTabCharacter(ScalaFileType.INSTANCE)
 
     val targetCaretIndentSize: Int =
       getTargetCaretIndentSize(caretPosition, caretIndentWhitespace, tabSize, codeStyleSettings)
@@ -95,10 +98,9 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     textWithFixedIndent.stripPrefix(caretIndentWhitespace)
   }
 
-  private def getElementAtCaretOrCommonParentForSelection(file: PsiFile, document: Document, caret: Caret): PsiElement = {
+  private def getElementAtCaretOrCommonParentForSelection(startElement: PsiElement, file: PsiFile, caret: Caret): PsiElement = {
     val start = caret.getSelectionStart
     val end = caret.getSelectionEnd - 1
-    val startElement = findElementAtCaret_WithFixedEOF(file, document, start)
     if (end > start) {
       val endElement = file.findElementAt(end)
       if (startElement != null && endElement != null)
@@ -121,18 +123,21 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     object NotInTheBeginningOfNewLine extends CaretPosition
   }
 
-  private def getCaretPosition(elementAtCaret: PsiElement): CaretPosition = {
+  private def getCaretPosition(elementAtCaretOrCommonParent: PsiElement): CaretPosition = {
     //Handle the case when caret is unindented after an empty template body or function body:
     //class A:\n<caret>
     //def foo =\n<caret>
-    val prevElement = elementAtCaret.prevLeafNotWhitespaceComment
+    val prevElement = elementAtCaretOrCommonParent.prevLeafNotWhitespaceComment
     prevElement match {
       case Some(e: PsiErrorElement) if isIncompleteDefinitionError(e) =>
         return CaretPosition.AfterIncompleteDefinitionBody(e)
       case _ =>
     }
 
-    val parent = elementAtCaret.getParent
+    val parent = if (elementAtCaretOrCommonParent.is[LeafPsiElement])
+      elementAtCaretOrCommonParent.getParent
+    else
+      elementAtCaretOrCommonParent //if it's not a leaf element we already know that it's a common parent of selection
     parent match {
       case b: ScOptionalBracesOwner  =>
         if (b.isEnclosedByBraces)
