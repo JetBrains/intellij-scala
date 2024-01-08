@@ -16,12 +16,6 @@ import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 object ScalaActionUtil {
 
-  @deprecated("Use `event.getPresentation.setEnabledAndVisible(true)` instead")
-  @inline def enablePresentation(e: AnActionEvent): Unit = e.getPresentation.setEnabledAndVisible(true)
-
-  @deprecated("Use `event.getPresentation.setEnabledAndVisible(false)` instead")
-  @inline def disablePresentation(e: AnActionEvent): Unit = e.getPresentation.setEnabledAndVisible(false)
-
   def enableAndShowIfInScalaFile(e: AnActionEvent): Unit = {
     val isInScalaFile = getFileFrom(e).exists(_.is[ScalaFile])
     e.getPresentation.setEnabledAndVisible(isInScalaFile)
