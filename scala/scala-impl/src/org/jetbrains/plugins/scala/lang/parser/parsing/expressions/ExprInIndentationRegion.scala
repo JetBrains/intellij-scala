@@ -34,7 +34,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
       return exprParser()
     }
 
-    val prevIndent = builder.findPreviousIndentIgnoringComments
+    val prevIndent = builder.findPreviousIndent
     val indentationForExprBlock = prevIndent match {
       case Some(indent) => indent
       case None =>

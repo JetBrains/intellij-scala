@@ -54,6 +54,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def popIndentationWidth(): IndentationWidth
 
+  def findPreviousIndent: Option[IndentationWidth]
+
   /**
    * Instead of using this method consider using more specific error when possible
    */

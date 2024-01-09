@@ -135,36 +135,6 @@ package object parser {
       else None
     }
 
-    /**
-     * Return
-     *   - Some(Indent[2]) for `  <caret>foo`
-     *   - Some(Indent[2]) for `  /* comment */ <caret>foo`
-     *   - None for `def foo = <caret>bar`
-     */
-    def findPreviousIndentIgnoringComments: Option[IndentationWidth] =
-      consecutiveWhiteSpacesIgnoringComments(1)
-        .iterator
-        .flatMap { steps =>
-          val ws = repr.getOriginalText.subSequence(
-            repr.rawTokenTypeStart(-steps),
-            repr.rawTokenTypeStart(1 - steps)
-          ).toString
-
-          val lastIndex = ws.lastIndexOf('\n')
-          if (lastIndex < 0) None
-          else IndentationWidth(ws.substring(lastIndex + 1))
-        }
-        .nextOption()
-
-    def findPreviousIndent: Option[IndentationWidth] = {
-      findPreviousNewLine.flatMap {
-        ws =>
-          val lastNewLine = ws.lastIndexOf('\n')
-          if (lastNewLine < 0) None
-          else IndentationWidth(ws.substring(lastNewLine + 1))
-      }
-    }
-
     def withIndentationWidth[R](width: IndentationWidth)(body: => R): R = {
       repr.pushIndentationWidth(width)
       try body
@@ -183,20 +153,6 @@ package object parser {
     def insideBracedRegionIf[T](cond: Boolean)(body: => T): T =
       if (cond) insideBracedRegion(body)
       else body
-
-    @tailrec
-    private def consecutiveWhiteSpacesIgnoringComments(steps: Int, acc: Vector[Int] = Vector.empty): Seq[Int] =
-      repr.getCurrentOffset match {
-        case offset if steps < offset =>
-          repr.rawLookup(-steps) match {
-            case ws if lexer.ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(ws) =>
-              consecutiveWhiteSpacesIgnoringComments(steps + 1, acc :+ steps)
-            case c if lexer.ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(c) =>
-              consecutiveWhiteSpacesIgnoringComments(steps + 1, acc)
-            case _ => acc
-          }
-        case _ => acc
-      }
 
     /** Skip matching pairs of `(...)` or `[...]` parentheses.
      *

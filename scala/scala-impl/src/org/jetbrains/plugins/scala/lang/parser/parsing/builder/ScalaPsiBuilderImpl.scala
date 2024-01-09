@@ -4,10 +4,14 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
@@ -187,5 +191,51 @@ class ScalaPsiBuilderImpl(
     val top :: rest = indentationStack
     indentationStack = rest
     top
+  }
+
+  private val indentationCache = mutable.HashMap.empty[Int, Option[IndentationWidth]]
+
+  /**
+   * Return
+   *   - Some(Indent[2]) for `  <caret>foo`
+   *   - Some(Indent[2]) for `  /* comment */ <caret>foo`
+   *   - None for `def foo = <caret>bar`
+   */
+  def findPreviousIndent: Option[IndentationWidth] = {
+    val originalText = getOriginalText
+    @tailrec
+    def inner(step: Int, tokenEnd: Int, lastNonWsStart: Int): Option[IndentationWidth] = {
+      rawLookup(step) match {
+        case c if ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(c) =>
+          val commentStart = this.rawTokenTypeStart(step)
+          inner(step - 1, commentStart, commentStart)
+        case ws if ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(ws) =>
+          val wsStart = this.rawTokenTypeStart(step)
+          val wsText = originalText.subSequence(wsStart, tokenEnd)
+          lastNewLineOffset(wsText) match {
+            case Some(newlineOffset) =>
+              val indentWs = originalText.subSequence(wsStart + newlineOffset + 1, lastNonWsStart)
+              Some(new IndentationWidth(indentWs.toString))
+            case None =>
+              inner(step - 1, wsStart, lastNonWsStart)
+          }
+        case _ =>
+          None
+      }
+    }
+
+    val currentOffset = getCurrentOffset
+    indentationCache.getOrElseUpdate(currentOffset, inner(-1, currentOffset, currentOffset))
+  }
+
+  private def lastNewLineOffset(charSeq: CharSequence): Option[Int] = {
+    var i = charSeq.length - 1
+    while (i >= 0) {
+      charSeq.charAt(i) match {
+        case '\n' => return Some(i)
+        case _    => i -= 1
+      }
+    }
+    None
   }
 }
