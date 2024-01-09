@@ -1,10 +1,10 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
-import org.jetbrains.sbt.project.SbtProjectSystem
+import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
 final class SbtScalaNewProjectWizard extends BuildSystemScalaNewProjectWizard {
-  override def getName: String = SbtProjectSystem.Id.getReadableName
+  override def getName: String = NewProjectWizardConstants.BuildSystem.SBT
 
   override def createStep(parent: ScalaNewProjectWizardStep): SbtScalaNewProjectWizardStep =
     new SbtScalaNewProjectWizardStep(parent)
