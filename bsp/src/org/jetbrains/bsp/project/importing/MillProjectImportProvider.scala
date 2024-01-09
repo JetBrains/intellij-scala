@@ -41,10 +41,9 @@ object MillProjectImportProvider {
     val millFileOpt = getMillFile(workspace)
     val millCommand = millFileOpt match {
       case Some(file) if isMillFileBspCompatible(file, workspace) =>
-          val millFilePath = getMillFilePath(file)
-          Success(s"$millFilePath -i mill.bsp.BSP/install")
-      case Some(_) if isLegacyMill =>
-        Success("./mill -i mill.contrib.BSP/install")
+        Success(s"${file.getAbsolutePath} -i mill.bsp.BSP/install")
+      case Some(file) if isLegacyMill =>
+        Success(s"${file.getAbsolutePath} -i mill.contrib.BSP/install")
       case _ => Failure(new IllegalStateException("Unable to install BSP as this is not a Mill project"))
     }
     val work = millCommand.flatMap(executeMillCommand)
@@ -71,11 +70,6 @@ object MillProjectImportProvider {
     finishMillInstallTask(errorMsg, eventResult, buildMessages)
   }
 
-  //the absolute path for bat file is needed to executed correctly on Windows
-  private def getMillFilePath(millFile: File): String =
-    if (SystemInfo.isWindows) millFile.getAbsolutePath
-    else "./mill"
-
   private def getMillFile(workspace: File): Option[File] =
     if (SystemInfo.isWindows) findFileByName(workspace, "mill.bat")
     else findFileByName(workspace, "mill")
@@ -86,7 +80,7 @@ object MillProjectImportProvider {
     Process(versionCommand, workspace) ! ProcessLogger(stdout append _ + "\n", _ => ())
 
     stdout.toString()
-      .split("\n")
+      .linesIterator
       .exists { line =>
         line.contains("Mill Build Tool version") && !line.matches(versionPattern)
       }
@@ -97,6 +91,9 @@ object MillProjectImportProvider {
     fileOpt.exists(isMillFileBspCompatible(_, workspace))
   }
 
+  /**
+   This method checks whether the Mill version is not a legacy (it is higher that  0.8.0).
+   */
   private def isMillFileBspCompatible(millFile: File, workspace: File): Boolean = {
     if (SystemInfo.isWindows) {
       checkMillVersionWithBatFile(millFile, workspace)
