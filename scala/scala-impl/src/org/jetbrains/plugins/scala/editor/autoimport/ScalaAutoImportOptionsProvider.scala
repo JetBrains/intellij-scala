@@ -12,10 +12,10 @@ import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.dsl.builder._
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.editor.autoimport.KotlinDslWrappers._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.project.NonNullableValueBasedListRenderer
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers._
 
 import java.util
 import javax.swing.JLabel

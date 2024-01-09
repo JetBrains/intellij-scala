@@ -20,8 +20,10 @@ import com.intellij.ui.dsl.builder._
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ValidationInfoBuilder
 import kotlin.Unit.{INSTANCE => KUnit}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.project.Versions
+import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.{ComboBoxKt_Wrapper, JdkComboBoxKt_Interop}
 import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizardStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
@@ -32,21 +34,31 @@ import scala.annotation.nowarn
 //noinspection ApiStatus,UnstableApiUsage
 final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends AbstractNewProjectWizardStep(parent)
-    with SbtModuleStepLike  {
+    with SbtScalaNewProjectWizardData
+    with ScalaGitNewProjectWizardData
+    with ScalaSampleCodeNewProjectWizardData
+    with SbtModuleStepLike {
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
   private var sdkComboBox: Cell[JdkComboBox] = _
   private val sdkProperty: GraphProperty[Sdk] = propertyGraph.property(null)
   private val moduleNameProperty: GraphProperty[String] = propertyGraph.lazyProperty(() => parent.getName)
+
   private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
+  @TestOnly override private[project] def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
   private val gitProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(gitProperty, "NewProjectWizard.gitState")
+  @TestOnly override private[project] def setGit(value: java.lang.Boolean): Unit = gitProperty.set(value)
   private def isGitRepository: Boolean =
     Option(GitRepositoryInitializer.getInstance()).isDefined && gitProperty.get()
+
+  @TestOnly override private[project] def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
+  @TestOnly override private[project] def setSbtVersion(version: String): Unit = sbtVersionComboBox.setSelectedItemEnsuring(version)
+  @TestOnly override private[project] def setPackagePrefix(prefix: String): Unit = packagePrefixTextField.setText(prefix)
 
   def getSdk: Sdk = sdkProperty.get()
   def getModuleName: String = moduleNameProperty.get()
@@ -58,9 +70,12 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   override protected lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
   override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
 
-
   locally {
     moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
+
+    getData.putUserData(SbtScalaNewProjectWizardData.KEY, this)
+    getData.putUserData(ScalaGitNewProjectWizardData.KEY, this)
+    getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)
   }
 
   override def setupProject(project: Project): Unit = {
@@ -87,8 +102,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
     builder.commit(project)
   }
-
-
 
   override def setupUI(panel: Panel): Unit = {
     panel.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
@@ -172,4 +185,3 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
   }
 }
-

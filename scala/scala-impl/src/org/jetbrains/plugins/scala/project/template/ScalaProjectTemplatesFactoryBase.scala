@@ -10,10 +10,8 @@ abstract class ScalaProjectTemplatesFactoryBase extends ProjectTemplatesFactory 
   override def getGroupIcon(group: String): Icon = Icons.SCALA_SMALL_LOGO
 
   override final def getGroups: Array[String] = {
-    //Do not show "Scala group if NPW is enabled
-    if (isNewWizardEnabled)
-      Array.empty
-    else
-      Array(ScalaProjectTemplatesFactory.Group)
+    // Do not show "Scala" group if NPW is enabled
+    // Fallback to the "old" NPW is no longer available
+    Array.empty
   }
 }

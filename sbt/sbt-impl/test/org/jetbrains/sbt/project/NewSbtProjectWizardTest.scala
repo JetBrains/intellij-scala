@@ -1,24 +1,27 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.ide.projectWizard.ProjectSettingsStep
+import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.project.Project
+import com.intellij.testFramework.FixtureRuleKt.useProject
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.ProjectStructureDsl._
-import org.jetbrains.sbt.project.template.SbtModuleBuilder
+import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
+import org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizardData.scalaSbtData
+import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaGitNewProjectWizardData.scalaGitData
+import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaSampleCodeNewProjectWizardData.scalaSampleCodeData
 
+// TODO:
+//  - test .gitignore creation
+//  - check added sample code
+//  - test with IntelliJ build system as well
 class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-    configureJdk()
-  }
 
   def testCreateProjectWithLowerCaseName(): Unit =
     runSimpleCreateSbtProjectTest("lowe_case_project_name")
 
   def testCreateProjectWithUpperCaseName(): Unit =
     runSimpleCreateSbtProjectTest("UpperCaseProjectName", packagePrefixOpt = Some("org.example.prefix"))
-  
+
   //SCL-12528, SCL-12528
   def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
     runSimpleCreateSbtProjectTest("project.name.with.dots spaces and-dashes and UPPERCASE")
@@ -50,7 +53,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       )
 
       packagePrefixOpt.foreach { prefix =>
-       packagePrefix := prefix
+        packagePrefix := prefix
       }
     }
 
@@ -70,18 +73,19 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
   )(
     expectedProject: project
   ): Unit = {
-    val project: Project = createScalaProject(
-      SbtProjectSystem.Id.getReadableName,
-      projectName
-    ) {
-      case projectSettingsStep: ProjectSettingsStep =>
-        val settingsStep = projectSettingsStep.getSettingsStepTyped[SbtModuleBuilder.Step]
-        settingsStep.setScalaVersion(scalaVersion)
-        settingsStep.setSbtVersion(sbtVersion)
-        settingsStep.setPackagePrefix(packagePrefix.getOrElse(""))
-      case _ =>
+    val project = createScalaProject(NewProjectWizardConstants.Language.SCALA, projectName) { step =>
+      scalaBuildSystemData(step).setBuildSystem(NewProjectWizardConstants.BuildSystem.SBT)
+
+      val sbtData = scalaSbtData(step)
+      sbtData.setScalaVersion(scalaVersion)
+      sbtData.setSbtVersion(sbtVersion)
+      sbtData.setPackagePrefix(packagePrefix.getOrElse(""))
+
+      // TODO: test different values
+      scalaSampleCodeData(step).setAddSampleCode(false)
+      scalaGitData(step).setGit(false)
     }
 
-    assertProjectsEqual(expectedProject, project)
+    useProject(project, false, assertProjectsEqual(expectedProject, _: Project))
   }
 }
