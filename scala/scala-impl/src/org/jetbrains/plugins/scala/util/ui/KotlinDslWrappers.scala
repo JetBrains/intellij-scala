@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.editor.autoimport
+package org.jetbrains.plugins.scala.util.ui
 
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.dsl.builder._
@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nls
 import java.lang
 import javax.swing.{AbstractButton, JLabel}
 
-// TODO: move to more appropriate place
 object KotlinDslWrappers {
 
   def mutableProperty[T](getter: => T)(setter: T => Unit): MutableProperty[T] = new MutableProperty[T] {

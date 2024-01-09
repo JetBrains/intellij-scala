@@ -4,7 +4,7 @@ import com.intellij.openapi.options.{BoundConfigurable, SearchableConfigurable}
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.dsl.builder.BuilderKt
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.editor.autoimport.KotlinDslWrappers._
+import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers._
 
 final class ScalaEditorSmartKeysConfigurable extends BoundConfigurable(
   //noinspection ScalaExtractStringToBundle
