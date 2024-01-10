@@ -5,24 +5,16 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.Disposer
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.testFramework.VfsTestUtil
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertFalse, assertTrue}
-import org.junit.runner.RunWith
 
 import scala.concurrent.TimeoutException
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1,
-  TestScalaVersion.Scala_3_2,
-  TestScalaVersion.Scala_3_3,
-  TestScalaVersion.Scala_3_Latest_RC
-))
 class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def setUp(): Unit = {
     super.setUp()
