@@ -40,6 +40,8 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
 
+        <externalWorkspaceDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataWorkspaceDataService"/>
+
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
         <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider"/>

@@ -1,11 +1,15 @@
 package org.jetbrains.sbt
 
+import com.intellij.entities.SbtModuleWSMEntity
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.platform.backend.workspace.WorkspaceModel
+import com.intellij.platform.workspace.jps.entities.{ModuleEntity, ModuleId}
+import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
@@ -24,7 +28,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.jdk.CollectionConverters.{IteratorHasAsScala, MapHasAsScala}
 import scala.util.Using
 
 object SbtUtil {
@@ -189,6 +193,18 @@ object SbtUtil {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
     getSbtModuleData(project, moduleId)
+  }
+
+  def getSbtModuleWSMEntity(module: Module): Option[SbtModuleWSMEntity] = {
+    val project = module.getProject
+    val storage = WorkspaceModel.getInstance(project).getCurrentSnapshot
+    val moduleEntityOpt = storage.resolveOpt(new ModuleId(module.getName))
+    moduleEntityOpt.flatMap(findSbtModuleWSMEntityForModuleEntity(_, storage))
+  }
+
+  def findSbtModuleWSMEntityForModuleEntity(moduleEntity: ModuleEntity, storage: EntityStorage): Option[SbtModuleWSMEntity] = {
+    val entities = storage.entities(classOf[SbtModuleWSMEntity]).iterator().asScala.toList
+    entities.find(_.getModule == moduleEntity)
   }
 
   def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
@@ -369,5 +385,9 @@ object SbtUtil {
    */
   def appendSuffixToModuleName(moduleName: String, inc: Int): String =
     moduleName + "~" + inc
+
+  implicit class EntityStorageOps(storage: EntityStorage) {
+    def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))
+  }
 
 }

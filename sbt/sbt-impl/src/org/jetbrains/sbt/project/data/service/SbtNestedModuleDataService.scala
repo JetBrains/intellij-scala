@@ -17,6 +17,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.data.findModuleForParentOfDataNode
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -94,13 +95,11 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
     dataNode: DataNode[SbtNestedModuleData],
     modelsProvider: IdeModifiableModelsProvider
   ): Option[String] = {
-    val sbtNestedModuleData = dataNode.getData
-    val parentModuleOpt = Option(dataNode.getParent).flatMap { parent =>
-      Option(parent.getUserData(AbstractModuleDataService.MODULE_KEY))
-    }
+    val parentModuleOpt = findModuleForParentOfDataNode(dataNode)
 
     parentModuleOpt.flatMap { parentModule =>
       val parentModuleActualName = modelsProvider.getModifiableModuleModel.getActualName(parentModule)
+      val sbtNestedModuleData = dataNode.getData
       val internalModuleName = sbtNestedModuleData.getInternalName
       if (!internalModuleName.startsWith(parentModuleActualName)) {
         val moduleName = sbtNestedModuleData.getModuleName

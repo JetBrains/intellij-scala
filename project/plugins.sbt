@@ -10,6 +10,9 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
 // See ../README.md for some examples of how to generate reports locally.
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.0.9")
 
+externalResolvers += "Scala Plugin Dependencies" at "https://packages.jetbrains.team/maven/p/scl/scala-plugin-deps"
+addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.0.1")
+
 libraryDependencies ++= Seq(
   "io.get-coursier" %% "coursier" % "2.1.6",
   "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.6"

@@ -10,6 +10,9 @@ import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSetting
 
 import java.util
 
+// empty data services exist to support proper serialization
+
+// TODO SbtModuleDataService should be removed when https://youtrack.jetbrains.com/issue/IDEA-342635 is done
 class SbtModuleDataService extends DefaultDataService[SbtModuleData, Module](SbtModuleData.Key)
 
 class SbtTaskDataService extends DefaultDataService[SbtTaskData, Module](SbtTaskData.Key)

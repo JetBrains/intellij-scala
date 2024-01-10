@@ -1,3 +1,5 @@
+import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
+import kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
 import sbt.Keys.*
@@ -224,5 +226,20 @@ object Common {
     IO.copyFile(f, tmpFile)
     replaceInFile(tmpFile, "VERSION", pluginVersion)
     tmpFile
+  }
+
+  def newProjectWithKotlin(projectName: String, base: Option[String] = None): Project = {
+    val project = base match {
+      case Some(value) => newProject(projectName, file(value))
+      case _ => newProject(projectName)
+    }
+    project
+      .enablePlugins(KotlinPlugin)
+      .settings(
+        // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
+        kotlinVersion := "1.9.21",
+        kotlincJvmTarget := "17",
+        kotlinRuntimeProvided := true
+      )
   }
 }
