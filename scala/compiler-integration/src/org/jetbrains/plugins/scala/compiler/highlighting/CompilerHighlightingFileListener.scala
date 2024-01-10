@@ -21,9 +21,8 @@ private final class CompilerHighlightingFileListener(project: Project) extends A
       return null
     }
 
-    val deletedFiles = events.asScala.collect {
-      case event: VFileDeleteEvent if isInSourceContent(event) => event.getFile
-    }.toSeq
+    val files = events.asScala.collect { case event: VFileDeleteEvent => event.getFile }.toSeq
+    val deletedFiles = inReadAction { files.filter(fileIndex.isInSourceContent) }
 
     if (deletedFiles.isEmpty) {
       // No removed files. Nothing to do.
@@ -42,7 +41,4 @@ private final class CompilerHighlightingFileListener(project: Project) extends A
       }
     }
   }
-
-  private def isInSourceContent(event: VFileDeleteEvent): Boolean =
-    inReadAction(fileIndex.isInSourceContent(event.getFile))
 }
