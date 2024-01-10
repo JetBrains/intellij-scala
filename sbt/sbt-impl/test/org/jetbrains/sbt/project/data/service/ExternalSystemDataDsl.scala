@@ -163,6 +163,33 @@ object ExternalSystemDataDsl {
     override val typeId: String = StdModuleTypes.JAVA.getId
   }
 
+  class sbtNestedModule extends module {
+    override val typeId: String = StdModuleTypes.JAVA.getId
+
+    private val attributes = new AttributeMap
+    override def build: Node[_ <: ModuleData] = {
+      val node = new NestedModuleNode(
+        typeId,
+        attributes.getOrFail(projectId),
+        attributes.getOrFail(name),
+        attributes.getOrFail(moduleFileDirectoryPath),
+        attributes.getOrFail(externalConfigPath)
+      )
+      attributes.get(libraries).foreach { libs =>
+        libs.map(_.build).foreach { libNode =>
+          node.add(libNode)
+          node.add(new LibraryDependencyNode(node, libNode, LibraryLevel.MODULE))
+        }
+      }
+      attributes.get(arbitraryNodes).foreach(node.addAll)
+      node
+    }
+    override protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
+      new AttributeDef(attribute, attributes)
+    override protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+      new AttributeSeqDef(attribute, attributes)
+  }
+
   class library {
     def build: LibraryNode = {
       val node = new LibraryNode(attributes.getOrFail(name), true)
