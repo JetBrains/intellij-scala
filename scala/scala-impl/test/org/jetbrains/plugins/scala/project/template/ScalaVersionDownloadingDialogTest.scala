@@ -4,14 +4,13 @@ import junit.framework.TestCase
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.ScalaVersionResolveResult
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
+import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
 
 class ScalaVersionDownloadingDialogTest extends TestCase {
 
-  private val dependencyManager = new DependencyManagerBase {}
   def testScala2VersionResolveResultJars(): Unit = {
     val scalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "0")
-    val scalaVersionResult = ScalaVersionDownloadingDialog.createScalaVersionResolveResult(scalaVersion, dependencyManager)
+    val scalaVersionResult = ScalaVersionDownloadingDialog.createScalaVersionResolveResult(scalaVersion, DependencyManager)
     val expectedCompilerJars = Seq(
       "scala-compiler-2.11.0.jar",
       "scala-library-2.11.0.jar",
@@ -22,12 +21,12 @@ class ScalaVersionDownloadingDialogTest extends TestCase {
     val expectedSourcesJars = Seq(
       "scala-library-2.11.0-sources.jar",
     )
-    checkWhetherJarNamesAreEqual(scalaVersionResult, expectedCompilerJars, expectedSourcesJars)
+    assertJarNamesEqual(expectedCompilerJars, expectedSourcesJars, scalaVersionResult)
   }
 
   def testScala3VersionResolveResultJars(): Unit = {
     val scalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0")
-    val scalaVersionResult = ScalaVersionDownloadingDialog.createScalaVersionResolveResult(scalaVersion, dependencyManager)
+    val scalaVersionResult = ScalaVersionDownloadingDialog.createScalaVersionResolveResult(scalaVersion, DependencyManager)
     val expectedCompilerJars = Seq(
       "scala3-library_3-3.0.0.jar",
       "scala-library-2.13.5.jar",
@@ -47,10 +46,10 @@ class ScalaVersionDownloadingDialogTest extends TestCase {
       "scala3-library_3-3.0.0-sources.jar",
       "scala-library-2.13.5-sources.jar",
     )
-    checkWhetherJarNamesAreEqual(scalaVersionResult, expectedCompilerJars, expectedSourcesJars)
+    assertJarNamesEqual(expectedCompilerJars, expectedSourcesJars, scalaVersionResult)
   }
 
-  private def checkWhetherJarNamesAreEqual(scalaVersionResult: ScalaVersionResolveResult, expectedCompilerJars: Seq[String], expectedSourcesJars: Seq[String]): Unit = {
+  private def assertJarNamesEqual(expectedCompilerJars: Seq[String], expectedSourcesJars: Seq[String], scalaVersionResult: ScalaVersionResolveResult): Unit = {
     val actualCompilerJars = scalaVersionResult.compilerClassPathJars.map(_.getName).sorted
     val actualSourcesJars = scalaVersionResult.librarySourcesJars.map(_.getName).sorted
     assertCollectionEquals("Downloaded compiler jars names are not equal", expectedCompilerJars.sorted, actualCompilerJars)
