@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, Ru
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
 
+import scala.concurrent.TimeoutException
+
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
@@ -48,9 +50,7 @@ class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
     val wolf = WolfTheProblemSolver.getInstance(getProject)
 
     // Wait until the errors have been reported to the Wolf. Unfortunately, this is done asynchronously.
-    while (!wolf.isProblemFile(badFile)) {
-      Thread.sleep(1_000L)
-    }
+    retryUntilSuccess { wolf.isProblemFile(badFile) }
 
     assertTrue(wolf.isProblemFile(badFile))
     assertFalse(wolf.isProblemFile(okFile))
@@ -59,10 +59,19 @@ class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
     VfsTestUtil.deleteFile(badFile)
 
     // Reporting errors to the Wolf (and clearing them) is done asynchronously.
-    while (wolf.isProblemFile(badFile)) {
-      Thread.sleep(1_000L)
-    }
+    retryUntilSuccess { !wolf.isProblemFile(badFile) }
     assertFalse(wolf.isProblemFile(badFile))
     assertFalse(wolf.isProblemFile(okFile))
+  }
+
+  private def retryUntilSuccess(action: => Boolean): Unit = {
+    var retries = 30
+    while (retries > 0) {
+      if (action) return
+      Thread.sleep(1_000L)
+      retries -= 1
+    }
+
+    throw new TimeoutException("Latest problem state has not been propagated to WolfTheProblemSolver")
   }
 }
