@@ -3,12 +3,12 @@ package org.jetbrains.jps.incremental.scala.remote
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
-import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
-import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
+import org.jetbrains.jps.incremental.scala.{BuildParameters, Client}
+import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent.BuilderId
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.File
@@ -29,6 +29,7 @@ private object Jps {
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
+    buildRunner.setBuilderParams(Map(BuildParameters.BuildTriggeredByCBH -> true.toString).asJava)
     var compiledFiles = Set.empty[File]
     val messageHandler = new MessageHandler {
       override def processMessage(msg: BuildMessage): Unit = msg match {
