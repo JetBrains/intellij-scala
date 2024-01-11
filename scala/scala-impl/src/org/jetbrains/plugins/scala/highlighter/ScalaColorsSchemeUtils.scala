@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefiniti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType}
 
 object ScalaColorsSchemeUtils {
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
@@ -76,8 +76,8 @@ object ScalaColorsSchemeUtils {
       case _: ScTrait                                                                    => DefaultHighlighter.TRAIT
       case c: PsiClass if c.isInterface                                                  => DefaultHighlighter.TRAIT
       case c: PsiClass if hasModifier(c, "abstract")                            => DefaultHighlighter.ABSTRACT_CLASS
-      case _: PsiClass if refElement.exists(_.is[ScStableCodeReference])                 => DefaultHighlighter.CLASS
       case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                 => DefaultHighlighter.OBJECT
+      case _: PsiClass if refElement.isEmpty || refElement.exists(_.is[ScStableCodeReference]) => DefaultHighlighter.CLASS
       case p: ScBindingPattern                                                           => attributesKey(p)
       case f: PsiField if !hasModifier(f, "final")                              => DefaultHighlighter.VARIABLES
       case _: PsiField                                                                   => DefaultHighlighter.VALUES

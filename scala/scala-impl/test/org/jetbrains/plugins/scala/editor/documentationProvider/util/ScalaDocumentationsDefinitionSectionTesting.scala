@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.util
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
+import com.intellij.openapi.editor.colors.impl.EmptyColorScheme
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocCss
 import org.jetbrains.plugins.scala.editor.documentationProvider.base.DocumentationProviderTestBase
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.junit.Assert._
 
 trait ScalaDocumentationsSectionsTestingBase {
