@@ -507,4 +507,80 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  def testUnionType(): Unit = {
+    val fileContent =
+      s"""
+         |type UserName = String
+         |type Password = Array[Char]
+         |
+         |def ${|}nameOrPwd(whichOne: Boolean): UserName | Password = ???
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">nameOrPwd</span>(
+         |whichOne: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |): <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span> <span style="color:#20999d;">|</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testProductType(): Unit = {
+    val fileContent =
+      s"""
+         |type UserName = String
+         |type Password = Array[Char]
+         |
+         |type ${|}NameAndPwd = UserName & Password
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">NameAndPwd</span> =
+         | <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span>
+         | <span style="color:#20999d;">&</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testDependentFunctionType(): Unit = {
+    val fileContent =
+      s"""
+         |trait Entry { type Key; val key: Key }
+         |
+         |def ${|}extractKey(e: Entry): e.Key = e.key
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">extractKey</span>(
+         |e: <span style="color:#000000;"><a href="psi_element://Entry"><code>Entry</code></a></span>
+         |): e.<span style="color:#20999d;"><a href="psi_element://Entry.Key"><code>Key</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testJavaType(): Unit = {
+    val fileContent =
+      s"""
+         |import java.util.ArrayList
+         |
+         |val ${|}all = new ArrayList[String]
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">val</span>
+         | <span style="color:#660e7a;font-style:italic;">all</span>:
+         | <span style="color:#000000;"><a href="psi_element://java.util.ArrayList"><code>ArrayList</code></a></span>[
+         |<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |]
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }
