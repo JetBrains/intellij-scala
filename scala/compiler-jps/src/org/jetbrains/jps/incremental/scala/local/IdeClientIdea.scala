@@ -1,21 +1,21 @@
-package org.jetbrains.jps.incremental.scala
-package local
+package org.jetbrains.jps.incremental.scala.local
 
-import java.io.{File, IOException}
-import java.util.Collections
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.JpsBundle
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
-import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.PackageObjectSingletonClassName
 
-import scala.jdk.CollectionConverters._
+import java.io.{File, IOException}
+import java.util.Collections
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 class IdeClientIdea(compilerName: String,
                     context: CompileContext,
@@ -101,7 +101,7 @@ class IdeClientIdea(compilerName: String,
   }
 
   private def handlePackageObject(source: File, outputFile: File, reader: ClassReader): Any = {
-    if (outputFile.getName == s"$packageObjectClassName.class") {
+    if (outputFile.getName == s"${PackageObjectSingletonClassName}.class") {
       packageObjectsBaseClasses ++= collectPackageObjectBaseClasses(source, reader)
     }
   }
@@ -113,7 +113,7 @@ class IdeClientIdea(compilerName: String,
       interfaces ++ superClass
     }
     val className = reader.getClassName
-    val packageName = className.stripSuffix(packageObjectClassName).replace("/", ".")
+    val packageName = className.stripSuffix(PackageObjectSingletonClassName).replace("/", ".")
     for {
       typeName <- baseTypes.map(_.replace('/', '.'))
       packObjectBaseClass = PackageObjectBaseClass(source, packageName, typeName)

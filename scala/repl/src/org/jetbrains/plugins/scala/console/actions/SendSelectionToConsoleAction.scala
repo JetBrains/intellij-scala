@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.console.actions
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole, ScalaReplBundle}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -17,54 +18,20 @@ class SendSelectionToConsoleAction extends AnAction(
 ) {
 
   override def update(e: AnActionEvent): Unit = {
-    val presentation = e.getPresentation
-    def enable(): Unit = {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
+    val isVisibleAndEnabled = (for {
+      scalaFile <- ScalaActionUtil.getFileFrom(e).filterByType[ScalaFile]
 
-    def disable(): Unit = {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
+      editor <- Option(CommonDataKeys.EDITOR.getData(e.getDataContext))
+      if editor.getSelectionModel.hasSelection
 
-    try {
-      val context = e.getDataContext
-      val file = CommonDataKeys.PSI_FILE.getData(context)
-      if (file == null) {
-        disable()
-        return
-      }
-      val editor = CommonDataKeys.EDITOR.getData(context)
-      val hasSelection = editor.getSelectionModel.hasSelection
-      val console = ScalaConsoleInfo.getConsole(file.getProject)
+      console <- Option(ScalaConsoleInfo.getConsole(scalaFile.getProject))
+      if !console.getConsoleEditor.isDisposed
 
-      if (!hasSelection || console == null) {
-        disable()
-        return
-      }
-
-      val consoleEditor = console.getConsoleEditor
-      if (consoleEditor == null || consoleEditor.isDisposed) {
-        disable()
-        return
-      }
-
-      val processHandler = ScalaConsoleInfo.getProcessHandler(file.getProject)
-      if (processHandler == null || processHandler.isProcessTerminated) {
-        disable()
-        return
-      }
-
-      file match {
-        case _: ScalaFile => enable()
-        case _ => disable()
-      }
-    }
-    catch {
-      case c: ControlFlowException => throw c
-      case _: Exception => disable()
-    }
+      processHandler <- Option(ScalaConsoleInfo.getProcessHandler(scalaFile.getProject))
+      if !processHandler.isProcessTerminated
+    } yield true).isDefined
+    
+    e.getPresentation.setEnabledAndVisible(isVisibleAndEnabled)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

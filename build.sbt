@@ -290,6 +290,7 @@ lazy val repl = newProject("repl", file("scala/repl"))
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
+  .dependsOn(scalaLanguageUtilsRt)
   .settings(
     name := "tasty-reader",
     organization := "JetBrains",
@@ -364,7 +365,10 @@ lazy val scalaImpl: sbt.Project =
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
 
-//Same as scalaLanguageUtils, but utilities from this module can be used form both IntelliJ IDEA process and JPS process
+/**
+ * Same as [[scalaLanguageUtils]], but utilities from this module can be used form both IntelliJ IDEA process and JPS process.
+ * Keep this module as small as possible with no other dependencies
+ */
 lazy val scalaLanguageUtilsRt: sbt.Project =
   newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
     .settings(

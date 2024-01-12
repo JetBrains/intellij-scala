@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.TopLevelMembers.topLevelMemberClassName
 
 import scala.annotation.tailrec
@@ -204,7 +205,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def stableObjectEvaluator(qual: String): ScalaFieldEvaluator = {
     val jvm = JVMNameUtil.getJVMRawText(qual)
-    ScalaFieldEvaluator(new TypeEvaluator(jvm), "MODULE$")
+    ScalaFieldEvaluator(new TypeEvaluator(jvm), ScalaBytecodeConstants.ObjectSingletonInstanceName)
   }
 
   def stableObjectEvaluator(obj: ScObject): Evaluator = {
@@ -860,8 +861,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         javaFieldEvaluator(field, ref)
       case pack: ScPackage =>
         //let's try to find package object:
-        val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.encode).mkString(".")
-        stableObjectEvaluator(qual)
+        val fqn = s"${pack.getQualifiedName}${ScalaBytecodeConstants.PackageObjectSingletonClassPackageSuffix}"
+        val fqnEncoded = fqn.split('.').map(NameTransformer.encode).mkString(".")
+        stableObjectEvaluator(fqnEncoded)
       case _ =>
         //unresolved symbol => try to resolve it dynamically
         val name = NameTransformer.encode(ref.refName)

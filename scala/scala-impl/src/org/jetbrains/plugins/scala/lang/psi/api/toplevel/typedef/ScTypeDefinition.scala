@@ -40,7 +40,25 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   def methodsByName(name: String): Iterator[PhysicalMethodSignature]
 
-  def isPackageObject = false
+  def isPackageObject: Boolean = false
+
+  /**
+   * @return true for package objects defined using `package object` keywords combination: {{{
+   *         package example
+   *         package object inner {}
+   * }}}
+   * @see [[isPackageObjectLegacy]]
+   */
+  def isPackageObjectNonLegacy: Boolean = false
+
+  /**
+   * @return true for package objects defined in prior-Scala 2.9 style: {{{
+   *         package example.inner
+   *         object `package` {}
+   *  }}}
+   * @see [[isPackageObjectNonLegacy]]
+   */
+  def isPackageObjectLegacy: Boolean = false
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTypeDefinition(this)

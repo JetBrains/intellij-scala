@@ -41,8 +41,6 @@ class PackageObjectsData extends Serializable {
 
 object PackageObjectsData {
 
-  val packageObjectClassName: String = "package$"
-
   private val fileName = "packageObjects.dat"
 
   private val instances = mutable.HashMap[File, PackageObjectsData]()

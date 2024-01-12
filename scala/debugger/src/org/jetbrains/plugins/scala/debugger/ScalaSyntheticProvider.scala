@@ -5,6 +5,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.isAnonfunType
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 import org.jetbrains.plugins.scala.util.TopLevelMembers.isSyntheticClassForTopLevelMembers
 
 import java.util.concurrent.ConcurrentMap
@@ -166,11 +167,11 @@ object ScalaSyntheticProvider {
       case ct: ClassType =>
         val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
-        val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith("$class"))
+        val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith(TraitImplementationClassSuffix_211))
         for {
           interface <- interfaces
           traitImpl <- allTraitImpls
-          if traitImpl.name().stripSuffix("$class") == interface.name() && !traitImpl.methodsByName(m.name).isEmpty
+          if traitImpl.name().stripSuffix(TraitImplementationClassSuffix_211) == interface.name() && !traitImpl.methodsByName(m.name).isEmpty
         } {
           return true
         }

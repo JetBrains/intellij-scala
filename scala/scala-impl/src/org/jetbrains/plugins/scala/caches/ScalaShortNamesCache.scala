@@ -7,6 +7,7 @@ import com.intellij.util.{ArrayUtil, Processor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -44,7 +45,7 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
           c.fakeCompanionModule.foreach(res.+=)
         case _ =>
       }
-    } else if (name.endsWith("$class")) {
+    } else if (name.endsWith(TraitImplementationClassSuffix_211)) {
       val nameWithoutDollar = name.substring(0, name.length() - 6)
       val classes = cacheManager.getClassesByName(nameWithoutDollar, scope)
 

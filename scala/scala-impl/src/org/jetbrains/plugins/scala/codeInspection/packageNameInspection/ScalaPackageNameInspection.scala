@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.jdk.CollectionConverters._
@@ -71,6 +72,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         val possiblePackageQualifiers = members
           .map {
+            case po: ScTypeDefinition if po.isPackageObjectLegacy => ScObjectImpl.stripLegacyPackageObjectSuffixWithDot(po.qualifiedName)
             case po: ScTypeDefinition if po.isPackageObject => po.qualifiedName
             case td => td.topLevelQualifier.getOrElse("")
           }
@@ -87,7 +89,11 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
           var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packageQualifier, packageNameByDir)
 
           // Specifically make sure that the file path doesn't repeat an existing package prefix (twice).
-          for (packagePrefix <- packagePrefix; sourceFolder <- sourceFolder if (packageNameByDir + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
+          for {
+            packagePrefix <- packagePrefix
+            sourceFolder <- sourceFolder
+            if (packageNameByDir + ".").startsWith(packagePrefix + "." + packagePrefix + ".")
+          } {
             message += "\n\n" + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
           }
 
@@ -118,9 +124,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
    */
   private def packageNameFromFile(file: PsiDirectory, packagePrefix: Option[String]): Option[String] = {
     val vFile = file.getVirtualFile
+    val suitableDestinationSourceRoots = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala
     // If there are nested source roots, prefer inner, SCL-20397
     // TODO There's no need to iterate over source roots of other modules
-    val withoutPrefix = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.sortBy(_.getPath.length).reverseIterator
+    val withoutPrefix = suitableDestinationSourceRoots.sortBy(_.getPath.length).reverseIterator
       .flatMap { root =>
         if (VfsUtilCore.isAncestor(root, vFile, false)) {
           FileUtil.getRelativePath(root.getPath, vFile.getPath, '/')

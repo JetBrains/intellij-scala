@@ -165,16 +165,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     // which can leads to runtime exceptions
     jp.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
     jp.setWorkingDirectory(project.baseDir.getPath)
-    val scalaModule = project.anyScalaModule.getOrElse {
-      throw new ExecutionException("No modules with Scala SDK are configured")
-    }
-    jp.getClassPath.addScalaCompilerClassPath(scalaModule)
     jp.setCharset(null)
-    if (scalaModule.hasScala3) {
-      throw new ExecutionException(
-        s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
-      )
-    }
     jp.setMainClass(MainClassScala2)
 
     val vmParamList = jp.getVMParametersList
@@ -228,30 +219,6 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val classpath = mutable.ListBuffer.empty[String]
     val sourcepath = mutable.ListBuffer.empty[String]
-
-    def filterNeededModuleSources(): Unit = {
-      val allEntries = mutable.HashSet[String]()
-      val allSourceEntries = mutable.HashSet[String]()
-
-      if (modulesNeeded.nonEmpty) {
-        for (module <- modulesNeeded) {
-          collectCPSources(
-            OrderEnumerator.orderEntries(module),
-            allEntries,
-            allSourceEntries
-          )
-        }
-      } else {
-        collectCPSources(
-          OrderEnumerator.orderEntries(project),
-          allEntries,
-          allSourceEntries
-        )
-      }
-      allEntries.foreach(classpath.append)
-      allSourceEntries.foreach(sourcepath.append)
-    }
-
     var needFilter = false
 
     scope.getScopeType match {
@@ -282,7 +249,43 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       }
     }
 
+    def filterNeededModuleSources(): Unit = {
+      val allEntries = mutable.HashSet[String]()
+      val allSourceEntries = mutable.HashSet[String]()
+
+      if (modulesNeeded.nonEmpty) {
+        for (module <- modulesNeeded) {
+          collectCPSources(
+            OrderEnumerator.orderEntries(module),
+            allEntries,
+            allSourceEntries
+          )
+        }
+      } else {
+        collectCPSources(
+          OrderEnumerator.orderEntries(project),
+          allEntries,
+          allSourceEntries
+        )
+      }
+      allEntries.foreach(classpath.append)
+      allSourceEntries.foreach(sourcepath.append)
+    }
+
     filterNeededModuleSources()
+
+    val moduleWithScalaSdk =
+      modulesNeeded.find(_.hasScala)
+        .orElse(project.anyScalaModule)
+        .getOrElse {
+          throw new ExecutionException("No modules with Scala SDK are configured")
+        }
+    jp.getClassPath.addScalaCompilerClassPath(moduleWithScalaSdk)
+    if (moduleWithScalaSdk.hasScala3) {
+      throw new ExecutionException(
+        s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
+      )
+    }
 
     paramListSimple += "-d"
     paramListSimple += outputDir

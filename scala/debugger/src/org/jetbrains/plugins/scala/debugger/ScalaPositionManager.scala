@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
 
 import java.{util => ju}
@@ -125,7 +126,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val qName = getSpecificNameForDebugger(td)
         val additional = td match {
           case _: ScTrait =>
-            qName.stripSuffix("$class") :: Nil
+            qName.stripSuffix(TraitImplementationClassSuffix_211) :: Nil
           case c: ScClass if ValueClassType.isValueClass(c) =>
             s"$qName$$" :: Nil
           case c if isDelayedInit(c) =>
@@ -444,8 +445,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else None
       }
       def topLevelClassName(originalQName: String): String = {
-        if (originalQName.endsWith(packageSuffix)) originalQName
-        else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
+        if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)) originalQName
+        else originalQName.replace(PackageObjectSingletonClassPackageSuffix, ".").takeWhile(_ != '$')
       }
       def tryToFindClass(name: String) = {
         val classes = findClassesByQName(name, debugProcessScope, fallbackToProjectScope = true)
@@ -456,7 +457,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
       val originalQName = NameTransformer.decode(nonLambdaName(refType))
 
-      if (originalQName.endsWith("$package$"))
+      if (originalQName.endsWith(TopLevelDefinitionsSingletonClassNameSuffix))
         findFileWithTopLevelMembers(debugProcessScope.scope, originalQName).orNull
       else {
         val clazz = withDollarTestName(originalQName)
@@ -604,8 +605,17 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     val originalQName = NameTransformer.decode(refType.name)
     val withoutSuffix =
-      if (originalQName.endsWith(packageSuffix)) originalQName
-      else originalQName.replace(packageSuffix, ".").stripSuffix("$").stripSuffix("$class")
+      if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix))
+        originalQName //Q: isn't it a bug? Do we indeed not remove the suffix here?
+      else {
+        //This line handles multiple possible cases
+        //For example in scala 2.11 trait with a concrete method, defined in package object will have
+        // a "trait implementation class" with fqn `org.example.package$MyTrait$class`
+        originalQName
+          .replace(PackageObjectSingletonClassPackageSuffix, ".")
+          .stripSuffix("$")
+          .stripSuffix(TraitImplementationClassSuffix_211)
+      }
     val lastDollar = withoutSuffix.lastIndexOf('$')
     val lastDot = withoutSuffix.lastIndexOf('.')
     val index = Seq(lastDollar, lastDot, 0).max + 1
@@ -843,8 +853,8 @@ object ScalaPositionManager {
     val name = td.getQualifiedNameForDebugger
 
     td match {
-      case _: ScObject => s"$name$$"
-      case _: ScTrait => s"$name$$class"
+      case _: ScObject => name + "$"
+      case _: ScTrait => name + TraitImplementationClassSuffix_211 //is valid only before scala 2.12
       case _ => name
     }
   }
@@ -876,7 +886,7 @@ object ScalaPositionManager {
   private[debugger] def findPackageName(position: PsiElement): Option[String] = {
     def packageWithName(e: PsiElement): Option[String] = e match {
       case p: ScPackaging => Some(p.fullPackageName)
-      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix("package$"))
+      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix(PackageObjectSingletonClassName))
       case _ => None
     }
 
@@ -933,7 +943,7 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
-        case o: ScObject if o.isPackageObject => Seq("package$")
+        case o: ScObject if o.isPackageObject => Seq(PackageObjectSingletonClassName)
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
         case newTd: ScNewTemplateDefinition if generatesAnonClass(newTd) => Seq("$anon")
         case e if isGenerateClass(e) => partsForAnonfun(e)
@@ -988,7 +998,7 @@ object ScalaPositionManager {
       val name = refType.name()
 
       exactName match {
-        case Some(qName) => qName == name || qName.stripSuffix("$class") == name
+        case Some(qName) => qName == name || qName.stripSuffix(TraitImplementationClassSuffix_211) == name
         case None => checkParts(name)
       }
     }

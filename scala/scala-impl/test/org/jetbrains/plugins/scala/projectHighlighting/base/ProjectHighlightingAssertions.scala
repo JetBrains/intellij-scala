@@ -22,15 +22,11 @@ trait ProjectHighlightingAssertions {
 
     val psiFile = PsiManager.getInstance(project).findFile(file)
     val shouldHighlightActual = ProblemHighlightFilter.shouldHighlightFile(psiFile)
-    val message = if (shouldHighlight)
-      s"File must be highlighted: $relativePath"
-    else
-      s"File must not be highlighted: $relativePath"
 
     if (shouldHighlight) {
-      assertTrue(s"File should be highlighted: $relativePath", shouldHighlightActual)
+      assertTrue(s"File should be highlighted: $relativePath (${file.getCanonicalPath})", shouldHighlightActual)
     } else {
-      assertFalse(s"File should not be highlighted: $relativePath", shouldHighlightActual)
+      assertFalse(s"File should not be highlighted: $relativePath (${file.getCanonicalPath})", shouldHighlightActual)
     }
   }
 }

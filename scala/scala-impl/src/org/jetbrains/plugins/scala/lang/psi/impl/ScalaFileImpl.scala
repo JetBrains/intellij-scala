@@ -31,10 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 
 import java.{util => ju}
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
@@ -83,7 +84,7 @@ class ScalaFileImpl(
 
     typeDefinitions match {
       // Handle package object
-      case Seq(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
+      case Seq(obj: ScObject) if obj.isPackageObjectNonLegacy =>
         val (packageName, objectName) = name match {
           case QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case _ => ("", name)
@@ -333,7 +334,7 @@ class ScalaFileImpl(
       val hasTopLevelMembers = topLevelMembers.nonEmpty
 
       Option.when(hasTopLevelMembers) {
-        val wrapperName = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(getName)) + "$package"
+        val wrapperName = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(getName)) + TopLevelDefinitionsClassNameSuffix
         val wrapper = new LightPsiClassBuilder(this, wrapperName)
 
         members.foreach {

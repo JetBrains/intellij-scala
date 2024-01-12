@@ -67,7 +67,7 @@ package object macros {
 
   private[macros] def createLookupItem(definition: ScTypeDefinition): ScalaLookupItem = {
     import ScTypeDefinitionImpl._
-    val name = toQualifiedName(packageName(definition)(Nil, DefaultSeparator) :+ Right(definition))()
+    val name = toQualifiedName(getPackageName(definition, DefaultSeparator, forJvmRepresentation = false) :+ Right(definition))()
 
     val lookupItem = new ScalaLookupItem(definition, name, Option(definition.getContainingClass))
     lookupItem.shouldImport = true

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
@@ -28,37 +29,37 @@ trait ScalaHighlightingTestLike extends MatcherAssertions {
   // Assertions START
   //////////////////////////////////////////////////
 
-  protected def assertNoErrors(code: String): Unit =
+  protected def assertNoErrors(@Language("Scala") code: String): Unit =
     assertErrors(code, Nil: _*)
 
-  protected def assertErrors(code: String, messages: Message*): Unit =
+  protected def assertErrors(@Language("Scala") code: String, messages: Message*): Unit =
     assertErrorsText(code, messages.mkString("\n"))
 
-  protected def assertErrorsWithHints(code: String, messages: Message*): Unit =
+  protected def assertErrorsWithHints(@Language("Scala") code: String, messages: Message*): Unit =
     assertErrorsWithHintsText(code, messages.mkString("\n"))
 
-  protected def assertMessages(code: String, messages: Message*): Unit =
+  protected def assertMessages(@Language("Scala") code: String, messages: Message*): Unit =
     assertMessagesText(code, messages.mkString("\n"))
 
-  protected def assertNoMessages(code: String): Unit =
+  protected def assertNoMessages(@Language("Scala") code: String): Unit =
     assertMessages(code, Nil: _*)
 
-  protected def assertErrorsText(code: String, messagesConcatenated: String): Unit = {
+  protected def assertErrorsText(@Language("Scala") code: String, messagesConcatenated: String): Unit = {
     val actualMessages = errorsFromScalaCode(code)
     assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
 
-  protected def assertErrorsWithHintsText(code: String, messagesConcatenated: String): Unit = {
+  protected def assertErrorsWithHintsText(@Language("Scala") code: String, messagesConcatenated: String): Unit = {
     val actualMessages = errorsWithHintsFromScalaCode(code)
     assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
 
-  protected def assertMessagesText(code: String, messagesConcatenated: String): Unit = {
+  protected def assertMessagesText(@Language("Scala") code: String, messagesConcatenated: String): Unit = {
     val actualMessages = messagesFromScalaCode(code)
     assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
 
-  private def assertMessagesTextImpl(
+  protected def assertMessagesTextImpl(
     expectedMessagesConcatenated: String,
     actualMessages: Seq[Message],
   ): Unit = {
@@ -81,27 +82,27 @@ trait ScalaHighlightingTestLike extends MatcherAssertions {
   // Annotations extraction logic START
   //////////////////////////////////////////////////
 
-  protected def errorsFromScalaCode(scalaFileText: String): List[Message.Error] =
+  protected def errorsFromScalaCode(@Language("Scala") scalaFileText: String): List[Message.Error] =
     errorsFromScalaCode(scalaFileText, s"dummy.scala")
 
-  protected def errorsWithHintsFromScalaCode(scalaFileText: String): List[Message] = {
+  protected def errorsWithHintsFromScalaCode(@Language("Scala") scalaFileText: String): List[Message] = {
     configureFile(scalaFileText, s"dummy.scala")
     errorsWithHintsFromScalaCode(getFixture.getFile)
   }
 
-  protected def messagesFromScalaCode(scalaFileText: String): List[Message] = {
+  protected def messagesFromScalaCode(@Language("Scala") scalaFileText: String): List[Message] = {
     configureFile(scalaFileText, s"dummy.scala")
     messagesFromScalaCode(getFixture.getFile)
   }
 
-  protected def errorsFromScalaCode(scalaFileText: String, fileName: String): List[Message.Error] = {
+  protected def errorsFromScalaCode(@Language("Scala") scalaFileText: String, fileName: String): List[Message.Error] = {
     configureFile(scalaFileText, fileName)
     errorsFromScalaCode(getFixture.getFile)
   }
 
   private var filesCreated: Boolean = false
 
-  private def configureFile(scalaFileText: String, fileName: String): Unit = {
+  private def configureFile(@Language("Scala") scalaFileText: String, fileName: String): Unit = {
     if (filesCreated)
       fail("Don't add files 2 times in a single test")
 

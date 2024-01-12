@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.console.ScalaReplBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -27,14 +26,11 @@ class RunConsoleAction extends AnAction(
   override protected def getNewSettingName: String = ScalaReplBundle.message("scala.console.actions.scala.repl")
 
   override def update(e: AnActionEvent): Unit = {
-    if (e.getProject == null || e.getProject.isDisposed) return
+    if (e.getProject == null || e.getProject.isDisposed)
+      return
 
-    if(!e.getProject.hasScala)
-      e.getPresentation.setEnabledAndVisible(false)
-    else if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP)
-      ScalaActionUtil.enableAndShowIfInScalaFile(e)
-    else
-      e.getPresentation.setEnabledAndVisible(true)
+    val isEnabledAndVisible = e.getProject.hasScala
+    e.getPresentation.setEnabledAndVisible(isEnabledAndVisible)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

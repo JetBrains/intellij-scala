@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -25,7 +26,6 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
                                 methodPosition: Set[SourcePosition] = Set.empty,
                                 localMethodIndex: Int = -1,
                                 methodOnRuntimeRef: Boolean = false) extends Evaluator {
-
   val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
@@ -219,7 +219,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
                 Try(findClass(traitImplName)) match {
                   case Success(c: ClassType) => classWithMethod(c)
                   case _ =>
-                    val traitName = traitImplName.stripSuffix("$class")
+                    val traitName = traitImplName.stripSuffix(TraitImplementationClassSuffix_211)
                     Try(findClass(traitName)).toOption.flatMap(classWithMethod)
                 }
               case _ => None

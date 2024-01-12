@@ -10,13 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TopLevelDefinitionsSingletonClassNameSuffix
 
 import scala.annotation.nowarn
 
 private[scala] object TopLevelMembers {
-  private val classSuffix = "$package$"
 
-  def isSyntheticClassForTopLevelMembers(refType: ReferenceType): Boolean = refType.name.endsWith(classSuffix)
+  def isSyntheticClassForTopLevelMembers(refType: ReferenceType): Boolean =
+    refType.name.endsWith(TopLevelDefinitionsSingletonClassNameSuffix)
 
   def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): String = {
     val fileName    = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(file.getName))
@@ -26,7 +27,7 @@ private[scala] object TopLevelMembers {
       if (packageName.isEmpty) fileName
       else packageName + "." + fileName
 
-    path + classSuffix
+    path + TopLevelDefinitionsSingletonClassNameSuffix
   }
 
   def topLevelMemberClassName(element: PsiElement): String =
@@ -44,7 +45,7 @@ private[scala] object TopLevelMembers {
   def findFileWithTopLevelMembers(
     scope:         GlobalSearchScope,
     originalQName: String,
-    suffix:        String = classSuffix
+    suffix:        String = TopLevelDefinitionsSingletonClassNameSuffix
   ): Option[ScalaFile] = {
     val path = originalQName.stripSuffix(suffix)
     val (packageName, fileName) = path.lastIndexOf('.') match {

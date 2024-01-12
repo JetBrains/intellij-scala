@@ -15,6 +15,10 @@ object SbtHighlightingUtil {
   def enableHighlightingOutsideBuildModule(project: Project): Unit =
     project.putUserData(HighlightSbtFilesOutsideBuildModuleKey, java.lang.Boolean.TRUE: java.lang.Boolean.TRUE.type)
 
+  /**
+   * @note this utility is needed for the cases when we want to check highlighting in `build.sbt` files,
+   *       but we don't want to create a true SBT project or "emulate" "-build" modules
+   */
   def isHighlightingOutsideBuildModuleEnabled(project: Project): Boolean =
     project.getUserData(HighlightSbtFilesOutsideBuildModuleKey) != null
 }
