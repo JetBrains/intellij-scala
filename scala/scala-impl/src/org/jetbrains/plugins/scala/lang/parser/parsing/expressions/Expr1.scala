@@ -227,19 +227,6 @@ object Expr1 extends ParsingRule {
         }
         exprMarker.done(ScalaElementType.THROW_STMT)
         return true
-      //--------- higher kinded type lamdba --------//
-      case InScala3(ScalaTokenTypes.tLSQBRACKET) =>
-        TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false)
-
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE =>
-            builder.advanceLexer() // ate =>
-            ExprInIndentationRegion()
-          case _ =>
-            builder.error(ScalaBundle.message("fun.sign.expected"))
-        }
-        exprMarker.done(ScalaElementType.POLY_FUNCTION_EXPR)
-        return true
       //--------------implicit closure--------------//
       case ScalaTokenTypes.kIMPLICIT =>
         val ipmarker = builder.mark()

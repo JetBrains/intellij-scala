@@ -117,33 +117,35 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              FunctionExpression
-                Parameters
-                  ParametersClause
-                    PsiElement(()('(')
-                    Parameter: a
-                      AnnotationsList
-                        <empty list>
+              BlockOfExpressions
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: a
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('a')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          ParametrizedType: Seq[A]
+                            SimpleType: Seq
+                              CodeReferenceElement: Seq
+                                PsiElement(identifier)('Seq')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n    ')
+                  BlockOfExpressions
+                    ReferenceExpression: a
                       PsiElement(identifier)('a')
-                      PsiElement(:)(':')
-                      PsiWhiteSpace(' ')
-                      ParameterType
-                        ParametrizedType: Seq[A]
-                          SimpleType: Seq
-                            CodeReferenceElement: Seq
-                              PsiElement(identifier)('Seq')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(])(']')
-                    PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace('\n    ')
-                ReferenceExpression: a
-                  PsiElement(identifier)('a')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
       PsiWhiteSpace('\n')

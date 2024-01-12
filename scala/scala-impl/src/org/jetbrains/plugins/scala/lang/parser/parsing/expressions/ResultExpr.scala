@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
@@ -15,6 +18,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * In Scala 3:
  *
  * BlockResult ::=  [‘implicit’] FunParams ‘=>’ Block
+ *               |  HkTypeParamClause ‘=>’ Expr
  *               |  Expr1
  */
 object ResultExpr {
@@ -22,18 +26,21 @@ object ResultExpr {
     val resultMarker = builder.mark()
     val backupMarker = builder.mark()
 
+    def parseFunctionContent(elementType: IElementType): Boolean =
+      Block.Braceless(stopOnOutdent, needNode = true).tap { parsedBlock =>
+        if (parsedBlock) {
+          backupMarker.drop()
+          resultMarker.done(elementType)
+        } else {
+          resultMarker.drop()
+          backupMarker.rollbackTo()
+        }
+      }
+
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
         builder.advanceLexer() //Ate => or ?=>
-        Block.Braceless(stopOnOutdent, needNode = true).tap { parsedBlock =>
-          if (parsedBlock) {
-            backupMarker.drop()
-            resultMarker.done(ScalaElementType.FUNCTION_EXPR)
-          } else {
-            resultMarker.drop()
-            backupMarker.rollbackTo()
-          }
-        }
+        parseFunctionContent(ScalaElementType.FUNCTION_EXPR)
       case _ =>
         resultMarker.drop()
         backupMarker.rollbackTo()
@@ -74,6 +81,19 @@ object ResultExpr {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         val pmarker = builder.mark()
         return parseFunction(pmarker)
+
+      //--------- higher kinded type lamdba --------//
+      case InScala3(ScalaTokenTypes.tLSQBRACKET) =>
+        TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false)
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tFUNTYPE =>
+            builder.advanceLexer() // ate =>
+            return parseFunctionContent(ScalaElementType.POLY_FUNCTION_EXPR)
+          case _ =>
+            backupMarker.rollbackTo()
+            return false
+        }
       case _ =>
         backupMarker.drop()
     }

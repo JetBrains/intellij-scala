@@ -129,26 +129,28 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              FunctionExpression
-                Parameters
-                  ParametersClause
-                    PsiElement(()('(')
-                    Parameter: none
-                      AnnotationsList
-                        <empty list>
+              BlockOfExpressions
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: none
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('none')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: U
+                            CodeReferenceElement: U
+                              PsiElement(identifier)('U')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: none
                       PsiElement(identifier)('none')
-                      PsiElement(:)(':')
-                      PsiWhiteSpace(' ')
-                      ParameterType
-                        SimpleType: U
-                          CodeReferenceElement: U
-                            PsiElement(identifier)('U')
-                    PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                ReferenceExpression: none
-                  PsiElement(identifier)('none')
             PsiWhiteSpace(' ')
             PsiElement(})('}')
         PsiWhiteSpace('\n  ')

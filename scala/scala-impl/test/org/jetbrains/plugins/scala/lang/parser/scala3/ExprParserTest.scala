@@ -1624,4 +1624,64 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_hk_function_is_a_result_expr(): Unit = checkTree(
+    """
+      |boo { [A] => () =>
+      |  println(1)
+      |  println(2)
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: boo
+      |      PsiElement(identifier)('boo')
+      |    PsiWhiteSpace(' ')
+      |    ArgumentList
+      |      BlockExpression
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace(' ')
+      |        PolyFunctionExpression
+      |          TypeParameterClause
+      |            PsiElement([)('[')
+      |            TypeParameter: A
+      |              PsiElement(identifier)('A')
+      |            PsiElement(])(']')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          BlockOfExpressions
+      |            FunctionExpression
+      |              Parameters
+      |                ParametersClause
+      |                  PsiElement(()('(')
+      |                  PsiElement())(')')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace('\n  ')
+      |              BlockOfExpressions
+      |                MethodCall
+      |                  ReferenceExpression: println
+      |                    PsiElement(identifier)('println')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('1')
+      |                    PsiElement())(')')
+      |                PsiWhiteSpace('\n  ')
+      |                MethodCall
+      |                  ReferenceExpression: println
+      |                    PsiElement(identifier)('println')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
+      |                    PsiElement())(')')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
