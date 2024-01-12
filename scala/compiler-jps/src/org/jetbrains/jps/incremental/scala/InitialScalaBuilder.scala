@@ -56,7 +56,7 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
             writeIncrementalityType(context, incrementalityType)
           }
           val message = JpsBundle.message("incremental.compiler.changed.rebuild")
-          throw new RebuildRequestedException(new BuildDataCorruptedException(message))
+          throw new BuildDataCorruptedException(message)
       }
     }
   }
