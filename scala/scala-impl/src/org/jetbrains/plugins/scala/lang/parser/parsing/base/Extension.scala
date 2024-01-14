@@ -62,7 +62,7 @@ object ExtMethods extends ParsingRule {
           builder.advanceLexer() // Ate :
         }
 
-        builder.findPreviousIndent match {
+        builder.findPrecedingIndentation match {
           case Some(indent) =>
             if (builder.isIndent(indent)) {
               builder.newBracelessIndentationRegionHere.ensuring(_.nonEmpty)
@@ -83,7 +83,7 @@ object ExtMethods extends ParsingRule {
             }
         }
       case _ =>
-        if (!builder.hasPrecedingIndent) {
+        if (!builder.hasPrecedingIndentation) {
           None
         }
         else {

@@ -42,7 +42,7 @@ object Packaging extends ParsingRule {
             builder.newBracelessIndentationRegionHere match {
               case Some(region) => region
               case None =>
-                if (builder.hasPrecedingIndent) {
+                if (builder.hasPrecedingIndentation) {
                   builder error ErrMsg("indented.definitions.expected")
                 } else {
                   builder error ErrMsg("expected.new.line.after.colon")

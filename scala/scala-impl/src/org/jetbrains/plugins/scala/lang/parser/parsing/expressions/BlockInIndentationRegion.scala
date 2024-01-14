@@ -21,7 +21,7 @@ object BlockInIndentationRegion extends ParsingRule {
         case _ if builder.isOutdentHere =>
           return
 
-        case _ if builder.hasPrecedingIndent && !builder.isIndentHere =>
+        case _ if builder.hasPrecedingIndentation && !builder.isIndentHere =>
           // the block must be indented one more than the indentation of `case`
           //
           // x match

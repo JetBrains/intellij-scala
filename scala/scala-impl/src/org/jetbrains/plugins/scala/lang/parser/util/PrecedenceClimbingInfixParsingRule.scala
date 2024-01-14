@@ -139,7 +139,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
           isSymbolicIdentifier(opText) && {
             val region = builder.currentIndentationRegion
-            val opIndent = builder.findPreviousIndent
+            val opIndent = builder.findPrecedingIndentation
             // Actually the operator is allowed to be under the current indent, but not so much that it is on the previous indent
             //      |return
             //      |  a
@@ -164,7 +164,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
                   opText.startsWith("`") && isAssignmentOperator(builder.getTokenText)
 
                 startsExpression(builder.getTokenType) &&
-                  builder.findPreviousIndent.forall(rhsIndent => opIndent.exists(rhsIndent >= _)) &&
+                  builder.findPrecedingIndentation.forall(rhsIndent => opIndent.exists(rhsIndent >= _)) &&
                   !opIsBacktickIdFollowedByAssignment
               }
           }

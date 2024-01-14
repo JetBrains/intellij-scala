@@ -37,7 +37,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
             return true
         }
 
-        val prevIndent = builder.findPreviousIndent
+        val prevIndent = builder.findPrecedingIndentation
         prevIndent match {
           case None if builder.getTokenType != null =>
             // if something else comes after the colon in the same line

@@ -42,7 +42,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 
-  def findPreviousIndent: Option[IndentationWidth]
+  def findPrecedingIndentation: Option[IndentationWidth]
 
   def currentIndentationRegion: IndentationRegion
 

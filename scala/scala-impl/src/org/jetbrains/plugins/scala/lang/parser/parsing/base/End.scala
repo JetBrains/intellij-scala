@@ -28,7 +28,7 @@ object End {
     val region = builder.currentIndentationRegion
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
           builder.getTokenText == "end" &&
-          builder.findPreviousIndent.exists(region.isValidEndMarkerIndentation)) {
+          builder.findPrecedingIndentation.exists(region.isValidEndMarkerIndentation)) {
       val marker = builder.mark()
       builder.remapCurrentToken(ScalaTokenType.EndKeyword)
       builder.advanceLexer() // ate end
@@ -45,7 +45,7 @@ object End {
       builder.advanceLexer() // ate end-token
 
       // if there is not a newline after end-token, this cannot be an end marker
-      if (!builder.hasPrecedingIndent && !builder.eof()) {
+      if (!builder.hasPrecedingIndentation && !builder.eof()) {
         marker.rollbackTo()
         return false
       }

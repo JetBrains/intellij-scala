@@ -4,13 +4,11 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
@@ -209,7 +207,7 @@ class ScalaPsiBuilderImpl(
    *   - Some(Indent[2]) for `  /* comment */ <caret>foo`
    *   - None for `def foo = <caret>bar`
    */
-  def findPreviousIndent: Option[IndentationWidth] = {
+  def findPrecedingIndentation: Option[IndentationWidth] = {
     indentationCache.getOrElseUpdate(getCurrentOffset, lookBehindForPrecedingIndentation(this, 0))
   }
 }

@@ -28,7 +28,7 @@ abstract class CaseClausesInIndentationRegion extends ParsingRule {
     // see https://github.com/lampepfl/dotty/issues/11905#issuecomment-808316102
 
     // we are at `case`
-    if (builder.isScala3IndentationBasedSyntaxEnabled && builder.hasPrecedingIndent && !builder.isOutdentHere) {
+    if (builder.isScala3IndentationBasedSyntaxEnabled && builder.hasPrecedingIndentation && !builder.isOutdentHere) {
       builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
         CaseClausesWithoutBraces()
       }

@@ -102,7 +102,7 @@ object IndentationRegion {
 
   object Braced {
     def fromHere(implicit builder: ScalaPsiBuilder): Braced = {
-      builder.findPreviousIndent match {
+      builder.findPrecedingIndentation match {
         case Some(indent) => Concrete(indent)
         case None         => new Lazy(builder.rawTokenIndex, builder)
       }

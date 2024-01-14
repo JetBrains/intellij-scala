@@ -84,7 +84,7 @@ object ColonArgument {
   private def parseFunctionExpression(nodeType: ScalaElementType)
                                      (implicit builder: ScalaPsiBuilder): Boolean = {
     val indentedAfterColon = builder.isIndentHere
-    if (builder.hasPrecedingIndent && !indentedAfterColon) {
+    if (builder.hasPrecedingIndentation && !indentedAfterColon) {
       // if there was a new line, but no indent then the following tokens do not belong to this argument
       // i.e:
       //   foo:

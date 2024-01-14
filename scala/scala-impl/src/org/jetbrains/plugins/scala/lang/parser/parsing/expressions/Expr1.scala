@@ -358,7 +358,7 @@ object Expr1 extends ParsingRule {
 
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     builder.advanceLexer() //Ate if
-    lazy val condIndent = builder.findPreviousIndent
+    lazy val condIndent = builder.findPrecedingIndentation
     builder.getTokenType match {
       case InScala3(_) if condIndent.forall(builder.isIndent) && parseParenlessIfCondition(condIndent.isDefined) =>
         // already parsed everything till after 'then'
@@ -376,7 +376,7 @@ object Expr1 extends ParsingRule {
       case _ =>
         builder error ErrMsg("condition.expected")
 
-        if (builder.findPreviousIndent.exists(iw => !builder.isIndent(iw))) {
+        if (builder.findPrecedingIndentation.exists(iw => !builder.isIndent(iw))) {
           exprMarker.done(ScalaElementType.IF_STMT)
           End()
           return

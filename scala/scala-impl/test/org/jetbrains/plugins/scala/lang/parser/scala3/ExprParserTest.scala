@@ -961,7 +961,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
   )
   
   def test_if_then_else_unindented(): Unit = checkTree(
-    """class A {
+    """class A:
       |  if true then
       | println(1)
       |  println(11)
@@ -971,7 +971,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  else
       |println(2)
       |  println(22)
-      |}""".stripMargin,
+      |""".stripMargin,
     """ScalaFile
       |  ScClass: A
       |    AnnotationsList
@@ -988,10 +988,9 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |        <empty list>
       |      Parameters
       |        <empty list>
-      |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      ScTemplateBody
-      |        PsiElement({)('{')
+      |        PsiElement(:)(':')
       |        PsiWhiteSpace('\n  ')
       |        IfStatement
       |          PsiElement(if)('if')
@@ -1059,8 +1058,8 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |            IntegerLiteral
       |              PsiElement(integer)('22')
       |            PsiElement())(')')
-      |        PsiWhiteSpace('\n')
-      |        PsiElement(})('}')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_if_condition_is_block_without_braces(): Unit = checkTree(

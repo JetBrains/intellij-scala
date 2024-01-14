@@ -153,24 +153,24 @@ package object parser {
 //      repr.currentIndentationRegion.isOutdent(indent)
 
     def isIndentHere: Boolean =
-      repr.isIndent(repr.findPreviousIndent)
+      repr.isIndent(repr.findPrecedingIndentation)
 
     def isOutdentHere: Boolean =
-      repr.currentIndentationRegion.isOutdent(repr.findPreviousIndent) || repr.eof()
+      repr.currentIndentationRegion.isOutdent(repr.findPrecedingIndentation) || repr.eof()
 
     def newExpressionRegionHere: IndentationRegion =
       newBracelessIndentationRegionHere.getOrElse(IndentationRegion.SingleExpr(repr.currentIndentationRegion))
 
     def newBracelessIndentationRegionHere: Option[IndentationRegion] =
-      repr.findPreviousIndent
+      repr.findPrecedingIndentation
         .filter(repr.isIndent)
         .map(IndentationRegion.Indented(_)(Some(repr.currentIndentationRegion)))
 
     def newBracedIndentationRegionHere: IndentationRegion =
       IndentationRegion.Braced.fromHere(repr)
 
-    def hasPrecedingIndent: Boolean =
-      repr.findPreviousIndent.isDefined
+    def hasPrecedingIndentation: Boolean =
+      repr.findPrecedingIndentation.isDefined
 
     @inline
     def withIndentationRegion[T](region: IndentationRegion)(body: => T): T = {
