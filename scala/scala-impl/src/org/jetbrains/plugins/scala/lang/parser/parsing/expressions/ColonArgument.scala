@@ -42,8 +42,8 @@ object ColonArgument {
           builder.advanceLexer() // ate ':'
 
           // if there is no lambda after ':' then there must be a newline
-          builder.findPreviousIndent.exists(_ > builder.currentIndentationWidth) &&
-            parseCaseClausesOrBlock(builder.findPreviousIndent, needBlockNode = false)
+          builder.isIndentHere &&
+            parseCaseClausesOrBlock(needBlockNode = false)
         }
 
         if (parsed) {
@@ -65,35 +65,34 @@ object ColonArgument {
   /**
    * {{{ CaseClauses | Block }}}
    */
-  private def parseCaseClausesOrBlock(indentation: Option[IndentationWidth], needBlockNode: Boolean)
-                                     (implicit builder: ScalaPsiBuilder): Boolean =
-    builder.withEnabledNewlines {
-      builder.maybeWithIndentationWidth(indentation) {
+  private def parseCaseClausesOrBlock(needBlockNode: Boolean)(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+      builder.withEnabledNewlines {
         builder.getTokenType match {
-          case ScalaTokenTypes.kCASE =>
-            val backMarker = builder.mark()
-            builder.advanceLexer()
-            builder.getTokenType match {
-              case ScalaTokenType.ClassKeyword | ScalaTokenType.ObjectKeyword =>
-                backMarker.rollbackTo()
-                Block.Braceless(stopOnOutdent = true, needNode = needBlockNode)
-              case _ =>
-                backMarker.rollbackTo()
-                CaseClausesWithoutBraces()
-            }
+          case ScalaTokenTypes.kCASE if !builder.lookAhead(1, ScalaTokenType.ClassKeyword, ScalaTokenType.ObjectKeyword) =>
+            CaseClausesWithoutBraces()
           case _ =>
             Block.Braceless(stopOnOutdent = true, needNode = needBlockNode)
         }
       }
     }
 
+
   /**
    * {{{ LambdaStart (CaseClauses | Block) }}}
    */
   private def parseFunctionExpression(nodeType: ScalaElementType)
                                      (implicit builder: ScalaPsiBuilder): Boolean = {
+    val indentedAfterColon = builder.isIndentHere
+    if (builder.hasPrecedingIndent && !indentedAfterColon) {
+      // if there was a new line, but no indent then the following tokens do not belong to this argument
+      // i.e:
+      //   foo:
+      //   bar   // bar is not far enough to the right
+      return false
+    }
+
     val funExprMarker = builder.mark()
-    val indentAfterColon = builder.findPreviousIndent
 
     def rollback(additionalMarkersToDrop: PsiBuilder.Marker*): Boolean = {
       additionalMarkersToDrop.foreach(_.drop())
@@ -104,20 +103,19 @@ object ColonArgument {
     def parseBlockAfterArrow(expectedArrows: IElementType*): Boolean =
       if (expectedArrows.contains(builder.getTokenType)) {
         builder.advanceLexer() // ate `=>` or `?=>`
-        val indentAfterArrow = builder.findPreviousIndent
         // cannot have one-line lambda like `.foo: x => x + 1`
-        val isOk = indentAfterColon.isDefined || indentAfterArrow.isDefined
+        val isOk = indentedAfterColon || builder.isIndentHere
 
         // TODO: if not isOk add "newline expected" error and parse block
         if (isOk) {
-          parseCaseClausesOrBlock(indentAfterArrow, needBlockNode = nodeType != POLY_FUNCTION_EXPR).tap { parsedBlock =>
+          parseCaseClausesOrBlock(needBlockNode = nodeType != POLY_FUNCTION_EXPR).tap { parsedBlock =>
             if (parsedBlock) funExprMarker.done(nodeType)
             else rollback()
           }
         } else rollback()
       } else rollback()
 
-    builder.maybeWithIndentationWidth(indentAfterColon) {
+    builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS =>
           Bindings() &&

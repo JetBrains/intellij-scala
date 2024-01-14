@@ -134,8 +134,6 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |          Parameters
       |            <empty list>
       |          PsiElement(=)('=')
-      |          PsiErrorElement:Line is indented too far to the left
-      |            <empty list>
       |          PsiWhiteSpace('\n ')
       |          MethodCall
       |            ReferenceExpression: println

@@ -156,7 +156,7 @@ object StableId {
             builder.advanceLexer()
             builder.getTokenText == "as"
           })
-      case InBracelessScala3(`tIDENTIFIER`) => ParserUtils.isOutdent
+      case InBracelessScala3(`tIDENTIFIER`) => builder.isOutdentHere
       case _ => false
     }
   }

@@ -154,7 +154,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |      case 1 => "foo"
       |      case _ => "bar"
       |    end match
-      |  end bar""".stripMargin,
+      |""".stripMargin,
     expectedType = ScalaTokenTypes.kMATCH
   )
 
@@ -207,8 +207,8 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
   )
 
   def test_empty_package_end(): Unit = doTest(
-    """
-      |package A:
+    s"""
+      |package A:${err("Indented definitions expected")}
       |end A
       |""".stripMargin,
     expectedType = ScalaTokenTypes.tIDENTIFIER

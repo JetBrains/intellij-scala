@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.isIndent
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
@@ -47,7 +46,6 @@ object Expr1 extends ParsingRule {
 
       //--------------------while statement-----------------------//
       case ScalaTokenTypes.kWHILE =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate while
         val parseNormal =
           if (builder.isScala3) {
@@ -93,12 +91,11 @@ object Expr1 extends ParsingRule {
         if (!ExprInIndentationRegion()) {
           builder.wrongExpressionError()
         }
-        End(iw)
+        End()
         exprMarker.done(ScalaElementType.WHILE_STMT)
         return true
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate try
         if (!ExprInIndentationRegion()) {
           builder.wrongExpressionError()
@@ -125,12 +122,11 @@ object Expr1 extends ParsingRule {
           case _ =>
             finallyMarker.drop()
         }
-        End(iw)
+        End()
         exprMarker.done(ScalaElementType.TRY_STMT)
         return true
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate do
         if (!ExprInIndentationRegion()) builder.wrongExpressionError()
         builder.getTokenType match {
@@ -160,20 +156,21 @@ object Expr1 extends ParsingRule {
           case _ =>
             builder error ErrMsg("while.expected")
         }
-        End(iw)
+        End()
         exprMarker.done(ScalaElementType.DO_STMT)
         return true
       //----------------for statement------------------------//
       case ScalaTokenTypes.kFOR =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate for
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
             builder.enableNewlines()
-            ParserUtils.parseLoopUntilRBrace() {
-              if (!Enumerators()) {
-                builder error ErrMsg("enumerators.expected")
+            builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
+              ParserUtils.parseLoopUntilRBrace() {
+                if (!Enumerators()) {
+                  builder error ErrMsg("enumerators.expected")
+                }
               }
             }
             builder.restoreNewlinesState()
@@ -219,7 +216,7 @@ object Expr1 extends ParsingRule {
           builder.wrongExpressionError()
         }
 
-        End(iw)
+        End()
         exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//
@@ -270,7 +267,7 @@ object Expr1 extends ParsingRule {
       //---------------return statement-----------//
       case ScalaTokenTypes.kRETURN =>
         builder.advanceLexer() //Ate return
-        if (!builder.newlineBeforeCurrentToken || (builder.isScala3 && isIndent))
+        if (!builder.newlineBeforeCurrentToken || (builder.isScala3 && builder.isIndentHere))
           ExprInIndentationRegion()
         exprMarker.done(ScalaElementType.RETURN_STMT)
         return true
@@ -337,9 +334,11 @@ object Expr1 extends ParsingRule {
   private def parseScala3ForRest()(implicit builder: ScalaPsiBuilder): Boolean = {
     var hasError = false
     builder.withEnabledNewlines {
-      if (!EnumeratorsInIndentationRegion()) {
-        hasError = true
-        builder.error(ErrMsg("enumerators.expected"))
+      builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+        if (!Enumerators()) {
+          hasError = true
+          builder.error(ErrMsg("enumerators.expected"))
+        }
       }
     }
     if (!isDoOrYield(builder)) {
@@ -358,11 +357,10 @@ object Expr1 extends ParsingRule {
   }
 
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
-    val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate if
     lazy val condIndent = builder.findPreviousIndent
     builder.getTokenType match {
-      case InScala3(_) if condIndent.forall(_ > iw) && parseParenlessIfCondition(condIndent.isDefined) =>
+      case InScala3(_) if condIndent.forall(builder.isIndent) && parseParenlessIfCondition(condIndent.isDefined) =>
         // already parsed everything till after 'then'
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
@@ -378,9 +376,9 @@ object Expr1 extends ParsingRule {
       case _ =>
         builder error ErrMsg("condition.expected")
 
-        if (builder.findPreviousIndent.exists(_ <= iw)) {
+        if (builder.findPreviousIndent.exists(iw => !builder.isIndent(iw))) {
           exprMarker.done(ScalaElementType.IF_STMT)
-          End(iw)
+          End()
           return
         }
     }
@@ -400,10 +398,9 @@ object Expr1 extends ParsingRule {
       case ScalaTokenTypes.kELSE if !(
         // if `else` is indented more to the left in Scala 3 indentation based syntax
         // detach else branch from the current if statement
-        builder.isScala3 &&
+        builder.isScala3IndentationBasedSyntaxEnabled &&
           !builder.isInsideBracedRegion &&
-          builder.isScala3IndentationBasedSyntaxEnabled &&
-          builder.findPreviousIndent.exists(_ < iw)
+          builder.isOutdentHere
         ) =>
         builder.advanceLexer()
         if (!ExprInIndentationRegion()) builder.wrongExpressionError()
@@ -411,7 +408,7 @@ object Expr1 extends ParsingRule {
       case _ =>
         rollbackMarker.rollbackTo()
     }
-    End(iw)
+    End()
     exprMarker.done(ScalaElementType.IF_STMT)
   }
 
@@ -437,16 +434,17 @@ object Expr1 extends ParsingRule {
   }
 
   def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
-    val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate match
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
 
-        ParserUtils.parseLoopUntilRBrace() {
-          if (!CaseClauses()) {
-            builder error ErrMsg("case.clauses.expected")
+        builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
+          ParserUtils.parseLoopUntilRBrace() {
+            if (!CaseClauses()) {
+              builder error ErrMsg("case.clauses.expected")
+            }
           }
         }
         builder.restoreNewlinesState()
@@ -457,7 +455,7 @@ object Expr1 extends ParsingRule {
       case _ => builder error ErrMsg("case.clauses.expected")
     }
 
-    End(iw)
+    End()
     exprMarker.done(ScalaElementType.MATCH_STMT)
   }
 }

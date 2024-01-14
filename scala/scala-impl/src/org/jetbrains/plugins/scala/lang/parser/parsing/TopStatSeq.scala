@@ -2,18 +2,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.isOutdent
 
 /*
  * TopStatSeq ::= TopStat {semi TopStat}
  */
 object TopStatSeq {
-  def parse(
-    waitBrace: Boolean,
-    baseIndent: Option[IndentationWidth] = None
-  )(implicit builder: ScalaPsiBuilder): Unit = {
+  def parse(waitBrace: Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
     var semicolonOrNewLineExpected = false
 
     //NOTE: we might consider not exiting the loop unless the entire sequence was consumed
@@ -29,7 +24,7 @@ object TopStatSeq {
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
           semicolonOrNewLineExpected = false
-        case _ if isOutdent(baseIndent) =>
+        case _ if builder.isOutdentHere =>
           continueLoop = false
         case _ if semicolonOrNewLineExpected && !builder.newlineBeforeCurrentToken =>
           builder.error(ScalaBundle.message("semi.expected"))

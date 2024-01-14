@@ -14,10 +14,6 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def enableNewlines(): Unit
 
-  def enterBracedRegion(): Unit
-
-  def exitBracedRegion(): Unit
-
   def isInsideBracedRegion: Boolean
 
   def enterQuotedPattern(): Unit
@@ -46,15 +42,13 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 
-  def currentIndentationWidth: IndentationWidth
-
-  def previousIndentationWidth: Option[IndentationWidth]
-
-  def pushIndentationWidth(width: IndentationWidth): Unit
-
-  def popIndentationWidth(): IndentationWidth
-
   def findPreviousIndent: Option[IndentationWidth]
+
+  def currentIndentationRegion: IndentationRegion
+
+  def pushIndentationRegion(region: IndentationRegion): Unit
+
+  def popIndentationRegion(region: IndentationRegion): IndentationRegion
 
   /**
    * Instead of using this method consider using more specific error when possible

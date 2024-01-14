@@ -60,7 +60,6 @@ object SimpleExpr extends ParsingRule {
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
     builder.getTokenType match {
       case NewKeyword =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate new
         if (!ClassTemplateBlock()) {
           builder error ErrMsg("identifier.expected")
@@ -68,7 +67,7 @@ object SimpleExpr extends ParsingRule {
           return false
         }
         newMarker = simpleMarker.precede
-        End(iw)
+        End()
         simpleMarker.done(ScalaElementType.NewTemplate)
       case `tLBRACE` =>
         newMarker = simpleMarker.precede
@@ -169,7 +168,7 @@ object SimpleExpr extends ParsingRule {
           val tMarker = marker.precede
           marker.done(ScalaElementType.METHOD_CALL)
           subparse(tMarker)
-        case InBracelessScala3(`tDOT`) if ParserUtils.isOutdent =>
+        case InBracelessScala3(`tDOT`) if builder.isOutdentHere =>
           marker.drop()
         case `tDOT` =>
           state = true

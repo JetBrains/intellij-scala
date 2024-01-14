@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{IndentationRegion, ScalaPsiBuilder}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
@@ -28,24 +28,21 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3 || !builder.isScala3IndentationBasedSyntaxEnabled) {
-      return exprParser()
+      return parseSingleExpr()
     }
     if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
-      return exprParser()
+      return parseSingleExpr()
     }
 
     val prevIndent = builder.findPreviousIndent
     val indentationForExprBlock = prevIndent match {
       case Some(indent) => indent
       case None =>
-        return exprParser() // expression doesn't start from a new line, parse single expression
+        return parseSingleExpr() // expression doesn't start from a new line, parse single expression
     }
-    val parentIndent = builder.currentIndentationWidth
-    indentationForExprBlock.compare(parentIndent) match {
-      case x if x > 0  => // ok, expression is indented
-      case x if x == 0 =>
-        return exprParser() // expression is not indented, parse single expression
-      case _           =>
+
+    if (!builder.isIndent(indentationForExprBlock)) {
+      if (builder.isOutdentHere) {
         val errorMarker = builder.mark()
         errorMarker.error(ScalaBundle.message("line.is.indented.too.far.to.the.left"))
         val parsed = exprParser()
@@ -55,15 +52,15 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
           errorMarker.drop()
         }
         return parsed // expression is unindented, parse single expression
+      } else {
+        return parseSingleExpr() // expression is not indented, parse a single expression
+      }
     }
 
     val blockMarker = builder.mark()
-    builder.withIndentationWidth(indentationForExprBlock) {
+    builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
       builder.withEnabledNewlines {
-
         blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
-
-        def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
 
         def doParseExpr(): Boolean = {
           // We need to early parse those definitions which begin with a soft keyword
@@ -82,7 +79,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
           @tailrec
           def parseRest(isBlock: Boolean): Boolean = {
-            if (!isOutdent) {
+            if (!builder.isOutdentHere) {
               val tt = builder.getTokenType
               if (tt == ScalaTokenTypes.tSEMICOLON) {
                 builder.advanceLexer() // ate ;
@@ -153,7 +150,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
               case _ =>
                 // attempt case clauses parsing
                 backMarker.rollbackTo()
-                if (CaseClausesInIndentationRegion() && isOutdent || builder.eof()) {
+                if (CaseClausesInIndentationRegion() && builder.isOutdentHere) {
                   // case clauses parsed and an outdent or eof is following, succeed with creating a block expression
                   blockMarker.done(ScCodeBlockElementType.BlockExpression)
                   true
@@ -170,6 +167,11 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
       }
     }
   }
+
+  private def parseSingleExpr()(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.withIndentationRegion(builder.newExpressionRegionHere) {
+      exprParser()
+    }
 }
 
 object ExprInIndentationRegion extends ExprInIndentationRegion {

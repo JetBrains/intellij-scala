@@ -4,12 +4,12 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{IndentationRegion, ScalaPsiBuilder}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaTokenBinders}
 
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’
@@ -49,10 +49,10 @@ object ExtMethods extends ParsingRule {
     //we need to register extra commet binder to later delegate it by binder of function inside the body
     //otherwise, the doc comment will be parsed as sibling of parameters & extension body
     extDefinitionsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
-    val (blockIndentation, baseIndentation, onlyOne) = builder.getTokenType match {
+    val region = builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE  =>
         builder.advanceLexer() // Ate {
-        (BlockIndentation.create, None, false)
+        Some(builder.newBracedIndentationRegionHere)
       case _ if builder.isScala3IndentationBasedSyntaxEnabled =>
         // TODO: colon is not available in extension methods
         //  we could still parse it and add an error in Annotator
@@ -63,54 +63,55 @@ object ExtMethods extends ParsingRule {
         }
 
         builder.findPreviousIndent match {
-          case indentO@Some(indent) =>
-            if (indent > builder.currentIndentationWidth) {
-              (BlockIndentation.noBlock, indentO, false)
+          case Some(indent) =>
+            if (builder.isIndent(indent)) {
+              builder.newBracelessIndentationRegionHere.ensuring(_.nonEmpty)
             } else {
               builder error ErrMsg("expected.at.least.one.extension.method")
-              End(builder.currentIndentationWidth)
+              End()
               extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
               return true
             }
           case None =>
             if (hasColon) {
               builder error ScalaBundle.message("expected.new.line.after.colon")
-              End(builder.currentIndentationWidth)
+              End()
               extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
               return true
             } else {
-              (BlockIndentation.noBlock, None, true)
+              None
             }
         }
       case _ =>
-        if (builder.findPreviousIndent.isEmpty) {
-          (BlockIndentation.noBlock, None, true)
+        if (!builder.hasPrecedingIndent) {
+          None
         }
         else {
-          End(builder.currentIndentationWidth)
+          End()
           extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
           return true
         }
-//        End(builder.currentIndentationWidth)
-//        extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
-//        return true
     }
 
     var extMethodsParsed = false
-    if (onlyOne) extMethodsParsed = ExtMethod()
-    else builder.maybeWithIndentationWidth(baseIndentation) {
-      parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("extension.method.expected")) {
+    region match {
+      case None =>
+        // parse only a single extension method
         extMethodsParsed = ExtMethod()
-        extMethodsParsed
-      }
+      case Some(region) =>
+        builder.withIndentationRegion(region) {
+          parseRuleInBlockOrIndentationRegion(region, ErrMsg("extension.method.expected")) {
+            extMethodsParsed = ExtMethod()
+            extMethodsParsed
+          }
+        }
     }
 
     if (!extMethodsParsed) {
       builder error ErrMsg("expected.at.least.one.extension.method")
     }
 
-    blockIndentation.drop()
-    End(builder.currentIndentationWidth)
+    End()
     extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
     true
   }
@@ -191,13 +192,12 @@ object ExtMethod extends ParsingRule {
     while (Modifier() || parseScalaMetaInline()) {}
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
-    val iw = builder.currentIndentationWidth
     if (FunDef()) {
-      End(iw)
+      End()
       defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
       true
     } else if (FunDcl()) {
-      End(iw)
+      End()
       defMarker.done(ScalaElementType.FUNCTION_DECLARATION)
       true
     } else {

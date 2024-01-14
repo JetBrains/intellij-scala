@@ -10,10 +10,10 @@ import scala.reflect.ClassTag
 trait PsiSelectionUtil {
   type NamedElementPath = List[String]
 
-  def selectElement[R: ClassTag](elem: PsiElement, path: NamedElementPath, searchElement: Boolean = false): R = {
+  def selectElement[R <: PsiElement : ClassTag](elem: PsiElement, path: NamedElementPath, searchElement: Boolean = false): R = {
     val typeName = implicitly[ClassTag[R]].runtimeClass.getName
     def getInner(elem: PsiElement, path: List[String]): Either[String, R] = {
-      def pathString = path.mkString("/")
+      def pathString = "/" + path.mkString("/")
       path match {
         case name :: rest =>
           for {
@@ -30,7 +30,8 @@ trait PsiSelectionUtil {
           val foundElements = elem.depthFirst().collect { case e: R => e }.to(LazyList)
           foundElements match {
             case LazyList(foundElement) => Right(foundElement)
-            case _ => Left(s"Found no element of type $pathString in ${path.mkString("/")}")
+            case LazyList() => Left(s"Found no element of type $typeName in $pathString")
+            case elements => Left(s"Found ${elements.length} elements of type $typeName in $pathString:\n${elements.map(_.getText).mkString("\n")}")
           }
         case _ =>
           elem match {
@@ -46,8 +47,8 @@ trait PsiSelectionUtil {
     }
   }
 
-  def searchElement[R: ClassTag](elem: PsiElement, path: NamedElementPath = List.empty): R =
-    selectElement(elem, path, searchElement = true)
+  def searchElement[R <: PsiElement : ClassTag](elem: PsiElement, path: NamedElementPath = List.empty): R =
+    selectElement[R](elem, path, searchElement = true)
 
   def path(path: String*): List[String] = path.toList
 }

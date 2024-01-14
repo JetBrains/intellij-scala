@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.lang
 import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.IndentationRegion
 
 import scala.annotation.tailrec
 
 package object parser {
 
-  implicit class PsiBuilderExt[B <: PsiBuilder](private val repr: B) extends AnyVal {
+  implicit final class PsiBuilderExt[B <: PsiBuilder](private val repr: B) extends AnyVal {
 
     def build(elementType: IElementType)
              (parse: => Boolean): Boolean = {
@@ -57,8 +58,7 @@ package object parser {
     }
 
     @annotation.tailrec
-    final def skipWhiteSpacesAndComments(steps: Int,
-                                         accumulator: IElementType = null): (Int, IElementType) =
+    def skipWhiteSpacesAndComments(steps: Int, accumulator: IElementType = null): (Int, IElementType) =
       repr.getCurrentOffset match {
         case offset if steps < offset =>
           repr.rawLookup(-steps) match {
@@ -108,18 +108,21 @@ package object parser {
       result
     }
 
+    @inline
     def withDisabledNewlines[T](body: => T): T = {
       repr.disableNewlines()
       try body
       finally repr.restoreNewlinesState()
     }
 
+    @inline
     def withEnabledNewlines[T](body: => T): T = {
       repr.enableNewlines()
       try body
       finally repr.restoreNewlinesState()
     }
 
+    @inline
     def withDisabledNewlinesIf[T](cond: Boolean)(body: => T): T =
       if (cond) withDisabledNewlines(body)
       else body
@@ -135,24 +138,53 @@ package object parser {
       else None
     }
 
-    def withIndentationWidth[R](width: IndentationWidth)(body: => R): R = {
-      repr.pushIndentationWidth(width)
+    def isIndent(indent: IndentationWidth): Boolean =
+      repr.currentIndentationRegion.isIndent(indent)
+
+    def isIndent(indent: Option[IndentationWidth]): Boolean =
+      repr.currentIndentationRegion.isIndent(indent)
+
+//    do not use, because of eof
+//
+//    def isOutdent(indent: IndentationWidth): Boolean =
+//      repr.currentIndentationRegion.isOutdent(indent)
+//
+//    def isOutdent(indent: Option[IndentationWidth]): Boolean =
+//      repr.currentIndentationRegion.isOutdent(indent)
+
+    def isIndentHere: Boolean =
+      repr.isIndent(repr.findPreviousIndent)
+
+    def isOutdentHere: Boolean =
+      repr.currentIndentationRegion.isOutdent(repr.findPreviousIndent) || repr.eof()
+
+    def newExpressionRegionHere: IndentationRegion =
+      newBracelessIndentationRegionHere.getOrElse(IndentationRegion.SingleExpr(repr.currentIndentationRegion))
+
+    def newBracelessIndentationRegionHere: Option[IndentationRegion] =
+      repr.findPreviousIndent
+        .filter(repr.isIndent)
+        .map(IndentationRegion.Indented(_)(Some(repr.currentIndentationRegion)))
+
+    def newBracedIndentationRegionHere: IndentationRegion =
+      IndentationRegion.Braced.fromHere(repr)
+
+    def hasPrecedingIndent: Boolean =
+      repr.findPreviousIndent.isDefined
+
+    @inline
+    def withIndentationRegion[T](region: IndentationRegion)(body: => T): T = {
+      repr.pushIndentationRegion(region)
       try body
-      finally repr.popIndentationWidth()
+      finally repr.popIndentationRegion(region)
     }
 
-    def maybeWithIndentationWidth[R](width: Option[IndentationWidth])(body: => R): R =
-      width.fold(body)(withIndentationWidth(_)(body))
-
-    def insideBracedRegion[T](body: => T): T = {
-      repr.enterBracedRegion()
-      try body
-      finally repr.exitBracedRegion()
-    }
-
-    def insideBracedRegionIf[T](cond: Boolean)(body: => T): T =
-      if (cond) insideBracedRegion(body)
-      else body
+    @inline
+    def withIndentationRegion[T](region: Option[IndentationRegion])(body: => T): T =
+      region match {
+        case Some(region) => withIndentationRegion(region)(body)
+        case None => body
+      }
 
     /** Skip matching pairs of `(...)` or `[...]` parentheses.
      *

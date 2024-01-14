@@ -324,8 +324,6 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
-      |          PsiErrorElement:Line is indented too far to the left
-      |            <empty list>
       |          PsiWhiteSpace('\n ')
       |          SelfInvocation
       |            PsiElement(this)('this')

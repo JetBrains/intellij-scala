@@ -138,8 +138,8 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         val opText = builder.getTokenText
         builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
           isSymbolicIdentifier(opText) && {
+            val region = builder.currentIndentationRegion
             val opIndent = builder.findPreviousIndent
-            def prevIndent = builder.previousIndentationWidth
             // Actually the operator is allowed to be under the current indent, but not so much that it is on the previous indent
             //      |return
             //      |  a
@@ -150,8 +150,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
             //      |  a
             //      |+ b
             // -> return a; +b
-            def isInPreviousIndent = opIndent.forall(opIndent => prevIndent.forall(prevIndent => prevIndent < opIndent))
-            isInPreviousIndent &&
+            opIndent.forall(indent => !region.isOutdentForLeadingInfixOperator(indent)) &&
               builder.predict { builder =>
                 // A leading infix operator must be followed by a lexically suitable expression.
                 // Usually any simple expr will do. However, a backquoted identifier may serve as

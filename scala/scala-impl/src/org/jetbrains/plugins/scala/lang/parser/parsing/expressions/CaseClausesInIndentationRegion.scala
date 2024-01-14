@@ -28,17 +28,16 @@ abstract class CaseClausesInIndentationRegion extends ParsingRule {
     // see https://github.com/lampepfl/dotty/issues/11905#issuecomment-808316102
 
     // we are at `case`
-    builder.findPreviousIndent match {
-      case Some(indentationWidth) if builder.isScala3IndentationBasedSyntaxEnabled =>
-        builder.withIndentationWidth(indentationWidth) {
-          CaseClausesWithoutBraces()
-        }
-      case None if allowExprCaseClause =>
-        // Something like
-        // try test() catch case _ =>
-        ExprCaseClause()
-      case _ =>
-        false
+    if (builder.isScala3IndentationBasedSyntaxEnabled && builder.hasPrecedingIndent && !builder.isOutdentHere) {
+      builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+        CaseClausesWithoutBraces()
+      }
+    } else if (allowExprCaseClause) {
+      // Something like
+      // try test() catch case _ =>
+      ExprCaseClause()
+    } else {
+      false
     }
   }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScCodeBlockElementType, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -76,8 +76,11 @@ object Block {
           blockMarker.drop()
           return false
       }
-      ParserUtils.parseLoopUntilRBrace() {
-        Block.ContentInBraces()
+
+      builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
+        ParserUtils.parseLoopUntilRBrace() {
+          Block.ContentInBraces()
+        }
       }
       builder.restoreNewlinesState()
       blockMarker.done(ScCodeBlockElementType.BlockExpression)
@@ -100,19 +103,16 @@ object Block {
 
     private def parseImpl(stopOnOutdent: Boolean)(implicit builder: ScalaPsiBuilder): Int = {
       var i: Int = 0
-      val blockIndentation = BlockIndentation.create
 
       var tts: List[IElementType] = Nil
       var continue = true
 
-      val prevIndentation = builder.currentIndentationWidth
       while (continue) {
-        blockIndentation.fromHere()
         val isOutdent =
           stopOnOutdent &&
           builder.isScala3 &&
           builder.isScala3IndentationBasedSyntaxEnabled &&
-            builder.findPreviousIndent.exists(_ < prevIndentation)
+            builder.isOutdentHere
         if (isOutdent) {
           continue = false
         } else if (ResultExpr(stopOnOutdent)) {
@@ -127,7 +127,6 @@ object Block {
         }
       }
       if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
-      blockIndentation.drop()
       i
     }
   }

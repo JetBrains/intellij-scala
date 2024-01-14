@@ -86,11 +86,11 @@ ScalaFile
           PsiElement(=>)('=>')
           BlockOfExpressions
             <empty list>
-      PsiWhiteSpace('\n')
-      End: f
-        PsiElement(end)('end')
-        PsiWhiteSpace(' ')
-        PsiElement(identifier)('f')
+    PsiWhiteSpace('\n')
+    End: f
+      PsiElement(end)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f')
   PsiWhiteSpace('\n\n')
   ScObject: Test
     AnnotationsList

@@ -94,10 +94,10 @@ class ScalaPsiBuilderImpl(
   override final def enableNewlines(): Unit =
     newlinesEnabled = true :: newlinesEnabled
 
-  override final def enterBracedRegion(): Unit =
+  private def enterBracedRegion(): Unit =
     inBracedRegion += 1
 
-  override final def exitBracedRegion(): Unit = {
+  private def exitBracedRegion(): Unit = {
     assert(isInsideBracedRegion)
     inBracedRegion -= 1
   }
@@ -167,31 +167,39 @@ class ScalaPsiBuilderImpl(
     case _ => true
   }
 
-  private var indentationStack = List(IndentationWidth.initial)
-
   def isScala3IndentationBasedSyntaxEnabled: Boolean =
     features.indentationBasedSyntaxEnabled
 
-  override def currentIndentationWidth: IndentationWidth =
-    indentationStack.head
+  private var indentationRegionStack = List(IndentationRegion.initial)
 
-  override def previousIndentationWidth: Option[IndentationWidth] =
-    indentationStack match {
-      case top :: rest =>
-        // sometimes we push the same indentation with multiple times
-        // so we filter these away
-        rest.find(_ != top)
-      case _ => None
+  override def currentIndentationRegion: IndentationRegion = indentationRegionStack.head
+
+  override def pushIndentationRegion(region: IndentationRegion): Unit = {
+    region match {
+      case IndentationRegion.Indented(indent) =>
+        assert(currentIndentationRegion.isIndent(indent))
+      case _: IndentationRegion.Braced =>
+        // braced regions can have a lower indentation than the current indentation
+        enterBracedRegion()
+      case _: IndentationRegion.SingleExpr =>
+        // single expression regions have the indentation level of the previous region
     }
 
-  override def pushIndentationWidth(width: IndentationWidth): Unit =
-    indentationStack ::= width
-
-  override def popIndentationWidth(): IndentationWidth = {
-    val top :: rest = indentationStack
-    indentationStack = rest
-    top
+    indentationRegionStack ::= region
   }
+
+  override def popIndentationRegion(region: IndentationRegion): IndentationRegion = {
+    val popped :: rest = indentationRegionStack
+    assert(popped == region)
+    indentationRegionStack = rest
+
+    if (popped.isBraced) {
+      exitBracedRegion()
+    }
+
+    popped
+  }
+
 
   private val indentationCache = mutable.HashMap.empty[Int, Option[IndentationWidth]]
 
@@ -202,40 +210,6 @@ class ScalaPsiBuilderImpl(
    *   - None for `def foo = <caret>bar`
    */
   def findPreviousIndent: Option[IndentationWidth] = {
-    val originalText = getOriginalText
-    @tailrec
-    def inner(step: Int, tokenEnd: Int, lastNonWsStart: Int): Option[IndentationWidth] = {
-      rawLookup(step) match {
-        case c if ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(c) =>
-          val commentStart = this.rawTokenTypeStart(step)
-          inner(step - 1, commentStart, commentStart)
-        case ws if ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(ws) =>
-          val wsStart = this.rawTokenTypeStart(step)
-          val wsText = originalText.subSequence(wsStart, tokenEnd)
-          lastNewLineOffset(wsText) match {
-            case Some(newlineOffset) =>
-              val indentWs = originalText.subSequence(wsStart + newlineOffset + 1, lastNonWsStart)
-              Some(new IndentationWidth(indentWs.toString))
-            case None =>
-              inner(step - 1, wsStart, lastNonWsStart)
-          }
-        case _ =>
-          None
-      }
-    }
-
-    val currentOffset = getCurrentOffset
-    indentationCache.getOrElseUpdate(currentOffset, inner(-1, currentOffset, currentOffset))
-  }
-
-  private def lastNewLineOffset(charSeq: CharSequence): Option[Int] = {
-    var i = charSeq.length - 1
-    while (i >= 0) {
-      charSeq.charAt(i) match {
-        case '\n' => return Some(i)
-        case _    => i -= 1
-      }
-    }
-    None
+    indentationCache.getOrElseUpdate(getCurrentOffset, lookBehindForPrecedingIndentation(this, 0))
   }
 }

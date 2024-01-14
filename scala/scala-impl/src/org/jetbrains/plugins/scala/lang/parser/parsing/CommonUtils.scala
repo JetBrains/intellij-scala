@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScalaElementType}
 
 object CommonUtils {
 
@@ -100,13 +100,6 @@ object CommonUtils {
 
   def eatAllSemicolons()(implicit builder: ScalaPsiBuilder): Unit = {
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
-      builder.advanceLexer()
-    }
-  }
-
-  def eatAllSemicolons(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit = {
-    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
-      blockIndentation.fromHere()
       builder.advanceLexer()
     }
   }

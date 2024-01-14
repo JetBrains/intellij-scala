@@ -2295,11 +2295,11 @@ ScalaFile
                                         PsiElement(identifier)('arg')
                                       PsiElement(interpolated string end)('"')
                                     PsiElement())(')')
-                        PsiWhiteSpace('\n      ')
-                        End: flagUnused
-                          PsiElement(end)('end')
-                          PsiWhiteSpace(' ')
-                          PsiElement(identifier)('flagUnused')
+                      PsiWhiteSpace('\n      ')
+                      End: flagUnused
+                        PsiElement(end)('end')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('flagUnused')
                     PsiWhiteSpace('\n\n      ')
                     IfStatement
                       PsiElement(if)('if')
@@ -2469,11 +2469,11 @@ ScalaFile
                     PsiElement(end)('end')
                     PsiWhiteSpace(' ')
                     PsiElement(identifier)('run')
-                PsiWhiteSpace('\n  ')
-                End: command
-                  PsiElement(end)('end')
-                  PsiWhiteSpace(' ')
-                  PsiElement(identifier)('command')
+          PsiWhiteSpace('\n  ')
+          End: command
+            PsiElement(end)('end')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('command')
         PsiWhiteSpace('\n')
         End: main
           PsiElement(end)('end')

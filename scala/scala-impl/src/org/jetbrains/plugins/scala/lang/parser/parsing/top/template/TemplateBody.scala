@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) extends ParsingRule {
 
@@ -22,28 +22,21 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
     val marker = builder.mark()
     builder.enableNewlines()
 
-    var canAcceptEnd = false
-    var hasBraces = false
-    val (blockIndentation, baseIndentation) = builder.getTokenType match {
+    val region = builder.getTokenType match {
       case `tLBRACE` =>
-        hasBraces = true
-        builder.enterBracedRegion()
         builder.advanceLexer() // Ate {
-        BlockIndentation.create -> None
+        builder.newBracedIndentationRegionHere
       case tok if builder.isScala3IndentationBasedSyntaxEnabled =>
         tok match {
           case InScala3(ScalaTokenTypes.tCOLON) =>
             builder.advanceLexer() // Ate :
-            canAcceptEnd = true
           case InScala3(_) if indentationCanStartWithoutColon =>
-            canAcceptEnd = true
           case _ =>
             marker.drop()
             builder.restoreNewlinesState()
             return true
         }
 
-        val currentIndent = builder.currentIndentationWidth
         val prevIndent = builder.findPreviousIndent
         prevIndent match {
           case None if builder.getTokenType != null =>
@@ -56,13 +49,10 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
             marker.rollbackTo()
             builder.restoreNewlinesState()
             return false
-          case indentO@Some(indent) if indent > currentIndent =>
-            BlockIndentation.noBlock -> indentO
+          case Some(indent) if builder.isIndent(indent) =>
+            builder.newBracelessIndentationRegionHere.get
           case _ =>
-            val endsWithEndMarker = if (canAcceptEnd)
-              End(builder.currentIndentationWidth)
-            else
-              false
+            val endsWithEndMarker = End()
             if (!endsWithEndMarker && generateIndentedDefinitionsExpectedError) {
               builder.error(ScalaBundle.message("indented.definitions.expected"))
             }
@@ -76,20 +66,15 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
         return false
     }
 
-    builder.maybeWithIndentationWidth(baseIndentation) {
-      builder.insideBracedRegionIf(hasBraces) {
-        SelfType()
-        parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
-          statementRule()
-        }
+    builder.withIndentationRegion(region) {
+      SelfType()
+      parseRuleInBlockOrIndentationRegion(region, ErrMsg("def.dcl.expected")) {
+        statementRule()
       }
     }
 
-    if (hasBraces) builder.exitBracedRegion()
-    blockIndentation.drop()
     builder.restoreNewlinesState()
-    if (canAcceptEnd)
-      End(builder.currentIndentationWidth)
+    End()
     marker.done(ScalaElementType.TEMPLATE_BODY)
 
     true

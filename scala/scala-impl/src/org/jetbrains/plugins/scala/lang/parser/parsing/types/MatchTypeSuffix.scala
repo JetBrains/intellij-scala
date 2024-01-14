@@ -15,22 +15,24 @@ object MatchTypeSuffix extends ParsingRule {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
         builder.enableNewlines()
-        ParserUtils.parseLoopUntilRBrace() {
-          if (!TypeCaseClauses())
-            builder.error(ScalaBundle.message("match.type.cases.expected"))
+        builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
+          ParserUtils.parseLoopUntilRBrace() {
+            if (!TypeCaseClauses())
+              builder.error(ScalaBundle.message("match.type.cases.expected"))
+          }
         }
         builder.restoreNewlinesState()
       case InScala3(ScalaTokenTypes.kCASE) =>
 
-        builder.findPreviousIndent match {
-          case Some(indentationWidth) =>
-            builder.withIndentationWidth(indentationWidth) {
-              TypeCaseClauses()
-            }
-          case None =>
-            builder.error(ScalaBundle.message("expected.case.on.a.new.line"))
+        if (!builder.isOutdentHere) {
+          builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+            TypeCaseClauses()
+          }
+        } else {
+          builder.error(ScalaBundle.message("expected.case.on.a.new.line"))
         }
-      case _ => builder.error(ScalaBundle.message("match.type.cases.expected"))
+      case _ =>
+        builder.error(ScalaBundle.message("match.type.cases.expected"))
     }
     true
   }

@@ -72,7 +72,6 @@ object TmplDef extends ParsingRule {
   }
 
   private def parseTmplRest(rule: ParsingRule, templateMarker: PsiBuilder.Marker, elementType: IElementType)(implicit builder: ScalaPsiBuilder): Unit = {
-    val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate class
     if (rule()) {
      /**
@@ -83,7 +82,7 @@ object TmplDef extends ParsingRule {
       * }}}
       * (notice no colon `:` after class name)
       */
-      End(iw)
+      End()
       templateMarker.done(elementType)
     } else {
       templateMarker.drop()

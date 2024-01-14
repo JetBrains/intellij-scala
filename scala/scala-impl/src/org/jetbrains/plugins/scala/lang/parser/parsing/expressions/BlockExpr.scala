@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScCodeBlockElementType}
+import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
@@ -23,32 +23,29 @@ object BlockExpr extends ParsingRule {
       case `tLBRACE` =>
         builder.advanceLexer()
         builder.enableNewlines()
-        builder.enterBracedRegion()
       case _ =>
         blockExprMarker.drop()
         return false
     }
-    val blockIndentation = BlockIndentation.create
-    ParserUtils.parseLoopUntilRBrace() {
-      builder.getTokenType match {
-        case `kCASE` =>
-          val backMarker = builder.mark()
-          builder.advanceLexer()
-          builder.getTokenType match {
-            case ClassKeyword | ObjectKeyword =>
-              backMarker.rollbackTo()
-              Block.ContentInBraces()
-            case _ =>
-              backMarker.rollbackTo()
-              CaseClauses()
-          }
-        case _ =>
-          blockIndentation.fromHere()
-          Block.ContentInBraces()
+    builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
+      ParserUtils.parseLoopUntilRBrace() {
+        builder.getTokenType match {
+          case `kCASE` =>
+            val backMarker = builder.mark()
+            builder.advanceLexer()
+            builder.getTokenType match {
+              case ClassKeyword | ObjectKeyword =>
+                backMarker.rollbackTo()
+                Block.ContentInBraces()
+              case _ =>
+                backMarker.rollbackTo()
+                CaseClauses()
+            }
+          case _ =>
+            Block.ContentInBraces()
+        }
       }
     }
-    blockIndentation.drop()
-    builder.exitBracedRegion()
     builder.restoreNewlinesState()
     blockExprMarker.done(ScCodeBlockElementType.BlockExpression)
     true

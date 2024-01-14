@@ -28,18 +28,17 @@ object GivenDef {
     assert(builder.isScala3)
     assert(builder.getTokenType == ScalaTokenType.GivenKeyword)
 
-    val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate given
 
     val hasSignature = GivenSig()
 
-    if (!parseGivenAlias(hasSignature, iw, templateMarker) &&
-      !parseGivenDefinition(iw, templateMarker)) {
+    if (!parseGivenAlias(hasSignature, templateMarker) &&
+      !parseGivenDefinition(templateMarker)) {
       templateMarker.drop()
     }
   }
 
-  private def parseGivenAlias(hasSignature: Boolean, iw: IndentationWidth, templateMarker: PsiBuilder.Marker)
+  private def parseGivenAlias(hasSignature: Boolean, templateMarker: PsiBuilder.Marker)
                              (implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
 
@@ -73,7 +72,7 @@ object GivenDef {
         if (!ExprInIndentationRegion())
           builder.error(ScalaBundle.message("expression.expected"))
 
-        End(iw)
+        End()
         ScalaElementType.GIVEN_ALIAS_DEFINITION
       } else ScalaElementType.GIVEN_ALIAS_DECLARATION
 
@@ -88,7 +87,7 @@ object GivenDef {
 
   private val nonConstructorStartId = ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.toString).toSet
 
-  private def parseGivenDefinition(iw: IndentationWidth, templateMarker: PsiBuilder.Marker)
+  private def parseGivenDefinition(templateMarker: PsiBuilder.Marker)
                                   (implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsBlockMarker = builder.mark()
     val templateParents = builder.mark()
@@ -141,7 +140,7 @@ object GivenDef {
 
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
 
-    End(iw)
+    End()
     templateMarker.done(ScalaElementType.GivenDefinition)
     true
   }

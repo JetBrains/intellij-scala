@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
@@ -18,21 +18,20 @@ object Packaging extends ParsingRule {
     val packMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE =>
-        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate package
         if (!QualId()) {
           packMarker.drop()
           return false
         }
         //parsing body of regular packaging
-        val (blockIndentation, baseIndentation) = builder.getTokenType match {
+        val region = builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             if (!builder.twoNewlinesBeforeCurrentToken) {
               builder.advanceLexer() //Ate '{'
             } else {
               //if there are two new lines after `package` then parse it as block expression
             }
-            BlockIndentation.create -> None
+            builder.newBracedIndentationRegionHere
           case InScala3(ScalaTokenTypes.tCOLON) =>
             if (!builder.isScala3IndentationBasedSyntaxEnabled) {
               // we add the error but continue to parse
@@ -40,12 +39,15 @@ object Packaging extends ParsingRule {
             }
 
             builder.advanceLexer() // Ate :
-            val currentIndent = builder.currentIndentationWidth
-            builder.findPreviousIndent match {
-              case indentO@Some(indent) if indent > currentIndent =>
-                BlockIndentation.noBlock -> indentO
-              case _ =>
-                End(iw)
+            builder.newBracelessIndentationRegionHere match {
+              case Some(region) => region
+              case None =>
+                if (builder.hasPrecedingIndent) {
+                  builder error ErrMsg("indented.definitions.expected")
+                } else {
+                  builder error ErrMsg("expected.new.line.after.colon")
+                }
+                End()
                 packMarker.done(ScalaElementType.PACKAGING)
                 return true
             }
@@ -55,16 +57,16 @@ object Packaging extends ParsingRule {
             return true
         }
 
-        builder.enableNewlines()
-        builder.maybeWithIndentationWidth(baseIndentation) {
-          parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
-            TopStatSeq.parse(waitBrace = true, baseIndent = baseIndentation)
-            true
+        builder.withEnabledNewlines {
+          builder.withIndentationRegion(region) {
+            parseRuleInBlockOrIndentationRegion(region, ErrMsg("def.dcl.expected")) {
+              TopStatSeq.parse(waitBrace = true)
+              true
+            }
           }
         }
-        blockIndentation.drop()
-        builder.restoreNewlinesState()
-        End(iw)
+
+        End()
         packMarker.done(ScalaElementType.PACKAGING)
         true
       case _ =>

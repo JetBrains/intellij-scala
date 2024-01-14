@@ -74,11 +74,10 @@ object CaseClauseInBracelessCaseClauses extends CaseClause {
   }
 
   override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {
-    val prevIndent = builder.findPreviousIndent
     // using `forall`, not `exists` because if there is no new line before case, it still can be allowed, e.g. here:
     // 1 match
     //   case 1 => 11 case 2 => 22
-    prevIndent.forall(_ >= builder.currentIndentationWidth)
+    !builder.isOutdentHere
   }
 }
 

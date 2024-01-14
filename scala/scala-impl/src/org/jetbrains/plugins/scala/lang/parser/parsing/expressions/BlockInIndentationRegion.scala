@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -12,25 +12,24 @@ object BlockInIndentationRegion extends ParsingRule {
 
     val blockMarker = builder.mark()
 
-    val indentionWidthBefore = builder.currentIndentationWidth
-
-    def hasOutdent: Boolean = {
-      builder.findPreviousIndent.exists(_ <= indentionWidthBefore)
-    }
-
-    val blockIndentation = BlockIndentation.create
-
     @tailrec
     def parseNext(): Unit = {
-      blockIndentation.fromHere()
       builder.getTokenType match {
-        case _ if hasOutdent || builder.eof() =>
+        case ScalaTokenTypes.kCASE =>
+          return
+
+        case _ if builder.isOutdentHere =>
+          return
+
+        case _ if builder.hasPrecedingIndent && !builder.isIndentHere =>
+          // the block must be indented one more than the indentation of `case`
+          //
+          // x match
+          //   case 1 =>
+          //   1   // <- no outdent here, but still not a part of the case block
           return
 
         case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE =>
-          return
-
-        case ScalaTokenTypes.kCASE =>
           return
 
         case ScalaTokenTypes.tSEMICOLON =>
@@ -46,7 +45,6 @@ object BlockInIndentationRegion extends ParsingRule {
     }
 
     parseNext()
-    blockIndentation.drop()
     blockMarker.done(ScalaElementType.BLOCK)
     true
   }

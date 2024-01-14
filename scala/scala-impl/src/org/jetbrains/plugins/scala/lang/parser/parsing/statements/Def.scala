@@ -35,12 +35,11 @@ object Def extends ParsingRule {
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
     //Look for val,var,def or type
-    val iw = builder.currentIndentationWidth
     builder.getTokenType match {
       case `kVAL` =>
         builder.advanceLexer() //Ate val
         if (PatDef()) {
-          End(iw)
+          End()
           defMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
@@ -51,7 +50,7 @@ object Def extends ParsingRule {
       case `kVAR` =>
         builder.advanceLexer() //Ate var
         if (PatDef()) {
-          End(iw)
+          End()
           defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
@@ -61,11 +60,11 @@ object Def extends ParsingRule {
         }
       case `kDEF` =>
         if (MacroDef()) {
-          End(iw)
+          End()
           defMarker.done(ScalaElementType.MACRO_DEFINITION)
           true
         } else if (FunDef()) {
-          End(iw)
+          End()
           defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
           true
         } else {

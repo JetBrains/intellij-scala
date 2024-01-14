@@ -1915,11 +1915,11 @@ ScalaFile
                             PsiElement(identifier)('arg')
                           PsiElement(interpolated string end)('"')
                         PsiElement())(')')
-            PsiWhiteSpace('\n  ')
-            End: showUnused
-              PsiElement(end)('end')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('showUnused')
+          PsiWhiteSpace('\n  ')
+          End: showUnused
+            PsiElement(end)('end')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('showUnused')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: done
           AnnotationsList
