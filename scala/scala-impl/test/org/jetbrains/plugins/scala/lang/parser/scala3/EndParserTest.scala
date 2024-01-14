@@ -584,5 +584,49 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // #SCL-20314
+  // #SCL-20311
+  def test_end_marker_not_for_element_in_single_expression_region(): Unit = checkTree(
+    """
+      |def foo() = new Foo
+      |end foo
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ScNewTemplateDefinition: <anonymous>
+      |      PsiElement(new)('new')
+      |      PsiWhiteSpace(' ')
+      |      ExtendsBlock
+      |        TemplateParents
+      |          ConstructorInvocation
+      |            SimpleType: Foo
+      |              CodeReferenceElement: Foo
+      |                PsiElement(identifier)('Foo')
+      |    PsiWhiteSpace('\n')
+      |    End: foo
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('foo')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   // todo: add tests for given
 }
