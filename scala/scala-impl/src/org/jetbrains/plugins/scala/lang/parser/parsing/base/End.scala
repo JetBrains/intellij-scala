@@ -26,10 +26,11 @@ object End {
       return false
 
     val region = builder.currentIndentationRegion
-    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText == "end" &&
-          builder.findPrecedingIndentation.exists(region.isValidEndMarkerIndentation)) {
-      val marker = builder.mark()
+    val isEndToken = builder.getTokenType == ScalaTokenType.EndKeyword ||
+      builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "end"
+
+    if (isEndToken && builder.findPrecedingIndentation.exists(region.isValidEndMarkerIndentation)) {
+      val marker = builder.markWithSoftKeyRollback()
       builder.remapCurrentToken(ScalaTokenType.EndKeyword)
       builder.advanceLexer() // ate end
 
