@@ -719,5 +719,214 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |""".stripMargin
   )
 
+  def test_end_marker_only_with_two_tokens(): Unit = checkTree(
+    """
+      |object end:
+      |  def Test(any: Any) = 0
+      |
+      |class Test
+      |end Test 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: end
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('end')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: Test
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('Test')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: any
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('any')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Any
+      |                    CodeReferenceElement: Any
+      |                      PsiElement(identifier)('Any')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n\n')
+      |  ScClass: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  InfixExpression
+      |    ReferenceExpression: end
+      |      PsiElement(identifier)('end')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: Test
+      |      PsiElement(identifier)('Test')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_no_end_marker_for_single_expr_regions(): Unit = checkTree(
+    """
+      |{ if (a) 0; while (true) for (x <- y) 1
+      |end while
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace(' ')
+      |    IfStatement
+      |      PsiElement(if)('if')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(()('(')
+      |      ReferenceExpression: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiElement(;)(';')
+      |    PsiWhiteSpace(' ')
+      |    WhileStatement
+      |      PsiElement(while)('while')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(()('(')
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
+      |      PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      ForStatement
+      |        PsiElement(for)('for')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(()('(')
+      |        Enumerators
+      |          Generator
+      |            ReferencePattern: x
+      |              PsiElement(identifier)('x')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(<-)('<-')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: y
+      |              PsiElement(identifier)('y')
+      |        PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n')
+      |      End: while
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(while)('while')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_end_indent_doesnt_matter_in_braced_regions(): Unit = checkTree(
+    """
+      |{
+      |  val a =
+      |    0
+      |end a
+      |
+      |    val b =
+      |      0
+      |     end b
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n  ')
+      |    ScPatternDefinition: a
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(val)('val')
+      |      PsiWhiteSpace(' ')
+      |      ListOfPatterns
+      |        ReferencePattern: a
+      |          PsiElement(identifier)('a')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace('\n    ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n')
+      |      End: a
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |    PsiWhiteSpace('\n\n    ')
+      |    ScPatternDefinition: b
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(val)('val')
+      |      PsiWhiteSpace(' ')
+      |      ListOfPatterns
+      |        ReferencePattern: b
+      |          PsiElement(identifier)('b')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace('\n      ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n     ')
+      |      End: b
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   // todo: add tests for given
 }

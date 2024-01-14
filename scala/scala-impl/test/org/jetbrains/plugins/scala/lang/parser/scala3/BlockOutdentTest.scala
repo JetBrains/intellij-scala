@@ -1027,4 +1027,94 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_indentation_width_of_braced_regions(): Unit = checkTree(
+    """
+      |{ while (true)
+      |    // indentation width of the braced region is 4 spaces!
+      |    0
+      |    1  // not part of while ! '0' does not begin an indented block, because it does not increase the indentation level!
+      |
+      |  val test =
+      |     2
+      |     3   // works! because indentation is 5 spaces
+      |
+      |val test2 =
+      |  2
+      |       end test2 // works because '2' is not in an indented region and end-indentation doesn't matter in blocks
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace(' ')
+      |    WhileStatement
+      |      PsiElement(while)('while')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(()('(')
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
+      |      PsiElement())(')')
+      |      PsiWhiteSpace('\n    ')
+      |      PsiComment(comment)('// indentation width of the braced region is 4 spaces!')
+      |      PsiWhiteSpace('\n    ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n    ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('1')
+      |    PsiWhiteSpace('  ')
+      |    PsiComment(comment)('// not part of while ! '0' does not begin an indented block, because it does not increase the indentation level!')
+      |    PsiWhiteSpace('\n\n  ')
+      |    ScPatternDefinition: test
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(val)('val')
+      |      PsiWhiteSpace(' ')
+      |      ListOfPatterns
+      |        ReferencePattern: test
+      |          PsiElement(identifier)('test')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      BlockExpression
+      |        PsiWhiteSpace('\n     ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |        PsiWhiteSpace('\n     ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |    PsiWhiteSpace('   ')
+      |    PsiComment(comment)('// works! because indentation is 5 spaces')
+      |    PsiWhiteSpace('\n\n')
+      |    ScPatternDefinition: test2
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(val)('val')
+      |      PsiWhiteSpace(' ')
+      |      ListOfPatterns
+      |        ReferencePattern: test2
+      |          PsiElement(identifier)('test2')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace('\n  ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('2')
+      |      PsiWhiteSpace('\n       ')
+      |      End: test2
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test2')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// works because '2' is not in an indented region and end-indentation doesn't matter in blocks')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
