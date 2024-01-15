@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
+import com.intellij.ui.components.ActionLink
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
+import java.awt.event.ActionListener
 import java.util
-import javax.swing.{JComponent, JPanel}
+import javax.swing.JComponent
 
 class ScalaParameterHintsSettingsModel(project: Project)
   extends InlayProviderSettingsModel(true, "Scala.ParameterHintsSettingsModel", ScalaLanguage.INSTANCE) {
@@ -23,7 +26,9 @@ class ScalaParameterHintsSettingsModel(project: Project)
 
   override def getName: String = ScalaCodeInsightBundle.message("parameter.name.hints")
 
-  override def getComponent: JComponent = new JPanel()
+  override def getComponent: JComponent =
+    new ActionLink(CodeInsightBundle.message("settings.inlay.java.exclude.list"),
+      (_ => new ExcludeListDialog(ScalaLanguage.INSTANCE, ScalaInlayParameterHintsProvider).show()): ActionListener)
 
   override def getPreviewText: String = null
 
