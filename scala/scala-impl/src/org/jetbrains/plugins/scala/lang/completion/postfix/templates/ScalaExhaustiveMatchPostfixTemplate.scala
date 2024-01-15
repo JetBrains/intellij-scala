@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
@@ -63,16 +64,19 @@ object ScalaExhaustiveMatchPostfixTemplate {
                                 strategy: PatternGenerationStrategy)
                                (implicit project: Project, editor: Editor): Unit = {
     val file = expression.getContainingFile
-    val (components, clausesText) = strategy.createClauses(file.useIndentationBasedSyntax)
+    val (components, clausesText) = strategy.createClauses()
     val expressionText = expression.getText
 
     removeRange(expression.getTextRange)
     startTemplate(expressionText, clausesText)
 
-    for {
-      statement <- findMatchStatementAtCaret(file)
-      caseClauses = statement.clauses
-    } strategy.adjustTypes(components, caseClauses)
+    for (statement <- findMatchStatementAtCaret(file)) {
+      if (file.useIndentationBasedSyntax) {
+        statement.toIndentationBasedSyntax
+      }
+
+      strategy.adjustTypes(components, statement.clauses)
+    }
   }
 
 

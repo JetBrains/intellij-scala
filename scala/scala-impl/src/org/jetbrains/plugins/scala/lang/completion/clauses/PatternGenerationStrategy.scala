@@ -28,8 +28,7 @@ object PatternGenerationStrategy {
         caseClauses.zip(components)
       )
 
-    def createClauses(useIndentationBasedSyntax: Boolean = false,
-                      prefix: Option[String] = None,
+    def createClauses(prefix: Option[String] = None,
                       suffix: Option[String] = None,
                       rightHandSide: String = "")
                      (implicit project: Project): (Seq[PatternComponents], String) = {
@@ -38,9 +37,9 @@ object PatternGenerationStrategy {
       val clausesText = components
         .map(_.canonicalClauseText + rightHandSide)
         .mkString(
-          prefix.getOrElse(ScalaKeyword.MATCH + (if (useIndentationBasedSyntax) "\n" else " {\n")),
+          prefix.getOrElse(ScalaKeyword.MATCH + " {\n"),
           "\n",
-          suffix.getOrElse(if (useIndentationBasedSyntax) "" else "\n}")
+          suffix.getOrElse("\n}")
         )
 
       (components, clausesText)
