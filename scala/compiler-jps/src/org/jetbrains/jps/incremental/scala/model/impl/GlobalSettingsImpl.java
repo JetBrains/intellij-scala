@@ -29,17 +29,6 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     return myState.COMPILE_SERVER_SDK;
   }
 
-  @NotNull
-  @Override
-  public GlobalSettingsImpl createCopy() {
-    return new GlobalSettingsImpl(XmlSerializerUtil.createCopy(myState));
-  }
-
-  @Override
-  public void applyChanges(@NotNull GlobalSettingsImpl compilerSettings) {
-    // do nothing
-  }
-
   /**
    * ATTENTION: these names should be the same in org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
    *

@@ -37,15 +37,4 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     Seq<String> stringsSeq = ScalaCompilerSettingsStateBuilder.getOptionsAsStrings(myState, forScala3Compiler, true);
     return CollectionConverters$.MODULE$.SeqHasAsJava(stringsSeq).asJava();
   }
-
-  @NotNull
-  @Override
-  public CompilerSettingsImpl createCopy() {
-    return new CompilerSettingsImpl(XmlSerializerUtil.createCopy(myState));
-  }
-
-  @Override
-  public void applyChanges(@NotNull CompilerSettingsImpl compilerSettings) {
-    // do nothing
-  }
 }

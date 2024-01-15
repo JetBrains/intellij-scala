@@ -35,26 +35,6 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     myModuleToProfile = moduleToProfile;
   }
 
-  @NotNull
-  @Override
-  public ProjectSettingsImpl createCopy() {
-    CompilerSettingsImpl defaultSettings = myDefaultSettings.createCopy();
-
-    Map<String, CompilerSettingsImpl> profileToSettings = new HashMap<>();
-    for (Map.Entry<String, CompilerSettingsImpl> entry : myProfileToSettings.entrySet()) {
-      profileToSettings.put(entry.getKey(), entry.getValue().createCopy());
-    }
-
-    HashMap<String, String> moduleToProfile = new HashMap<>(myModuleToProfile);
-
-    return new ProjectSettingsImpl(myIncrementalityType, defaultSettings, profileToSettings, moduleToProfile);
-  }
-
-  @Override
-  public void applyChanges(@NotNull ProjectSettingsImpl modified) {
-    // do nothing
-  }
-
   @Override
   public IncrementalityType getIncrementalityType() {
     return myIncrementalityType;

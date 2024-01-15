@@ -39,17 +39,6 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
     return files;
   }
 
-  @NotNull
-  @Override
-  public LibrarySettingsImpl createCopy() {
-    return new LibrarySettingsImpl(XmlSerializerUtil.createCopy(myState));
-  }
-
-  @Override
-  public void applyChanges(@NotNull LibrarySettingsImpl settings) {
-    // do nothing
-  }
-
   public static final class State extends ScalaLibraryPropertiesStateSharedInIdeaAndJps {
   }
 }
