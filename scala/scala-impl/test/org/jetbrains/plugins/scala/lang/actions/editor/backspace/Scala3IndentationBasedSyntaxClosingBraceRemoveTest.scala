@@ -17,7 +17,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   private def empty = ""
 
-  private def withEnabledAndDisabled(before: String, afterWithEnabled: String, afterWithDisabled: String): Unit = {
+  private def withEnabledAndDisabled(before: String, afterWithEnabled: String, afterWithDisabled: String, onlyInIndentationBasedSyntax: Boolean = false): Unit = {
     val settingBefore = ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE
     try {
       getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
@@ -29,9 +29,11 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
       ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
       doTest(before, afterWithDisabled)
 
-      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
-      ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
-      doTest(before, afterWithDisabled)
+      if (!onlyInIndentationBasedSyntax) {
+        getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+        ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
+        doTest(before, afterWithDisabled)
+      }
     }
     finally {
       ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = settingBefore
@@ -851,7 +853,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   def testRemove_FunctionBody_MethodInvocation_IndentedTooFarToTheLeft_After(): Unit = {
     val before =
-      s"""{
+      s"""object A:
          |  def foo() = {${|}
          |    someMethod1()
          |    someMethod2()
@@ -860,10 +862,9 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  // bar
          |//baz
          |.someMethod3()
-         |}
          |""".stripMargin
     val afterWithEnabled =
-      s"""{
+      s"""object A:
          |  def foo() = ${|}
          |    someMethod1()
          |    someMethod2()
@@ -872,10 +873,9 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  // bar
          |//baz
          |.someMethod3()
-         |}
          |""".stripMargin
     val afterWithDisabled =
-      s"""{
+      s"""object A:
          |  def foo() = ${|}
          |    someMethod1()
          |    someMethod2()
@@ -884,9 +884,8 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  // bar
          |//baz
          |.someMethod3()
-         |}
          |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled, onlyInIndentationBasedSyntax = true)
   }
 
   def testNotRemove_FunctionBody_ExpressionsWithSameIndentation_Comment_After(): Unit = {
