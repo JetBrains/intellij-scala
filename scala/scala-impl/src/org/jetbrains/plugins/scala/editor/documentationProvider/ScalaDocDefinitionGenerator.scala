@@ -77,17 +77,18 @@ private class ScalaDocDefinitionGenerator private(
     appendDeclMainSection2(element, element)
 
   private def appendDeclMainSection2(element: PsiElement, keywordOwner: PsiElement): Unit = {
-    import builder._
-
     element match {
       case an: ScAnnotationsHolder =>
         val annotationsRendered = annotationsRenderer.renderAnnotations(an)
-        if (annotationsRendered.nonEmpty) append(annotationsRendered)
+        if (annotationsRendered.nonEmpty) builder.append(annotationsRendered)
       case _ =>
     }
 
-    element match {
-      case m: ScModifierListOwner =>
+    (element, keywordOwner) match {
+      case (m: ScModifierListOwner, _) =>
+        val modifiersRendered = WithHtmlPsiLink.modifiersRenderer.render(m)
+        if (modifiersRendered.nonEmpty) builder.append(modifiersRendered)
+      case (_, m: ScModifierListOwner) =>
         val modifiersRendered = WithHtmlPsiLink.modifiersRenderer.render(m)
         if (modifiersRendered.nonEmpty) builder.append(modifiersRendered)
       case _ =>
@@ -121,7 +122,7 @@ private class ScalaDocDefinitionGenerator private(
         //  review SCL-13777, maybe we should improve formatting of large classes
         //val spaces = length - start - 7
         val paramsRendered = definitionParamsRenderer.renderClauses(params).replaceAll("\n\\s*", "")
-        if (paramsRendered.nonEmpty) append(paramsRendered)
+        if (paramsRendered.nonEmpty) builder.append(paramsRendered)
       case _ =>
     }
 

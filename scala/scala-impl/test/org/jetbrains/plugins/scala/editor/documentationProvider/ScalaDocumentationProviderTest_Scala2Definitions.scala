@@ -437,4 +437,62 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  def testPrivateVal(): Unit = {
+    val fileContent =
+      s"""
+         |private val ${|}a: Int = 0
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testProtectedVal(): Unit = {
+    val fileContent =
+      s"""
+         |protected val ${|}a: Int = 0
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testPrivateLazyVal(): Unit = {
+    val fileContent =
+      s"""
+         |private lazy val ${|}a: Int = 0
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">lazy</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testUntupledPrivateVal(): Unit = {
+    val fileContent =
+      s"""
+         |val a: Int = 0
+         |val b: String = ""
+         |private val (c, ${|}d) = (a, b)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">d</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }
