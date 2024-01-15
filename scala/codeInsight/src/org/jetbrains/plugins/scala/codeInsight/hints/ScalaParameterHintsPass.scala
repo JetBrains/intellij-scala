@@ -1,8 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.codeInsight.hints.HintInfo.MethodInfo
+import com.intellij.codeInsight.hints.InlayParameterHintsExtension.{INSTANCE => InlayParameterHintsExtension}
+import com.intellij.codeInsight.hints.settings.ParameterNameHintsSettings.{getInstance => ParameterNameHintsSettings}
+import com.intellij.codeInsight.hints.{HintInfo, HintInfoFilter, InlayParameterHintsProvider, MethodInfoExcludeListFilter}
+import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.ScalaLanguage.{INSTANCE => ScalaLanguage}
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsPass._
@@ -19,14 +26,17 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 trait ScalaInlayParameterHintsPass {
   protected implicit def settings: ScalaHintsSettings
 
-  protected def collectParameterHints(editor: Editor, root: PsiElement): Seq[Hint] =
-    root.elements.flatMap(getParameterHints).toSeq
+  protected def collectParameterHints(editor: Editor, root: PsiElement): Seq[Hint] = {
+    val filter = hintInfoFilterFor(ScalaLanguage, ScalaInlayParameterHintsProvider)
+    root.elements.flatMap(getParameterHints(_, filter)).toSeq
+  }
 
-  private def getParameterHints(element: PsiElement): Seq[Hint] = {
+  private def getParameterHints(element: PsiElement, filter: HintInfoFilter): Seq[Hint] = {
     val showParameterHints = settings.showParameters
 
     val showArgumentHints = ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS
@@ -34,7 +44,7 @@ trait ScalaInlayParameterHintsPass {
     if (!(showParameterHints || showArgumentHints)) return Seq.empty
 
     val matchedParameters = (element match {
-      case e if qualifiedMethodNameFor(e).startsWith("scala.") => Seq.empty
+      case e if hintInfoFor(e).exists(!filter.showHint(_)) => Seq.empty
       case call: ScMethodCall => call.matchedParameters
       case invocation: ScConstructorInvocation => invocation.matchedParameters
       case _ => Seq.empty
@@ -46,14 +56,23 @@ trait ScalaInlayParameterHintsPass {
       (if (showArgumentHints) argumentHints(matchedParameters) ++ referenceHints(element) else Seq.empty)
   }
 
-  private def qualifiedMethodNameFor(element: PsiElement): String = element match {
-    case ResolveMethodCall(qualifiedMethodName(name)) => name
-    case ResolveConstructorCall(qualifiedMethodName(name)) => name
-    case _ => ""
+  private def hintInfoFor(element: PsiElement): Option[HintInfo] = element match {
+    case ResolveMethodCall(methodInfo(info)) => Some(info)
+    case ResolveConstructorCall(methodInfo(info)) => Some(info)
+    case _ => None
   }
 }
 
 object ScalaInlayParameterHintsPass {
+  private def hintInfoFilterFor(language: Language, provider: InlayParameterHintsProvider): HintInfoFilter = {
+    val dependencyLanguage = provider.getBlackListDependencyLanguage
+    val dependencyProvider = InlayParameterHintsExtension.forLanguage(dependencyLanguage)
+
+    new MethodInfoExcludeListFilter(ContainerUtil.union(
+      ParameterNameHintsSettings.getExcludeListDiff(language).applyOn(provider.getDefaultBlackList),
+      ParameterNameHintsSettings.getExcludeListDiff(dependencyLanguage).applyOn(dependencyProvider.getDefaultBlackList)))
+  }
+
   private val menu: MenuProvider = MenuProvider(new ActionGroup() {
     override def getChildren(e: AnActionEvent): Array[AnAction] = Array(
       new AnAction(ScalaCodeInsightBundle.message("disable.hints.for.parameter.names")) {
@@ -105,14 +124,17 @@ object ScalaInlayParameterHintsPass {
     }
   }
 
-  private object qualifiedMethodName {
+  private object methodInfo {
 
-    def unapply(method: PsiMethod): Some[String] = {
+    def unapply(method: PsiMethod): Some[MethodInfo] = {
       val classFqn = method.containingClass match {
         case null => ""
         case clazz => s"${clazz.qualifiedName}."
       }
-      Some(classFqn + method.name)
+
+      val names = method.parameters.map(_.name)
+
+      Some(new MethodInfo(classFqn + method.name, names.asJava))
     }
   }
 
