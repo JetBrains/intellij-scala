@@ -105,7 +105,14 @@ final class SbtShellCommunication(project: Project) {
     handler.addProcessListener(listener)
 
     process.usingWriter { shell =>
-      shell.println(cmd)
+      shell.print(cmd)
+      // note: the reason why instead of simply doing "shell.println", it was split into command execution and "\n" is Windows
+      // and how com.pty4j.windows.winpty.WinPTYOutputStream works
+      // (it doesn't impact macos and Linux, because on these systems "\n" is the default new line character).
+      // By default, "println" method on Windows add "\r\n", and winpty interprets it as two keypresses (RETURN followed by Ctrl-RETURN).
+      // In order to prevent double return pressing, it is enough to send "\n", which results in a single newline call.
+      // https://github.com/JetBrains/pty4j/commit/e3e9695066eaddb1994c0081dfbdcd2eb6bd8524
+      shell.print("\n")
       shell.flush()
     }
     listener.future.onComplete { _ =>
