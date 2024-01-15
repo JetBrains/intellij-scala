@@ -32,7 +32,9 @@ object Common {
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 17)
-  val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
+  // NOTE: we rely on the fact that javac & scalac use the same compiler option name,
+  // though strictly speaking they have different types (they represent settings for different compilers)
+  private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
   val globalJavacOptions             : Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScalacOptions            : Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScala3ScalacOptions      : Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
