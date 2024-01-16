@@ -93,3 +93,29 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     parent
   }
 }
+
+
+object ScalaDfaProblemReporter {
+  def apply(problemsHolder: ProblemsHolder): ScalaDfaProblemReporter = new ScalaDfaProblemReporter(problemsHolder)
+
+  def reportingEverything(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportEverything
+
+  def reportingConstantConditions(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportConstantConditions
+
+  def reportingAllUnsatisfiedConditions(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_)
+
+  def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[_])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => p.problemKind == kind
+      case _ => false
+    })
+
+  def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[_]])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => kind.contains(p.problemKind)
+      case _ => false
+    })
+}

@@ -48,11 +48,4 @@ package object dfa {
        |  }
        |}
        |""".stripMargin
-
-  implicit final class ScalaDfaVisitorExt(private val visitor: ScalaDfaVisitor) extends AnyVal {
-    def withBuildingUnsupportedPsiElements: ScalaDfaVisitor = new ScalaDfaVisitor(visitor.resultF) {
-      override def visitFunctionDefinition(function: ScFunctionDefinition): Unit =
-        DfaManager.computeDfaResultFor(function, buildUnsupportedPsiElements = true).foreach(resultF)
-    }
-  }
 }

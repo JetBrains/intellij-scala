@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis
 import com.intellij.codeInspection.InspectionManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -25,10 +26,15 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
 
     val inspectionManager = InspectionManager.getInstance(getProject)
     val mockProblemsHolder = new MockProblemsHolder(actualFile, inspectionManager)
-    var dfaVisitor = ScalaDfaVisitor.reportingEverythingTo(mockProblemsHolder)
-    if (buildUnsupportedPsiElements) {
-      dfaVisitor = dfaVisitor.withBuildingUnsupportedPsiElements
+    val report = ScalaDfaProblemReporter.reportingEverything(mockProblemsHolder)
+
+    def runDfa(function: ScFunctionDefinition): Unit = {
+      DfaManager
+        .computeDfaResultFor(function, buildUnsupportedPsiElements = buildUnsupportedPsiElements)
+        .foreach(report)
     }
+
+    val dfaVisitor = new ScalaDfaVisitor(runDfa)
 
     actualFile.accept(new ScalaRecursiveElementVisitor {
       override def visitScalaElement(element: ScalaPsiElement): Unit = {

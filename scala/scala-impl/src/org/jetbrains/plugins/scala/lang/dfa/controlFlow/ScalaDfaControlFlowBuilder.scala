@@ -59,7 +59,8 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
 
   def unsupported[R](exception: Exception)(fallback: => R): R = {
     if (buildUnsupportedPsiElements) {
-      log.error(exception)
+      // todo: report them when we have all transformations implemented
+      //log.warn(exception)
       fallback
     } else {
       throw exception

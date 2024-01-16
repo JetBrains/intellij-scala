@@ -1,12 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.dfa
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaVisitor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaProblemReporter
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem
 
-class DfaNpeOnInvocationInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    ScalaDfaVisitor.reportingUnsatisfiedConditionsOfKind(ScalaNullAccessProblem.npeOnInvocation)(holder)
-  }
-}
+final class DfaNpeOnInvocationInspection
+  extends DfaInspectionBase(ScalaDfaProblemReporter.reportingUnsatisfiedConditionsOfKind(ScalaNullAccessProblem.npeOnInvocation))
