@@ -6,14 +6,14 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScGivenAliasDeclarationImpl, ScGivenAliasDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub, ScPackagingStub}
 
 abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
                                                         language: Language = ScalaLanguage.INSTANCE)
@@ -123,7 +123,14 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     }
 
     if (stub.annotations.contains("main")) {
-      val packageFqn = stub.topLevelQualifier
+      val packageFqn = stub.topLevelQualifier.orElse {
+        //Handle case when @main method is not toplevel but is inside some object
+        //In this case, we should use containing package name, ignoring the containing object names
+        val containingPackaging = Iterator.iterate[StubElement[_]](stub)(_.getParentStub)
+          .takeWhile(_ != null)
+          .findByType[ScPackagingStub]
+        containingPackaging.map(_.packageName)
+      }
       val syntheticClassName = packageFqn.filter(_.nonEmpty).fold("")(_ + ".") + functionName
       sink.occurrences(ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY, syntheticClassName)
     }

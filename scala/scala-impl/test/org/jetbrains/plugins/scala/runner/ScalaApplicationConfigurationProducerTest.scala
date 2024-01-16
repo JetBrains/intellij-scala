@@ -57,6 +57,15 @@ abstract class ScalaApplicationConfigurationProducerTestBase
   protected def assertConfiguration(configuration: ApplicationConfiguration, configName: String, mainClassName: String): Unit = {
     configuration.getName shouldBe  configName
     configuration.getMainClassName shouldBe mainClassName
+
+    /**
+     * Check that the class is valid and there is no red error in the Run Configuration UI, in the class field.
+     *
+     * Under the hood this call indirectly tests these entities:
+     *  - [[com.intellij.psi.util.PsiMethodUtil.findMainMethod]]
+     *  - [[org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider]]
+     */
+    configuration.checkClass()
   }
 
   protected def assertNoConfiguration(testLocation: TestLocation): Unit = {

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
  *
  * @see [[com.intellij.execution.application.ApplicationConfiguration#checkConfiguration()]]
  * @see [[com.intellij.psi.util.PsiMethodUtil#hasMainMethod(com.intellij.psi.PsiClass)]]
+ * @see [[org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClassFinder]]
  */
 final class Scala3MainMethodProvider extends JavaMainMethodProvider {
 

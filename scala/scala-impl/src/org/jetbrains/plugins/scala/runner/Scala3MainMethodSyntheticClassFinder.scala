@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMet
  *
  * @see [[com.intellij.execution.application.ApplicationConfiguration#checkConfiguration()]]
  * @see [[com.intellij.execution.configurations.JavaRunConfigurationModule#checkClassName(java.lang.String, java.lang.String)]]
+ * @see [[org.jetbrains.plugins.scala.runner.Scala3MainMethodProvider]]
  */
 private final class Scala3MainMethodSyntheticClassFinder(project: Project)
   extends PsiElementFinder {
