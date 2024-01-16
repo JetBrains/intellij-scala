@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.module.{ModuleManager, ModuleType}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -20,6 +20,7 @@ import org.jetbrains.bsp.{BSP, BspBundle, BspUtil}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 import java.io.File
 import java.nio.file.Paths
@@ -87,10 +88,8 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     val bspTask = new BspTask(project, targets, targetsToClean)
 
     bspTask.resultFuture.foreach { _ =>
-        val modules = validTasks.map(_.getModule).toArray
-        val outputRoots = CompilerPaths.getOutputPaths(modules)
-        refreshRoots(project, outputRoots)
-      }
+      refreshRoots(project)
+    }
 
     bspTask.resultFuture.onComplete { messages =>
 
@@ -121,7 +120,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
   }
 
   // remove this if/when external system handles this refresh on its own
-  private def refreshRoots(project: Project, outputRoots: Array[String]): Unit = {
+  private def refreshRoots(project: Project): Unit = {
 
     // simply refresh all the source roots to catch any generated files
     val info = Option(ProjectDataManager.getInstance().getExternalProjectData(project, BSP.ProjectSystemId, project.getBasePath))
@@ -136,9 +135,26 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       generated ++ regular
     }.map(_.getPath).toSeq.distinct
 
+    // Because we don't have an exact way of knowing which modules have been affected, we need to refresh the output
+    // directories of all modules in the project. Otherwise, we run the risk that the Run Configuration order
+    // enumerator will not see all output directories in the VFS and will not put them on the runtime classpath.
+    // In Gradle, affected modules are collected using an injected Gradle script, which tracks which modules are
+    // affected by a build command.
+    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L60
+    val outputRoots = {
+      val allModules = ModuleManager.getInstance(project).getModules.filterNot(_.hasBuildModuleType)
+      CompilerPaths.getOutputPaths(allModules)
+    }
+
     val toRefresh = generatedSourceRoots ++ outputRoots
 
     CompilerUtil.refreshOutputRoots(toRefresh.asJavaCollection)
+
+    // This is most likely not necessary. Gradle only invokes `CompilerUtil.refreshOutputRoots`.
+    // Recursively refreshing the output directories is comparatively expensive. It is enough for the Run Configuration
+    // order enumerator to just refresh the output directories without their children, but we don't have tests in place
+    // in order to be more confident in this change.
+    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L174-L176
     val toRefreshFiles = toRefresh.map(new File(_)).asJava
     LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
   }

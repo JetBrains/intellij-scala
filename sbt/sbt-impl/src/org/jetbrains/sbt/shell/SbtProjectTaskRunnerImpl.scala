@@ -16,7 +16,7 @@ import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceTyp
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.{Module, ModuleType}
+import com.intellij.openapi.module.{ModuleManager, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.{BuildMessages, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -94,8 +95,6 @@ final class SbtProjectTaskRunnerImpl
       notification.notify(project)
     }
 
-    val modules = validTasks.map(_.getModule)
-
     val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]()
 
     // don't run anything if there's no module to run a build for
@@ -114,7 +113,7 @@ final class SbtProjectTaskRunnerImpl
       }
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, modules.toArray, command, promiseResult)
+      val task = new CommandTask(project, command, promiseResult)
       ProgressManager.getInstance().run(task)
     }
 
@@ -148,7 +147,7 @@ final class SbtProjectTaskRunnerImpl
 
 }
 
-private class CommandTask(project: Project, modules: Array[Module], command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
+private class CommandTask(project: Project, command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
   Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
@@ -160,8 +159,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
-
-    val outputRoots = CompilerPaths.getOutputPaths(modules)
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
@@ -221,7 +218,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
 
     // build effects
-    refreshRoots(outputRoots, indicator)
+    refreshRoots(indicator)
 
     // handle callback
     buildMessages match {
@@ -254,7 +251,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
 
   // remove this if/when external system handles this refresh on its own
-  private def refreshRoots(outputRoots: Array[String], indicator: ProgressIndicator): Unit = {
+  private def refreshRoots(indicator: ProgressIndicator): Unit = {
     indicator.setText(SbtBundle.message("sbt.shell.synchronizing.output.directories"))
 
     // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact
@@ -269,9 +266,26 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       generated ++ regular
     }.map(_.getPath).toSeq.distinct
 
+    // Because we don't have an exact way of knowing which modules have been affected, we need to refresh the output
+    // directories of all modules in the project. Otherwise, we run the risk that the Run Configuration order
+    // enumerator will not see all output directories in the VFS and will not put them on the runtime classpath.
+    // In Gradle, affected modules are collected using an injected Gradle script, which tracks which modules are
+    // affected by a build command.
+    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L60
+    val outputRoots = {
+      val allModules = ModuleManager.getInstance(project).getModules.filterNot(_.hasBuildModuleType)
+      CompilerPaths.getOutputPaths(allModules)
+    }
+
     val toRefresh = generatedSourceRoots ++ outputRoots
 
     CompilerUtil.refreshOutputRoots(toRefresh.asJavaCollection)
+
+    // This is most likely not necessary. Gradle only invokes `CompilerUtil.refreshOutputRoots`.
+    // Recursively refreshing the output directories is comparatively expensive. It is enough for the Run Configuration
+    // order enumerator to just refresh the output directories without their children, but we don't have tests in place
+    // in order to be more confident in this change.
+    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L174-L176
     val toRefreshFiles = toRefresh.map(new File(_)).asJava
     LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
 
