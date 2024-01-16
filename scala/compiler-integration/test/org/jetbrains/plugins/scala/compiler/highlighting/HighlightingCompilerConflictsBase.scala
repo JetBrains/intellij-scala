@@ -3,19 +3,20 @@ package compiler.highlighting
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.Ignore
 import org.junit.runner.RunWith
 
 import java.io.File
@@ -30,7 +31,7 @@ import scala.concurrent.{Await, Promise}
  */
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0
+  TestScalaVersion.Scala_3_Latest
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
 abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: LanguageLevel,
@@ -39,9 +40,11 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
 
   override protected def useCompileServer: Boolean = true
 
-  override protected def compileServerJdk: Sdk = SmartJDKLoader.getOrCreateJDK(compileServerLanguageLevel)
+  override val testProjectJdkVersion: LanguageLevel = compileServerLanguageLevel
 
-  override protected def buildProcessJdk: Sdk = SmartJDKLoader.getOrCreateJDK(buildProcessLanguageLevel)
+  override protected lazy val compileServerJdk: Sdk = createDisposableJdk(compileServerLanguageLevel)
+
+  override protected lazy val buildProcessJdk: Sdk = createDisposableJdk(buildProcessLanguageLevel)
 
   override def runInDispatchThread: Boolean = false
 
@@ -103,15 +106,23 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     }
     Await.result(promise.future, 60.seconds)
   }
+
+  private def createDisposableJdk(languageLevel: LanguageLevel): Sdk = {
+    val jdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
+    Disposer.register(getTestRootDisposable, () => {
+      val table = JavaAwareProjectJdkTableImpl.getInstanceEx
+      inWriteAction(table.removeJdk(jdk))
+    })
+    jdk
+  }
 }
 
-@Ignore
 class HighlightingCompilerConflictsDifferentJdksTest extends HighlightingCompilerConflictsBase(
-  compileServerLanguageLevel = LanguageLevel.JDK_1_8,
-  buildProcessLanguageLevel = LanguageLevel.JDK_11,
+  compileServerLanguageLevel = LanguageLevel.JDK_11, // CBH runs the JPS code inside the SCS which demands at least JDK 11
+  buildProcessLanguageLevel = LanguageLevel.JDK_17
 )
 
 class HighlightingCompilerConflictsSameJdksTest extends HighlightingCompilerConflictsBase(
   compileServerLanguageLevel = LanguageLevel.JDK_17,
-  buildProcessLanguageLevel = LanguageLevel.JDK_17,
+  buildProcessLanguageLevel = LanguageLevel.JDK_17
 )
