@@ -4,6 +4,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 addSbtPlugin("org.jetbrains.scala" % "sbt-ide-settings" % "1.1.2")
 addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.23.1")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
+addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.0.3")
 
 // Only used for local development purposes, not in CI/CD.
 // Should not be present in the scala-plugin-for-ultimate repos.
