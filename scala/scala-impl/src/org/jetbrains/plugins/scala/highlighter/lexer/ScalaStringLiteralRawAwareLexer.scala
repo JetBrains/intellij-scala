@@ -5,8 +5,9 @@ import com.intellij.psi.tree.IElementType
 // NOTE: I would better make it a mixing, but I can't due to this bug https://github.com/scala/bug/issues/3564
 abstract class ScalaStringLiteralRawAwareLexer(
   quoteChar: Char,
-  originalLiteralToken: IElementType
-) extends ScalaStringLiteralLexer(quoteChar, originalLiteralToken) {
+  originalLiteralToken: IElementType,
+  canEscapeEolOrFramingSpaces: Boolean = false
+) extends ScalaStringLiteralLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces) {
 
   /**
    * NOTE: since 2.13.0 octal escape sequences are dropped, and we don't handle them for < 2.13.0

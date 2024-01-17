@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter.lexer
 
+import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.psi.tree.IElementType
 
 /**
@@ -12,14 +13,25 @@ import com.intellij.psi.tree.IElementType
 class ScalaInterpolatedStringLiteralLexer(
   quoteChar: Char,
   originalLiteralToken: IElementType,
-  isRawLiteral: Boolean
-) extends ScalaStringLiteralRawAwareLexer(quoteChar, originalLiteralToken) {
+  isRawLiteral: Boolean,
+  isMultiline: Boolean,
+) extends ScalaStringLiteralRawAwareLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces = isMultiline) {
 
   override def getTokenType: IElementType =
     if (isRawLiteral)
       getTokenTypeForRawString
-    else
-      super.getTokenType
+    else {
+      val token = super.getTokenType
+
+      if (token == StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN &&
+        myStart + 1 < myEnd &&
+        (myBuffer.charAt(myStart + 1) == '\n' || myBuffer.charAt(myStart + 1) == ' ')
+      ) {
+        StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN
+      } else {
+        token
+      }
+    }
 
   /**
    * NOTE: We always allow incomplete incomplete unicode symbols in raw literals.
