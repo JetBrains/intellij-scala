@@ -283,7 +283,8 @@ object ScalaSyntaxHighlighter {
         new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
           StringLiteralLexer.NO_QUOTE_CHAR,
           tINTERPOLATED_STRING,
-          isRawLiteral = false
+          isRawLiteral = false,
+          isMultiline = false,
         )),
         tINTERPOLATED_STRING
       )
@@ -291,7 +292,8 @@ object ScalaSyntaxHighlighter {
         new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
           StringLiteralLexer.NO_QUOTE_CHAR,
           tINTERPOLATED_STRING,
-          isRawLiteral = true
+          isRawLiteral = true,
+          isMultiline = false,
         )),
         tINTERPOLATED_RAW_STRING
       )
@@ -301,7 +303,8 @@ object ScalaSyntaxHighlighter {
         new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
           StringLiteralLexer.NO_QUOTE_CHAR,
           tINTERPOLATED_MULTILINE_STRING,
-          isRawLiteral = false
+          isRawLiteral = false,
+          isMultiline = true,
         )),
         tINTERPOLATED_MULTILINE_STRING
       )
@@ -309,7 +312,8 @@ object ScalaSyntaxHighlighter {
         new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
           StringLiteralLexer.NO_QUOTE_CHAR,
           tINTERPOLATED_MULTILINE_STRING,
-          isRawLiteral = true
+          isRawLiteral = true,
+          isMultiline = true,
         )),
         tINTERPOLATED_MULTILINE_RAW_STRING
       )

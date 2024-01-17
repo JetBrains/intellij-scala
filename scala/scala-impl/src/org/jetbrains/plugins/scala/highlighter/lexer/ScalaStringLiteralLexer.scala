@@ -8,8 +8,9 @@ import com.intellij.psi.tree.IElementType
 /** @see [[org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser]] */
 class ScalaStringLiteralLexer(
   quoteChar: Char,
-  originalLiteralToken: IElementType
-) extends StringLiteralLexer(quoteChar, originalLiteralToken) {
+  originalLiteralToken: IElementType,
+  canEscapeEolOrFramingSpaces: Boolean = false
+) extends StringLiteralLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces, null) {
 
   override protected def getUnicodeEscapeSequenceType: IElementType = {
     var start = myStart + 2
