@@ -81,7 +81,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val settings = getInitialSettings
 
-    model.reset(getProject)
+    // note: this should be changed to model.syncSdks when https://youtrack.jetbrains.com/issue/IDEA-343316 is fixed
+    model.reset(null)
     // note: it is done to keep jdkComboBox in sync with global SDKs list
     jdkComboBox.reloadModel()
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
