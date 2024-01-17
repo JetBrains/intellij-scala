@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.compiler.charts
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsComponentHolder
-import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher}
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.util.ScheduledService
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
@@ -33,8 +33,9 @@ class CompilationChartsBuildManagerListener extends BuildManagerListener with Sc
     true
   }
 
-  @Nls
-  override protected def presentableName: String = CompilerIntegrationBundle.message("compilation.charts.compile.task.presentable.name")
+  override protected def presentableName: String = "Initializing Scala compilation charts"
+
+  override protected def log: Logger = CompilationChartsBuildManagerListener.Log
 
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
   }
@@ -44,6 +45,10 @@ class CompilationChartsBuildManagerListener extends BuildManagerListener with Sc
       CompilationChartsUpdater.get(project).stopScheduling()
     }
   }
+}
+
+private object CompilationChartsBuildManagerListener {
+  private val Log: Logger = Logger.getInstance(classOf[CompilationChartsBuildManagerListener])
 }
 
 @Service(Array(Service.Level.PROJECT))

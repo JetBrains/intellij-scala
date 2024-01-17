@@ -1,45 +1,30 @@
 package org.jetbrains.plugins.scala.util.compile
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerMessageCategory}
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.openapi.compiler.{CompileContext, CompileTask}
+import com.intellij.openapi.diagnostic.Logger
 
 import scala.concurrent.duration._
 
 trait ScalaCompileTask extends CompileTask {
-  final override def execute(context: CompileContext): Boolean = {
-    if (shouldLogToBuildOutput)
-      logExecutionTime(context) {
-        run(context)
-      }
-    else
-      run(context)
+  final override def execute(context: CompileContext): Boolean = logExecutionTime {
+    run(context)
   }
 
   protected def run(context: CompileContext): Boolean
 
-  @Nls
   protected def presentableName: String
 
-  /**
-   * Decides if the execution time of the compile task should be logged to the build output window. If this method
-   * returns `false`, the compile task is executed without measuring or logging the execution time.
-   */
-  protected def shouldLogToBuildOutput: Boolean = ApplicationManager.getApplication.isInternal
+  protected def log: Logger
 
-  private def logExecutionTime(context: CompileContext)(body: => Boolean): Boolean = {
+  private def logExecutionTime(body: => Boolean): Boolean = {
     val start = System.nanoTime()
-    try {
-      @Nls val message = ScalaBundle.message("scala.compile.task.measure.start", presentableName)
-      context.addMessage(CompilerMessageCategory.STATISTICS, message, null, -1, -1)
-      body
-    } finally {
+    try body
+    finally {
       val end = System.nanoTime()
       val millis = (end - start).nanos.toMillis.millis
       val durationString = pretty(millis)
-      @Nls val message = ScalaBundle.message("scala.compile.task.measure.end", presentableName, durationString)
-      context.addMessage(CompilerMessageCategory.STATISTICS, message, null, -1, -1)
+      val message = s"$presentableName - done in $durationString"
+      log.info(message)
     }
   }
 
