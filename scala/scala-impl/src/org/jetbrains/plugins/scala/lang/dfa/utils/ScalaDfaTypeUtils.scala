@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa.utils
 
+import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
+import com.intellij.codeInspection.dataFlow.{DfaPsiUtil, Mutability}
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.ProperArgument
+import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, S
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -49,6 +51,11 @@ object ScalaDfaTypeUtils {
     case double: ScDoubleLiteral => DfTypes.doubleValue(double.getValue)
     case boolean: ScBooleanLiteral => DfTypes.booleanValue(boolean.getValue)
     case char: ScCharLiteral => DfTypes.intValue(char.getValue.toInt)
+    case string: ScStringLiteral =>
+      string.getNonValueType() match {
+        case Right(ty) => DfTypes.constant(string.getValue, scTypeToDfType(ty))
+        case Left(_) => DfType.TOP
+      }
     case _ => DfType.TOP
   }
 
@@ -76,41 +83,32 @@ object ScalaDfaTypeUtils {
     case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant: $value")
   }
 
-  @Nls
-  def exceptionNameToProblemMessage(exceptionName: String): String = {
-    val warningType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-    exceptionName match {
-      case IndexOutOfBoundsExceptionName =>
-        ScalaInspectionBundle.message("invocation.index.out.of.bounds", warningType)
-      case NoSuchElementExceptionName =>
-        ScalaInspectionBundle.message("invocation.no.such.element", warningType)
-      case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA exception: $exceptionName")
-    }
-  }
-
   //noinspection UnstableApiUsage
-  def scTypeToDfType(scType: ScType): DfType = {
+  def scTypeToDfType(scType: ScType, nullability: Nullability = Nullability.UNKNOWN): DfType = {
     val extractedClass = scType match {
       case literalType: ScLiteralType => literalType.wideType.extractClass
       case _ => scType.extractClass
     }
 
     extractedClass match {
-      case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
+      case Some(psiClass) if psiClass.qualifiedNameOpt.exists(_.startsWith(s"$ScalaCollectionImmutable.Nil")) =>
         dfTypeImmutableCollectionFromSize(0)
       case Some(psiClass) if psiClass.qualifiedName == ScalaNone || psiClass.qualifiedName == ScalaNothing => DfType.TOP
       case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
-      case Some(psiClass) => psiClass.qualifiedName match {
-        case "scala.Int" => DfTypes.INT
-        case "scala.Long" => DfTypes.LONG
-        case "scala.Float" => DfTypes.FLOAT
-        case "scala.Double" => DfTypes.DOUBLE
-        case "scala.Boolean" => DfTypes.BOOLEAN
-        case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
-        case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
-        case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
-        case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
-      }
+      case Some(psiClass) =>
+        psiClass.qualifiedName match {
+          case "scala.Unit" => DfUnitType
+          case "scala.Int" => DfTypes.INT
+          case "scala.Long" => DfTypes.LONG
+          case "scala.Float" => DfTypes.FLOAT
+          case "scala.Double" => DfTypes.DOUBLE
+          case "scala.Boolean" => DfTypes.BOOLEAN
+          case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
+          case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
+          case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
+          //case _ => TypeConstraints.exactClass(psiClass).instanceOf().asDfType()
+          case _ => DfTypes.typedObject(scType.toPsiType, nullability)
+        }
       case _ => DfType.TOP
     }
   }
@@ -121,11 +119,6 @@ object ScalaDfaTypeUtils {
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable && !typedDefinition.isVar
     case _ => false
-  }
-
-  def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
-    case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
-    case _ => None
   }
 
   def resolveExpressionType(expression: ScExpression): ScType = {
@@ -187,4 +180,7 @@ object ScalaDfaTypeUtils {
       case _ => None
     }
   }
+
+  def nullability(param: Parameter): Nullability =
+    DfaPsiUtil.getElementNullability(param.paramType.toPsiType, param.psiParam.orNull)
 }

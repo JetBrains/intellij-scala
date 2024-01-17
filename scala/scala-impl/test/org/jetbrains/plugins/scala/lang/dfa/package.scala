@@ -1,20 +1,15 @@
 package org.jetbrains.plugins.scala.lang
 
+import org.jetbrains.plugins.scala.lang.dfa.analysis.{DfaManager, ScalaDfaVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+
 package object dfa {
 
   object Messages {
-
     val ConditionAlwaysTrue = "Condition is always true"
-
     val ConditionAlwaysFalse = "Condition is always false"
-
     val ExpressionAlwaysZero = "Expression always evaluates to 0"
-
     val ExpressionAlwaysNull = "Expression always evaluates to null"
-
-    val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
-
-    val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
   }
 
   def commonCodeTemplate(returnType: String)(body: String): String =

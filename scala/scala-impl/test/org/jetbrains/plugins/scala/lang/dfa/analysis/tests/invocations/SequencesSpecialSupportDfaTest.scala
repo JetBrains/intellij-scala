@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem.{indexOutOfBoundsProblem, noSuchElementProblem}
 
 class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
 
@@ -42,9 +43,9 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |}
       |""".stripMargin
   })(
-    "list(8)" -> InvocationIndexOutOfBounds,
-    "list(3 * y)" -> InvocationIndexOutOfBounds,
-    "list(x)" -> InvocationIndexOutOfBounds
+    "list(8)" -> indexOutOfBoundsProblem.alwaysMessage,
+    "list(3 * y)" -> indexOutOfBoundsProblem.alwaysMessage,
+    "list(x)" -> indexOutOfBoundsProblem.alwaysMessage
   )
 
   def testNotFlushingImmutableLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -59,8 +60,8 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |}
       |""".stripMargin
   })(
-    "list2(4)" -> InvocationIndexOutOfBounds,
-    "list1(4)" -> InvocationIndexOutOfBounds
+    "list2(4)" -> indexOutOfBoundsProblem.alwaysMessage,
+    "list1(4)" -> indexOutOfBoundsProblem.alwaysMessage
   )
 
   def testHeadOnLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -71,7 +72,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |list2.head
       |""".stripMargin
   })(
-    "list.head" -> InvocationNoSuchElement
+    "list.head" -> noSuchElementProblem.alwaysMessage
   )
 
   def testNilReference(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -94,10 +95,10 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |}
       |""".stripMargin
   })(
-    "list1(2 * y)" -> InvocationIndexOutOfBounds,
-    "list2.head" -> InvocationNoSuchElement,
-    "list2(1)" -> InvocationIndexOutOfBounds,
-    "list3.head" -> InvocationNoSuchElement,
+    "list1(2 * y)" -> indexOutOfBoundsProblem.alwaysMessage,
+    "list2.head" -> noSuchElementProblem.alwaysMessage,
+    "list2(1)" -> indexOutOfBoundsProblem.alwaysMessage,
+    "list3.head" -> noSuchElementProblem.alwaysMessage,
     "x < 500" -> ConditionAlwaysTrue,
     "x < 500" -> ConditionAlwaysTrue
   )
@@ -112,7 +113,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |list3(5)
       |""".stripMargin
   })(
-    "list3(5)" -> InvocationIndexOutOfBounds,
+    "list3(5)" -> indexOutOfBoundsProblem.alwaysMessage,
     "list1.map(_ * 2).map(y => y - 3) == list2" -> ConditionAlwaysFalse
   )
 
@@ -127,7 +128,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
       |list3(5)
       |""".stripMargin
   })(
-    "list3(5)" -> InvocationIndexOutOfBounds,
+    "list3(5)" -> indexOutOfBoundsProblem.alwaysMessage,
     "list1.filter(x => x == 4) == list2" -> ConditionAlwaysFalse
   )
 

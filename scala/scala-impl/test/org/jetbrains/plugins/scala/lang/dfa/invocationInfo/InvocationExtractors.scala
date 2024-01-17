@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
@@ -33,8 +32,6 @@ object InvocationExtractors {
     else PsiTreeUtil.findElementOfClassAtRange(actualFile, start, end, runtimeClass)
   }
 
-  def forceExtractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
-    case expressionTransformer: ExpressionTransformer => expressionTransformer.wrappedExpression
-    case _ => throw new IllegalArgumentException(s"Argument is not an expression: $argument")
-  }
+  def forceExtractExpressionFromArgument(argument: Argument): ScExpression =
+    argument.content.getOrElse(throw new IllegalArgumentException(s"Argument is not an expression: $argument"))
 }

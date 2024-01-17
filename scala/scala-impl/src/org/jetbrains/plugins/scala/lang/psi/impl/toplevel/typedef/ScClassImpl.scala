@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor

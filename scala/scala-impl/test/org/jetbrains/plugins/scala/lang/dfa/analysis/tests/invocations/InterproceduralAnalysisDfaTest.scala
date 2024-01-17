@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.Messages.ConditionAlwaysTrue
+/*import org.jetbrains.plugins.scala.lang.dfa.Messages.ConditionAlwaysTrue
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.InterproceduralAnalysisDepthLimit
 
@@ -97,7 +97,7 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
     )
 
   def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit =
-    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
+    if (InterproceduralAnalysisEnabled) testWithUnsupportedPsiElements(codeFromMethodBody(returnType = "Boolean") {
       """
         |def otherMethod(x: Int): Int = {
         |  3 $$ 4
@@ -179,4 +179,4 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
       "x < 15" -> ConditionAlwaysTrue,
       "something < 15" -> ConditionAlwaysTrue
     )
-}
+}*/

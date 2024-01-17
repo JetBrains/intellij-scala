@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
 class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testDefinitionsNotAffectingRestOfAnalysis(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 2

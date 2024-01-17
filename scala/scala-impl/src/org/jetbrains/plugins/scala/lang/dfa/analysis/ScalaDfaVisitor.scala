@@ -1,60 +1,51 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
-import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.codeInspection.dataFlow.interpreter.{RunnerResult, StandardDataFlowInterpreter}
-import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
-import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState}
-import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
-import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-import java.util.EmptyStackException
-import scala.jdk.CollectionConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.util.Success
 
-class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
-
-  private val Log = Logger.getInstance(classOf[ScalaDfaVisitor])
-
+class ScalaDfaVisitor(val run: ScFunctionDefinition => Unit) extends ScalaElementVisitor {
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
-    try {
-      function.body.foreach(executeDataFlowAnalysis(_, function))
-    } catch {
-      case transformationFailed: TransformationFailedException =>
-        Log.info(errorMessage(function.name, transformationFailed.toString))
-      case _: EmptyStackException => Log.info(errorMessage(function.name, "empty stack"))
-      case _: Exception => Log.info(errorMessage(function.name, "other"))
+    run(function)
+  }
+}
+
+object ScalaDfaVisitor {
+  class AsyncProvider {
+    private val mutex = new Object
+    private val pendingFutures = ArrayBuffer[(Future[Option[ScalaDfaResult]], ScalaDfaResult => Unit)]()
+
+    def visitor(report: ScalaDfaResult => Unit) = new ScalaDfaVisitor(processFunctionDef(report))
+
+    def finish(): Unit = mutex.synchronized {
+      println(s"[$this] Finishing ${pendingFutures.size} pending futures")
+      for ((fut, report) <- pendingFutures) {
+        try Await.result(fut, Duration.Inf).foreach(report)
+        catch {
+          case e: Throwable =>
+            println(s"[$this] Exception while waiting for future: ${e.getMessage}")
+        }
+      }
+      pendingFutures.clear()
     }
-  }
 
-  private def errorMessage(functionName: String, reason: String): String = {
-    s"Dataflow analysis failed for function definition $functionName. Reason: $reason"
-  }
+    private def processFunctionDef(report: ScalaDfaResult => Unit)(function: ScFunctionDefinition): Unit = mutex.synchronized {
+      val fut = DfaManager.getDfaResultFor(function)
 
-  private def executeDataFlowAnalysis(body: ScBlockStatement, function: ScFunctionDefinition): Unit = {
-    val factory = new DfaValueFactory(problemsHolder.getProject)
-    val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
+      fut.value match {
+        case Some(Success(result)) =>
+          result.foreach(report)
 
-    val analysedMethodInfo = AnalysedMethodInfo(function, 1)
-    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
-    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
-    val flow = controlFlowBuilder.build()
-
-    val listener = new ScalaDfaListener
-    val interpreter = new StandardDataFlowInterpreter(flow, listener)
-    if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
-      val problemReporter = new ScalaDfaProblemReporter(problemsHolder)
-      problemReporter.reportProblems(listener)
+        case _ =>
+          synchronized {
+            pendingFutures += ((fut, report))
+          }
+      }
     }
-  }
-
-  private def buildInterpreterStates(memoryStates: Iterable[JvmDfaMemoryStateImpl],
-                                     flow: ControlFlow): List[DfaInstructionState] = {
-    memoryStates.map(new DfaInstructionState(flow.getInstruction(0), _)).toList
   }
 }

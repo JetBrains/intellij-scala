@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, Transformable, UnknownValueTransformer}
+import com.intellij.codeInsight.Nullability
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{ArgumentKind, PassingMechanism}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-final case class Argument(content: Transformable, kind: ArgumentKind, passingMechanism: PassingMechanism)
+final case class Argument(content: Option[ScExpression],
+                          kind: ArgumentKind,
+                          passingMechanism: PassingMechanism,
+                          nullability: Nullability)
 
 object Argument {
 
@@ -17,18 +21,21 @@ object Argument {
   case object PassByValue extends PassingMechanism
   case object PassByName extends PassingMechanism
 
-  def fromExpression(expression: Option[ScExpression], kind: ArgumentKind,
-                     passingMechanism: PassingMechanism): Argument = {
-    val transformer = expression.map(new ExpressionTransformer(_)).getOrElse(new UnknownValueTransformer)
-    Argument(transformer, kind, passingMechanism)
+  def fromExpression(expression: Option[ScExpression],
+                     kind: ArgumentKind,
+                     passingMechanism: PassingMechanism,
+                     nullability: Nullability): Argument = {
+    Argument(expression, kind, passingMechanism, nullability)
   }
+
+  def thisArg(expression: Option[ScExpression]): Argument =
+    Argument(expression, ThisArgument, PassByValue, Nullability.NOT_NULL)
 
   def fromArgParamMapping(argParamMapping: (ScExpression, Parameter)): Argument = argParamMapping match {
     case (argExpression, param) =>
-      Argument(new ExpressionTransformer(argExpression), ProperArgument(param), passingMechanism(param))
+      Argument(Some(argExpression), ProperArgument(param), passingMechanism(param), ScalaDfaTypeUtils.nullability(param))
   }
 
-  def passingMechanism(param: Parameter): PassingMechanism = {
+  private def passingMechanism(param: Parameter): PassingMechanism =
     if (param.isByName) PassByName else PassByValue
-  }
 }

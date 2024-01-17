@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScParameterOwner}
@@ -15,11 +14,12 @@ object InvocationChainExtractor {
   def innerInvocationChain(methodCall: ScMethodCall): List[MethodInvocation] = {
     @tailrec
     def inner(currentExpression: ScExpression,
-              collectedInvocations: List[MethodInvocation]): List[MethodInvocation] = currentExpression match {
-      case methodCall: ScMethodCall => inner(methodCall.getEffectiveInvokedExpr, methodCall :: collectedInvocations)
-      case infixCall: ScInfixExpr => infixCall :: collectedInvocations
-      case _ => collectedInvocations
-    }
+              collectedInvocations: List[MethodInvocation]): List[MethodInvocation] =
+      currentExpression match {
+        case methodCall: ScMethodCall => inner(methodCall.getEffectiveInvokedExpr, methodCall :: collectedInvocations)
+        case infixCall: ScInfixExpr => infixCall :: collectedInvocations
+        case _ => collectedInvocations
+      }
 
     inner(methodCall.getEffectiveInvokedExpr, methodCall :: Nil)
   }
@@ -48,11 +48,12 @@ object InvocationChainExtractor {
     val allArgExpressions = call.argumentExpressions +: restArgs.map(_._1.argumentExpressions)
 
     val sortedMatchedParameters = buildAllArguments(allMatchedArgs, allArgExpressions, call, isTupled)
-    val thisArgument = Argument.fromExpression(call.thisExpr, ThisArgument, PassByValue)
+    val thisArgument = Argument.thisArg(call.thisExpr)
     val argumentsListsWithThis = insertThisArgToArgList(call, sortedMatchedParameters.head, thisArgument) +:
       sortedMatchedParameters.tail
 
-    val invocationInfo = InvocationInfo(InvokedElement.fromTarget(target, call.applicationProblems), argumentsListsWithThis)
+    val invokedElement = InvokedElement.fromTarget(target, call.applicationProblems)
+    val invocationInfo = InvocationInfo(invokedElement, argumentsListsWithThis, call)
     invocationInfo :: collectInvocationsInfo(followingCalls)
   }
 }

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
-import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue, InvocationIndexOutOfBounds}
+import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem.indexOutOfBoundsProblem
 
 class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
 
@@ -35,7 +36,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
   }(
     "p1.age == 22" -> ConditionAlwaysTrue,
     "p2.age == 30" -> ConditionAlwaysTrue,
-    "p1.grades(5)" -> InvocationIndexOutOfBounds
+    "p1.grades(5)" -> indexOutOfBoundsProblem.alwaysMessage,
   )
 
   def testAccessingRegularClassParameters(): Unit = test {
@@ -57,7 +58,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
   }(
     "p2.age == 30" -> ConditionAlwaysTrue,
     "p1.age == 22" -> ConditionAlwaysTrue,
-    "p1.grades(5)" -> InvocationIndexOutOfBounds
+    "p1.grades(5)" -> indexOutOfBoundsProblem.alwaysMessage,
   )
 
   def testCopyingReferenceValueDirectly(): Unit = test(codeFromMethodBody(returnType = "Int") {

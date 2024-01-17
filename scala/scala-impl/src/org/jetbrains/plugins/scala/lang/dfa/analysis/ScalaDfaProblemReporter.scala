@@ -2,61 +2,56 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.DfaConstantValue
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.NullPointerExceptionName
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators.LogicalBinary
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.constantValueToProblemMessage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
-  def reportProblems(listener: ScalaDfaListener): Unit = {
-    listener.collectConstantConditions
+  def reportConstantConditions(result: ScalaDfaResult): Unit =
+    result.collectConstantConditions
+      .iterator
       .filter { case (_, value) => value != DfaConstantValue.Other }
       .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
 
-    listener.collectUnsatisfiedConditions
-      .filter { case (_, occurred) => occurred == ThreeState.YES }
-      .foreach { case (problem, _) => reportUnsatisfiedProblem(problem) }
+  def reportUnsatisfiedConditionProblems(result: ScalaDfaResult, shouldReport: ScalaDfaProblem => Boolean = _ => true): Unit = {
+    for {
+      (problem, occurrence) <- result.collectUnsatisfiedConditions.iterator
+      if occurrence.shouldReport && shouldReport(problem)
+    } problem.registerTo(problemsHolder, occurrence)
   }
+
+  def reportEverything(result: ScalaDfaResult): Unit = {
+    reportConstantConditions(result)
+    reportUnsatisfiedConditionProblems(result)
+  }
+
 
   private def reportConstantCondition(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
     anchor match {
-      case statementAnchor: ScalaStatementAnchor =>
-        val statement = statementAnchor.statement
-        val message = constantValueToProblemMessage(value, getProblemTypeForStatement(statementAnchor.statement))
-        if (!shouldSuppress(statement, value)) {
-          problemsHolder.registerProblem(statement, message)
+      case statementAnchor: ScalaDfaAnchorWithPsiElement =>
+        val element = statementAnchor.psiElement
+        val message = constantValueToProblemMessage(value, getProblemTypeForStatement(element))
+        if (!shouldSuppress(element, value)) {
+          problemsHolder.registerProblem(element, message)
         }
       case _ =>
     }
   }
 
-  private def reportUnsatisfiedProblem(problem: ScalaDfaProblem): Unit = {
-    problem match {
-      case ScalaCollectionAccessProblem(_, accessExpression, exceptionName) =>
-        val message = exceptionNameToProblemMessage(exceptionName)
-        problemsHolder.registerProblem(accessExpression, message)
-      case ScalaNullAccessProblem(accessExpression) =>
-        val message = exceptionNameToProblemMessage(NullPointerExceptionName)
-        problemsHolder.registerProblem(accessExpression, message)
-      case _ =>
-    }
-  }
-
-  private def getProblemTypeForStatement(statement: ScBlockStatement): ProblemHighlightType = statement match {
+  private def getProblemTypeForStatement(statement: PsiElement): ProblemHighlightType = statement match {
     case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
     case _: ScReferenceExpression => ProblemHighlightType.WEAK_WARNING
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 
-  private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
-    val parent = findProperParent(statement)
-    statement match {
+  private def shouldSuppress(element: PsiElement, value: DfaConstantValue): Boolean = {
+    val parent = findProperParent(element)
+    element match {
       case _: ScLiteral => true
       // Primary purpose of such larger blocks is usually to have side effects, not just return a value,
       // highlighting a large block in general can be very annoying
@@ -87,8 +82,8 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     case _ => false
   }
 
-  private def findProperParent(statement: ScBlockStatement): Option[PsiElement] = {
-    var parent = statement.parent
+  private def findProperParent(element: PsiElement): Option[PsiElement] = {
+    var parent = element.parent
     while (parent match {
       case Some(_: ScParenthesisedExpr) => true
       case _ => false
@@ -97,4 +92,30 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     }
     parent
   }
+}
+
+
+object ScalaDfaProblemReporter {
+  def apply(problemsHolder: ProblemsHolder): ScalaDfaProblemReporter = new ScalaDfaProblemReporter(problemsHolder)
+
+  def reportingEverything(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportEverything
+
+  def reportingConstantConditions(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportConstantConditions
+
+  def reportingAllUnsatisfiedConditions(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_)
+
+  def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[_])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => p.problemKind == kind
+      case _ => false
+    })
+
+  def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[_]])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
+      case p: ScalaDfaProblem.WithKind => kind.contains(p.problemKind)
+      case _ => false
+    })
 }

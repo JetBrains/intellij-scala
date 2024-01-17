@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableEle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[ScalaDfaVariableDescriptor],
+case class ScalaDfaVariableDescriptor(variable: PsiElement,
+                                      qualifier: Option[ScalaDfaVariableDescriptor],
                                       override val isStable: Boolean) extends JvmVariableDescriptor {
 
   override def toString: String = (qualifier, variable) match {

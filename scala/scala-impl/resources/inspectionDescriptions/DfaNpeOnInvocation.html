@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>This inspection identifies method calls where the callee might be <code>null</code>,
+    helping to detect potential <code>NullPointerExceptions</code> before they occur at runtime.</p>
+<p><b>Example:</b></p>
+<pre>
+<code>
+def sayHello(@Nullable greeting: String): Unit = {
+  println(greeting.toLowerCase)
+}
+</code>
+</pre>
+<!-- tooltip end -->
+</body>
+</html>
