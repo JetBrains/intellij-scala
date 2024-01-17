@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompileContext
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
@@ -25,10 +24,13 @@ class EraseCompilerProcessJdkOnce extends ScalaCompileTask {
     true
   }
 
-  @Nls
-  override protected def presentableName: String = CompilerIntegrationBundle.message("erase.compiler.process.jdk.once.compile.task.presentable.name")
+  override protected def presentableName: String = "Erasing compiler process jdk registry value"
+
+  override protected def log: Logger = EraseCompilerProcessJdkOnce.Log
 }
 
 object EraseCompilerProcessJdkOnce {
   private final val RegistryKey = "scala.erase.compiler.process.jdk.once"
+
+  private val Log: Logger = Logger.getInstance(classOf[EraseCompilerProcessJdkOnce])
 }

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompileContext
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
-import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -28,8 +28,9 @@ final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends ScalaCompil
     checkCompilationSettings(project)
   }
 
-  @Nls
-  override protected def presentableName: String = CompilerIntegrationBundle.message("ensure.modules.compile.task.presentable.name")
+  override protected def presentableName: String = "Ensuring modules have different production and test output paths"
+
+  override protected def log: Logger = EnsureModulesHaveDifferentProdAndTestOutputsTask.Log
 
   private def checkCompilationSettings(project: Project): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
@@ -96,4 +97,7 @@ final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends ScalaCompil
 
     mayProceedWithCompilation
   }
+}
+private object EnsureModulesHaveDifferentProdAndTestOutputsTask {
+  private val Log: Logger = Logger.getInstance(classOf[EnsureModulesHaveDifferentProdAndTestOutputsTask])
 }

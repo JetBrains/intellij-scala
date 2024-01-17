@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.formatting
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.compiler._
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiFile, PsiManager}
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
@@ -27,10 +27,9 @@ final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
     true
   }
 
-  @Nls
-  override protected def presentableName: String = ScalaBundle.message("reformat.on.compile.task.presentable.name")
+  override protected def presentableName: String = "Reformatting Scala sources on compile"
 
-  override protected def shouldLogToBuildOutput: Boolean = codeStyleSettings.REFORMAT_ON_COMPILE
+  override protected def log: Logger = ReformatOnCompileTask.Log
 
   private def codeStyleSettings: ScalaCodeStyleSettings =
     CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -55,4 +54,8 @@ final class ReformatOnCompileTask(project: Project) extends ScalaCompileTask {
       true
     }
   }
+}
+
+private object ReformatOnCompileTask {
+  private val Log: Logger = Logger.getInstance(classOf[ReformatOnCompileTask])
 }
