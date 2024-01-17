@@ -4,6 +4,7 @@ import com.intellij.ide.nls.NlsMessages
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationNamesInfo}
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.MessageType
@@ -31,7 +32,7 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val summary = collectSummary(e)
-    copyToClipboard(summary)
+    CopyPasteManager.getInstance.setContents(new StringSelection(summary))
     showNotification(summary, e)
   }
 
@@ -90,11 +91,6 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
        |Project JDK  : $projectJdkVersion
        |Server JDK   : $compileServerJdkVersion
        |""".stripMargin
-  }
-
-  private def copyToClipboard(summary: String): Unit = {
-    val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-    clipboard.setContents(new StringSelection(summary), null)
   }
 
   private def showNotification(summary: String, e: AnActionEvent): Unit = {
