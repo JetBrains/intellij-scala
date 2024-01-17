@@ -13,6 +13,7 @@ import com.intellij.task.ProjectTaskManager
 import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.messages.MessageBusConnection
+import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.extensions._
@@ -250,12 +251,19 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     val modules          = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
     val dirtyScopeHolder = ScalaCompilerReferenceService(project).getDirtyScopeHolder
     val dirtyScopes =
-      ProgressManager.getInstance().runProcessWithProgressSynchronously(
-        () => dirtyScopeHolder.dirtyScope,
-        CompilerIntegrationBundle.message("calculating.dirty.scopes"),
-        false,
-        project
-      )
+      if (EDT.isCurrentThreadEdt) {
+        // Running in IDEA, on the UI thread, avoid freezes by moving the possibly heavy computation to a
+        // background thread.
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(
+          () => dirtyScopeHolder.dirtyScope,
+          CompilerIntegrationBundle.message("calculating.dirty.scopes"),
+          false,
+          project
+        )
+      } else {
+        // Running in Fleet, on a background thread. Run in place.
+        dirtyScopeHolder.dirtyScope
+      }
     modules.partition(dirtyScopes.isSearchInModuleContent)
   }
 
