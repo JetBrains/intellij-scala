@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInspection.ex.LocalInspectionToolWrapper
-import com.intellij.codeInspection.{InspectionManager, LocalInspectionEP, LocalInspectionTool, ProblemsHolder}
+import com.intellij.codeInspection.{InspectionEngine, InspectionManager, LocalInspectionEP, LocalInspectionTool, LocalInspectionToolSession, ProblemsHolder}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.assertFalse
@@ -93,15 +93,18 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
 
       myFixture.disableInspections(inspectionTool)
 
-      val holder = new ProblemsHolder(inspectionManager, getFile, true)
-      val visitor = inspectionTool.asInstanceOf[LocalInspectionTool].buildVisitor(holder, true)
+      inReadAction {
+        val holder = new ProblemsHolder(inspectionManager, getFile, true)
+        val fileRange = getFile.getTextRange
 
-      assertNoThrowable(() => {
-        inReadAction {
-          visitor.visitFile(getFile)
-          visitor.visitElement(getFile)
-        }
-      })
+        InspectionEngine.withSession(getFile, fileRange, fileRange, null, true, session => {
+          val visitor = inspectionTool.asInstanceOf[LocalInspectionTool].buildVisitor(holder, true, session)
+          assertNoThrowable(() => {
+            visitor.visitFile(getFile)
+            visitor.visitElement(getFile)
+          })
+        })
+      }
     }
   }
 }
