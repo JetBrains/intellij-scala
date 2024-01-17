@@ -1,3 +1,5 @@
+import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
+import kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
 import sbt.Keys.*
@@ -93,6 +95,20 @@ object Common {
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
     )
+
+  /**
+   * ATTENTION: Kotlin modules should be used only in those cases when it is impossible or very hard to extend
+   * platform functionality in Scala (due to the inherent requirements of the platform and only for the interop)
+   */
+  def newProjectWithKotlin(projectName: String): Project =
+    Common.newProject(projectName)
+      .enablePlugins(KotlinPlugin)
+      .settings(
+        // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
+        kotlinVersion := "1.9.21",
+        kotlincJvmTarget := "17",
+        kotlinRuntimeProvided := true
+      )
 
   /**
    * Manually build classpath for the JPS module.
