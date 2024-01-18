@@ -16,6 +16,7 @@ import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
@@ -39,81 +40,81 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       createOutputDirectory(compilerManager.getJavacCompilerWorkingDir.toPath)
     }
 
-    def stripJarPathSuffix(path: String): String =
-      path.stripSuffix("!").stripSuffix("!/")
+    try {
+      def stripJarPathSuffix(path: String): String =
+        path.stripSuffix("!").stripSuffix("!/")
 
-    val enumerator = OrderEnumerator.orderEntries(module).compileOnly().recursively()
-    val classpath =
-      module.scalaCompilerClasspath.map(_.toPath) ++ enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_))
-    val scalacOptions = module.scalaCompilerSettings.getOptionsAsStrings(module.hasScala3)
-    val source = Path.of(position.getFile.getVirtualFile.getCanonicalPath)
-    val line = position.getLine + 1
-    val expression = codeFragment.getText
+      val enumerator = OrderEnumerator.orderEntries(module).compileOnly().recursively()
+      val classpath =
+        module.scalaCompilerClasspath.map(_.toPath) ++ enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_))
+      val scalacOptions = module.scalaCompilerSettings.getOptionsAsStrings(module.hasScala3)
+      val source = Path.of(position.getFile.getVirtualFile.getCanonicalPath)
+      val line = position.getLine + 1
+      val expression = codeFragment.getText
 
-    val stackFrame = context.getFrameProxy.getStackFrame
-    val localVariables = stackFrame.visibleVariables().asScala
-    val (localVariableNames, localVariableValues) = {
-      val names = localVariables.map(_.name())
-      val values = localVariables.map(stackFrame.getValue)
-      if (names.contains("$this"))
-        names -> values
-      else {
-        val thisObject = stackFrame.thisObject()
-        (names :+ "$this") -> (values :+ thisObject)
-      }
-    }
-
-    val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
-    val arguments = ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
-
-    val process = new RemoteServerRunner().buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, new DummyClient())
-    process.run()
-
-    val autoLoadContext = context.asInstanceOf[EvaluationContextImpl].withAutoLoadClasses(true)
-    val classLoader = createClassLoader(outDir, autoLoadContext)
-    autoLoadContext.setClassLoader(classLoader)
-    val prefix = if (packageName == "") "" else s"$packageName."
-    val className = s"${prefix}CompiledExpression"
-    autoLoadContext.getDebugProcess.findClass(autoLoadContext, className, classLoader)
-
-    val localVariableNamesEvaluator: Evaluator = { ctx =>
-      val arrayType = ctx.getDebugProcess.findClass(ctx, "java.lang.String[]", ctx.getClassLoader).asInstanceOf[ArrayType]
-      val array = DebuggerUtilsEx.mirrorOfArray(arrayType, localVariableNames.length, ctx)
-      array.setValues(localVariableNames.map(DebuggerUtilsEx.mirrorOfString(_, ctx.getDebugProcess.getVirtualMachineProxy, ctx)).asJava)
-      array
-    }
-
-    val localVariableValuesEvaluator: Evaluator = { ctx =>
-      val arrayType = ctx.getDebugProcess.findClass(ctx, "java.lang.Object[]", ctx.getClassLoader).asInstanceOf[ArrayType]
-      val array = DebuggerUtilsEx.mirrorOfArray(arrayType, localVariableValues.length, ctx)
-      array.setValues(localVariableValues.map(ScalaBoxingEvaluator.box(_, ctx).asInstanceOf[Value]).asJava)
-      array
-    }
-
-    val instance = ScalaMethodEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(className)), "<init>", null, Seq(localVariableNamesEvaluator, localVariableValuesEvaluator))
-    val method = ScalaMethodEvaluator(instance, "evaluate", null, Seq.empty)
-    val unboxed = new UnBoxingEvaluator(method)
-
-    val res = unboxed.evaluate(autoLoadContext).asInstanceOf[Value]
-
-    Files.walkFileTree(outDir, new SimpleFileVisitor[Path]() {
-      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        Files.delete(file)
-        FileVisitResult.CONTINUE
-      }
-
-      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-        if (exc ne null) {
-          throw exc
+      val stackFrame = context.getFrameProxy.getStackFrame
+      val localVariables = stackFrame.visibleVariables().asScala
+      val (localVariableNames, localVariableValues) = {
+        val names = localVariables.map(_.name())
+        val values = localVariables.map(stackFrame.getValue)
+        if (names.contains("$this"))
+          names -> values
+        else {
+          val thisObject = stackFrame.thisObject()
+          (names :+ "$this") -> (values :+ thisObject)
         }
-        if (outDir != dir) {
-          Files.delete(dir)
-        }
-        FileVisitResult.CONTINUE
       }
-    })
 
-    res
+      val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
+      val arguments = ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
+
+      val process = new RemoteServerRunner().buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, new DummyClient())
+      process.run()
+
+      val autoLoadContext = context.asInstanceOf[EvaluationContextImpl].withAutoLoadClasses(true)
+      val classLoader = createClassLoader(outDir, autoLoadContext)
+      autoLoadContext.setClassLoader(classLoader)
+      val prefix = if (packageName == "") "" else s"$packageName."
+      val className = s"${prefix}CompiledExpression"
+      autoLoadContext.getDebugProcess.findClass(autoLoadContext, className, classLoader)
+
+      val localVariableNamesEvaluator: Evaluator = { ctx =>
+        val arrayType = ctx.getDebugProcess.findClass(ctx, "java.lang.String[]", ctx.getClassLoader).asInstanceOf[ArrayType]
+        val array = DebuggerUtilsEx.mirrorOfArray(arrayType, localVariableNames.length, ctx)
+        array.setValues(localVariableNames.map(DebuggerUtilsEx.mirrorOfString(_, ctx.getDebugProcess.getVirtualMachineProxy, ctx)).asJava)
+        array
+      }
+
+      val localVariableValuesEvaluator: Evaluator = { ctx =>
+        val arrayType = ctx.getDebugProcess.findClass(ctx, "java.lang.Object[]", ctx.getClassLoader).asInstanceOf[ArrayType]
+        val array = DebuggerUtilsEx.mirrorOfArray(arrayType, localVariableValues.length, ctx)
+        array.setValues(localVariableValues.map(ScalaBoxingEvaluator.box(_, ctx).asInstanceOf[Value]).asJava)
+        array
+      }
+
+      val instance = ScalaMethodEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(className)), "<init>", null, Seq(localVariableNamesEvaluator, localVariableValuesEvaluator))
+      val method = ScalaMethodEvaluator(instance, "evaluate", null, Seq.empty)
+      val unboxed = new UnBoxingEvaluator(method)
+
+      unboxed.evaluate(autoLoadContext).asInstanceOf[Value]
+    } finally {
+      Files.walkFileTree(outDir, new SimpleFileVisitor[Path]() {
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          Files.delete(file)
+          FileVisitResult.CONTINUE
+        }
+
+        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+          if (exc ne null) {
+            throw exc
+          }
+          if (outDir != dir) {
+            Files.delete(dir)
+          }
+          FileVisitResult.CONTINUE
+        }
+      })
+    }
   }
 
   private def withCompileServer[A](project: Project)(thunk: => A): A = {
