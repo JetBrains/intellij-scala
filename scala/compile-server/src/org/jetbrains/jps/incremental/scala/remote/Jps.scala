@@ -1,8 +1,9 @@
 package org.jetbrains.jps.incremental.scala.remote
 
+import com.intellij.openapi.util.io.{BufferExposingByteArrayOutputStream, FileUtil}
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
-import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
+import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl, ProjectDescriptor}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.{BuildParameters, Client}
@@ -11,11 +12,11 @@ import org.jetbrains.plugins.scala.compiler.CompilerEvent.BuilderId
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
-import java.io.File
+import java.io.{DataOutputStream, File, FileNotFoundException, FileOutputStream}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters._
-import scala.util.Try
+import scala.util.{Try, Using}
 
 private object Jps {
   private val systemRootSet: AtomicBoolean = new AtomicBoolean(false)
@@ -47,8 +48,10 @@ private object Jps {
           ()
       }
     }
+
+    val fsState = new BuildFSState(true)
     val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
-      buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
+      buildRunner.load(messageHandler, dataStorageRoot, fsState)
     }
 
     val buildTargetType = sourceScope match {
@@ -71,10 +74,64 @@ private object Jps {
         true
       )
     } finally {
+      // Save the FS state data to disk, so that we do not corrupt the IDEA JPS process expected data.
+      saveData(fsState, descriptor, descriptor.dataManager.getDataPaths.getDataStorageRoot)
       client.compilationEnd(compiledFiles)
-      descriptor.release()
     }
   }
+
+  private def saveData(fsState: BuildFSState, descriptor: ProjectDescriptor, dataStorageRoot: File): Unit = {
+    try saveFsState(fsState, dataStorageRoot)
+    finally descriptor.release()
+  }
+
+  /*
+   * File name must match `org.jetbrains.jps.cmdline.BuildSession.FS_STATE_FILE` string constant. Unfortunately, it is
+   * not publicly exposed and we cannot link directly to it.
+   */
+  private final val FsStateFile = "fs_state.dat"
+
+  private def saveFsState(fsState: BuildFSState, dataStorageRoot: File): Unit = {
+    val file = new File(dataStorageRoot, FsStateFile)
+    try {
+      val bytes = new BufferExposingByteArrayOutputStream()
+      Using.resource(new DataOutputStream(bytes)) { out =>
+        // Use the latest FS State format version.
+        out.writeInt(BuildFSState.VERSION)
+        // Reset the fs event ordinal/counter. This forces the IDEA JPS process to re-check its FS state assumptions.
+        out.writeLong(-1L)
+        // Signal that there is work to do. This forces the IDEA JPS process to avoid the quick UP-TO-DATE optimization
+        // and re-run all JPS builders to check that all targets are actually built. This avoids bugs like SCL-17303
+        // where old bytecode is loaded in artifacts and run configurations.
+        out.writeBoolean(true)
+        fsState.save(out)
+      }
+      saveOnDisk(bytes, file)
+    } catch {
+      case t: Throwable =>
+        t.printStackTrace()
+        FileUtil.delete(file)
+    }
+  }
+
+  /*
+   * The next two functions are Scala translations of `org.jetbrains.jps.cmdline.BuildSession.saveOnDisk` and
+   * `org.jetbrains.jps.cmdline.BuildSession.writeOrCreate`.
+   */
+
+  private def saveOnDisk(bytes: BufferExposingByteArrayOutputStream, file: File): Unit = {
+    Using.resource(writeOrCreate(file)) { fos =>
+      fos.write(bytes.getInternalBuffer, 0, bytes.size())
+    }
+  }
+
+  private def writeOrCreate(file: File): FileOutputStream =
+    try new FileOutputStream(file)
+    catch {
+      case _: FileNotFoundException =>
+        FileUtil.createIfDoesntExist(file)
+        new FileOutputStream(file)
+    }
 
   private val ExternalProjectConfigPropertyLock = new Object
 
