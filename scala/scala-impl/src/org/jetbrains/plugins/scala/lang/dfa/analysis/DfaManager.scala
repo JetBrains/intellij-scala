@@ -28,18 +28,18 @@ object DfaManager {
     val promise = Promise[Option[ScalaDfaResult]]()
 
     Option(cache.putIfAbsent(fun, promise.future))
-      .map { x =>
-        println(s"Already inserted (${fun.name}), completed: ${x.isCompleted}")
-        x
-      }
+//      .map { x =>
+//        println(s"Already inserted (${fun.name}), completed: ${x.isCompleted}")
+//        x
+//      }
       .getOrElse {
         try {
-          println(s"Inserting (${fun.name})")
+//          println(s"Inserting (${fun.name})")
           val result = computeDfaResultFor(fun, buildUnsupportedPsiElements = true)
           promise.success(result)
         } catch {
           case e: ProcessCanceledException =>
-            println(s"Process canceled (${fun.name})")
+//            println(s"Process canceled (${fun.name})")
             cache.remove(fun)
             promise.failure(e)
             throw e

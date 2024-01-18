@@ -23,12 +23,12 @@ object ScalaDfaVisitor {
     def visitor(report: ScalaDfaResult => Unit) = new ScalaDfaVisitor(processFunctionDef(report))
 
     def finish(): Unit = mutex.synchronized {
-      println(s"[$this] Finishing ${pendingFutures.size} pending futures")
+//      println(s"[$this] Finishing ${pendingFutures.size} pending futures")
       for ((fut, report) <- pendingFutures) {
         try Await.result(fut, Duration.Inf).foreach(report)
         catch {
           case e: Throwable =>
-            println(s"[$this] Exception while waiting for future: ${e.getMessage}")
+//            println(s"[$this] Exception while waiting for future: ${e.getMessage}")
         }
       }
       pendingFutures.clear()
