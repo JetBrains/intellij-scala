@@ -16,10 +16,11 @@ import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
-import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadAction}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
+import java.io.IOException
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import scala.concurrent.duration.Duration
@@ -95,14 +96,22 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
 
     val res = unboxed.evaluate(autoLoadContext).asInstanceOf[Value]
 
-    executeOnPooledThread {
-      Files.walkFileTree(outDir, new SimpleFileVisitor[Path]() {
-        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-          Files.delete(file)
-          FileVisitResult.CONTINUE
+    Files.walkFileTree(outDir, new SimpleFileVisitor[Path]() {
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        if (exc ne null) {
+          throw exc
         }
-      })
-    }
+        if (outDir != dir) {
+          Files.delete(dir)
+        }
+        FileVisitResult.CONTINUE
+      }
+    })
 
     res
   }
