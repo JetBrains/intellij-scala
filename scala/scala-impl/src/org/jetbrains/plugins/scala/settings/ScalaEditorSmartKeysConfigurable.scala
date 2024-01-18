@@ -4,6 +4,7 @@ import com.intellij.openapi.options.{BoundConfigurable, SearchableConfigurable}
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.dsl.builder.BuilderKt
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers._
 
 final class ScalaEditorSmartKeysConfigurable extends BoundConfigurable(
@@ -18,6 +19,9 @@ final class ScalaEditorSmartKeysConfigurable extends BoundConfigurable(
   override def enableSearch(option: String): Runnable = null
 
   override def disposeUIResources(): Unit = super.disposeUIResources()
+
+  override def getHelpTopic: String =
+    ScalaWebHelpProvider.HelpPrefix + "scala-features-overview-scala.html"
 
   override def createPanel(): DialogPanel = BuilderKt.panel { panel =>
     panel.checkBoxCell(ScalaBundle.message("indent.pasted.lines.at.caret"),
