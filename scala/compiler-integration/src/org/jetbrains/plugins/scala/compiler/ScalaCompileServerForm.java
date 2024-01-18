@@ -17,6 +17,7 @@ import com.intellij.util.containers.ComparatorUtil;
 import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider$;
 import org.jetbrains.plugins.scala.project.external.SdkUtils;
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
 import scala.Some;
@@ -141,7 +142,7 @@ public class ScalaCompileServerForm implements Configurable {
     @Override
     @Nullable
     public String getHelpTopic() {
-        return null;
+        return ScalaWebHelpProvider$.MODULE$.HelpPrefix() + "compile-and-build-scala-projects.html#scala_compilation";
     }
 
     @Override

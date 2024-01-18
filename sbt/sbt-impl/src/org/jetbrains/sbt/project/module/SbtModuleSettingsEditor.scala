@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project.module
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.SbtResolver
 import org.jetbrains.sbt.settings.SbtSettings
@@ -18,6 +19,9 @@ private class SbtModuleSettingsEditor(state: ModuleConfigurationState) extends M
   private val resolvers = Resolvers(getModel.getModule).toSeq
 
   override def getDisplayName: String = SbtBundle.message("sbt.settings.sbtModuleSettings")
+
+  override def getHelpTopic: String =
+    ScalaWebHelpProvider.HelpPrefix + "sbt-support.html"
 
   override def saveData(): Unit = {}
 

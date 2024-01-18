@@ -59,6 +59,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+        <webHelpProvider implementation="org.jetbrains.plugins.scala.help.ScalaWebHelpProvider"/>
+
         <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector"/>
         <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector"/>
         <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector"/>
