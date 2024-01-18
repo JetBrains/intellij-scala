@@ -8,6 +8,7 @@ import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.options.{Configurable, SearchableConfigurable}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import javax.swing.JPanel
@@ -71,6 +72,9 @@ class ScalaCompilerConfigurable(project: Project)
   }
 
   override def getConfigurables: Array[Configurable] = Array()
+
+  override def getHelpTopic: String =
+    ScalaWebHelpProvider.HelpPrefix + "compile-and-build-scala-projects.html"
 }
 
 object ScalaCompilerConfigurable {
