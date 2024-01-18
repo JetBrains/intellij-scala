@@ -5,6 +5,7 @@ import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, Modifier, UnBoxingEvaluator}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsEx
+import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerator
@@ -19,7 +20,6 @@ import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadActi
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
-import java.io.IOException
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import scala.concurrent.duration.Duration
@@ -33,7 +33,10 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       ModuleUtilCore.findModuleForPsiElement(codeFragment)
     }
 
-    val outDir = Files.createTempDirectory("scala-expression-evaluation-")
+    val outDir = {
+      val compilerManager = CompilerManager.getInstance(context.getProject)
+      createOutputDirectory(compilerManager.getJavacCompilerWorkingDir.toPath)
+    }
 
     def stripJarPathSuffix(path: String): String =
       path.stripSuffix("!").stripSuffix("!/")
@@ -98,12 +101,6 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
           Files.delete(file)
           FileVisitResult.CONTINUE
         }
-
-        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-          if (exc ne null) throw exc
-          Files.delete(dir)
-          FileVisitResult.CONTINUE
-        }
       })
     }
 
@@ -119,6 +116,15 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED)
         CompileServerLauncher.stopServerAndWaitFor(Duration.Zero)
     }
+  }
+
+  private def createOutputDirectory(workingDir: Path): Path = {
+    val path = workingDir.resolve("scala-debugger").resolve("out")
+    val dir = path.toFile
+    if (!dir.exists()) {
+      dir.mkdirs()
+    }
+    path
   }
 
   private def createClassLoader(outDir: Path, context: EvaluationContextImpl): ClassLoaderReference = {
