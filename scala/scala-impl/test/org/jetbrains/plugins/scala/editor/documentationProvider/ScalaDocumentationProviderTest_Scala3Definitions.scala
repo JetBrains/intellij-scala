@@ -16,7 +16,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">inline</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
+      """<span style="color:#000080;font-weight:bold;">inline</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
@@ -71,7 +71,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
         | <span style="color:#000000;">comp</span>
         |(str2:
         | <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-        |): <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+        |): <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
         |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -99,7 +99,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)(<span style="color:#000080;font-weight:bold;">using</span> c: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>""".stripMargin
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>)(<span style="color:#000080;font-weight:bold;">using</span> c: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, d: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
@@ -118,7 +118,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
         |()(
         |<span style="color:#000080;font-weight:bold;">using</span>
         | <span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>
-        |): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -305,7 +305,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(
       s"""case class ${CARET}MyCaseClass(x: Int)
          |""".stripMargin,
-      """<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">MyCaseClass</span>(x: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+      """<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">MyCaseClass</span>(x: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |""".stripMargin,
     )
 
@@ -315,7 +315,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |trait MyTrait
          |case class ${CARET}MyCaseClass(x: Int) extends MyClass with MyTrait
          |""".stripMargin,
-      """<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">MyCaseClass</span>(x: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+      """<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">MyCaseClass</span>(x: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>)
         |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://MyClass"><code>MyClass</code></a></span>
         |<span style="color:#000080;font-weight:bold;">with</span> <span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>""".stripMargin
     )
@@ -345,7 +345,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     // For now interpolated strings are displayed in ScalaDoc popups as regular strings, with no additional highlighting
     val expectedDoc =
       """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>(<span style="color:#008000;font-weight:bold;">s&quot;test ${42}&quot;</span>)
-        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -360,7 +360,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     val expectedDoc =
       """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>(<span style="color:#0000ff;">42</span>)
-        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -375,7 +375,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     val expectedDoc =
       """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>(<span style="color:#000080;font-weight:bold;">true</span>)
-        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -417,7 +417,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     val expectedContent =
       """
-        |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -431,7 +431,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">implicit</span> ec: <span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>()(<span style="color:#000080;font-weight:bold;">implicit</span> ec: <span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -444,7 +444,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -457,7 +457,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, c: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, c: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -471,9 +471,9 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     val expectedContent =
       """<span style="color:#000080;font-weight:bold;">def</span>
-        | <span style="color:#000000;">foo</span>(a: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
-        |(<span style="color:#000080;font-weight:bold;">implicit</span> c: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
-        |: <span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        | <span style="color:#000000;">foo</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, b: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |(<span style="color:#000080;font-weight:bold;">implicit</span> c: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, d: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |: <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -504,6 +504,82 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
       s"""
          |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">TL</span> = [<span style="color:#20999d;">X</span>] =>> [<span style="color:#20999d;">Y</span>] =>> (<span style="color:#20999d;">X</span>, <span style="color:#20999d;">Y</span>)
          |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testUnionType(): Unit = {
+    val fileContent =
+      s"""
+         |type UserName = String
+         |type Password = Array[Char]
+         |
+         |def ${|}nameOrPwd(whichOne: Boolean): UserName | Password = ???
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">nameOrPwd</span>(
+         |whichOne: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |): <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span> <span style="color:#20999d;">|</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testProductType(): Unit = {
+    val fileContent =
+      s"""
+         |type UserName = String
+         |type Password = Array[Char]
+         |
+         |type ${|}NameAndPwd = UserName & Password
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">NameAndPwd</span> =
+         | <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span>
+         | <span style="color:#20999d;">&</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testDependentFunctionType(): Unit = {
+    val fileContent =
+      s"""
+         |trait Entry { type Key; val key: Key }
+         |
+         |def ${|}extractKey(e: Entry): e.Key = e.key
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">extractKey</span>(
+         |e: <span style="color:#000000;"><a href="psi_element://Entry"><code>Entry</code></a></span>
+         |): e.<span style="color:#20999d;"><a href="psi_element://Entry.Key"><code>Key</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testJavaType(): Unit = {
+    val fileContent =
+      s"""
+         |import java.util.ArrayList
+         |
+         |val ${|}all = new ArrayList[String]
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">val</span>
+         | <span style="color:#660e7a;font-style:italic;">all</span>:
+         | <span style="color:#000000;"><a href="psi_element://java.util.ArrayList"><code>ArrayList</code></a></span>[
+         |<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |]
+         |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }

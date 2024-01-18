@@ -9,17 +9,16 @@ import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociativity
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation.TypeLambdaArrowWithSpaces
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer, TypePresentation, TypeRenderer}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, JavaArrayType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScAndType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScParameterizedType, ScType, TypePresentationContext, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScAndType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -35,6 +34,15 @@ private [documentationProvider] class ScalaDocTypeRenderer(
   private implicit val presentableContext: TypePresentationContext =
     originalElement.fold(TypePresentationContext.emptyContext)(TypePresentationContext.psiElementPresentationContext)
 
+  private val renderedAnd      = renderWithAttrKey("&", DefaultHighlighter.TYPE_ALIAS)
+  private val renderedOr       = renderWithAttrKey("|", DefaultHighlighter.TYPE_ALIAS)
+  private val renderedWildcard = renderWithAttrKey("?", DefaultHighlighter.TYPEPARAM)
+  private val renderedMatch    = renderWithAttrKey("match", DefaultHighlighter.KEYWORD)
+  private val renderedCase     = renderWithAttrKey("case", DefaultHighlighter.KEYWORD)
+  private val renderedForSome  = renderWithAttrKey("forSome", DefaultHighlighter.KEYWORD)
+  private val renderedType     = renderWithAttrKey("type", DefaultHighlighter.KEYWORD)
+  private val renderedThis     = renderWithAttrKey("this", DefaultHighlighter.KEYWORD)
+
   /**
     * The following code is based on [[org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation]].
     * It's simplified, as here we are only interested in types declarations, and broken into a collection of shorter methods.
@@ -46,19 +54,19 @@ private [documentationProvider] class ScalaDocTypeRenderer(
         case _           => nameRenderer.escapeName(stdType.name)
       }
     case typeParam: TypeParameterType =>
-      renderTypeName(typeParam.name, DefaultHighlighter.TYPEPARAM)
+      renderWithAttrKey(typeParam.name, DefaultHighlighter.TYPEPARAM)
     case _: WildcardType =>
-      renderTypeName("?", DefaultHighlighter.TYPEPARAM)
+      renderedWildcard
     case ScAbstractType(tpt, _, _) =>
-      renderTypeName(tpt.name.capitalize + ABSTRACT_TYPE_POSTFIX, DefaultHighlighter.TYPE_ALIAS)
+      renderWithAttrKey(tpt.name.capitalize + ABSTRACT_TYPE_POSTFIX, DefaultHighlighter.TYPE_ALIAS)
     case FunctionType(ret, params) if !typ.isAliasType =>
       s"${textOf(params)} ${ScalaPsiUtil.functionArrow} ${render(ret)}"
     case ContextFunctionType(ret, params) if !typ.isAliasType =>
       s"${textOf(params)} ${ScalaPsiUtil.contextFunctionArrow} ${render(ret)}"
     case ScThisType(clazz: ScTypeDefinition) =>
-      nameRenderer.renderName(clazz) + ".this.type"
+      s"${nameRenderer.renderName(clazz)}.$renderedThis.$renderedType"
     case ScThisType(_) =>
-      "this.type"
+      s"$renderedThis.$renderedType"
     case TupleType(comps) if !typ.isAliasType =>
       typesText(comps, Model.Parentheses)
     case ScDesignatorType(element) =>
@@ -66,9 +74,9 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case p: ParameterizedType =>
       parameterizedTypeText(p)(render)
     case ScAndType(lhs, rhs) =>
-      s"${render(lhs)} & ${render(rhs)}"
+      s"${render(lhs)} $renderedAnd ${render(rhs)}"
     case ScOrType(lhs, rhs) =>
-      s"${render(lhs)} | ${render(rhs)}"
+      s"${render(lhs)} $renderedOr ${render(rhs)}"
     case mt@ScMethodType(retType, params, _) =>
       render(FunctionType(retType, params.map(_.paramType))(mt.elementScope))
     case ScLiteralType(value, _) =>
@@ -76,7 +84,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ScMatchType(scrutinee, cases) =>
       scrutineeText(scrutinee, cases)
     case p: ScProjectionType =>
-      nameRenderer.renderName(p.actualElement)
+      s"${render(p.projected)}.${nameRenderer.renderName(p.actualElement)}"
     case ex: ScExistentialType =>
       existentialTypeText(ex, checkWildcard = true)
     case pt@ScTypePolymorphicType(internalType, typeParameters) =>
@@ -88,7 +96,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
   private def typeLambdaText(internalType: ScType, typeParameters: Seq[TypeParameter], isLambdaTypeElement: Boolean) = {
     val typeParametersTexts = typeParameters.map {
       case TypeParameter(parameter, _, lowerType, upperType) =>
-        renderTypeName(parameter.name, DefaultHighlighter.TYPEPARAM) +
+        renderWithAttrKey(parameter.name, DefaultHighlighter.TYPEPARAM) +
           boundsRenderer.lowerBoundText(lowerType)(render) +
           boundsRenderer.upperBoundText(upperType)(render)
     }
@@ -105,14 +113,14 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     val text = render(scrutinee)
     val textWrapped =
       if (scrutinee.is[ScMatchType] || FunctionType.isFunctionType(scrutinee)) text.parenthesize() else text
-    val caseText = cases.map(cs => s"case ${cs._1} ${ScalaPsiUtil.functionArrow} ${cs._2}").mkString("{ ", "; ", " }")
-    s"$textWrapped match $caseText"
+    val caseText = cases.map(cs => s"$renderedCase ${cs._1} ${ScalaPsiUtil.functionArrow} ${cs._2}").mkString("{ ", "; ", " }")
+    s"$textWrapped $renderedMatch $caseText"
   }
 
   private def namedExistentials(wildcards: Seq[ScExistentialArgument]) =
     wildcards.map { wildcard =>
-      existentialArgWithBounds(wildcard, s"type ${wildcard.name}")
-    }.mkString(" forSome {", "; ", "}")
+      existentialArgWithBounds(wildcard, s"$renderedType ${wildcard.name}")
+    }.mkString(s" $renderedForSome {", "; ", "}")
 
   private def placeholder(wildcard: ScExistentialArgument) =
     existentialArgWithBounds(wildcard, if (presentableContext.compoundTypeWithAndToken) "?" else "_")
@@ -153,11 +161,13 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       s"(${render(ex.quantified)})${namedExistentials(ex.wildcards)}"
   }
 
-  private def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
+  private def parameterizedTypeText(p: ParameterizedType)(renderFunction: ScType => String): String = p match {
     case ParameterizedType(ScalaDocTypeRenderer.InfixDesignator(op), Seq(left, right)) =>
-      infixTypeText(op, left, right, printArgsFun(_))
+      infixTypeText(op, left, right, renderFunction(_))
     case ParameterizedType(des, typeArgs) =>
-      render(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
+      val renderedRes = renderFunction(des)
+      val renderedArgs = typeArgs.map(renderFunction(_))
+      s"$renderedRes${renderedArgs.commaSeparated(model = Model.SquareBrackets)}"
   }
 
   def infixTypeText(op: PsiNamedElement, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
@@ -176,7 +186,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     s"${componentText(left, Associativity.Right)} ${nameRenderer.renderName(op)} ${componentText(right, Associativity.Left)}"
   }
 
-  protected def renderTypeName(name: String, attrKey: TextAttributesKey): String = {
+  protected def renderWithAttrKey(name: String, attrKey: TextAttributesKey): String = {
     val builder = new StringBuilder
     builder.appendAs(name, attrKey)
     builder.result()
@@ -202,7 +212,8 @@ private [documentationProvider] object ScalaDocTypeRenderer {
   object InfixDesignator {
     private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
 
-    private def mayUseSimpleName(named: PsiNamedElement)(implicit context: TypePresentationContext): Boolean = {
+    private def mayUseSimpleName(named: PsiNamedElement)
+                                (implicit context: TypePresentationContext, projectContext: ProjectContext): Boolean = {
       val simpleName = named.name
       simpleName == nameRenderer.renderName(named) || context.nameResolvesTo(simpleName, named)
     }
@@ -212,12 +223,13 @@ private [documentationProvider] object ScalaDocTypeRenderer {
       case _           => false
     }
 
-    def unapply(des: ScType)(implicit context: TypePresentationContext): Option[PsiNamedElement] =
+    def unapply(des: ScType)
+               (implicit context: TypePresentationContext, projectContext: ProjectContext): Option[PsiNamedElement] =
       des.extractDesignated(expandAliases = false)
         .filter(named => mayUseSimpleName(named) && (annotated(named) || ScalaNamesUtil.isOperatorName(named.name)))
   }
 
-  private val annotationsRenderer = new NameRenderer {
+  private def annotationsRenderer(implicit projectContext: ProjectContext) = new NameRenderer {
     override def renderName(e: PsiNamedElement): String = renderNameImpl(e)
 
     override def renderNameWithPoint(e: PsiNamedElement): String = {
@@ -227,14 +239,17 @@ private [documentationProvider] object ScalaDocTypeRenderer {
 
     private def renderNameImpl(e: PsiNamedElement): String = e match {
       case clazz: PsiClass =>
-        clazz.qualifiedNameOpt
-          .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, isAnnotation = true))
+        clazz
+          .qualifiedNameOpt
+          .fold(escapeName(clazz.name)) { _ =>
+            classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, isAnnotation = true, qualNameToType = projectContext.stdTypes.QualNameToType)
+          }
       case _ =>
         psiElement(e, Some(e.name))
     }
   }
 
-  private val nameRenderer: NameRenderer = new NameRenderer {
+  private def nameRenderer(implicit projectContext: ProjectContext): NameRenderer = new NameRenderer {
     override def escapeName(e: String): String = escapeHtml4(e)
 
     override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
@@ -245,8 +260,11 @@ private [documentationProvider] object ScalaDocTypeRenderer {
       case o: ScObject if withPoint && TypePresentation.isPredefined(o) => ""
       case _: PsiPackage if withPoint => ""
       case clazz: PsiClass =>
-        clazz.qualifiedNameOpt
-          .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
+        clazz
+          .qualifiedNameOpt
+          .fold(escapeName(clazz.name)) { _ =>
+            classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, qualNameToType = projectContext.stdTypes.QualNameToType)
+          }
       case a: ScTypeAlias =>
         a.qualifiedNameOpt
           .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
@@ -284,6 +302,6 @@ private [documentationProvider] object ScalaDocTypeRenderer {
 
   def forQuickInfo(originalElement: PsiElement, substitutor: ScSubstitutor)(implicit projectContext: ProjectContext): TypeRenderer =
     new ScalaDocTypeRenderer(Some(originalElement), quickInfoRenderer, Some(substitutor)) {
-      override protected def renderTypeName(name: String, attrKey: TextAttributesKey): String = escapeHtml4(name)
+      override protected def renderWithAttrKey(name: String, attrKey: TextAttributesKey): String = escapeHtml4(name)
     }
 }

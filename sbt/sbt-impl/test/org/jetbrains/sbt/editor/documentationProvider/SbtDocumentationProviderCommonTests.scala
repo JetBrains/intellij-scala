@@ -9,7 +9,7 @@ abstract class SbtDocumentationProviderCommonTests extends SbtDocumentationProvi
          |<html>
          |${DocHtmlHead(myFixture.getFile)}
          |$BodyStart
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">someKey</span>: <span style="color:#000000;"><a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a></span>[<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>]$DefinitionEnd
+         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">someKey</span>: <span style="color:#000000;"><a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a></span>[<span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>]$DefinitionEnd
          |$ContentStart
          |This is description for some-key
          |$ContentEnd

@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
 /**
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerProtocol]]
@@ -36,11 +37,15 @@ private [documentationProvider] object HtmlPsiUtils {
     }
   }
 
-  def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean, isAnnotation: Boolean = false): String = {
+  def classLinkWithLabel(clazz: PsiClass,
+                         label: String,
+                         defLinkHighlight: Boolean,
+                         isAnnotation: Boolean = false,
+                         qualNameToType: Map[String, StdType] = Map.empty): String = {
     val attributesKey =
       if (defLinkHighlight) None
       else if (isAnnotation) Some(DefaultHighlighter.ANNOTATION)
-      else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz))
+      else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz, qualNameToType = qualNameToType))
     psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey)
   }
 
