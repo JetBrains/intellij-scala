@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.debugger.ui.HotSwapUI
@@ -8,35 +7,27 @@ import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.notification.{NotificationAction, NotificationType}
-import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
-import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
-import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.{ModuleManager, ModuleType}
+import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.{BuildMessages, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
-import java.io.File
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
 final class SbtProjectTaskRunnerImpl
@@ -249,46 +240,9 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     collector.compilationFinished()
   }
 
-
-  // remove this if/when external system handles this refresh on its own
   private def refreshRoots(indicator: ProgressIndicator): Unit = {
     indicator.setText(SbtBundle.message("sbt.shell.synchronizing.output.directories"))
-
-    // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact
-    // in which case it might be necessary to receive the generated sources directly from sbt and refresh them (see BuildManager)
-    val info = ProjectDataManager.getInstance().getExternalProjectData(project,SbtProjectSystem.Id, project.getBasePath)
-    val allSourceRoots = ES.findAllRecursively(info.getExternalProjectStructure, ProjectKeys.CONTENT_ROOT)
-    val generatedSourceRoots = allSourceRoots.asScala.flatMap { node =>
-      val data = node.getData
-      // sbt-side generated sources are still imported as regular sources
-      val generated = data.getPaths(ExternalSystemSourceType.SOURCE_GENERATED).asScala
-      val regular = data.getPaths(ExternalSystemSourceType.SOURCE).asScala
-      generated ++ regular
-    }.map(_.getPath).toSeq.distinct
-
-    // Because we don't have an exact way of knowing which modules have been affected, we need to refresh the output
-    // directories of all modules in the project. Otherwise, we run the risk that the Run Configuration order
-    // enumerator will not see all output directories in the VFS and will not put them on the runtime classpath.
-    // In Gradle, affected modules are collected using an injected Gradle script, which tracks which modules are
-    // affected by a build command.
-    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L60
-    val outputRoots = {
-      val allModules = ModuleManager.getInstance(project).getModules.filterNot(_.hasBuildModuleType)
-      CompilerPaths.getOutputPaths(allModules)
-    }
-
-    val toRefresh = generatedSourceRoots ++ outputRoots
-
-    CompilerUtil.refreshOutputRoots(toRefresh.asJavaCollection)
-
-    // This is most likely not necessary. Gradle only invokes `CompilerUtil.refreshOutputRoots`.
-    // Recursively refreshing the output directories is comparatively expensive. It is enough for the Run Configuration
-    // order enumerator to just refresh the output directories without their children, but we don't have tests in place
-    // in order to be more confident in this change.
-    // https://github.com/JetBrains/intellij-community/blob/bf3083ca66771e038eb1c64128b4e508f52acfad/plugins/gradle/java/src/execution/build/GradleProjectTaskRunner.java#L174-L176
-    val toRefreshFiles = toRefresh.map(new File(_)).asJava
-    LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
-
+    ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id)
     //noinspection ScalaExtractStringToBundle
     indicator.setText("")
   }
