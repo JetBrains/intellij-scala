@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
 import java.io.File
 
@@ -10,7 +11,8 @@ private final class ServerInstance(
   val port: Int,
   val workingDir: File,
   val jdk: JDK,
-  val jvmParameters: Set[String]
+  val jvmParameters: Set[String],
+  val incrementalCompiler: IncrementalityType
 ) extends CompileServerManager.ErrorListener {
 
   private var _stopped: Boolean = false
