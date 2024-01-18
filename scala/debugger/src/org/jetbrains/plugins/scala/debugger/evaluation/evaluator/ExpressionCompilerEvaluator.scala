@@ -26,6 +26,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiElement, position: SourcePosition) extends ExpressionEvaluator {
   override def getModifier: Modifier = null
@@ -97,6 +98,8 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val unboxed = new UnBoxingEvaluator(method)
 
       unboxed.evaluate(autoLoadContext).asInstanceOf[Value]
+    } catch {
+      case NonFatal(t) => throw EvaluationException(t)
     } finally {
       Files.walkFileTree(outDir, new SimpleFileVisitor[Path]() {
         override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
