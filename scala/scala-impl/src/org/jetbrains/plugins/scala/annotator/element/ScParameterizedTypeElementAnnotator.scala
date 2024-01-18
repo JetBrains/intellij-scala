@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 

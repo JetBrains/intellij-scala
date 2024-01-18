@@ -47,7 +47,7 @@ package object types {
       implicit val context: ProjectContext = `type`.projectContext
       conforms(`type`, ConstraintSystem.empty) match {
         case ConstraintSystem(substitutor) => Some(substitutor)
-        case _ => None
+        case _                             => None
       }
     }
 

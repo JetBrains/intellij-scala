@@ -448,7 +448,9 @@ object ResolveUtils {
           Some("apply"),
           expr,
           applyProc,
-          precalculatedType = Some(tp)
+          Some(tp),
+          noImplicitsForArgs = false,
+          forCompletion = false
         )(identity)(expr)
 
         cand = applyProc.candidates
