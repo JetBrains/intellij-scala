@@ -19,6 +19,7 @@ import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
@@ -212,6 +213,8 @@ object CompileServerLauncher {
           projectHome(project).foreach(dir => builder.directory(dir))
         }
 
+        val incrementalCompiler = ScalaCompilerConfiguration(project).incrementalityType
+
         catching(classOf[IOException])
           .either(builder.start())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
@@ -230,7 +233,7 @@ object CompileServerLauncher {
             }
 
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
-            val instance = new ServerInstance(project, watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            val instance = new ServerInstance(project, watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet, incrementalCompiler)
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             // initialize the compile server manager service instance for the project which holds the widget state
@@ -555,6 +558,7 @@ object CompileServerLauncher {
         case _ => false
       }
       val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
+      val incrementalCompilerChanged = ScalaCompilerConfiguration(project).incrementalityType != instance.incrementalCompiler
       val reasons = mutable.ArrayBuffer.empty[String]
       if (!isUnitTestMode && instance.project.isDisposed) {
         // We intentionally reuse the compile server in worksheet tests. This check would
@@ -565,6 +569,7 @@ object CompileServerLauncher {
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"
+      if (incrementalCompilerChanged) reasons += "incremental compiler changed"
       reasons.toSeq
     }.getOrElse(Seq.empty)
   }
