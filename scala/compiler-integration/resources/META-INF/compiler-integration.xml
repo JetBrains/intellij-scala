@@ -72,8 +72,6 @@
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.highlighting.DropProjectDataChangesBuildManagerListener"/>
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.AutomakeBuildManagerListener"/>
 
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
