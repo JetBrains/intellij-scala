@@ -28,7 +28,7 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
     if (project == null || project.isDefault) return null
 
     val file = editor.getVirtualFile
-    if (file == null || file.getExtension != "scala" && file.getExtension != "sc") return null
+    if (file == null || file.getExtension != "scala" && file.getExtension != "sc" && file.getExtension != "sbt") return null
 
     val action = new DumbAwareAction(ScalaCodeInsightBundle.message("xray.mode.widget.text")) with CustomComponentAction {
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
