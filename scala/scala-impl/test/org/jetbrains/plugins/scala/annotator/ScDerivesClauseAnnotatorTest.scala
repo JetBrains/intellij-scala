@@ -107,6 +107,20 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
       )
     )(Error("Foo", "Value derived is not a member of object Foo"))
 
+  def testSCL21884(): Unit =
+    assertNothing(
+      messages(
+        """
+          |trait Foo[A]
+          |object Foo
+          |
+          |extension (foo: Foo.type) def derived[A] = ???
+          |
+          |case class Bar() derives Foo
+          |""".stripMargin
+      )
+    )
+
   def messages(@Language("Scala")code: String): List[Message] = {
     val annotator = new ScalaAnnotator()
 

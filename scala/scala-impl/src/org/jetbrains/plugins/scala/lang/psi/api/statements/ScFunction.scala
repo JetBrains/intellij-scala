@@ -68,7 +68,7 @@ trait ScFunction
   def definedReturnType: TypeResult
 
   /**
-   * Optional Type Element, denotion function's return type
+   * Optional Type Element, denoting function's return type
    * May be omitted for non-recursive functions
    */
   def returnTypeElement: Option[ScTypeElement]
