@@ -2,27 +2,25 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class ExtensionConversionData(place: ScExpression,
-                                   ref: ScExpression,
+case class ExtensionConversionData(place: PsiElement,
+                                   ref: PsiElement,
                                    refName: String,
                                    processor: BaseProcessor,
                                    noApplicability: Boolean,
                                    withoutImplicitsForArgs: Boolean) {
 
   //TODO! remove this after find a way to improve implicits according to compiler.
-  val isHardCoded: Boolean = refName == "+" &&
-    place.getTypeWithoutImplicits().exists(_.is[ValType])
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 }
 
@@ -48,10 +46,7 @@ object ExtensionConversionHelper {
     ProgressManager.checkCanceled()
     import data._
 
-    specialExtractParameterType(candidate).filter {
-      case _: ValType if isHardCoded => false
-      case _                         => true
-    }.filter(
+    specialExtractParameterType(candidate).filter(
       checkHasMethodFast(data, _)
     ).flatMap { tp =>
       if (!noApplicability && processor.isInstanceOf[MethodResolveProcessor]) {
