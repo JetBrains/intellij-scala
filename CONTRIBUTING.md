@@ -23,19 +23,19 @@ In case of any questions you are welcome on our [discord channel](https://discor
   - If you have some non-primary, but related issues you can reference them in the commit message body.
   - In the last commit of a series which fixes an issue, append `#SCL-XXXXX fixed` to the end of the first message line
     issue which is fixed. This will close the YouTrack issues automatically when the change is merged into main branch.
-- Use short subsystem prefix in your commits. We don't have a fixed set of such prefixes. Use common sense and at least same prefix for a related group of commits
+- Use short subsystem prefix in your commits. We don't have a fixed set of such subsystems. Use common sense and, at least, the same prefix for a related group of commits
 - Try to provide any extra helpful information in the commit message body
 - Try to keep commits focused to help reviewers
 
 #### Examples of commit messages:
 
->sbt shell: delete SigIntAction #SCL-14369 #SCL-16727 #SCL-12030
+> [sbt shell] delete SigIntAction #SCL-14369 #SCL-16727 #SCL-12030
 >
 > It's not actual after #SCL-15583:
 > we now have a common shortcut for "Stop" action (see tooltip over the "stop" button)
 
 
-> annotator: dont annotate ConstructorInvocation in definitions (#SCL-20540, #SCL-20737) fixed
+> [annotator] dont annotate ConstructorInvocation in definitions (#SCL-20540, #SCL-20737) fixed
 > 
 > also related #SCL-20185
 
