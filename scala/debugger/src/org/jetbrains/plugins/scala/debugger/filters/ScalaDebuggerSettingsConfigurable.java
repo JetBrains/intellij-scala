@@ -7,6 +7,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle;
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider$;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
@@ -40,7 +41,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
 
     @Override
     public String getHelpTopic() {
-        return null;
+        return ScalaWebHelpProvider$.MODULE$.HelpPrefix() + "run-debug-configuration-scala.html";
     }
 
     @Override

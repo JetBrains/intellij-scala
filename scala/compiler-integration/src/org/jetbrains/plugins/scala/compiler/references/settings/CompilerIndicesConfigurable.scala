@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.{CompilerIndicesSbtSettings, CompilerIndicesSettings}
+import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 
 import javax.swing.JComponent
 
@@ -31,6 +32,9 @@ class CompilerIndicesConfigurable(project: Project) extends Configurable {
   }
 
   override def disposeUIResources(): Unit = shutdownCallback.foreach(_.run())
+
+  override def getHelpTopic: String =
+    ScalaWebHelpProvider.HelpPrefix + "compile-and-build-scala-projects.html"
 }
 
 object CompilerIndicesConfigurable {
