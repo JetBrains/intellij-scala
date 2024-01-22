@@ -228,9 +228,9 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     withExcluded("scala.util.Random") {
       checkNoImportFix(
         s"""object Test {
-          |  ${CARET}nextInt()
-          |}
-          |""".stripMargin)
+           |  ${CARET}nextInt()
+           |}
+           |""".stripMargin)
       checkNoImportFix(
         s"""object Test {
            |  ${CARET}Random.nextInt()
@@ -248,5 +248,61 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
            |""".stripMargin)
     }
   }
+
+  def testInheritedMethodFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait {
+       |  def defInTrait: String = ???
+       |}
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example {
+       |  println(defIn${CARET}Trait)
+       |}
+       |""".stripMargin,
+    "MyObject.defInTrait"
+  )
+
+  def testInheritedMethodFromClass(): Unit = checkElementsToImport(
+    s"""class MyHelperClass {
+       |  def defInClass: String = ???
+       |}
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example {
+       |  println(defIn${CARET}Class)
+       |}
+       |""".stripMargin,
+    "MyObject.defInClass"
+  )
+
+  def testInheritedValFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait {
+       |  val valInTrait: String = ???
+       |}
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example {
+       |  println(valIn${CARET}Trait)
+       |}
+       |""".stripMargin,
+    "MyObject.valInTrait"
+  )
+
+  def testInheritedValFromClass(): Unit = checkElementsToImport(
+    s"""class MyHelperClass {
+       |  val valInClass: String = ???
+       |}
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example {
+       |  println(valIn${CARET}Class)
+       |}
+       |""".stripMargin,
+    "MyObject.valInClass"
+  )
 
 }
