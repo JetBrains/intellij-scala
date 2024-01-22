@@ -13,7 +13,7 @@ abstract class ScalaImportTypeFixTestBase extends ImportElementFixTestBase[ScRef
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_Latest,
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
 class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
@@ -138,6 +138,90 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
       selected = qNameToImport
     )
   }
+
+  def testInheritedClassFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait {
+       |  class MyClassInTrait()
+       |}
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example {
+       |  println(new MyClassIn${CARET}Trait)
+       |}
+       |""".stripMargin,
+    "MyObject.MyClassInTrait"
+  )
+
+  def testInheritedClassFromClass(): Unit = checkElementsToImport(
+    s"""class MyHelperClass {
+       |  class MyClassInClass()
+       |}
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example {
+       |  println(new MyClassIn${CARET}Class)
+       |}
+       |""".stripMargin,
+    "MyObject.MyClassInClass"
+  )
+
+  def testInheritedTraitFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait {
+       |  trait MyTraitInTrait {}
+       |}
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example {
+       |  println(new MyTraitIn${CARET}Trait {})
+       |}
+       |""".stripMargin,
+    "MyObject.MyTraitInTrait"
+  )
+
+  def testInheritedTraitFromClass(): Unit = checkElementsToImport(
+    s"""class MyHelperClass {
+       |  trait MyTraitInClass {}
+       |}
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example {
+       |  println(new MyTraitIn${CARET}Class {})
+       |}
+       |""".stripMargin,
+    "MyObject.MyTraitInClass"
+  )
+
+  def testInheritedObjectFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait {
+       |  object MyObjectInTrait {}
+       |}
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example {
+       |  println(MyObjectIn${CARET}Trait)
+       |}
+       |""".stripMargin,
+    "MyObject.MyObjectInTrait"
+  )
+
+  def testInheritedObjectFromClass(): Unit = checkElementsToImport(
+    s"""class MyHelperClass {
+       |  object MyObjectInClass {}
+       |}
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example {
+       |  println(MyObjectIn${CARET}Class)
+       |}
+       |""".stripMargin,
+    "MyObject.MyObjectInClass"
+  )
 }
 
 class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
@@ -326,5 +410,35 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
       |  export Blub.foo
       |""".stripMargin,
     "Module.Blub"
+  )
+
+  def testInheritedEnumFromTrait(): Unit = checkElementsToImport(
+    s"""trait MyHelperTrait:
+       |  enum MyEnumInTrait:
+       |    case Foo, Bar
+       |end MyHelperTrait
+       |
+       |object MyObject extends MyHelperTrait
+       |
+       |class Example:
+       |  println(MyEnumIn${CARET}Trait.Foo)
+       |end Example
+       |""".stripMargin,
+    "MyObject.MyEnumInTrait"
+  )
+
+  def testInheritedEnumFromClass(): Unit = checkElementsToImport(
+    s"""trait MyHelperClass:
+       |  enum MyEnumInClass:
+       |    case Foo, Bar
+       |end MyHelperClass
+       |
+       |object MyObject extends MyHelperClass
+       |
+       |class Example:
+       |  println(MyEnumIn${CARET}Class.Bar)
+       |end Example
+       |""".stripMargin,
+    "MyObject.MyEnumInClass"
   )
 }
