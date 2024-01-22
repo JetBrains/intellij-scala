@@ -458,7 +458,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val originalQName = NameTransformer.decode(nonLambdaName(refType))
 
       if (originalQName.endsWith(TopLevelDefinitionsSingletonClassNameSuffix))
-        findFileWithTopLevelMembers(debugProcessScope.scope, originalQName).orNull
+        findFileWithTopLevelMembers(debugProcess.getProject, debugProcessScope.scope, originalQName).orNull
       else {
         val clazz = withDollarTestName(originalQName)
           .flatMap(tryToFindClass)
