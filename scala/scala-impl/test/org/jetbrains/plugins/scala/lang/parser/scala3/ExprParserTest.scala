@@ -446,11 +446,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
 
   def test_nested_if_then_inside_if_then_else1(): Unit = checkTree(
     """if false then
-      |  for case x <- 1 to 2 do
+      |  while true do
       |    if true then
       |      println('a')
       |else if true then
-      |  for case x <- 1 to 2 do
+      |  while true do
       |    if true then
       |      println('b')
       |""".stripMargin,
@@ -463,27 +463,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(then)('then')
       |    PsiWhiteSpace('\n  ')
-      |    ForStatement
-      |      PsiElement(for)('for')
+      |    WhileStatement
+      |      PsiElement(while)('while')
       |      PsiWhiteSpace(' ')
-      |      Enumerators
-      |        Generator
-      |          PsiElement(case)('case')
-      |          PsiWhiteSpace(' ')
-      |          ReferencePattern: x
-      |            PsiElement(identifier)('x')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(<-)('<-')
-      |          PsiWhiteSpace(' ')
-      |          InfixExpression
-      |            IntegerLiteral
-      |              PsiElement(integer)('1')
-      |            PsiWhiteSpace(' ')
-      |            ReferenceExpression: to
-      |              PsiElement(identifier)('to')
-      |            PsiWhiteSpace(' ')
-      |            IntegerLiteral
-      |              PsiElement(integer)('2')
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
       |      PsiWhiteSpace(' ')
       |      PsiElement(do)('do')
       |      PsiWhiteSpace('\n    ')
@@ -514,27 +498,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      PsiElement(then)('then')
       |      PsiWhiteSpace('\n  ')
-      |      ForStatement
-      |        PsiElement(for)('for')
+      |      WhileStatement
+      |        PsiElement(while)('while')
       |        PsiWhiteSpace(' ')
-      |        Enumerators
-      |          Generator
-      |            PsiElement(case)('case')
-      |            PsiWhiteSpace(' ')
-      |            ReferencePattern: x
-      |              PsiElement(identifier)('x')
-      |            PsiWhiteSpace(' ')
-      |            PsiElement(<-)('<-')
-      |            PsiWhiteSpace(' ')
-      |            InfixExpression
-      |              IntegerLiteral
-      |                PsiElement(integer)('1')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: to
-      |                PsiElement(identifier)('to')
-      |              PsiWhiteSpace(' ')
-      |              IntegerLiteral
-      |                PsiElement(integer)('2')
+      |        BooleanLiteral
+      |          PsiElement(true)('true')
       |        PsiWhiteSpace(' ')
       |        PsiElement(do)('do')
       |        PsiWhiteSpace('\n    ')
@@ -560,11 +528,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
 
   def test_nested_if_then_inside_if_then_else2(): Unit = checkTree(
     """if false then
-      |  for case x <- 1 to 2 do
+      |  while true do
       |    if true then
       |      println('a')
       |  else if true then
-      |    for case x <- 1 to 2 do
+      |    while true do
       |      if true then
       |        println('b')
       |""".stripMargin,
@@ -577,27 +545,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(then)('then')
       |    PsiWhiteSpace('\n  ')
-      |    ForStatement
-      |      PsiElement(for)('for')
+      |    WhileStatement
+      |      PsiElement(while)('while')
       |      PsiWhiteSpace(' ')
-      |      Enumerators
-      |        Generator
-      |          PsiElement(case)('case')
-      |          PsiWhiteSpace(' ')
-      |          ReferencePattern: x
-      |            PsiElement(identifier)('x')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(<-)('<-')
-      |          PsiWhiteSpace(' ')
-      |          InfixExpression
-      |            IntegerLiteral
-      |              PsiElement(integer)('1')
-      |            PsiWhiteSpace(' ')
-      |            ReferenceExpression: to
-      |              PsiElement(identifier)('to')
-      |            PsiWhiteSpace(' ')
-      |            IntegerLiteral
-      |              PsiElement(integer)('2')
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
       |      PsiWhiteSpace(' ')
       |      PsiElement(do)('do')
       |      PsiWhiteSpace('\n    ')
@@ -628,27 +580,11 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      PsiElement(then)('then')
       |      PsiWhiteSpace('\n    ')
-      |      ForStatement
-      |        PsiElement(for)('for')
+      |      WhileStatement
+      |        PsiElement(while)('while')
       |        PsiWhiteSpace(' ')
-      |        Enumerators
-      |          Generator
-      |            PsiElement(case)('case')
-      |            PsiWhiteSpace(' ')
-      |            ReferencePattern: x
-      |              PsiElement(identifier)('x')
-      |            PsiWhiteSpace(' ')
-      |            PsiElement(<-)('<-')
-      |            PsiWhiteSpace(' ')
-      |            InfixExpression
-      |              IntegerLiteral
-      |                PsiElement(integer)('1')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: to
-      |                PsiElement(identifier)('to')
-      |              PsiWhiteSpace(' ')
-      |              IntegerLiteral
-      |                PsiElement(integer)('2')
+      |        BooleanLiteral
+      |          PsiElement(true)('true')
       |        PsiWhiteSpace(' ')
       |        PsiElement(do)('do')
       |        PsiWhiteSpace('\n      ')
@@ -668,6 +604,395 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |              CharLiteral
       |                PsiElement(Character)(''b'')
       |              PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_nested_if_then_inside_if_then_else3(): Unit = checkTree(
+    """if false then
+      |  while true do
+      |    if true then
+      |      println('a')
+      |    else if true then
+      |      while true do
+      |        if true then
+      |          println('b')
+      |""".stripMargin,
+    """ScalaFile
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    BooleanLiteral
+      |      PsiElement(false)('false')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace('\n  ')
+      |    WhileStatement
+      |      PsiElement(while)('while')
+      |      PsiWhiteSpace(' ')
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(do)('do')
+      |      PsiWhiteSpace('\n    ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        BooleanLiteral
+      |          PsiElement(true)('true')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(then)('then')
+      |        PsiWhiteSpace('\n      ')
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            CharLiteral
+      |              PsiElement(Character)(''a'')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n    ')
+      |        PsiElement(else)('else')
+      |        PsiWhiteSpace(' ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n      ')
+      |          WhileStatement
+      |            PsiElement(while)('while')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(do)('do')
+      |            PsiWhiteSpace('\n        ')
+      |            IfStatement
+      |              PsiElement(if)('if')
+      |              PsiWhiteSpace(' ')
+      |              BooleanLiteral
+      |                PsiElement(true)('true')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(then)('then')
+      |              PsiWhiteSpace('\n          ')
+      |              MethodCall
+      |                ReferenceExpression: println
+      |                  PsiElement(identifier)('println')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  CharLiteral
+      |                    PsiElement(Character)(''b'')
+      |                  PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+
+  def test_nested_if_then_inside_if_then_else1_braced(): Unit = checkTree(
+    """def test = {
+      |  if false then
+      |    while true do
+      |      if true then
+      |        println('a')
+      |  else if true then
+      |    while true do
+      |      if true then
+      |        println('b')
+      |}
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        BooleanLiteral
+      |          PsiElement(false)('false')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(then)('then')
+      |        PsiWhiteSpace('\n    ')
+      |        WhileStatement
+      |          PsiElement(while)('while')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(do)('do')
+      |          PsiWhiteSpace('\n      ')
+      |          IfStatement
+      |            PsiElement(if)('if')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(then)('then')
+      |            PsiWhiteSpace('\n        ')
+      |            MethodCall
+      |              ReferenceExpression: println
+      |                PsiElement(identifier)('println')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                CharLiteral
+      |                  PsiElement(Character)(''a'')
+      |                PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(else)('else')
+      |        PsiWhiteSpace(' ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n    ')
+      |          WhileStatement
+      |            PsiElement(while)('while')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(do)('do')
+      |            PsiWhiteSpace('\n      ')
+      |            IfStatement
+      |              PsiElement(if)('if')
+      |              PsiWhiteSpace(' ')
+      |              BooleanLiteral
+      |                PsiElement(true)('true')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(then)('then')
+      |              PsiWhiteSpace('\n        ')
+      |              MethodCall
+      |                ReferenceExpression: println
+      |                  PsiElement(identifier)('println')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  CharLiteral
+      |                    PsiElement(Character)(''b'')
+      |                  PsiElement())(')')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_nested_if_then_inside_if_then_else2_braced(): Unit = checkTree(
+    """val test = {
+      |  if false then
+      |    while true do
+      |      if true then
+      |        println('a')
+      |    else if true then
+      |      while true do
+      |        if true then
+      |          println('b')
+      |}
+      |""".stripMargin,
+    """ScalaFile
+      |  ScPatternDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: test
+      |        PsiElement(identifier)('test')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        BooleanLiteral
+      |          PsiElement(false)('false')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(then)('then')
+      |        PsiWhiteSpace('\n    ')
+      |        WhileStatement
+      |          PsiElement(while)('while')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(do)('do')
+      |          PsiWhiteSpace('\n      ')
+      |          IfStatement
+      |            PsiElement(if)('if')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(then)('then')
+      |            PsiWhiteSpace('\n        ')
+      |            MethodCall
+      |              ReferenceExpression: println
+      |                PsiElement(identifier)('println')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                CharLiteral
+      |                  PsiElement(Character)(''a'')
+      |                PsiElement())(')')
+      |        PsiWhiteSpace('\n    ')
+      |        PsiElement(else)('else')
+      |        PsiWhiteSpace(' ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n      ')
+      |          WhileStatement
+      |            PsiElement(while)('while')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(do)('do')
+      |            PsiWhiteSpace('\n        ')
+      |            IfStatement
+      |              PsiElement(if)('if')
+      |              PsiWhiteSpace(' ')
+      |              BooleanLiteral
+      |                PsiElement(true)('true')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(then)('then')
+      |              PsiWhiteSpace('\n          ')
+      |              MethodCall
+      |                ReferenceExpression: println
+      |                  PsiElement(identifier)('println')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  CharLiteral
+      |                    PsiElement(Character)(''b'')
+      |                  PsiElement())(')')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_nested_if_then_inside_if_then_else3_braced(): Unit = checkTree(
+    """def test = {
+      |  if false then
+      |    while true do
+      |      if true then
+      |        println('a')
+      |      else if true then
+      |        while true do
+      |          if true then
+      |            println('b')
+      |}
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        BooleanLiteral
+      |          PsiElement(false)('false')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(then)('then')
+      |        PsiWhiteSpace('\n    ')
+      |        WhileStatement
+      |          PsiElement(while)('while')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(do)('do')
+      |          PsiWhiteSpace('\n      ')
+      |          IfStatement
+      |            PsiElement(if)('if')
+      |            PsiWhiteSpace(' ')
+      |            BooleanLiteral
+      |              PsiElement(true)('true')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(then)('then')
+      |            PsiWhiteSpace('\n        ')
+      |            MethodCall
+      |              ReferenceExpression: println
+      |                PsiElement(identifier)('println')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                CharLiteral
+      |                  PsiElement(Character)(''a'')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n      ')
+      |            PsiElement(else)('else')
+      |            PsiWhiteSpace(' ')
+      |            IfStatement
+      |              PsiElement(if)('if')
+      |              PsiWhiteSpace(' ')
+      |              BooleanLiteral
+      |                PsiElement(true)('true')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(then)('then')
+      |              PsiWhiteSpace('\n        ')
+      |              WhileStatement
+      |                PsiElement(while)('while')
+      |                PsiWhiteSpace(' ')
+      |                BooleanLiteral
+      |                  PsiElement(true)('true')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(do)('do')
+      |                PsiWhiteSpace('\n          ')
+      |                IfStatement
+      |                  PsiElement(if)('if')
+      |                  PsiWhiteSpace(' ')
+      |                  BooleanLiteral
+      |                    PsiElement(true)('true')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(then)('then')
+      |                  PsiWhiteSpace('\n            ')
+      |                  MethodCall
+      |                    ReferenceExpression: println
+      |                      PsiElement(identifier)('println')
+      |                    ArgumentList
+      |                      PsiElement(()('(')
+      |                      CharLiteral
+      |                        PsiElement(Character)(''b'')
+      |                      PsiElement())(')')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
