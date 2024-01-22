@@ -383,12 +383,11 @@ object Expr1 extends ParsingRule {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kELSE if !(
-        // if `else` is indented more to the left in Scala 3 indentation based syntax
-        // detach else branch from the current if statement
-        builder.isScala3IndentationBasedSyntaxEnabled &&
-          !builder.isInsideBracedRegion &&
-          builder.isOutdentHere
-        ) =>
+          // if `else` is indented more to the left in Scala 3 indentation based syntax
+          // detach else branch from the current if statement
+          builder.isScala3IndentationBasedSyntaxEnabled &&
+            builder.isOutdentHere
+          ) =>
         builder.advanceLexer()
         if (!ExprInIndentationRegion()) builder.wrongExpressionError()
         rollbackMarker.drop()
