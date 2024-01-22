@@ -31,6 +31,7 @@
 
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtScalaSdkDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtNestedModuleRemovalService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
