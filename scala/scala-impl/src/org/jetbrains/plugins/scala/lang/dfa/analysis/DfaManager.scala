@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaListener, ScalaDfaResult}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
@@ -60,7 +60,13 @@ object DfaManager {
 
     val analysedMethodInfo = AnalysedMethodInfo(fun, 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body, buildUnsupportedPsiElements)
-    controlFlowBuilder.transformStatement(body, ResultReq.None)
+
+    try controlFlowBuilder.transformStatement(body, ResultReq.None)
+    catch {
+      case _: TransformationFailedException =>
+        return None
+    }
+
     val flow = controlFlowBuilder.build()
     try {
       val listener = new ScalaDfaListener
