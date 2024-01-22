@@ -52,11 +52,12 @@ class SbtBuildModuleUseScopeEnlarger extends UseScopeEnlarger {
 
     //NOTE: I am assuming there is the single content root in build module (I am not aware of other cases at the moment)
     val contentRootParent = contentRoots.head.getParent
-    val moduleOfParentFolder = ModuleUtilCore.findModuleForFile(contentRootParent, module.getProject)
+    val project = module.getProject
+    val moduleOfParentFolder = ModuleUtilCore.findModuleForFile(contentRootParent, project)
     if (moduleOfParentFolder == null)
       return null
 
-    new GlobalSearchScope {
+    new GlobalSearchScope(project) {
       override def isSearchInLibraries: Boolean = false
 
       override def isSearchInModuleContent(aModule: Module): Boolean =
