@@ -18,7 +18,7 @@ class SbtNestedModuleRemovalService extends AbstractModuleDataService[ModuleData
 
   override def getTargetDataKey: Key[ModuleData] = ProjectKeys.MODULE
 
-  private val sbtNestedModuleType = "nestedProject"
+  private val SbtNestedModuleType = "nestedProject"
 
   override def computeOrphanData(
     toImport: util.Collection[_ <: DataNode[ModuleData]],
@@ -31,7 +31,7 @@ class SbtNestedModuleRemovalService extends AbstractModuleDataService[ModuleData
 
       modelsProvider.getModules.foreach { module =>
         val isPossibleOrphan = !module.isDisposed && ExternalSystemApiUtil.isExternalSystemAwareModule(projectData.getOwner, module) &&
-          ExternalSystemApiUtil.getExternalModuleType(module) == sbtNestedModuleType
+          ExternalSystemApiUtil.getExternalModuleType(module) == SbtNestedModuleType
         if (isPossibleOrphan) {
           val rootProjectPath = ExternalSystemApiUtil.getExternalRootProjectPath(module)
           if (projectData.getLinkedExternalProjectPath.equals(rootProjectPath)) {
