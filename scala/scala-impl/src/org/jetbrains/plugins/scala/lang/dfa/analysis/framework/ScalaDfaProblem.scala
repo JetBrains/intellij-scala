@@ -31,7 +31,9 @@ object ScalaDfaProblem {
         case ProblemOccurrence.Always => problemKind.alwaysMessage
         case _ => return
       }
-      holder.registerProblem(problemElement, message)
+      if (problemElement.isPhysical) {
+        holder.registerProblem(problemElement, message)
+      }
     }
   }
 }
