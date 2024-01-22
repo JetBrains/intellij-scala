@@ -11,6 +11,8 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   def accessModifier: Option[ScAccessModifier]
 
   def modifiers: EnumSet[ScalaModifier]
+
+  def modifiersOrdered: Seq[ScalaModifier]
 }
 
 object ScModifierList {
