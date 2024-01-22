@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isE
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix.getTypesToImport
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -132,10 +133,22 @@ object ScalaImportTypeFix {
       clazz != null &&
         clazz.qualifiedName != null &&
         kindMatchesAndIsAccessible(clazz) &&
-        notInner(clazz, ref) &&
         predicate(clazz)
     }
-    val classesToImport = classesWithNameFiltered.map(ClassToImport.apply)
+    val (notInnerClasses, potentiallyInnerClasses) = classesWithNameFiltered.partition(notInner(_, ref))
+
+    val classesToImport = notInnerClasses.map(ClassToImport.apply)
+
+    // Class `A` can be defined in another class `B`
+    // But if that class `B` has an inheritor object then we still might want to import `A`
+    // See SCL-22031
+    val inheritedClassesToImport = potentiallyInnerClasses.flatMap {
+      case (td: ScTypeDefinition) & Parent(_: ScTemplateBody) =>
+        findInheritorObjectsForOwner(td).collectFirst {
+          case obj if isAccessible(obj, ref) && notInner(obj, ref) => MemberToImport(td, obj)
+        }
+      case _ => None
+    }
 
     val aliasesToImport: Iterable[MemberToImport] = for {
       alias  <- manager.getTypeAliasesByName(referenceName, ref.resolveScope)
@@ -159,7 +172,7 @@ object ScalaImportTypeFix {
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
-    val elementsAll = classesToImport ++ distinctAliasesToImport ++ packages
+    val elementsAll = classesToImport ++ inheritedClassesToImport ++ distinctAliasesToImport ++ packages
     val elementsFiltered = elementsAll.filterNot(e => isExcluded(e.qualifiedName, project))
     val elementsSorted = elementsFiltered.sorted(defaultImportOrdering(ref))
     elementsSorted
