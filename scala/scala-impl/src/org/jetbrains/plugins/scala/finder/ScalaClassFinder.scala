@@ -48,7 +48,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     val topLevelSourceSuffix = "$package"
     val src$packageObject: Option[PsiClass] =
       if (qualifiedName.contains(topLevelSourceSuffix)) {
-        val targetFile = TopLevelMembers.findFileWithTopLevelMembers(scope, qualifiedName, topLevelSourceSuffix)
+        val targetFile = TopLevelMembers.findFileWithTopLevelMembers(project, scope, qualifiedName, topLevelSourceSuffix)
         targetFile.flatMap(_.topLevelWrapperObject)
       } else None
 

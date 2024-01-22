@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
@@ -42,6 +43,7 @@ private[scala] object TopLevelMembers {
   }
 
   def findFileWithTopLevelMembers(
+    project:       Project,
     scope:         GlobalSearchScope,
     originalQName: String,
     suffix:        String = classSuffix
@@ -52,7 +54,7 @@ private[scala] object TopLevelMembers {
       case _ => ("", path + ".scala")
     }
     @nowarn("cat=deprecation")
-    val files = FilenameIndex.getFilesByName(scope.getProject, fileName, scope)
+    val files = FilenameIndex.getFilesByName(project, fileName, scope)
 
     val condition: ScalaFile => Boolean = (file: ScalaFile) =>
       if (packageName.isEmpty) file.firstPackaging.isEmpty
