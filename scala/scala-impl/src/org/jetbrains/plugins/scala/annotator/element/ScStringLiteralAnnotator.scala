@@ -51,8 +51,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {
     val lexer: ScalaStringLiteralLexer = (isInterpolated, isMultiline) match {
       case (false, false) => new ScalaStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType)
       case (false, true)  => new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType)
-      case (true, false)  => new ScalaInterpolatedStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, isRaw)
-      case (true, true)   => new ScalaInterpolatedStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, isRaw)
+      case (true, _)  => new ScalaInterpolatedStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, isRaw, isMultiline)
     }
 
     val stringLeafNodes = literal.getNode.getChildren(tokenSet)
@@ -66,7 +65,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {
 
     var tokenType = lexer.getTokenType
     while (tokenType != null) {
-      val range = TextRange.create(lexer.getTokenStart, lexer.getTokenEnd).shiftRight(node.getStartOffset)
+      def range = TextRange.create(lexer.getTokenStart, lexer.getTokenEnd).shiftRight(node.getStartOffset)
 
       tokenType match {
         case StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN =>
