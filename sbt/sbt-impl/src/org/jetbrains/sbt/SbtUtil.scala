@@ -206,7 +206,7 @@ object SbtUtil {
   }
 
   def getSbtModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, Some(SbtNestedModuleData.Key), key)
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, Some(SbtNestedModuleData.key), key)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects
@@ -365,7 +365,6 @@ object SbtUtil {
    * Appending a special suffix to the module name might be needed when unique module names are generated in
    * [[org.jetbrains.sbt.project.SbtProjectResolver.ModuleUniqueInternalNameGenerator]] and when new modules are being created from <code>SbtNestedModuleData</code>.
    * In the second case, this is necessary when it is detected that the module name is already occupied by another module.
-   * It was inspired by [[org.jetbrains.plugins.gradle.service.project.data.GradleSourceSetDataService.findDeduplicatedModuleName]]
    */
   def appendSuffixToModuleName(moduleName: String, inc: Int): String =
     moduleName + "~" + inc

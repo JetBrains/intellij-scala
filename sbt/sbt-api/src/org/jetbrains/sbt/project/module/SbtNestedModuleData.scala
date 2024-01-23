@@ -40,6 +40,6 @@ final case class SbtNestedModuleData @PropertyMapping(Array(
 ) { }
 
 object SbtNestedModuleData {
-  val Key: Key[SbtNestedModuleData] =
+  val key: Key[SbtNestedModuleData] =
     new Key(classOf[SbtNestedModuleData].getName, ProjectKeys.MODULE.getProcessingWeight + 1)
 }

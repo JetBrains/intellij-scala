@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters._
 
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, SbtNestedModuleData.Key)
+  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, SbtNestedModuleData.key)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -28,7 +28,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     val taskNodes = dataNodes.get(SbtTaskData.Key).asScala
     val settingNodes = dataNodes.get(SbtSettingData.Key).asScala
     val commandNodes = dataNodes.get(SbtCommandData.Key).asScala
-    val sbtNestedModuleNodes = dataNodes.get(SbtNestedModuleData.Key).asScala
+    val sbtNestedModuleNodes = dataNodes.get(SbtNestedModuleData.key).asScala
 
     val taskViewNodes = taskNodes.map { dataNode =>
       val typedNode = dataNode.asInstanceOf[DataNode[SbtTaskData]]
