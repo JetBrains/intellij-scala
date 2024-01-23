@@ -17,6 +17,7 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, ScalaLibraryProperties}
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
