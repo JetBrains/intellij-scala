@@ -48,7 +48,7 @@ class NestedModuleNode(override val data: SbtNestedModuleData)
     this(SbtNestedModuleData(projectId, externalName, moduleFileDirectoryPath, externalConfigPath, typeId))
   }
 
-  override protected def key: Key[SbtNestedModuleData] = SbtNestedModuleData.key
+  override protected def key: Key[SbtNestedModuleData] = Sbt.sbtNestedModuleDataKey
 }
 
 class LibraryNode(override val data: LibraryData)

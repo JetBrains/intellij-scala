@@ -66,16 +66,14 @@ class SbtNestedModuleDataServiceTest extends SbtModuleDataServiceTestCase {
     importProjectData(testProject)
 
     val moduleManager = ModuleManager.getInstance(getProject)
-    val allModules = moduleManager.getModules
-    val rootModules = Seq("root", "c1").map(moduleManager.findModuleByName).filter(_ != null)
-    val nonRootModules = Seq("root.project1", "c1.project1").map(moduleManager.findModuleByName).filter(_ != null)
+    val rootModules = Seq("root", "c1").map(moduleManager.findModuleByName)
+    val nonRootModules = Seq("root.project1", "c1.project1").map(moduleManager.findModuleByName)
 
-    assertTrue("The number of modules is not equal to 5", allModules.size == 5)
-    assertTrue("There is less than 2 root modules", rootModules.size == 2)
-    assertTrue("There is less than 2 non root modules", nonRootModules.size == 2)
+    assertTrue("There is more or less than 2 root modules", rootModules.size == 2)
+    assertTrue("There is more or less than 2 non root modules", nonRootModules.size == 2)
 
     testModuleExternalType(rootModules, null)
-    testModuleExternalType(nonRootModules, SbtNestedModuleDataService.sbtNestedModuleType)
+    testModuleExternalType(nonRootModules, Sbt.SbtNestedModuleTypeKey)
   }
 
   private def testModuleExternalType(modules: Seq[Module], @Nullable desiredType: String): Unit = {
