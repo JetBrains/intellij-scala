@@ -27,7 +27,7 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
 
   import org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService.sbtNestedModuleType
 
-  override def getTargetDataKey: Key[SbtNestedModuleData] = SbtNestedModuleData.Key
+  override def getTargetDataKey: Key[SbtNestedModuleData] = SbtNestedModuleData.key
 
   override def computeOrphanData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
