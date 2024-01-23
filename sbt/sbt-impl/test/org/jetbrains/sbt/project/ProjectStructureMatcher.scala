@@ -108,6 +108,8 @@ trait ProjectStructureMatcher {
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
     expected.foreach0(compileOrder)(assertModuleCompileOrder(actual))
 
+    assertGroupEqual(expected, actual)
+
     lazy val sbtModuleData = SbtUtil.getSbtModuleData(actual).getOrElse {
       fail(s"Can't get module data for module: $actual (${actual.getModuleFilePath})").asInstanceOf[Nothing]
     }
@@ -309,16 +311,16 @@ trait ProjectStructureMatcher {
                                             (implicit nameOf: HasName[T]): Unit =
     assertMatchWithIgnoredOrder(what, expected.map(_.name), actual.map(s => nameOf(s)))(mt)
 
-//  private def assertGroupEqual[T](expected: module, actual: Module): Unit = {
-//    val actualPath: Array[String] =
-//      ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
-//
-//    assertCollectionEquals(
-//      s"Wrong module group path for module `${actual.getName}`",
-//      if (expected.group != null) expected.group.toSeq else null,
-//      if (actualPath != null) actualPath.toSeq else null
-//    )
-//  }
+  private def assertGroupEqual[T](expected: module, actual: Module): Unit = {
+    val actualPath: Array[String] =
+      ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
+
+    assertCollectionEquals(
+      s"Wrong module group path for module `${actual.getName}`",
+      if (expected.group != null) expected.group.toSeq else null,
+      if (actualPath != null) actualPath.toSeq else null
+    )
+  }
 
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
     org.junit.Assert.assertEquals(s"$what mismatch", expected, actual)

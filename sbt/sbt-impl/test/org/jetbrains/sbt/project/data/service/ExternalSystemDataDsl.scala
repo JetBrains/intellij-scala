@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.data.service
 
-import com.intellij.openapi.externalSystem.model.project.{LibraryLevel, ModuleData}
+import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
@@ -98,7 +98,7 @@ object ExternalSystemDataDsl {
       node
     }
 
-    private def createModuleDependencies(moduleToNode: Map[module, Node[_<:ModuleData]]): Unit =
+    private def createModuleDependencies(moduleToNode: Map[module, ModuleNode]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getModuleDependencies.foreach { dependency =>
           moduleToNode.get(dependency).foreach { dependencyModuleNode =>
@@ -107,7 +107,7 @@ object ExternalSystemDataDsl {
         }
       }
 
-    private def createLibraryDependencies(moduleToNode: Map[module, Node[_<:ModuleData]], libraryToNode: Map[library, LibraryNode]): Unit =
+    private def createLibraryDependencies(moduleToNode: Map[module, ModuleNode], libraryToNode: Map[library, LibraryNode]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getLibraryDependencies.foreach { dependency =>
           libraryToNode.get(dependency).foreach { libraryNode =>
@@ -127,7 +127,7 @@ object ExternalSystemDataDsl {
   abstract class module {
     val typeId: String
 
-    def build: Node[_<:ModuleData] = {
+    def build: ModuleNode = {
       val node = new ModuleNode(
         typeId,
         attributes.getOrFail(projectId),
@@ -161,33 +161,6 @@ object ExternalSystemDataDsl {
 
   class javaModule extends module {
     override val typeId: String = StdModuleTypes.JAVA.getId
-  }
-
-  class sbtNestedModule extends module {
-    override val typeId: String = StdModuleTypes.JAVA.getId
-
-    private val attributes = new AttributeMap
-    override def build: Node[_ <: ModuleData] = {
-      val node = new NestedModuleNode(
-        typeId,
-        attributes.getOrFail(projectId),
-        attributes.getOrFail(name),
-        attributes.getOrFail(moduleFileDirectoryPath),
-        attributes.getOrFail(externalConfigPath)
-      )
-      attributes.get(libraries).foreach { libs =>
-        libs.map(_.build).foreach { libNode =>
-          node.add(libNode)
-          node.add(new LibraryDependencyNode(node, libNode, LibraryLevel.MODULE))
-        }
-      }
-      attributes.get(arbitraryNodes).foreach(node.addAll)
-      node
-    }
-    override protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
-      new AttributeDef(attribute, attributes)
-    override protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
-      new AttributeSeqDef(attribute, attributes)
   }
 
   class library {
