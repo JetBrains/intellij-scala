@@ -108,8 +108,6 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
         parentModuleOriginalName
           .map(generateNewInternalModuleName(internalModuleName, moduleName, _, parentModuleActualName))
       } else {
-        // note: returning Option with the same name is important for #createModule method - when even the same module name is returned,
-        // it is used to find the deduplicated module name, and if it is necessary add "~" suffix to make it unique.
         Some(internalModuleName)
       }
     }
