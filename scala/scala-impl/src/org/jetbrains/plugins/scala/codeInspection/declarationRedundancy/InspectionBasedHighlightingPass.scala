@@ -138,7 +138,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
                 unwrappedModCommandAction.asIntention().tap { intention =>
                   intention.isAvailable(file.getProject, null, file) // cache presentation
                 }
-              } else new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
+              } else new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor): @nowarn("cat=deprecation")
           }
           highlightInfo.registerFix(action, null, info.message, range, highlightKey): @nowarn("cat=deprecation")
         }
@@ -154,6 +154,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 object InspectionBasedHighlightingPass {
   private val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
 
+  @nowarn("cat=deprecation")
   private class LocalQuickFixAsIntentionIconableAdapter(
     delegateFix: LocalQuickFix with Iconable,
     problemDescriptor: ProblemDescriptor
