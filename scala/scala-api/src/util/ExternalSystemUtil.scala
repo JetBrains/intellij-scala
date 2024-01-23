@@ -39,19 +39,13 @@ object ExternalSystemUtil {
     Right(result)
   }
 
-  /**
-   * @param moduleDataChildKey type key representing submodules of default modules created from ModuleData. Only needed if in given external system such
-   *                           submodules are created and they should be included in searches.
-   * @return
-   */
   def getModuleData[K](
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
-    moduleDataChildKey: Option[Key[_ <: ModuleData]],
     key: Key[K],
   ): Either[String, Iterable[K]] = {
-    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, moduleDataChildKey, key)
+    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key)
     nodes.map(_.map(_.getData))
   }
 
@@ -59,28 +53,20 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
-    moduleDataChildKey: Option[Key[_ <: ModuleData]],
     key: Key[K],
   ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
-    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId, moduleDataChildKey)
+    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId)
     moduleDataNode.map(findAllNodesEnsuring(dataManager, _, key))
   }
 
-  /**
-   *
-   * @param moduleDataChildKey type key representing submodules of default modules created from ModuleData. Only needed if in given external system such
-   *                           submodules are created and they should be included in searches.
-   * @return
-   */
   def getModuleDataNode(
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
-    moduleDataChildKey: Option[Key[_ <: ModuleData]]
-  ): Option[DataNode[_ <: ModuleData]] = {
+  ): Either[String, DataNode[ModuleData]] = {
     val dataManager = ProjectDataManager.getInstance()
-    getModuleDataNode(dataManager, projectSystemId, project, moduleId, moduleDataChildKey).toOption
+    getModuleDataNode(dataManager, projectSystemId, project, moduleId)
   }
 
   private def getModuleDataNode(
@@ -88,37 +74,21 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
-    moduleDataChildKey: Option[Key[_ <: ModuleData]]
-  ): Either[String, DataNode[_ <: ModuleData]] = {
+  ): Either[String, DataNode[ModuleData]] = {
     val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
     }
 
-    def findDataNodeWithModuleId(parentNode: DataNode[_], key: Key[_<:ModuleData]): DataNode[_<:ModuleData] = {
-      ExternalSystemApiUtil.findChild(parentNode, key, (node: DataNode[_ <: ModuleData]) => {
-        // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
-        node.getData.getId == moduleId
-      })
-    }
-
-    def processModuleDataChildNodes: Option[DataNode[_<:ModuleData]] =
-      moduleDataChildKey match {
-        case Some(key) =>
-          val moduleDataNodes = ExternalSystemApiUtil.findAll(projectDataNode, ProjectKeys.MODULE).asScala.toSeq
-          moduleDataNodes.view
-            .map(findDataNodeWithModuleId(_, key))
-            .find(_ != null)
-        case _ => None
-      }
-
-    val moduleDataNode: DataNode[_<:ModuleData] = findDataNodeWithModuleId(projectDataNode,ProjectKeys.MODULE)
-    if (moduleDataNode != null) {
+    val moduleDataNode: DataNode[ModuleData] = ExternalSystemApiUtil.findChild(projectDataNode, ProjectKeys.MODULE, (node: DataNode[ModuleData]) => {
+      // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
+      node.getData.getId == moduleId
+    })
+    if (moduleDataNode != null)
       Right(moduleDataNode)
-    } else {
-      processModuleDataChildNodes.toRight(s"can't find module data node with id `$moduleId` for project $project, $projectInfo")
-    }
+    else
+      Left(s"can't find module data node with id `$moduleId` for project $project, $projectInfo")
   }
 
   private def findAllNodesEnsuring[K](dataManager: ProjectDataManager, parent: DataNode[_], key: Key[K]): Iterable[DataNode[K]] = {

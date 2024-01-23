@@ -7,7 +7,6 @@ import com.intellij.openapi.externalSystem.model.project.{ContentRootData, Exter
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.annotations.ApiStatus
@@ -15,8 +14,6 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.actions.ScalaDirectoryCompletionContributorBase.getModuleContentRootsData
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
 import java.util.Collections.emptyList
@@ -68,7 +65,7 @@ abstract class ScalaDirectoryCompletionContributorBase(projectSystemId: ProjectS
 object ScalaDirectoryCompletionContributorBase {
 
   private def getModuleContentRootsData(module: Module, projectSystemId: ProjectSystemId): Seq[ContentRootData] =
-     findModuleData(module, projectSystemId) match {
+    findModuleData(module, projectSystemId) match {
       case Some(moduleData) =>
         val contentRoots = ExternalSystemApiUtil.findAll(moduleData, ProjectKeys.CONTENT_ROOT)
         contentRoots.asScala.map(_.getData).toSeq
@@ -76,12 +73,13 @@ object ScalaDirectoryCompletionContributorBase {
         Nil
     }
 
-  private def findModuleData(module: Module, projectSystemId: ProjectSystemId): Option[DataNode[_<:ModuleData]] = {
+  private def findModuleData(module: Module, projectSystemId: ProjectSystemId): Option[DataNode[ModuleData]] = {
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
     if (moduleId == null) None
     else {
       val project = module.getProject
-      getModuleDataBasedOnProjectSystemId(projectSystemId, project, moduleId)
+      val dataNodes = ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId)
+      dataNodes.toOption
     }
   }
 
@@ -108,12 +106,4 @@ object ScalaDirectoryCompletionContributorBase {
     }
   }
   */
-
-  private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, project: Project, moduleId: String): Option[DataNode[_ <: ModuleData]]  = {
-    if (projectSystemId == SbtProjectSystem.Id) {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, Some(Sbt.sbtNestedModuleDataKey))
-    } else {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, None)
-    }
-  }
 }

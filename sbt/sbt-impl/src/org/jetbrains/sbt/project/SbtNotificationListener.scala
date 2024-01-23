@@ -2,18 +2,13 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.notification._
-import com.intellij.openapi.externalSystem.model.ProjectKeys
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter, ExternalSystemTaskType}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import org.jetbrains.sbt.settings.SbtSettings
-
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, SetHasAsJava}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
 
 // TODO Rely on the immediate UI interaction API when IDEA-123007 will be implemented
 class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdapter {
   override def onTaskOutput(id: ExternalSystemTaskId, text: String, stdOut: Boolean): Unit = {
     // TODO this check must be performed in the External System itself (see SCL-7405)
-    if (isSbtProject(id)) {
+    if (id.getProjectSystemId == SbtProjectSystem.Id) {
       processOutput(text)
     }
   }
@@ -27,26 +22,6 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
       case _ => // do nothing
     }
   }
-
-  override def onSuccess(id: ExternalSystemTaskId): Unit = {
-    val isSbtProjectResolveTask = isSbtProject(id) && id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
-    val project = id.findProject
-    if (isSbtProjectResolveTask && project != null) {
-      val projectNode = ExternalSystemApiUtil.findProjectNode(project, SbtProjectSystem.Id, project.getBasePath)
-      val linkedProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
-      if (projectNode != null && linkedProjectSettings != null) {
-        val moduleDataNodes = ExternalSystemApiUtil.findAll(projectNode, ProjectKeys.MODULE).asScala
-        val sbtNestedModulePaths = moduleDataNodes
-          .flatMap(ExternalSystemApiUtil.findAll(_, Sbt.sbtNestedModuleDataKey).asScala)
-          .map(_.getData.externalConfigPath).toSeq
-
-        val externalModulePaths = sbtNestedModulePaths ++ linkedProjectSettings.getModules.asScala.toSeq
-        linkedProjectSettings.setModules(externalModulePaths.toSet.asJava)
-      }
-    }
-  }
-
-  private def isSbtProject(id: ExternalSystemTaskId): Boolean = id.getProjectSystemId == SbtProjectSystem.Id
 }
 
 object WarningMessage {

@@ -194,19 +194,19 @@ object SbtUtil {
   def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
     val emptyURI = new URI("")
 
-    val moduleDataSeq = getSbtModuleData(project, moduleId, SbtModuleData.Key)
+    val moduleDataSeq = getModuleData(project, moduleId, SbtModuleData.Key)
     moduleDataSeq.find(_.buildURI.uri != emptyURI)
   }
 
   def getBuildModuleData(project: Project, moduleId: String): Option[SbtBuildModuleData] = {
     val emptyURI = new URI("")
 
-    val moduleDataSeq = getSbtModuleData(project, moduleId, SbtBuildModuleData.Key)
+    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleData.Key)
     moduleDataSeq.find(_.buildFor.uri != emptyURI)
   }
 
-  def getSbtModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, Some(Sbt.sbtNestedModuleDataKey), key)
+  def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects

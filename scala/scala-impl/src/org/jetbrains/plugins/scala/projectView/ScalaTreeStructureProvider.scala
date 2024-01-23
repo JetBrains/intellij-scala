@@ -1,30 +1,17 @@
 package org.jetbrains.plugins.scala.projectView
 
-import com.intellij.ide.projectView.impl.ProjectRootsUtil
-import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.canRealModuleNameBeHidden
-import com.intellij.ide.projectView.impl.nodes.{PsiDirectoryNode, PsiFileSystemItemFilter}
-import com.intellij.ide.projectView.{PresentationData, TreeStructureProvider, ViewSettings}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isExternalSystemAwareModule
-import com.intellij.openapi.module.{Module, ModuleGrouper, ModuleManager}
+import com.intellij.ide.projectView.{TreeStructureProvider, ViewSettings}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.NlsSafe
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiDirectory
-import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
-import scala.jdk.CollectionConverters._
 
 final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAware {
 
   import ScalaTreeStructureProvider._
 
+  import scala.jdk.CollectionConverters._
 
   override def modify(parent: Node, children: util.Collection[Node], settings: ViewSettings): util.Collection[Node] =
     children.asScala.map { it =>
@@ -38,19 +25,6 @@ private object ScalaTreeStructureProvider {
                        (implicit project: Project, settings: ViewSettings): Node = {
     val nodeValue = node.getValue
     nodeValue match {
-      case psiDirectory: PsiDirectory =>
-        val virtualFile = psiDirectory.getVirtualFile
-        val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-        val module = fileIndex.getModuleForFile(virtualFile)
-        // For now in the process of creating modules, a single content root for each module is created and its path is equal to project.base.path (it is the root of the module).
-        // In ProjectRootsUtil#isModuleContentRoot it is checked whether the virtualFile is equal to the content root path associated with this virtualFile.
-        // In a nutshell, with this we check whether virtualFile is the module root. If it is, there is some probability that we should create
-        // ScalaModuleDirectoryNode for this node.
-        if (!ProjectRootsUtil.isModuleContentRoot(virtualFile, project)) return node
-        val moduleShortName = getModuleShortName(module, project, virtualFile)
-        moduleShortName
-          .map(ScalaModuleDirectoryNode(project, psiDirectory, settings, _, node.asInstanceOf[PsiDirectoryNode].getFilter, module))
-          .getOrElse(node)
       case file: ScalaFile =>
         Node(file)
       case definition: ScTypeDefinition  =>
@@ -76,82 +50,6 @@ private object ScalaTreeStructureProvider {
         }
       case _ =>
         node
-    }
-  }
-
-  private def getModuleShortName(module: Module, project: Project, virtualFile: VirtualFile): Option[String] = {
-    if (!isExternalSystemAwareModule(SbtProjectSystem.Id, module)) return None
-
-    // note: generating module short name shouldn't be done for root modules in a multi BUILD project (root module represents root project in each BUILD)
-    // This is how it is implemented, because when there is a project with multi BUILD, and projects from different BUILDs are grouped together, it
-    // is more transparent to display full module name for root modules -it may simplify searching concrete modules in Project Structure | Modules
-    if (isRootModuleInMultiBUILDProject(module, project, virtualFile)) return None
-
-    val fullModuleName = module.getName
-    val moduleGrouper = ModuleGrouper.instanceFor(project)
-    val shortModuleName = moduleGrouper.getShortenedNameByFullModuleName(fullModuleName)
-
-    // Because of the fact that ExplicitModuleGrouper#getShortenedNameByFullModuleName always returns the original module name and
-    // QualifiedNameGrouper#getShortenedNameByFullModuleName also returns the original module name when when grouping is not used at all in the project, we can assume that
-    // when (shortModuleName == moduleName) it is not needed to create custom ScalaModuleDirectoryNode (so None is returned from this method).
-    // For such a case com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.updateImpl will work correctly, because the group name is not present in module name
-    if (fullModuleName == shortModuleName || shortModuleName.isBlank) None else Some(shortModuleName)
-  }
-
-
-  private def isRootModuleInMultiBUILDProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
-    val regexPattern = (path: String) => s""".*$path(?:/)?\\]""".r
-    val moduleRegexPattern = regexPattern(virtualFile.getPath)
-
-    def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
-
-    def isRootAndBelongsToDifferentBUILD(module: Module): Boolean = {
-      moduleIdOpt(module).fold(false) { id =>
-        val moduleRootPath = ExternalSystemApiUtil.getExternalProjectPath(module)
-        val isRoot = regexPattern(moduleRootPath).matches(id)
-        isRoot && !moduleRegexPattern.matches(id)
-      }
-    }
-
-    moduleIdOpt(module).exists { id =>
-      val isRootProject = moduleRegexPattern.matches(id)
-      if (isRootProject) {
-        // note: checking if there are more root projects and if they belong to other BUILD
-        val modules = ModuleManager.getInstance(project).getModules
-        modules.exists(isRootAndBelongsToDifferentBUILD)
-      } else {
-        false
-      }
-    }
-  }
-
-}
-
-private case class ScalaModuleDirectoryNode(
-  project: Project,
-  psiDirectory: PsiDirectory,
-  settings: ViewSettings,
-  @NlsSafe moduleShortName: String,
-  filter: PsiFileSystemItemFilter,
-  module: Module,
-) extends PsiDirectoryNode(project, psiDirectory, settings, filter) {
-
-  private lazy val moduleShortNameMatchesDirectoryName = StringUtil.equalsIgnoreCase(
-      moduleShortName.replace("-", ""),
-      psiDirectory.getVirtualFile.getName.replace("-", "")
-  )
-
-  override def shouldShowModuleName(): Boolean = canRealModuleNameBeHidden
-
-  override def updateImpl(data: PresentationData): Unit = {
-    super.updateImpl(data)
-    if (!canRealModuleNameBeHidden) {
-      if (!moduleShortNameMatchesDirectoryName) {
-        data.addText("[" + moduleShortName + "]", REGULAR_BOLD_ATTRIBUTES)
-      } else {
-        data.clearText()
-        data.addText(moduleShortName, REGULAR_BOLD_ATTRIBUTES)
-      }
     }
   }
 }
