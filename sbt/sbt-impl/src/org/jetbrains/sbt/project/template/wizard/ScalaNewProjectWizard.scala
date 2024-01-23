@@ -1,10 +1,10 @@
 package org.jetbrains.sbt.project.template.wizard
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard._
 import com.intellij.ide.wizard.language.LanguageGeneratorNewProjectWizard
-import org.jetbrains.plugins.scala.icons.Icons
 
 import javax.swing.Icon
 
@@ -25,5 +25,5 @@ final class ScalaNewProjectWizard extends LanguageGeneratorNewProjectWizard {
   // Java, Kotlin, Groovy, Scala, Python ...
   override def getOrdinal: Int = 201
 
-  override def getIcon: Icon = Icons.SCALA_SMALL_LOGO
+  override def getIcon: Icon = AllIcons.Language.Scala
 }
