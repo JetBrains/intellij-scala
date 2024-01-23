@@ -370,7 +370,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     //Sort modules by id to make project imports more reproducible
     //In particular this will easy testing of `org.jetbrains.sbt.project.SbtProjectImportingTest.testSCL13600`
     //(note, still the order can be different on different machine, because id depends on URI)
-    val modulesSorted: Seq[ModuleDataNodeType] = projectToModule.values.toSeq.sortBy(_.getId)
+    val modulesSorted: Seq[Node[_ <: ModuleData]] = projectToModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(removeNestedModuleNodes(modulesSorted))
 
     val shouldGroupModulesFromSameBuild = buildProjectsGroups.size > 1 && settings.groupProjectsFromSameBuild
@@ -394,7 +394,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         buildModules.foreach { buildModule =>
           val ideModuleGroupNameForBuild =
             if (shouldGroupModulesFromSameBuild) {
-              val rootNode = findRootNodeForBuild(buildProjectsGroups, buildModule.buildBaseDir, projectToModule)
+              val rootNode = findRootModuleForBuild(buildProjectsGroups, buildModule.buildBaseDir, projectToModule)
               rootNode.foreach(_.add(buildModule.moduleNode))
               rootNode.map(_.getInternalName)
             } else
@@ -412,14 +412,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode
   }
 
-  private def removeNestedModuleNodes(nodes: Seq[ModuleDataNodeType]): Seq[ModuleDataNodeType] =
+  private def removeNestedModuleNodes(nodes: Seq[Node[_ <: ModuleData]]): Seq[Node[_ <: ModuleData]] =
     nodes.filterNot(_.isInstanceOf[NestedModuleNode])
 
-  private def findRootNodeForBuild(
+  private def findRootModuleForBuild(
     buildProjectsGroups: Seq[BuildProjectsGroup],
     buildModuleBaseDir: File,
-    projectToModule: Map[ProjectData, ModuleDataNodeType]
-  ): Option[ModuleDataNodeType] = {
+    projectToModule: Map[ProjectData, Node[_ <: ModuleData]]
+  ): Option[Node[_ <: ModuleData]] = {
     val rootProjectOpt = buildProjectsGroups
       .find(_.rootProject.base == buildModuleBaseDir)
       .map(_.rootProject)
@@ -452,7 +452,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     if (buildModules.size == 2) {
       val Seq(module1, module2) = buildModules
 
-      def addModuleDependency(parentModule: ModuleDataNodeType, childModule: ModuleDataNodeType): Unit = {
+      def addModuleDependency(parentModule: Node[_ <: ModuleData], childModule: Node[_ <: ModuleData]): Unit = {
         val dependencyNode = new ModuleDependencyNode(parentModule, childModule)
         dependencyNode.setScope(DependencyScope.COMPILE)
         dependencyNode.setExported(true)
@@ -491,7 +491,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(default)
   }
 
-  private def createModulesDependencies(projectToModule: Map[ProjectData, ModuleDataNodeType], insertProjectTransitiveDependencies: Boolean): Unit = {
+  private def createModulesDependencies(projectToModule: Map[ProjectData, Node[_ <: ModuleData]], insertProjectTransitiveDependencies: Boolean): Unit = {
     val allModules = projectToModule.values.toSeq
     projectToModule.foreach { case (projectData, moduleNode) =>
       createModuleDependencies(projectData.dependencies.projects, allModules, moduleNode, insertProjectTransitiveDependencies)
@@ -535,15 +535,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
     groupProjectsFromSameBuild: Boolean
-  ): Map[ProjectData, ModuleDataNodeType] = {
+  ): Map[ProjectData, Node[_ <: ModuleData]] = {
     val librariesData = libraryNodes.map(_.data)
     val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val addAllNecessaryDataToModuleWithLibrariesData =
-      addAllRequiredDataToModuleNode(librariesData, unmanagedSourcesAndDocsLibrary)(_: ProjectData, _: ModuleDataNodeType)
+      addAllRequiredDataToModuleNode(librariesData, unmanagedSourcesAndDocsLibrary)(_: ProjectData, _: Node[_ <: ModuleData])
 
     val moduleInternalNameGenerator = new ModuleUniqueInternalNameGenerator()
     val shouldGroupProjectsFromTheSameBuild = projectsGrouped.size > 1 && groupProjectsFromSameBuild
-    val projectToModule: Iterable[(ProjectData, ModuleDataNodeType)] = projectsGrouped
+    val projectToModule: Iterable[(ProjectData, Node[_ <: ModuleData])] = projectsGrouped
       .flatMap { buildProjectsGroup =>
         if (shouldGroupProjectsFromTheSameBuild) {
           //NOTE: when projects are grouped according to their builds is not needed to have single ModuleUniqueInternalNameGenerator for all builds.
@@ -580,8 +580,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     buildProjectsGroup: BuildProjectsGroup,
     moduleFilesDirectory: File,
     moduleInternalNameGeneratorOpt : Option[ModuleUniqueInternalNameGenerator],
-    addAllNecessaryDataToModuleNode: (ProjectData, ModuleDataNodeType) => Unit,
-  ): Seq[(ProjectData, ModuleDataNodeType)] = {
+    addAllNecessaryDataToModuleNode: (ProjectData, Node[_ <: ModuleData]) => Unit,
+  ): Seq[(ProjectData, Node[_ <: ModuleData])] = {
     val BuildProjectsGroup(_, rootProject, projects, _) = buildProjectsGroup
     val allProjectsInsideBuild = projects :+ rootProject
     val projectNameToProject = allProjectsInsideBuild.groupBy(_.name)
@@ -604,8 +604,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createModulesWithGroupProjectsFromSameBuild(
     buildProjectsGroup: BuildProjectsGroup,
     moduleFilesDirectory: File,
-    addAllNecessaryDataToModuleNode: (ProjectData, ModuleDataNodeType) => Unit,
-  ): Seq[(ProjectData, ModuleDataNodeType)] = {
+    addAllNecessaryDataToModuleNode: (ProjectData, Node[_ <: ModuleData]) => Unit,
+  ): Seq[(ProjectData, Node[_ <: ModuleData])] = {
     val BuildProjectsGroup(_, rootProject, projects, rootProjectModuleNameUnique) = buildProjectsGroup
 
     //NOTE: it is not needed to pass ModuleUniqueInternalNameGenerator to generate module for the root project,
@@ -786,9 +786,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleName: String,
     moduleGroup: Option[String],
     moduleInternalNameRegistry: Option[ModuleUniqueInternalNameGenerator],
-    addAllRequiredDataToModuleNode: (ProjectData,ModuleDataNodeType) => Unit,
+    addAllRequiredDataToModuleNode: (ProjectData,Node[_ <: ModuleData]) => Unit,
     shouldCreateNestedModule: Boolean
-  ): ModuleDataNodeType = {
+  ): Node[_ <: ModuleData] = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
@@ -833,7 +833,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def addAllRequiredDataToModuleNode(
     librariesData: Seq[LibraryData], unmanagedSourcesAndDocsLibrary: Option[LibraryData]
-  )(projectData: ProjectData, moduleNode: ModuleDataNodeType): Unit = {
+  )(projectData: ProjectData, moduleNode: Node[_ <: ModuleData]): Unit = {
     val contentRootNode = createContentRoot(projectData)
     moduleNode.add(contentRootNode)
     val libraryDependenciesNodes = createLibraryDependencies(projectData.dependencies.modules)(moduleNode, librariesData)
@@ -894,7 +894,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private case class BuildModuleNodeWithBuildBaseDir(
-    moduleNode: ModuleDataNodeType,
+    moduleNode: Node[_ <: ModuleData],
     buildBaseDir: File
   )
 
@@ -904,7 +904,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleFilesDirectory: File,
     localCachePath: Option[String],
     sbtVersion: String,
-    projectToModule: Map[ProjectData, ModuleDataNodeType],
+    projectToModule: Map[ProjectData, Node[_ <: ModuleData]],
     shouldGroupModules: Boolean
   ): BuildModuleNodeWithBuildBaseDir = {
     val buildBaseProject =
