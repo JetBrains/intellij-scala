@@ -40,8 +40,8 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
         // suggest settings and tasks scoped to project
         maybeModuleData.flatMap { moduleData =>
-          val moduleTasks = SbtUtil.getSbtModuleData(project, moduleId, SbtTaskData.Key).toList
-          val moduleSettings = SbtUtil.getSbtModuleData(project, moduleId, SbtSettingData.Key).toList
+          val moduleTasks = SbtUtil.getModuleData(project, moduleId, SbtTaskData.Key).toList
+          val moduleSettings = SbtUtil.getModuleData(project, moduleId, SbtSettingData.Key).toList
           val moduleKeys = moduleSettings ++ moduleTasks
           val relevantEntries = moduleKeys.filter { td => td.name.contains(commandString) }
 
