@@ -15,8 +15,8 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.actions.ScalaDirectoryCompletionContributorBase.getModuleContentRootsData
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import java.util
 import java.util.Collections.emptyList
@@ -111,7 +111,7 @@ object ScalaDirectoryCompletionContributorBase {
 
   private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, project: Project, moduleId: String): Option[DataNode[_ <: ModuleData]]  = {
     if (projectSystemId == SbtProjectSystem.Id) {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, Some(SbtNestedModuleData.key))
+      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, Some(Sbt.sbtNestedModuleDataKey))
     } else {
       ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, None)
     }
