@@ -309,6 +309,17 @@ trait ProjectStructureMatcher {
                                             (implicit nameOf: HasName[T]): Unit =
     assertMatchWithIgnoredOrder(what, expected.map(_.name), actual.map(s => nameOf(s)))(mt)
 
+//  private def assertGroupEqual[T](expected: module, actual: Module): Unit = {
+//    val actualPath: Array[String] =
+//      ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
+//
+//    assertCollectionEquals(
+//      s"Wrong module group path for module `${actual.getName}`",
+//      if (expected.group != null) expected.group.toSeq else null,
+//      if (actualPath != null) actualPath.toSeq else null
+//    )
+//  }
+
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
     org.junit.Assert.assertEquals(s"$what mismatch", expected, actual)
   }
