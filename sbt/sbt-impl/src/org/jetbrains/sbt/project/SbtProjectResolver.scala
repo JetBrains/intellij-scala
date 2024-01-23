@@ -561,6 +561,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       unmanagedSourcesAndDocsLibrary.foreach { lib =>
         val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
         dependency.setScope(DependencyScope.COMPILE)
+        dependency.setOrder(1)
         moduleNode.add(dependency)
       }
 
