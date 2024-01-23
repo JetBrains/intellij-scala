@@ -525,7 +525,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (numberOfCreatedModulesWithSameName == 0) //the name is not reserved yet, current name is the first one
         None
       else
-        Some(SbtUtil.appendSuffixToModuleName(name, numberOfCreatedModulesWithSameName))
+        Some(name + numberOfCreatedModulesWithSameName.toString)
     }
   }
 

@@ -438,16 +438,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  protected def prependModuleNameWithGroupName(moduleName: String, group: Option[String]): String = {
-    val moduleNameWithGroupPrefix = group
+  protected def prependModuleNameWithGroupName(moduleName: String, group: Option[String]): String =
+    group
       .filterNot(_.isBlank)
-      // the group name might ended with a dot, when it is from org/jetbrains/sbt/project/ExternalSourceRootResolution.scala:111
-      // and can be without a dot, when it is from org.jetbrains.sbt.project.SbtProjectResolver#createModuleWithAllRequiredData
       .map(groupName => if (groupName.endsWith(".")) groupName else s"$groupName.")
       .map(_ + moduleName)
-
-    moduleNameWithGroupPrefix.getOrElse(moduleName)
-  }
+      .getOrElse(moduleName)
 
   protected def createModuleNode(
     typeId: String,

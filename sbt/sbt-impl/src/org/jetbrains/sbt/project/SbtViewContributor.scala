@@ -6,17 +6,16 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor, ModuleNode}
 import com.intellij.util.SmartList
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import java.util
 import scala.jdk.CollectionConverters._
 
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, SbtNestedModuleData.key)
+  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, Sbt.sbtNestedModuleDataKey)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -28,7 +27,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     val taskNodes = dataNodes.get(SbtTaskData.Key).asScala
     val settingNodes = dataNodes.get(SbtSettingData.Key).asScala
     val commandNodes = dataNodes.get(SbtCommandData.Key).asScala
-    val sbtNestedModuleNodes = dataNodes.get(SbtNestedModuleData.key).asScala
+    val sbtNestedModuleNodes = dataNodes.get(Sbt.sbtNestedModuleDataKey).asScala
 
     val taskViewNodes = taskNodes.map { dataNode =>
       val typedNode = dataNode.asInstanceOf[DataNode[SbtTaskData]]
