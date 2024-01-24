@@ -63,8 +63,8 @@ object DfaManager {
 
     try controlFlowBuilder.transformStatement(body, ResultReq.None)
     catch {
-      case _: TransformationFailedException =>
-        return None
+      case e: ProcessCanceledException => throw e
+      case _: TransformationFailedException => return None
     }
 
     val flow = controlFlowBuilder.build()
@@ -77,8 +77,8 @@ object DfaManager {
         None
       }
     } catch {
-      case NonFatal(e) =>
-        throw ScalaDfaException(fun, flow.toString, e)
+      case e: ProcessCanceledException => throw e
+      case NonFatal(e) => throw ScalaDfaException(fun, flow.toString, e)
     }
   }
 
