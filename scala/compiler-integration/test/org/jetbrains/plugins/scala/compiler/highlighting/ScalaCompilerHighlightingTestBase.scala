@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightIn
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
@@ -34,10 +35,17 @@ abstract class ScalaCompilerHighlightingTestBase
   override def useCompileServer: Boolean = true
   override def runInDispatchThread: Boolean = false
 
-  override def setUp(): Unit =
+  override def setUp(): Unit = {
     EdtTestUtil.runInEdtAndWait(() => {
       ScalaCompilerHighlightingTestBase.super.setUp()
     })
+
+    // Since the implementation of IJPL-165 and IDEA-341372, these tests specifically require manually saving the JDK
+    // table to disk. This is because these tests invoke the Scala Compile Server directly in order to provide
+    // Compiler Based Highlighting, without going through the CompilerTester API. Not saving the JDK to disk will
+    // result in the Scala Compile Server not compiling any of the project code.
+    ProjectJdkTable.getInstance().saveOnDisk()
+  }
 
   override protected def tearDown(): Unit = {
     myEditor = null
