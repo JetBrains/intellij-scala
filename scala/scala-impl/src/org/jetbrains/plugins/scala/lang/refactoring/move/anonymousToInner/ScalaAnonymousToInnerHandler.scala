@@ -5,7 +5,7 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -48,8 +48,12 @@ object ScalaAnonymousToInnerHandler {
       val action: Runnable = () => {
         try {
           val innerClassNewTemplate = newTemplateForInnerClass(project, className, variables, originalElement)
-          val newClassFromAnonymous = createClass(className, anonClass, variables, project)
-          targetContainer.fold(file => file.add(newClassFromAnonymous), classOrObject => classOrObject.addMember(newClassFromAnonymous, None))
+          val (newClassFromAnonymous, maybeWarningComment) = createClass(className, anonClass, variables, project)
+          val containerWithNewInnerClass = targetContainer
+            .fold(file => file, classOrObject => classOrObject)
+            .add(newClassFromAnonymous)
+
+          maybeWarningComment.foreach(comment => containerWithNewInnerClass.addBefore(comment, newClassFromAnonymous))
           originalElement.replace(innerClassNewTemplate)
         }
         catch {
@@ -102,18 +106,18 @@ object ScalaAnonymousToInnerHandler {
       None
   }
 
-  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Array[ScalaVariableData], project: Project): ScClass = {
+  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Array[ScalaVariableData], project: Project): (ScClass, Option[PsiComment]) = {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
 
-    val parameters = for {
-      v <- variables
-      scTypedDeinition = v.element
-      name = v.name
-      isVar = if (scTypedDeinition.isVar) "var " else ""
-      typeText = v.`type`.getPresentableText
-    } yield s"$isVar$name: $typeText"
+    val containsVars = variables.exists(_.element.isVar)
+    val warningComment = if (containsVars)
+      Some(createElementFromText[PsiComment]("// refactor your code or use scala.runtime.ObjectRef", anonClass))
+    else
+      None
 
-    val text = s"class $name(${parameters.mkString(", ")}) extends ${anonClass.getText}"
+    val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
+    val text = s"class $name($parameters) extends ${anonClass.getText}"
+
     val newClass = createElementFromText[ScClass](text, anonClass)
 
     val parameterOldNameToNewName = variables.map(v => v.variable.getName -> v.name).toMap
@@ -131,7 +135,7 @@ object ScalaAnonymousToInnerHandler {
       }
     })
 
-    newClass
+    (newClass, warningComment)
   }
 
   private def findTargetContainer(elem: PsiElement): Either[ScFile, ScTemplateDefinition] = {
