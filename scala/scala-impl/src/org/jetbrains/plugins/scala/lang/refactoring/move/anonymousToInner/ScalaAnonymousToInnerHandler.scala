@@ -38,8 +38,8 @@ object ScalaAnonymousToInnerHandler {
 
   @VisibleForTesting
   def parseInitialExtendsBlock(extendsBlock: ScExtendsBlock): (Array[ScalaVariableData], Either[ScFile, ScTemplateDefinition]) = {
-    val usedVariables = collectUsedVariables(extendsBlock)
     val targetContainer = findTargetContainer(extendsBlock)
+    val usedVariables = collectUsedVariables(extendsBlock, targetContainer)
     (usedVariables, targetContainer)
   }
 
@@ -75,16 +75,20 @@ object ScalaAnonymousToInnerHandler {
     createElementFromText[ScNewTemplateDefinition](text, newTemplate)
   }
 
-  private def collectUsedVariables(anonClass: ScExtendsBlock): Array[ScalaVariableData] = {
+  private def collectUsedVariables(anonClass: ScExtendsBlock, targetContainer: Either[ScFile, ScTemplateDefinition]): Array[ScalaVariableData] = {
     var res: List[ScTypedDefinition] = Nil
     anonClass.accept(new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(expression: ScReferenceExpression) = {
         val refElement = expression.resolve
         refElement match {
           case p: ScParameter =>
-            res = p :: res
+            val containingClass = p.getDeclarationScope
+            if (targetContainer.fold(_ => false, scTemplateDefinition => containingClass != scTemplateDefinition && !containingClass.isAncestorOf(scTemplateDefinition)))
+              res = p :: res
           case r: ScReferencePattern =>
-            res = r :: res
+            val containingClass = r.containingClass
+            if (targetContainer.fold(_ => false, scTemplateDefinition => containingClass != scTemplateDefinition && !containingClass.isAncestorOf(scTemplateDefinition) && !findTargetContainer(r).isLeft))
+              res = r :: res
           case _ =>
         }
         super.visitReferenceExpression(expression)
@@ -126,9 +130,9 @@ object ScalaAnonymousToInnerHandler {
         val refElement = expression.resolve
         refElement match {
           case p: ScParameter =>
-            expression.handleElementRename(parameterOldNameToNewName(p.getName))
+            parameterOldNameToNewName.get(p.getName).foreach(expression.handleElementRename)
           case r: ScReferencePattern =>
-            expression.handleElementRename(parameterOldNameToNewName(r.getName))
+            parameterOldNameToNewName.get(r.getName).foreach(expression.handleElementRename)
           case _ =>
         }
         super.visitReferenceExpression(expression)
