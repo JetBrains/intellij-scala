@@ -37,43 +37,42 @@ trait TypePresentation {
     typeText(`type`, renderer, PresentationOptions.Default)(context)
   }
 
-  final def canonicalText(`type`: ScType, context: TypePresentationContext): String = {
-    val renderer: NameRenderer = new NameRenderer {
-      override def renderName(e: PsiNamedElement): String = renderNameImpl(e, withPoint = false)
-      override def renderNameWithPoint(e: PsiNamedElement): String = renderNameImpl(e, withPoint = true)
-
-      private def renderNameImpl(e: PsiNamedElement, withPoint: Boolean): String = {
-        val str = e match {
-          case c: PsiClass =>
-            val qname = c.qualifiedName
-            if (qname == null || (!ScalaApplicationSettings.PRECISE_TEXT && qname == c.name)) c.name // SCL-21184
-            else "_root_." + qname
-          case p: PsiPackage =>
-            "_root_." + p.getQualifiedName
-          case _ =>
-            e.nameContext match {
-              case m: ScMember =>
-                m.containingClass match {
-                  case o: ScObject =>
-                    (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") +
-                      renderNameImpl(o, withPoint = true) + e.name // SCL-21182
-                  case _ => m.getParent match {
-                    case p: ScPackaging if ScalaApplicationSettings.PRECISE_TEXT => "_root_." + p.fullPackageName + "." + e.name // SCL-21514
-                    case _ => e.name
-                  }
-                }
-              case _ => e.name
-            }
-        }
-        val res = removeKeywords(str)
-        if (res.nonEmpty && withPoint) res + "." else res
-      }
-    }
+  final def canonicalText(`type`: ScType, context: TypePresentationContext): String =
     typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(context)
-  }
 }
 
 object TypePresentation {
+  private val renderer: NameRenderer = new NameRenderer {
+    override def renderName(e: PsiNamedElement): String = renderNameImpl(e, withPoint = false)
+    override def renderNameWithPoint(e: PsiNamedElement): String = renderNameImpl(e, withPoint = true)
+
+    private def renderNameImpl(e: PsiNamedElement, withPoint: Boolean): String = {
+      val str = e match {
+        case c: PsiClass =>
+          val qname = c.qualifiedName
+          if (qname == null || (!ScalaApplicationSettings.PRECISE_TEXT && qname == c.name)) c.name // SCL-21184
+          else "_root_." + qname
+        case p: PsiPackage =>
+          "_root_." + p.getQualifiedName
+        case _ =>
+          e.nameContext match {
+            case m: ScMember =>
+              m.containingClass match {
+                case o: ScObject =>
+                  (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") +
+                    renderNameImpl(o, withPoint = true) + e.name // SCL-21182
+                case _ => m.getParent match {
+                  case p: ScPackaging if ScalaApplicationSettings.PRECISE_TEXT => "_root_." + p.fullPackageName + "." + e.name // SCL-21514
+                  case _ => e.name
+                }
+              }
+            case _ => e.name
+          }
+      }
+      val res = removeKeywords(str)
+      if (res.nonEmpty && withPoint) res + "." else res
+    }
+  }
 
   val ABSTRACT_TYPE_POSTFIX = "_"
 
