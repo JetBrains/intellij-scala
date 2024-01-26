@@ -36,7 +36,7 @@ trait TypePresentation {
     }
     typeText(`type`, renderer, PresentationOptions.Default)(context)
   }
-
+  
   final def canonicalText(`type`: ScType, context: TypePresentationContext): String =
     typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(context)
 }
