@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -187,26 +186,38 @@ object SbtUtil {
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject
-    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
-    getSbtModuleData(project, moduleId)
+    getSbtModuleData(project, module)
   }
 
-  def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
+  def getSbtModuleData(project: Project, module: Module): Option[SbtModuleData] = {
     val emptyURI = new URI("")
 
-    val moduleDataSeq = getModuleData(project, moduleId, SbtModuleData.Key)
+    val moduleDataSeq = getModuleData(project, module, SbtModuleData.Key)
     moduleDataSeq.find(_.buildURI.uri != emptyURI)
   }
 
-  def getBuildModuleData(project: Project, moduleId: String): Option[SbtBuildModuleData] = {
+  def getSbtModuleData(project: Project, moduleId: String, rootProjectPath: String): Option[SbtModuleData] = {
     val emptyURI = new URI("")
 
-    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleData.Key)
+    val moduleDataSeq = getModuleData(project, moduleId, Some(rootProjectPath), SbtModuleData.Key)
+    moduleDataSeq.find(_.buildURI.uri != emptyURI)
+  }
+
+  def getBuildModuleData(project: Project, module: Module): Option[SbtBuildModuleData] = {
+    val emptyURI = new URI("")
+
+    val moduleDataSeq = getModuleData(project, module, SbtBuildModuleData.Key)
     moduleDataSeq.find(_.buildFor.uri != emptyURI)
   }
 
-  def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key)
+  def getModuleData[K](project: Project, module: Module, key: Key[K]): Iterable[K] = {
+    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
+    val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+    getModuleData(project, moduleId, rootProjectPath, key)
+  }
+
+  def getModuleData[K](project: Project, moduleId: String, rootProjectPath: Option[String], key: Key[K]): Iterable[K] = {
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key, rootProjectPath)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects

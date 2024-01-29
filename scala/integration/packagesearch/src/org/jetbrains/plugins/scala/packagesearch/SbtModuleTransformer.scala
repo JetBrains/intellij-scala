@@ -109,7 +109,7 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
     val futuresBuffer = ListBuffer.empty[CompletableFuture[Option[PackageSearchModule]]]
     nativeModules.forEach { m =>
       val acceptable = SbtUtil.isSbtModule(m) &&
-        SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+        SbtUtil.getBuildModuleData(project, m).isDefined
 
       if (acceptable) {
         futuresBuffer += CompletableFuture.supplyAsync(() => obtainProjectModulesFor(m, dumbMode))
