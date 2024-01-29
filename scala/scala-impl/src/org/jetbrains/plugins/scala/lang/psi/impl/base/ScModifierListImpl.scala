@@ -44,6 +44,25 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     result
   }
 
+  override def modifiersOrdered: Seq[ScalaModifier] = {
+    val builder = Seq.newBuilder[ScalaModifier]
+
+    var currentChild = getFirstChild
+
+    while (currentChild != null) {
+      currentChild match {
+        case a: ScAccessModifier =>
+          builder += (if (a.isPrivate) ScalaModifier.Private else ScalaModifier.Protected)
+        case ElementType(ScalaModifierTokenType(mod)) =>
+          builder += mod
+        case _ =>
+      }
+      currentChild = currentChild.getNextSibling
+    }
+
+    builder.result()
+  }
+
   override def hasModifierProperty(name: String): Boolean = {
     if (name == PsiModifier.PUBLIC)
       !modifiers.contains(ScalaModifier.Private) && !modifiers.contains(ScalaModifier.Protected)

@@ -583,4 +583,34 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  def testModifiersOrder(): Unit = {
+    val inlineTransparent =
+      s"""
+         |inline transparent def ${|}foo(): Unit = {}
+         |""".stripMargin
+
+    val inlineTransparentExpected =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">inline</span> <span style="color:#000080;font-weight:bold;">transparent</span>
+         | <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>():
+         | <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(inlineTransparent, inlineTransparentExpected)
+
+    val transparentInline =
+      s"""
+         |transparent inline def ${|}foo(): Unit = {}
+         |""".stripMargin
+
+    val transparentInlineExpected =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">transparent</span> <span style="color:#000080;font-weight:bold;">inline</span>
+         | <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>():
+         | <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(transparentInline, transparentInlineExpected)
+  }
 }
