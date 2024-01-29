@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.util.concurrent.Semaphore
 
@@ -19,13 +18,6 @@ trait CompilerLock {
    */
   def unlock(sessionId: String,
              exceptionIfNotLocked: Boolean = true): Unit
-
-  final def withLock[A](action: => A): A = {
-    val fakeSessionId = CompilationId.generate().toString
-    lock(fakeSessionId)
-    try action
-    finally unlock(fakeSessionId)
-  }
 }
 
 object CompilerLock {

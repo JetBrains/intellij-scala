@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.io.EOFException
 import java.util.concurrent.atomic.AtomicReference
@@ -281,11 +282,14 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Future[Unit]): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
+    var sessionId: String = null
     val promise = Promise[Unit]()
 
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
     val task = new Task.Backgroundable(project, taskMsg, true) {
-      override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
+      override def run(indicator: ProgressIndicator): Unit = {
+        sessionId = CompilationId.generate().toString
+        CompilerLock.get(project).lock(sessionId)
         progressIndicator.set(indicator)
         val client = new CompilerEventGeneratingClient(project, indicator, Log)
         val future = compile(client)
@@ -310,6 +314,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         // byte communication stream.
     } finally {
       progressIndicator.set(null)
+      CompilerLock.get(project).unlock(sessionId)
     }
   }
 
