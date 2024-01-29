@@ -679,8 +679,7 @@ object SbtDependencyUtils {
     val buildModules = for {
       moduleData <- getSbtModuleData(module).to(Seq)
       m <- moduleManager.getModules
-      projectId = ExternalSystemApiUtil.getExternalProjectId(m)
-      sbtModuleData <- getBuildModuleData(project, projectId)
+      sbtModuleData <- getBuildModuleData(project, m)
       if moduleData.buildURI == sbtModuleData.buildFor
     } yield m
     buildModules.headOption // we only expect zero or one here

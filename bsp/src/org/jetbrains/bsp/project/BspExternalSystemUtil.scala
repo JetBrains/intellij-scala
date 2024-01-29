@@ -17,32 +17,23 @@ object BspExternalSystemUtil {
     dataEither.toSeq.flatten.headOption
   }
 
+  private val EmptyURI = new URI("")
+
   def getSbtModuleData(module: Module): Option[SbtModuleDataBsp] = {
-    val project = module.getProject
-    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
-    getSbtModuleData(project, moduleId)
+    val moduleDataSeq = getModuleData(module, SbtModuleDataBsp.Key)
+    moduleDataSeq.find(_.id.uri != EmptyURI)
   }
 
   def getSbtBuildModuleDataBsp(module: Module): Option[SbtBuildModuleDataBsp] = {
+    val moduleDataSeq = getModuleData(module, SbtBuildModuleDataBsp.Key)
+    moduleDataSeq.find(_.id.uri != EmptyURI)
+  }
+
+  private def getModuleData[K](module: Module, key: Key[K]): Iterable[K] = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
-    getSbtBuildModuleDataBsp(project, moduleId)
-  }
-
-  private val EmptyURI = new URI("")
-
-  private def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleDataBsp] = {
-    val moduleDataSeq = getModuleData(project, moduleId, SbtModuleDataBsp.Key)
-    moduleDataSeq.find(_.id.uri != EmptyURI)
-  }
-
-  private def getSbtBuildModuleDataBsp(project: Project, moduleId: String): Option[SbtBuildModuleDataBsp] = {
-    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleDataBsp.Key)
-    moduleDataSeq.find(_.id.uri != EmptyURI)
-  }
-
-  private def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, key)
+    val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, key, rootProjectPath)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects

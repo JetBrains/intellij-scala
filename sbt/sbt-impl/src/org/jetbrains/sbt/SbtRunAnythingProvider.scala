@@ -3,7 +3,6 @@ package org.jetbrains.sbt
 import com.intellij.ide.actions.runAnything.RunAnythingUtil._
 import com.intellij.ide.actions.runAnything.activity.RunAnythingProviderBase
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.sbt.SbtRunAnythingProvider._
@@ -35,13 +34,12 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
       val modules = ModuleManager.getInstance(project).getModules.toList
       val moduleDataAndKeys = modules.flatMap { module =>
-        val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
-        val maybeModuleData = SbtUtil.getSbtModuleData(project, moduleId)
+        val maybeModuleData = SbtUtil.getSbtModuleData(project, module)
 
         // suggest settings and tasks scoped to project
         maybeModuleData.flatMap { moduleData =>
-          val moduleTasks = SbtUtil.getModuleData(project, moduleId, SbtTaskData.Key).toList
-          val moduleSettings = SbtUtil.getModuleData(project, moduleId, SbtSettingData.Key).toList
+          val moduleTasks = SbtUtil.getModuleData(project, module, SbtTaskData.Key).toList
+          val moduleSettings = SbtUtil.getModuleData(project, module, SbtSettingData.Key).toList
           val moduleKeys = moduleSettings ++ moduleTasks
           val relevantEntries = moduleKeys.filter { td => td.name.contains(commandString) }
 

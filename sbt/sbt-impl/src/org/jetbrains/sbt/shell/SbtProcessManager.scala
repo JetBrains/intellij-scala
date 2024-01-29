@@ -237,6 +237,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     //When sbt project reference another sbt project via `RootProject` this will correctly find the root project path (see SCL-21143)
     //However, if user manually linked multiple SBT projects via external system tool window (sbt tool window)
     //using "Link sbt Project" button (the one with "plus" icon), it  will randomly choose one of the projects
+    // TODO - think about some possibility to allow the user to choose in which project the shell should be fired
     val externalRootProjectPath: Option[String] = {
       val modules = ModuleManager.getInstance(project).getModules.toSeq
       modules.iterator.map(ExternalSystemApiUtil.getExternalRootProjectPath).find(_ != null)

@@ -10,7 +10,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
   import ProjectStructureDsl._
   override protected def getTestProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
+    generateTestProjectPath(getTestName(true))
 
   override def setUp(): Unit = {
     super.setUp()
@@ -23,4 +23,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     assertProjectsEqual(expected, myProject)(ProjectComparisonOptions.Implicit.default)
     assertNoNotificationsShown(myProject)
   }
+
+  protected def generateTestProjectPath(projectName: String): String =
+    s"${TestUtils.getTestDataPath}/sbt/projects/$projectName"
 }

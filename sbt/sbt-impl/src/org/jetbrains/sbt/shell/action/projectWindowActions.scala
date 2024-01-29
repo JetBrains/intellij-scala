@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction._
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil}
 
 import scala.jdk.CollectionConverters._
 
@@ -24,7 +24,12 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
        groupNode <- Option(selected.getParent)
        moduleNode@(_n: ModuleNode) <- Option(groupNode.getParent)
        esModuleData <- Option(moduleNode.getData)
-       sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId)
+       // note: rootProjectPath calculation based on moduleFileDirectoryPath is kind of naive, but because moduleFileDirectoryPath is created from project's root file
+       // and ".idea/modules" suffix (in SbtProjectResolver#convert) is should work in most cases.
+       // Determination of rootProjectPath is necessary to get proper ExternalProjectInfo in org.jetbrains.plugins.scala.util.ExternalSystemUtil.getExternalProjectInfoAndData
+       // It is particularly noticeable with many separate imported projects.
+       rootProjectPath = esModuleData.getModuleFileDirectoryPath.stripSuffix(Sbt.ModulesDirectory)
+       sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId, rootProjectPath)
      } yield {
        SbtUtil.makeSbtProjectId(sbtModuleData)
      }
