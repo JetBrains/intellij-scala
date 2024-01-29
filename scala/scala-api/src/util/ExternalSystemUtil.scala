@@ -29,7 +29,10 @@ object ExternalSystemUtil {
     key: Key[K],
   ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
-    val (_, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
+    // TODO - instead of project.getBasePath, proper rootProjectPath should be passed to #getExternalProjectInfoAndData.
+    //  Otherwise, for multiple separate projects imported via e.g. with "Module from existing sources" or "Link project"
+    //  this will lead to incorrect values (see how it is done in #getModuleData)
+    val (_, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, Option(project.getBasePath)) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
@@ -44,8 +47,9 @@ object ExternalSystemUtil {
     project: Project,
     moduleId: String,
     key: Key[K],
+    rootProjectPath: Option[String]
   ): Either[String, Iterable[K]] = {
-    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key)
+    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key, rootProjectPath)
     nodes.map(_.map(_.getData))
   }
 
@@ -54,9 +58,10 @@ object ExternalSystemUtil {
     project: Project,
     moduleId: String,
     key: Key[K],
+    rootProjectPath: Option[String]
   ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
-    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId)
+    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath)
     moduleDataNode.map(findAllNodesEnsuring(dataManager, _, key))
   }
 
@@ -64,9 +69,10 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
+    rootProjectPath: Option[String]
   ): Either[String, DataNode[ModuleData]] = {
     val dataManager = ProjectDataManager.getInstance()
-    getModuleDataNode(dataManager, projectSystemId, project, moduleId)
+    getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath)
   }
 
   private def getModuleDataNode(
@@ -74,8 +80,9 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
+    rootProjectPath: Option[String]
   ): Either[String, DataNode[ModuleData]] = {
-    val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
+    val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, rootProjectPath) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
@@ -101,14 +108,23 @@ object ExternalSystemUtil {
     dataManager: ProjectDataManager,
     projectSystemId: ProjectSystemId,
     project: Project,
+    rootProjectPath: Option[String]
   ): Either[String, (ExternalProjectInfo, DataNode[ProjectData])] = {
     //TODO: consider using `com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.findProjectInfo` and see how it works?
-    val projectInfoOpt1 = Option(dataManager.getExternalProjectData(project, projectSystemId, project.getBasePath))
+    val projectPath = rootProjectPath.getOrElse(project.getBasePath)
+    val projectInfoOpt1 = Option(dataManager.getExternalProjectData(project, projectSystemId, projectPath))
     val projectInfoOpt2 = projectInfoOpt1.orElse {
       // in tests org.jetbrains.sbt.project.SbtProjectImportingTest `project.getBasePath` doesn't equal to actual external project data
       if (ApplicationManager.getApplication.isUnitTestMode) {
         val externalProjectsData = dataManager.getExternalProjectsData(project, projectSystemId).asScala
-        externalProjectsData.find(_.getExternalProjectStructure.getData.getInternalName == project.getName)
+        // note: if there is more than one ExternalProjectInfo, finding the right one by comparing ProjectData internalName and project name will not be the correct.
+        // If there is more than one linked project, the project name is not changed if it is different from ProjectData internalName
+        // (see com.intellij.openapi.externalSystem.service.project.manage.ProjectDataServiceImpl#importData)
+        if (externalProjectsData.size > 1) {
+          externalProjectsData.find(_.getExternalProjectStructure.getData.getLinkedExternalProjectPath == projectPath)
+        } else {
+          externalProjectsData.find(_.getExternalProjectStructure.getData.getInternalName == project.getName)
+        }
       }
       else None
     }

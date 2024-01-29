@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.IdeaTestUtil
@@ -23,12 +23,14 @@ import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
+import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
@@ -73,6 +75,18 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     runSimpleTest("simple-scala3", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala3)
   }
 
+  // note: this test is for the case in which an additional project is linked to the project.
+  // The linked project is project "simple". The ideProject is generated from "twoLinkedProjects" project
+  def testTwoLinkedProjects(): Unit = {
+    runTwoLinkedProjectsTest(
+      ideProjectName = "testTwoLinkedProjects",
+      originalProjectName = "twoLinkedProjects",
+      linkedProjectName = "simple",
+      ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5"),
+      ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala213
+    )
+  }
+
   def testSimpleDoNotUseCoursier(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy("2.12.10")
     runSimpleTest("simpleDoNotUseCoursier", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala212)
@@ -110,6 +124,65 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       projectBaseDir,
       expectedSbtCompletionVariants
     )
+  }
+
+  /**
+   *
+   * @param ideProjectName it is required to pass explicitly ide project name, because if there is more than one linked project, the project is
+   *                       not renamed to ProjectData internal name (see [[com.intellij.openapi.externalSystem.service.project.manage.ProjectDataServiceImpl#importData]])
+   */
+  private def runTwoLinkedProjectsTest(
+    ideProjectName: String,
+    originalProjectName: String,
+    linkedProjectName: String,
+    expectedScalaLibraries: Seq[library],
+    expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant]
+  ): Unit = {
+    val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
+    linkSbtProject(linkedSbtProjectPath)
+    runTest(
+      new project(ideProjectName) {
+        modules := Seq(
+          new module(originalProjectName) {
+            contentRoots += getProjectPath
+            ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
+            testSources := Seq("src/test/scala", "src/test/java")
+            resources := Seq("src/main/resources")
+            testResources := Seq("src/test/resources")
+            excluded := Seq("target")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$originalProjectName-build") {
+            ProjectStructureDsl.sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module(linkedProjectName) {
+            contentRoots += linkedSbtProjectPath
+            ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
+            testSources := Seq("src/test/scala", "src/test/java")
+            resources := Seq("src/main/resources")
+            testResources := Seq("src/test/resources")
+            excluded := Seq("target")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$linkedProjectName-build") {
+            ProjectStructureDsl.sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+    val originalProjectBaseDir = myProject.baseDir
+    val vfm = VirtualFileManager.getInstance()
+    val linkedProjectBaseDir = vfm.findFileByNioPath(Path.of(linkedSbtProjectPath))
+    Seq(linkedProjectBaseDir, originalProjectBaseDir).foreach(assertSbtDirectoryCompletionContributorVariants(_, expectedSbtCompletionVariants))
+  }
+
+  private def linkSbtProject(path: String): Unit = {
+    val settings = new SbtProjectSettings
+    settings.jdk = getJdkConfiguredForTestCase.getName
+    settings.setExternalProjectPath(path)
+    SbtSettings.getInstance(myProject).linkProject(settings)
   }
 
   //NOTE: it doesn't test final ordering on UI, see IDEA-306694

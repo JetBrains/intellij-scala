@@ -78,7 +78,8 @@ object ScalaDirectoryCompletionContributorBase {
     if (moduleId == null) None
     else {
       val project = module.getProject
-      val dataNodes = ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId)
+      val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+      val dataNodes = ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath)
       dataNodes.toOption
     }
   }
