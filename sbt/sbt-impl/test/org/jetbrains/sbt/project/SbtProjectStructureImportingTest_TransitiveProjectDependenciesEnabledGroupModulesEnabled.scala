@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabledGroupModulesEnabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
@@ -36,13 +36,13 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
         )
       }
 
-      lazy val sharedSourcesModule: module = new module("sharedSourcesWithNestedProjectDependencies-sources") {
+      lazy val sharedSourcesModule: module = new module("sharedSourcesWithNestedProjectDependencies.sharedSourcesWithNestedProjectDependencies-sources") {
         contentRoots := Seq(getProjectPath + "/shared")
         libraryDependencies := scalaLibraries
         sources := Seq("src/main/scala")
       }
 
-      lazy val foo: module = new module("foo") {
+      lazy val foo: module = new module("sharedSourcesWithNestedProjectDependencies.foo") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
           new dependency(sharedSourcesModule) {
@@ -51,7 +51,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
         )
       }
 
-      lazy val bar: module = new module("bar") {
+      lazy val bar: module = new module("sharedSourcesWithNestedProjectDependencies.bar") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
           new dependency(sharedSourcesModule) {
@@ -60,7 +60,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
         )
       }
 
-      lazy val dummy: module = new module("dummy") {
+      lazy val dummy: module = new module("sharedSourcesWithNestedProjectDependencies.dummy") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
           new dependency(sharedSourcesModule) {
@@ -83,11 +83,11 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
    */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
-      val sharedModule: module = new module("p1-sources") {
+      val sharedModule: module = new module("scl12520.p1-sources") {
         contentRoots += getProjectPath + "/p1/shared"
       }
 
-      val jvmModule: module = new module("p1") {
+      val jvmModule: module = new module("scl12520.p1") {
         moduleDependencies += new dependency(sharedModule) {
           isExported := true
         }
@@ -95,7 +95,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
       }
 
       val rootModule: module = new module("scl12520") {}
-      val rootBuildModule: module = new module("scl12520-build") {}
+      val rootBuildModule: module = new module("scl12520.scl12520-build") {}
 
       modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule)
     }
@@ -261,233 +261,245 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
     }
   )
 
-  def testNonSourceConfigurationsWithNestedProjectDependencies():Unit = runTest(
-    new project("nonSourceConfigurationsWithNestedProjectDependencies") {
+  def testNonSourceConfigurationsWithNestedProjectDependencies():Unit = {
+    val projectName = "nonSourceConfigurationsWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
 
-      lazy val proj0: module = new module("proj0") {
-        sbtProjectId := "proj0"
-        moduleDependencies := Seq()
-      }
-
-      lazy val proj1: module = new module("proj1") {
-        sbtProjectId := "proj1"
-        moduleDependencies := Seq(
-          new dependency(proj0) {
-            isExported := false
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-
-      lazy val proj2: module = new module("proj2") {
-        sbtProjectId := "proj2"
-        moduleDependencies := Seq(
-          new dependency(proj0) {
-            isExported := false
-            scope := DependencyScope.PROVIDED
-          },
-          new dependency(proj1) {
-            isExported := false
-            scope := DependencyScope.PROVIDED
-          }
-        )
-      }
-
-      lazy val proj3: module = new module("proj3") {
-        sbtProjectId := "proj3"
-        moduleDependencies := Seq(
-          new dependency(proj0) {
-            isExported := false
-            scope := DependencyScope.COMPILE
-          },
-          new dependency(proj1) {
-            isExported := false
-            scope := DependencyScope.COMPILE
-          }
-        )
-      }
-
-
-      lazy val root: module = new module("nonSourceConfigurationsWithNestedProjectDependencies") {
-        sbtProjectId := "root"
-        moduleDependencies := Seq(
-          new dependency(proj2) {
-            isExported := false
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-      modules := Seq(root, proj0, proj1, proj2, proj3)
-    }
-  )
-
-  def testCrossPlatformWithNestedProjectDependencies(): Unit = runTest(
-    new project("crossPlatformWithNestedProjectDependencies") {
-
-      lazy val module1JS = new module("module1JS", Array("module1"))
-      lazy val module1JVM = new module("module1JVM", Array("module1"))
-      lazy val module1Sources = new module("module1-sources", Array("module1"))
-
-      lazy val module2JS = new module("module2JS", Array("module2")){
-        moduleDependencies := Seq(
-          new dependency(module1JS) {
-            isExported := false
-            scope := DependencyScope.TEST
-          },
-          new dependency(module1Sources) {
-            isExported := true
-            scope := DependencyScope.TEST
-          },
-          new dependency(module2Sources) {
-            isExported := true
-            scope := DependencyScope.COMPILE
-          },
-        )
-      }
-      lazy val module2JVM = new module("module2JVM", Array("module2")) {
-        moduleDependencies := Seq(
-          new dependency(module1JVM) {
-            isExported := false
-            scope := DependencyScope.TEST
-          },
-          new dependency(module1Sources) {
-            isExported := true
-            scope := DependencyScope.TEST
-          },
-          new dependency(module2Sources) {
-            isExported := true
-            scope := DependencyScope.COMPILE
-          },
-        )
-      }
-      lazy val module2Sources = new module("module2-sources", Array("module2")) {
-        moduleDependencies := Seq(
-          new dependency(module1JVM) {
-            isExported := false
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-
-      lazy val module3 = new module("module3") {
-        moduleDependencies := Seq(
-          new dependency(module2JVM) {
-            isExported := false
-            scope := DependencyScope.TEST
-          },
-          new dependency(module2Sources) {
-            isExported := true
-            scope := DependencyScope.TEST
-          },
-          new dependency(module1JVM) {
-            isExported := false
-            scope := DependencyScope.TEST
-          },
-          new dependency(module1Sources) {
-            isExported := true
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-
-      lazy val root = new module("crossPlatformWithNestedProjectDependencies") {
-        sbtProjectId := "root"
-        moduleDependencies := Seq(
-          new dependency(module2JVM) {
-            isExported := false
-            scope := DependencyScope.COMPILE
-          },
-          new dependency(module2Sources) {
-            isExported := true
-            scope := DependencyScope.COMPILE
-          }
-        )
-      }
-
-      modules := Seq(root, module1JS, module1JVM, module1Sources, module2JS, module2JVM, module2Sources, module3)
-    }
-  )
-
-  def testCustomConfigurationsWithNestedProjectDependencies(): Unit = runTest(
-    new project("customConfigurationsWithNestedProjectDependencies") {
-
-      lazy val root: module = new module("customConfigurationsWithNestedProjectDependencies") {
-        sbtProjectId := "root"
-        moduleDependencies := Seq()
-      }
-
-      lazy val foo: module = new module("foo") {
-        sbtProjectId := "foo"
-        moduleDependencies := Seq(
-          new dependency(root) {
-            isExported := false
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-
-      lazy val utils: module = new module("utils") {
-        sbtProjectId := "utils"
-        moduleDependencies := Seq(
-          new dependency(foo) {
-            isExported := false
-            scope := DependencyScope.COMPILE
-          },
-          new dependency(root) {
-            isExported := false
-            scope := DependencyScope.TEST
-          }
-        )
-      }
-      modules := Seq(utils, foo, root)
-    }
-  )
-
-  def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
-    new project("sharedSourcesInsideMultiBuildProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
-      libraries := scalaLibraries
-
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
-
-      lazy val c1: module = new module("c1") {
-        contentRoots := Seq(getProjectPath + "/c1")
-        sbtProjectId := "c1"
-        sbtBuildURI := buildURI.resolve("c1/")
-        libraryDependencies := scalaLibraries
-      }
-
-      lazy val root: module = new module("sharedSourcesInsideMultiBuildProject") {
-        contentRoots := Seq(getProjectPath)
-        sbtProjectId := "sharedSourcesInsideMultiBuildProject"
-        sbtBuildURI := buildURI
-        libraryDependencies := scalaLibraries
-        moduleDependencies += new dependency(c1) { isExported := false }
-      }
-
-      val sharedSourcesModuleInC1: module = new module("c1-sources", Array("c1")) {
-        libraryDependencies := scalaLibraries
-      }
-      val c1Modules: Seq[module] = Seq(
-        sharedSourcesModuleInC1,
-        new module("foo", Array("c1")) {
-          libraryDependencies := scalaLibraries
-          sbtProjectId := "foo"
-          sbtBuildURI := buildURI.resolve("c1/")
-          moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
-
-        },
-        new module("bar", Array("c1")) {
-          libraryDependencies := scalaLibraries
-          sbtProjectId := "bar"
-          sbtBuildURI := buildURI.resolve("c1/")
-          moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+        lazy val proj0: module = new module(s"$projectName.proj0") {
+          sbtProjectId := "proj0"
+          moduleDependencies := Seq()
         }
-      )
 
-      modules := c1 +: root +: c1Modules
-    }
-  )
+        lazy val proj1: module = new module(s"$projectName.proj1") {
+          sbtProjectId := "proj1"
+          moduleDependencies := Seq(
+            new dependency(proj0) {
+              isExported := false
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+
+        lazy val proj2: module = new module(s"$projectName.proj2") {
+          sbtProjectId := "proj2"
+          moduleDependencies := Seq(
+            new dependency(proj0) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            },
+            new dependency(proj1) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            }
+          )
+        }
+
+        lazy val proj3: module = new module(s"$projectName.proj3") {
+          sbtProjectId := "proj3"
+          moduleDependencies := Seq(
+            new dependency(proj0) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(proj2) {
+              isExported := false
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+        modules := Seq(root, proj0, proj1, proj2, proj3)
+      }
+    )
+  }
+
+  def testCrossPlatformWithNestedProjectDependencies(): Unit = {
+    val projectName = "crossPlatformWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val module1JS = new module("module1JS", Array(projectName, "module1"))
+        lazy val module1JVM = new module("module1JVM", Array(projectName, "module1"))
+        lazy val module1Sources = new module("module1-sources", Array(projectName, "module1"))
+
+        lazy val module2JS = new module("module2JS", Array(projectName, "module2")){
+          moduleDependencies := Seq(
+            new dependency(module1JS) {
+              isExported := false
+              scope := DependencyScope.TEST
+            },
+            new dependency(module1Sources) {
+              isExported := true
+              scope := DependencyScope.TEST
+            },
+            new dependency(module2Sources) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+          )
+        }
+        lazy val module2JVM = new module("module2JVM", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module1JVM) {
+              isExported := false
+              scope := DependencyScope.TEST
+            },
+            new dependency(module1Sources) {
+              isExported := true
+              scope := DependencyScope.TEST
+            },
+            new dependency(module2Sources) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+          )
+        }
+        lazy val module2Sources = new module("module2-sources", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module1JVM) {
+              isExported := false
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+
+        lazy val module3 = new module(s"$projectName.module3") {
+          moduleDependencies := Seq(
+            new dependency(module2JVM) {
+              isExported := false
+              scope := DependencyScope.TEST
+            },
+            new dependency(module2Sources) {
+              isExported := true
+              scope := DependencyScope.TEST
+            },
+            new dependency(module1JVM) {
+              isExported := false
+              scope := DependencyScope.TEST
+            },
+            new dependency(module1Sources) {
+              isExported := true
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+
+        lazy val root = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(module2JVM) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2Sources) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        modules := Seq(root, module1JS, module1JVM, module1Sources, module2JS, module2JVM, module2Sources, module3)
+      }
+    )
+  }
+
+  def testCustomConfigurationsWithNestedProjectDependencies(): Unit = {
+    val projectName = "customConfigurationsWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+
+        lazy val foo: module = new module(s"$projectName.foo") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq(
+            new dependency(root) {
+              isExported := false
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+
+        lazy val utils: module = new module(s"$projectName.utils") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq(
+            new dependency(foo) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(root) {
+              isExported := false
+              scope := DependencyScope.TEST
+            }
+          )
+        }
+        modules := Seq(utils, foo, root)
+      }
+    )
+  }
+
+  def testSharedSourcesInsideMultiBuildProject(): Unit = {
+    val projectName = "sharedSourcesInsideMultiBuildProject"
+    runTest(
+      new project(projectName) {
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+        lazy val c1: module = new module("c1") {
+          contentRoots := Seq(getProjectPath + "/c1")
+          sbtProjectId := "c1"
+          sbtBuildURI := buildURI.resolve("c1/")
+          libraryDependencies := scalaLibraries
+        }
+
+        lazy val root: module = new module(projectName) {
+          contentRoots := Seq(getProjectPath)
+          sbtProjectId := "sharedSourcesInsideMultiBuildProject"
+          sbtBuildURI := buildURI
+          libraryDependencies := scalaLibraries
+          moduleDependencies += new dependency(c1) { isExported := false }
+        }
+
+        val sharedSourcesModuleInC1: module = new module("c1-sources", Array("c1")) {
+          libraryDependencies := scalaLibraries
+        }
+        val c1Modules: Seq[module] = Seq(
+          sharedSourcesModuleInC1,
+          new module("foo", Array("c1")) {
+            libraryDependencies := scalaLibraries
+            sbtProjectId := "foo"
+            sbtBuildURI := buildURI.resolve("c1/")
+            moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+
+          },
+          new module("bar", Array("c1")) {
+            libraryDependencies := scalaLibraries
+            sbtProjectId := "bar"
+            sbtBuildURI := buildURI.resolve("c1/")
+            moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+          }
+        )
+
+        modules := c1 +: root +: c1Modules
+      }
+    )
+  }
 
   // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
   // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.

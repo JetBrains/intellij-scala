@@ -456,7 +456,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     moduleFileDirectoryPath: String,
     externalConfigPath: String,
     shouldCreateNestedModule: Boolean
-  ): Node[_ <:ModuleData] = {
+  ): ModuleDataNodeType = {
     if (shouldCreateNestedModule) {
       new NestedModuleNode(typeId, projectId, moduleName, moduleFileDirectoryPath, externalConfigPath)
     } else {

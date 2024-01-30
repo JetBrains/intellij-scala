@@ -313,7 +313,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectNode = new ProjectNode(projectName, projectPath, projectPath)
     val libraryNodes = Seq.empty[LibraryNode]
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
-    val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, projects, projectTmpName))
+    val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, Nil, projectTmpName))
     val projectToModule = createModules(
       buildProjectsGroup,
       libraryNodes,
@@ -372,6 +372,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] =
       createBuildProjectGroups(projects)
+    val shouldGroupModulesFromSameBuild = settings.groupProjectsFromSameBuild
     val projectToModule = createModules(
       buildProjectsGroups,
       libraryNodes,
@@ -387,7 +388,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleDataNodeType] = projectToModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(removeNestedModuleNodes(modulesSorted))
 
-    val shouldGroupModulesFromSameBuild = buildProjectsGroups.size > 1 && settings.groupProjectsFromSameBuild
     val sharedSourceModules = createSharedSourceModules(
       projectToModule,
       libraryNodes,
@@ -404,7 +404,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion, projectToModule, shouldGroupModulesFromSameBuild)
     val buildModules = data.builds.map(buildModuleForProject)
 
-    if (buildModules.size > 1) {
+    // note: if grouping modules from same build is enabled, grouping should be done even for one build module.
+    // Otherwise we only group if there is more than one build module
+    // todo - move this code to #createBuildModule when groupProjectsFromSameBuild setting will be removed
+    if (buildModules.size > 1 || shouldGroupModulesFromSameBuild) {
         buildModules.foreach { buildModule =>
           val ideModuleGroupNameForBuild =
             if (shouldGroupModulesFromSameBuild) {
@@ -557,10 +560,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       addAllRequiredDataToModuleNode(librariesData, unmanagedSourcesAndDocsLibrary)(_: ProjectData, _: ModuleDataNodeType)
 
     val moduleInternalNameGenerator = new ModuleUniqueInternalNameGenerator()
-    val shouldGroupProjectsFromTheSameBuild = projectsGrouped.size > 1 && groupProjectsFromSameBuild
     val projectToModule: Iterable[(ProjectData, ModuleDataNodeType)] = projectsGrouped
       .flatMap { buildProjectsGroup =>
-        if (shouldGroupProjectsFromTheSameBuild) {
+        if (groupProjectsFromSameBuild) {
           //NOTE: when projects are grouped according to their builds is not needed to have single ModuleUniqueInternalNameGenerator for all builds.
           //This is because the uniqueness of project names between all builds is ensured by the unique root project names.
           //From the SBT perspective using ModuleUniqueInternalNameGenerator for non root projects would not be necessary at all (projects id must be unique inside single build),
@@ -570,7 +572,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             buildProjectsGroup,
             moduleFilesDirectory,
             addAllNecessaryDataToModuleWithLibrariesData,
-            useSeparateCompilerOutputPaths)
+            useSeparateCompilerOutputPaths
+          )
         } else {
           //NOTE: it is required to have single moduleInternalNameGenerator for all calls of #createModulesWithoutGroupProjectsFromSameBuild, because
           //when grouping via qualified names is done we need to be sure that internal module names which we generate are unique.
