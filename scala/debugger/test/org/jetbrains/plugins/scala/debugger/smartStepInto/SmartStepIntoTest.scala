@@ -49,6 +49,18 @@ class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
       Breakpoint("MethodValue.scala", "decr", 16) -> resume
     )
   }
+
+  override def testInsideLambda(): Unit = {
+    smartStepIntoTest()(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("InsideLambda.scala", "$anonfun$main$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("InsideLambda.scala", "multi", 2) -> stepOut,
+      Breakpoint("InsideLambda.scala", "$anonfun$main$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("InsideLambda.scala", "sum", 4) -> resume
+    )
+  }
 }
 
 class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
@@ -186,6 +198,18 @@ class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
       Breakpoint("MethodValue.scala", "update", 13) -> stepOut,
       Breakpoint("MethodValue.scala", "main", 4) -> smartStepInto(Target("decr(int)")),
       Breakpoint("MethodValue.scala", "decr", 16) -> resume
+    )
+  }
+
+  override def testInsideLambda(): Unit = {
+    smartStepIntoTest()(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("InsideLambda.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("InsideLambda.scala", "multi", 2) -> stepOut,
+      Breakpoint("InsideLambda.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("InsideLambda.scala", "sum", 4) -> resume
     )
   }
 }
@@ -732,6 +756,33 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
       Breakpoint("MethodValue.scala", "update", 13) -> stepOut,
       Breakpoint("MethodValue.scala", "main", 4) -> smartStepInto(Target("decr(int)")),
       Breakpoint("MethodValue.scala", "decr", 16) -> resume
+    )
+  }
+
+  addSourceFile("InsideLambda.scala",
+    s"""
+       |object InsideLambda {
+       |  def multi(x: Double, y: Double): Double = x * y
+       |
+       |  def sum(x: Double, y: Double): Double = x + y
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val celsiusDegrees = List(0)
+       |    val fahrenheitDegrees = celsiusDegrees.map(i => sum(multi(i, 1.8), 32)) $breakpoint ${lambdaOrdinal(0)}
+       |    println(fahrenheitDegrees)
+       |  }
+       |}
+       |""".stripMargin.trim)
+
+  def testInsideLambda(): Unit = {
+    smartStepIntoTest()(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("InsideLambda.scala", "apply$mcDI$sp", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("InsideLambda.scala", "multi", 2) -> stepOut,
+      Breakpoint("InsideLambda.scala", "apply$mcDI$sp", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("InsideLambda.scala", "sum", 4) -> resume
     )
   }
 }
