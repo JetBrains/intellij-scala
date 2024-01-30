@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.serviceContainer.AlreadyDisposedException
+import org.jetbrains.plugins.scala.compiler.executeOnBuildThread
 import org.jetbrains.plugins.scala.compiler.JpsSessionErrorTrackerService
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
@@ -38,12 +38,4 @@ object CompilerLockBuildManagerListener {
     } catch {
       case _: AlreadyDisposedException => // ignore
     }
-
-  private def executeOnBuildThread(runnable: Runnable): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      runnable.run()
-    } else {
-      BuildManager.getInstance().runCommand(runnable)
-    }
-  }
 }

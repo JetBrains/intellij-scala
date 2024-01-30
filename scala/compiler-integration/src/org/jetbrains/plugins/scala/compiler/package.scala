@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.compiler.server.BuildManager
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.CompileServerProblem
@@ -25,6 +27,14 @@ package object compiler {
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       notification.expire()
       CompileServerManager.showCompileServerSettingsDialog(project, filter)
+    }
+  }
+
+  def executeOnBuildThread(runnable: Runnable): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      runnable.run()
+    } else {
+      BuildManager.getInstance().runCommand(runnable)
     }
   }
 }

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.references
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
-import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
@@ -351,14 +350,6 @@ object ScalaCompilerReferenceService {
 
   def apply(project: Project): ScalaCompilerReferenceService =
     project.getService(classOf[ScalaCompilerReferenceService])
-
-  private[references] def executeOnBuildThread(runnable: Runnable): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      runnable.run()
-    } else {
-      BuildManager.getInstance().runCommand(runnable)
-    }
-  }
 
   class Startup extends ProjectActivity with ProjectManagerListener {
     override def execute(project: Project): Unit = {
