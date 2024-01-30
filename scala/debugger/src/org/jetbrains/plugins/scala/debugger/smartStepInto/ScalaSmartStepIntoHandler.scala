@@ -9,10 +9,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
-import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.concurrency.{Promise, Promises}
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -45,38 +43,33 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
     val line: Int = position.getLine
     if (line < 0) {
-      return Collections.emptyList[SmartStepTarget]
+      return Collections.emptyList[SmartStepTarget]()
     }
 
-    ScalaDebuggerUsagesCollector.logSmartStepInto(position.getFile.toOption.map(_.getProject).orNull)
+    val scalaFile = Option(position.getFile) match {
+      case Some(sf: ScalaFile) if !sf.isCompiled => sf
+      case _ => return Collections.emptyList[SmartStepTarget]()
+    }
 
-    val (element, doc) =
-      (for {
-        sf @ (_sf: ScalaFile) <- position.getFile.toOption
-        if !sf.isCompiled
-        vFile <- sf.getVirtualFile.toOption
-        doc <- FileDocumentManager.getInstance().getDocument(vFile).toOption
-        if doc.getLineCount > line
-      } yield {
-        val startOffset: Int = doc.getLineStartOffset(line)
-        val offset: Int = CharArrayUtil.shiftForward(doc.getCharsSequence, startOffset, " \t{")
-        val element: PsiElement = sf.findElementAt(offset)
-        (element, doc)
-      }) match {
-        case Some((null, _)) => return Collections.emptyList[SmartStepTarget]
-        case Some((e, d)) => (e, d)
-        case _ => return Collections.emptyList[SmartStepTarget]
-      }
+    ScalaDebuggerUsagesCollector.logSmartStepInto(scalaFile.getProject)
 
-    val lineStart = doc.getLineStartOffset(line)
-    val lineRange = new TextRange(lineStart, doc.getLineEndOffset(line))
+    val document = Option(scalaFile.getVirtualFile).flatMap { vFile =>
+      Option(FileDocumentManager.getInstance().getDocument(vFile))
+    }.filter(_.getLineCount > line) match {
+      case Some(doc) => doc
+      case None => return Collections.emptyList[SmartStepTarget]()
+    }
+
+    val element = position.getElementAt
+
+    val lineStart = position.getOffset
+    val lineRange = new TextRange(lineStart, document.getLineEndOffset(line))
     val maxElement = maxElementOnLine(element, lineStart)
 
-    val lineToSkip = new Range[Integer](line, line)
-    def intersectsWithLineRange(elem: PsiElement) = {
+    def intersectsWithLineRange(elem: PsiElement): Boolean =
       lineRange.intersects(elem.getTextRange)
-    }
 
+    val lineToSkip = new Range[Integer](line, line)
     val collector = new TargetCollector(lineToSkip, intersectsWithLineRange)
     maxElement.accept(collector)
     maxElement.nextSiblings
