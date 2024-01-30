@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
+import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.extensions.RichFile
@@ -12,27 +12,40 @@ import org.jetbrains.sbt.structure.{ProjectData, ProjectDependencyData}
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
-import scala.annotation.nowarn
+import java.net.URI
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
+
+  type ModuleDataNodeType = Node[_<:ModuleData]
+
   def createSharedSourceModules(
-    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean
-  ): Seq[ModuleNode] = {
+    insertProjectTransitiveDependencies: Boolean,
+    shouldGroupModulesFromSameBuild: Boolean,
+    buildProjectsGroups: Seq[BuildProjectsGroup]
+  ): Seq[ModuleDataNodeType] = {
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
     grouped.map { group =>
-      createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies)
+      createSourceModuleNodesAndDependencies(
+        group,
+        projectToModuleNode,
+        libraryNodes,
+        moduleFilesDirectory,
+        insertProjectTransitiveDependencies,
+        shouldGroupModulesFromSameBuild,
+        buildProjectsGroups
+      )
     }
   }
 
   protected def createModuleDependencies(
     projectDependencies: Seq[ProjectDependencyData],
-    allModules: Seq[ModuleNode],
-    moduleNode: ModuleNode,
+    allModules: Seq[ModuleDataNodeType],
+    moduleNode: ModuleDataNodeType,
     insertProjectTransitiveDependencies: Boolean
   ): Unit = {
     projectDependencies.foreach { dependencyId =>
@@ -50,15 +63,17 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   private def createSourceModuleNodesAndDependencies(
     rootGroup: RootGroup,
-    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean
-  ): ModuleNode = {
+    insertProjectTransitiveDependencies: Boolean,
+    shouldGroupModulesFromSameBuild: Boolean,
+    buildProjectsGroups: Seq[BuildProjectsGroup]
+  ): ModuleDataNodeType = {
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
-      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory)
+      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory, shouldGroupModulesFromSameBuild)
       //todo: get jdk from a corresponding jvm module ?
       moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -92,7 +107,14 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
         //put source module to the same module group
-        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup): @nowarn("cat=deprecation") // TODO: SCL-21288
+        val reprProjectModulePrefix = Option(reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName))
+        val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, reprProjectModulePrefix)
+        moduleNode.setInternalName(moduleNameWithGroupName)
+        if (shouldGroupModulesFromSameBuild) {
+          //find rootNode for reprProjectModule, because shared sources module should be put in the same root
+          val rootNode = findRootNodeForProjectData(representativeProject, buildProjectsGroups, projectToModuleNode)
+          rootNode.foreach(_.add(moduleNode))
+        }
       }
 
       moduleNode
@@ -117,14 +139,25 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     sourceModuleNode
   }
 
+  private def findRootNodeForProjectData(
+    representativeProject: ProjectData,
+    buildProjectsGroups: Seq[BuildProjectsGroup],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType]
+  ): Option[ModuleDataNodeType] = {
+    val rootProjectDataOpt = buildProjectsGroups
+      .find(_.projects.contains(representativeProject))
+      .map(_.rootProject)
+    rootProjectDataOpt.flatMap(projectToModuleNode.get)
+  }
+
   /**
    * if project transitive dependencies feature is on, it is required to put shared sources module not only in it's owner module (module with shared sources),
    * but in all modules which depend on modules that have shared resources
    */
   private def getAllModulesThatRequireSharedSourcesModule(
-    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     sharedSourcesProjects: Seq[ProjectData]
-  ): Seq[(ModuleNode, DependencyScope)] = {
+  ): Seq[(ModuleDataNodeType, DependencyScope)] = {
     projectToModuleNode
       .filterNot { case (project, _) => sharedSourcesProjects.contains(project) }
       .flatMap { case (project, moduleNode) =>
@@ -167,14 +200,16 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   private def createSourceModule(
     group: RootGroup,
     moduleFilesDirectory: File,
-  ): (ModuleNode, ContentRootNode) = {
+    shouldGroupModulesFromSameBuild: Boolean
+  ): (ModuleDataNodeType, ContentRootNode) = {
     val groupBase = group.base
-    val moduleNode = new ModuleNode(
+    val moduleNode = createModuleNode(
       SharedSourcesModuleType.instance.getId,
       group.name,
       group.name,
       moduleFilesDirectory.path,
-      groupBase.canonicalPath
+      groupBase.canonicalPath,
+      shouldGroupModulesFromSameBuild
     )
 
     val contentRootNode = new ContentRootNode(groupBase.path)
@@ -238,7 +273,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   //target directory are expected by jps compiler:
   //if they are missing all sources are marked dirty and there is no incremental compilation
-  private def setupOutputDirectories(moduleNode: ModuleNode, contentRootNode: ContentRootNode): Unit = {
+  private def setupOutputDirectories(moduleNode: ModuleDataNodeType, contentRootNode: ContentRootNode): Unit = {
     moduleNode.setInheritProjectCompileOutputPath(false)
 
     val contentRoot = contentRootNode.data.getRootPath
@@ -311,6 +346,19 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       sourceRoots ++ resourceRoots
     }
   }
+
+  /**
+   * This class is designed to group projects from single SBT build.
+   * Note, SBT single sbt build can consists from multiple other builds using `ProjectRef`
+   *
+   * @param buildUri can point to a directory ot a github repository
+   */
+  protected case class BuildProjectsGroup(
+    buildUri: URI,
+    rootProject: ProjectData,
+    projects: Seq[ProjectData],
+    rootProjectModuleNameUnique: String,
+  )
 
   private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData]) {
     lazy val base: File = commonBase(roots)
@@ -389,4 +437,31 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       result
     }
   }
+
+  protected def prependModuleNameWithGroupName(moduleName: String, group: Option[String]): String = {
+    val moduleNameWithGroupPrefix = group
+      .filterNot(_.isBlank)
+      // the group name might ended with a dot, when it is from org/jetbrains/sbt/project/ExternalSourceRootResolution.scala:111
+      // and can be without a dot, when it is from org.jetbrains.sbt.project.SbtProjectResolver#createModuleWithAllRequiredData
+      .map(groupName => if (groupName.endsWith(".")) groupName else s"$groupName.")
+      .map(_ + moduleName)
+
+    moduleNameWithGroupPrefix.getOrElse(moduleName)
+  }
+
+  protected def createModuleNode(
+    typeId: String,
+    projectId: String,
+    moduleName: String,
+    moduleFileDirectoryPath: String,
+    externalConfigPath: String,
+    shouldCreateNestedModule: Boolean
+  ): Node[_ <:ModuleData] = {
+    if (shouldCreateNestedModule) {
+      new NestedModuleNode(typeId, projectId, moduleName, moduleFileDirectoryPath, externalConfigPath)
+    } else {
+      new ModuleNode(typeId, projectId, moduleName, moduleFileDirectoryPath, externalConfigPath)
+    }
+  }
+
 }

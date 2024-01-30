@@ -33,7 +33,7 @@ object BspExternalSystemUtil {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
     val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
-    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, key, rootProjectPath)
+    val dataEither = ExternalSystemUtil.getModuleData(BSP.ProjectSystemId, project, moduleId, key, rootProjectPath, None)
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects

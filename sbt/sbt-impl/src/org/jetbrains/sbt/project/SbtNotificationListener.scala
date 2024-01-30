@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdapter {
   override def onTaskOutput(id: ExternalSystemTaskId, text: String, stdOut: Boolean): Unit = {
     // TODO this check must be performed in the External System itself (see SCL-7405)
-    if (id.getProjectSystemId == SbtProjectSystem.Id) {
+    if (isSbtProject(id)) {
       processOutput(text)
     }
   }
@@ -22,6 +22,8 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
       case _ => // do nothing
     }
   }
+
+  private def isSbtProject(id: ExternalSystemTaskId): Boolean = id.getProjectSystemId == SbtProjectSystem.Id
 }
 
 object WarningMessage {
