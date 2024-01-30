@@ -53,41 +53,41 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProject
         excluded := Seq("target", "project/target")
       }
 
-      val `downstreamPure-sources` = new myModule("downstreamPure-sources", "downstreamPure") {
+      val `downstreamPure-sources` = new myModule("downstreamPure.downstreamPure-sources", "downstreamPure") {
         sources := Seq("src/main/scala")
       }
-      val `downstreamPureJS` = new myModule("downstreamPureJS", "downstreamPure/.js") {
+      val `downstreamPureJS` = new myModule("downstreamPure.downstreamPureJS", "downstreamPure/.js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `downstreamPureJVM` = new myModule("downstreamPureJVM", "downstreamPure/.jvm") {
+      val `downstreamPureJVM` = new myModule("downstreamPure.downstreamPureJVM", "downstreamPure/.jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamPure-sources` = new myModule("upstreamPure-sources", "upstreamPure") {
+      val `upstreamPure-sources` = new myModule("upstreamPure.upstreamPure-sources", "upstreamPure") {
         sources := Seq("src/main/scala")
       }
-      val `upstreamPureJS` = new myModule("upstreamPureJS", "upstreamPure/.js") {
+      val `upstreamPureJS` = new myModule("upstreamPure.upstreamPureJS", "upstreamPure/.js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamPureJVM` = new myModule("upstreamPureJVM", "upstreamPure/.jvm") {
+      val `upstreamPureJVM` = new myModule("upstreamPure.upstreamPureJVM", "upstreamPure/.jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
 
-      val `downstreamFull-sources` = new myModule("downstreamFull-sources", "downstreamFull/shared") {
+      val `downstreamFull-sources` = new myModule("downstreamFull.downstreamFull-sources", "downstreamFull/shared") {
         sources := Seq("src/main/scala")
       }
-      val `downstreamFullJS` = new myModule("downstreamFullJS", "downstreamFull/js") {
+      val `downstreamFullJS` = new myModule("downstreamFull.downstreamFullJS", "downstreamFull/js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `downstreamFullJVM` = new myModule("downstreamFullJVM", "downstreamFull/jvm") {
+      val `downstreamFullJVM` = new myModule("downstreamFull.downstreamFullJVM", "downstreamFull/jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamFull-sources` = new myModule("upstreamFull-sources", "upstreamFull/shared") {
+      val `upstreamFull-sources` = new myModule("upstreamFull.upstreamFull-sources", "upstreamFull/shared") {
         sources := Seq("src/main/scala")
       }
-      val `upstreamFullJS` = new myModule("upstreamFullJS", "upstreamFull/js") {
+      val `upstreamFullJS` = new myModule("upstreamFull.upstreamFullJS", "upstreamFull/js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamFullJVM` = new myModule("upstreamFullJVM", "upstreamFull/jvm") {
+      val `upstreamFullJVM` = new myModule("upstreamFull.upstreamFullJVM", "upstreamFull/jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
 

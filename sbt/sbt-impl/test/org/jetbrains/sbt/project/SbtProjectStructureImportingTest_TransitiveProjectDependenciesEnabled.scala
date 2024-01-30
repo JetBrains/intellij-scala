@@ -109,22 +109,22 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
     new project("root") {
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
 
-      val rootC1: module = new module("Build C1 Name", Array("Build C1 Name")) {
+      val rootC1: module = new module("Build C1 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq()
       }
-      val rootC2: module = new module("Build C2 Name", Array("Build C2 Name")) {
+      val rootC2: module = new module("Build C2 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c2/")
         moduleDependencies := Seq()
       }
-      val rootC3: module = new module("suffix2.root", Array("root1")) {
+      val rootC3: module = new module("root~1") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
         moduleDependencies := Seq()
       }
-      val rootC4: module = new module("suffix1.suffix2.root", Array("root2")) {
+      val rootC4: module = new module("root~2") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
         moduleDependencies := Seq()
@@ -149,12 +149,12 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
       }
 
       val modulesFromRoot: Seq[module] = Seq(
-        new module("project1InRootBuild"),
-        new module("project2InRootBuild"),
-        new module("project3InRootBuildWithSameName", Array("same name in root build")),
-        new module("project4InRootBuildWithSameName", Array("same name in root build")),
-        new module("project5InRootBuildWithSameGlobalName", Array("same global name")),
-        new module("project6InRootBuildWithSameGlobalName", Array("same global name")),
+        new module("project1InRootBuild", Array("root")),
+        new module("project2InRootBuild", Array("root")),
+        new module("project3InRootBuildWithSameName", Array("root", "same name in root build")),
+        new module("project4InRootBuildWithSameName", Array("root", "same name in root build")),
+        new module("project5InRootBuildWithSameGlobalName", Array("root", "same global name")),
+        new module("project6InRootBuildWithSameGlobalName", Array("root", "same global name")),
       )
       val modulesFromC1: Seq[module] = Seq(
         rootC1,
@@ -176,21 +176,21 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
       )
       val modulesFromC3: Seq[module] = Seq(
         rootC3,
-        new module("project1InC3", Array("root1")),
-        new module("project2InC3", Array("root1")),
-        new module("project3InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project4InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project5InC3WithSameGlobalName", Array("root1", "same global name")),
-        new module("project6InC3WithSameGlobalName", Array("root1", "same global name")),
+        new module("project1InC3", Array("root~1")),
+        new module("project2InC3", Array("root~1")),
+        new module("project3InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project4InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project5InC3WithSameGlobalName", Array("root~1", "same global name")),
+        new module("project6InC3WithSameGlobalName", Array("root~1", "same global name")),
       )
       val modulesFromC4: Seq[module] = Seq(
         rootC4,
-        new module("project1InC4", Array("root2")),
-        new module("project2InC4", Array("root2")),
-        new module("project3InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project4InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project5InC4WithSameGlobalName", Array("root2", "same global name")),
-        new module("project6InC4WithSameGlobalName", Array("root2", "same global name")),
+        new module("project1InC4", Array("root~2")),
+        new module("project2InC4", Array("root~2")),
+        new module("project3InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project4InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project5InC4WithSameGlobalName", Array("root~2", "same global name")),
+        new module("project6InC4WithSameGlobalName", Array("root~2", "same global name")),
       )
 
       modules := root +:
@@ -211,17 +211,17 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
       private val sbtIdeSettingsGroup = Array("sbt-ide-settings")
 
       // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
-      val sbtIdeaPlugin = new module("sbtIdeaPlugin", sbtIdeaPluginGroup) {
+      val sbtIdeaPlugin = new module("sbtIdeaPlugin") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
         sbtProjectId := "sbtIdeaPlugin"
       }
 
-      val sbtIdeaShell = new module("sbt-idea-shell", sbtIdeaShellGroup) {
+      val sbtIdeaShell = new module("sbt-idea-shell") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
         sbtProjectId := "root"
       }
 
-      val sbtIdeSettings = new module("sbt-ide-settings", sbtIdeSettingsGroup) {
+      val sbtIdeSettings = new module("sbt-ide-settings") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
         sbtProjectId := "sbt-ide-settings"
       }
@@ -246,7 +246,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
             },
           )
         },
-        new module("SCL-14635-build"),
+        new module("SCL-14635-build", Array("SCL-14635")),
         sbtIdeaPlugin,
         new module("sbt-idea-plugin", sbtIdeaPluginGroup),
         new module("sbt-declarative-core", sbtIdeaPluginGroup),
@@ -440,6 +440,95 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
         )
       }
       modules := Seq(utils, foo, root)
+    }
+  )
+
+  def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
+    new project("sharedSourcesInsideMultiBuildProject") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      libraries := scalaLibraries
+
+      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+      lazy val c1: module = new module("c1") {
+        contentRoots := Seq(getProjectPath + "/c1")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := scalaLibraries
+      }
+
+      lazy val root: module = new module("sharedSourcesInsideMultiBuildProject") {
+        contentRoots := Seq(getProjectPath)
+        sbtProjectId := "sharedSourcesInsideMultiBuildProject"
+        sbtBuildURI := buildURI
+        libraryDependencies := scalaLibraries
+        moduleDependencies += new dependency(c1) { isExported := false }
+      }
+
+      val sharedSourcesModuleInC1: module = new module("c1-sources", Array("c1")) {
+        libraryDependencies := scalaLibraries
+      }
+      val c1Modules: Seq[module] = Seq(
+        sharedSourcesModuleInC1,
+        new module("foo", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "foo"
+          sbtBuildURI := buildURI.resolve("c1/")
+          moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+
+        },
+        new module("bar", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "bar"
+          sbtBuildURI := buildURI.resolve("c1/")
+          moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+        }
+      )
+
+      modules := c1 +: root +: c1Modules
+    }
+  )
+
+  // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
+  // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
+  // In such case we should handle it and append number suffix to one of the module name
+  def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
+    new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      libraries := scalaLibraries
+
+      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+      lazy val c1: module = new module("c1") {
+        contentRoots := Seq(getProjectPath + "/c1")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := scalaLibraries
+      }
+
+      lazy val root: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+        contentRoots := Seq(getProjectPath)
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtBuildURI := buildURI
+        libraryDependencies := scalaLibraries
+        moduleDependencies += new dependency(c1) { isExported := false }
+      }
+
+
+      val c1Modules: Seq[module] = Seq(
+        new module("ro_t", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "mod1"
+          sbtBuildURI := buildURI.resolve("c1/")
+        },
+        new module("ro_t~1", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "mod2"
+          sbtBuildURI := buildURI.resolve("c1/")
+        }
+      )
+
+      modules := c1 +: root +: c1Modules
     }
   )
 

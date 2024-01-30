@@ -93,7 +93,16 @@ object ProjectStructureDsl {
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class module(override val name: String, var group: Array[String] = null) extends Attributed with Named {
+  class module(val moduleName: String, var group: Array[String] = null) extends Attributed with Named {
+
+    override val name: String =
+      if (group != null && group.nonEmpty) {
+        val groupPrefix = group.mkString("", ".", ".")
+        moduleName.prependedAll(groupPrefix)
+      } else {
+        moduleName
+      }
+
     implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
