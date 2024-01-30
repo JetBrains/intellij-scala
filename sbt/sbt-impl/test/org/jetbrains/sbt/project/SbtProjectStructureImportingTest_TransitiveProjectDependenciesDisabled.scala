@@ -182,6 +182,9 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     val settings = new SbtProjectSettings
     settings.jdk = getJdkConfiguredForTestCase.getName
     settings.setExternalProjectPath(path)
+    // note: it is necessary to set all the required settings that should be in the test, because for a newly linked project, what was set
+    // in #setUp method will not be taken into account
+    settings.setInsertProjectTransitiveDependencies(false)
     SbtSettings.getInstance(myProject).linkProject(settings)
   }
 
