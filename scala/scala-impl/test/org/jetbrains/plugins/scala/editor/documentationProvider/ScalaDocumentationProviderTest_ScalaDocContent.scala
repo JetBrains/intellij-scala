@@ -1152,10 +1152,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$DefinitionStart<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">ScalaClass</span>
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://JavaClass"><code>JavaClass</code></a></span>$DefinitionEnd
          |$ContentStart
-         |text from <u>scala</u><p> text from <b>java</b><br>
-         | <code style='font-size:100%;'>
-         |<span style="">code tag</span>
-         |</code><br> <a href="psi_element://JavaClass"><code>JavaClass</code></a>
+         |text from <u>scala</u><p> text from <b>java</b>
+         |<br> <code>code tag</code>
+         |<br> <a href="psi_element://JavaClass"><code>JavaClass</code></a>
          |<br> <p>extra text from <u>scala</u>
          |$ContentEnd
          |""".stripMargin
