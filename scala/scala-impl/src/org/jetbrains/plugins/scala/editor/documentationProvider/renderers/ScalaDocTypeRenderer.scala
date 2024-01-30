@@ -4,13 +4,17 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage}
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlBuilderWrapper
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.ScalaDocTypeRenderer.StaticJavaClassHolder
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiMemberExt, PsiNamedElementExt, StringExt, StringsExt}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociativity
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
@@ -18,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, JavaArrayType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScAndType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -84,7 +88,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ScMatchType(scrutinee, cases) =>
       scrutineeText(scrutinee, cases)
     case p: ScProjectionType =>
-      s"${render(p.projected)}.${nameRenderer.renderName(p.actualElement)}"
+      projectionTypeText(p)
     case ex: ScExistentialType =>
       existentialTypeText(ex, checkWildcard = true)
     case pt@ScTypePolymorphicType(internalType, typeParameters) =>
@@ -204,10 +208,60 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     types
       .map(render)
       .commaSeparated(model)
+
+  private def checkIfStable(element: PsiElement): Boolean = element match {
+    case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
+    case _ => false
+  }
+
+  private def projectionTypeText(projType: ScProjectionType): String = {
+    val e = projType.actualElement
+    val refName = e.name
+    val renderedName = nameRenderer.renderName(e)
+    if (presentableContext.nameResolvesTo(refName, e))
+      renderedName // if reference can be resolved from the context we do not render any context info
+    else {
+      lazy val isStaticJavaClass = e match {
+        case c: PsiClass => ScalaPsiUtil.isStaticJava(c)
+        case _ => false
+      }
+      lazy val typeTailForProjection = if (checkIfStable(e)) s".$renderedType" else ""
+      projType.projected match {
+        case ScDesignatorType(pack: PsiPackage) =>
+          s"${nameRenderer.renderNameWithPoint(pack)}.$renderedName"
+        case ScDesignatorType(named) if checkIfStable(named) =>
+          s"${nameRenderer.renderNameWithPoint(named)}.$renderedName$typeTailForProjection"
+        case ScThisType(obj: ScObject) =>
+          s"${nameRenderer.renderNameWithPoint(obj)}.$renderedName$typeTailForProjection"
+        case p@ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
+          s"${render(p)}.$renderedName$typeTailForProjection"
+        case p: ScProjectionType if checkIfStable(p.actualElement) =>
+          s"${projectionTypeText(p)}.$renderedName$typeTailForProjection"
+        case StaticJavaClassHolder(clazz) if isStaticJavaClass =>
+          s"${nameRenderer.renderNameWithPoint(clazz)}.$renderedName"
+        case p@(_: ScCompoundType | _: ScExistentialType) =>
+          s"(${render(p)})#$renderedName"
+        case p =>
+          val innerText = render(p)
+          if (innerText.endsWith(renderedType)) s"${innerText.stripSuffix("type")}$renderedName"
+          else s"$innerText#$renderedName"
+      }
+    }
+  }
+
 }
 
 private [documentationProvider] object ScalaDocTypeRenderer {
   import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils._
+
+  object StaticJavaClassHolder {
+    def unapply(t: ScType): Option[PsiClass] = t match {
+      case ScDesignatorType(clazz: PsiClass)                       => Some(clazz)
+      case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) => Some(clazz)
+      case ScProjectionType(_, clazz: PsiClass)                    => Some(clazz)
+      case _                                                       => None
+    }
+  }
 
   object InfixDesignator {
     private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
