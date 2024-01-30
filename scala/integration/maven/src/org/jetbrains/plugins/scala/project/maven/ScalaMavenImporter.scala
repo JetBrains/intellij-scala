@@ -6,7 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
 import com.intellij.openapi.util.Key
-import com.intellij.util.PairConsumer
+import com.intellij.util.{JavaCoroutines, PairConsumer}
+import kotlin.coroutines.Continuation
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
@@ -26,7 +27,8 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
+final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin")
+  with MavenProjectResolutionContributor {
 
   override def collectSourceRoots(
     mavenProject: MavenProject,
@@ -167,7 +169,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
   }
 
   // called before `process`
-  override def resolve(
+  def resolve(
     project: Project,
     mavenProject: MavenProject,
     nativeMavenProject: NativeMavenProjectHolder,
@@ -194,7 +196,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       def resolveTransitively(id: MavenId): Seq[MavenArtifact] = {
         // NOTE: we can't use Seq + `asScala` here because the list will be serialised and passed to an external process
         val artifacts = util.Arrays.asList(jar(id))
-        val artifactResolveResult = embedder.resolveArtifactTransitively(artifacts, repositories)
+        val artifactResolveResult = embedder.resolveArtifactTransitively(artifacts, repositories): @nowarn("cat=deprecation") // TODO: deprecated to be replaced with a suspend fun. See IDEA-340501
         val resolved = artifactResolveResult.mavenResolvedArtifacts.asScala.toSeq
         // TODO: ideally test scope dependencies shouldn't be downloaded at all (see IDEA-270126)
         // note, resolved also includes root compiler jar with a `null` scope
@@ -214,6 +216,20 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     }
   }
 
+  // See IDEA-340501
+  override def onMavenProjectResolved(
+    project: Project,
+    mavenProject: MavenProject,
+    nativeMavenProjectHolder: NativeMavenProjectHolder,
+    mavenEmbedderWrapper: MavenEmbedderWrapper,
+    continuation: Continuation[_ >: kotlin.Unit]
+  ): Unit = JavaCoroutines.suspendJava[kotlin.Unit](
+    javaContinuation => {
+      resolve(project, mavenProject, nativeMavenProjectHolder, mavenEmbedderWrapper)
+      javaContinuation.resume(kotlin.Unit.INSTANCE)
+    },
+    continuation
+  )
 
   /**
    * An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.<br>

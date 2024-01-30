@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.refactoring
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.{IncorrectOperationException, SequentialModalProgressTask, SequentialTask}
@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactoringHelper._
 
+import java.util
 import scala.collection.mutable
 
 /**
@@ -34,7 +35,7 @@ import scala.collection.mutable
  */
 final class ScalaProcessImportsRefactoringHelper extends RefactoringHelper[MyData] {
 
-  override def prepareOperation(usages: Array[UsageInfo]): MyData = {
+  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[PsiElement]): MyData = {
     val fileToImportHolders: mutable.Map[ScalaFile, mutable.Set[ScImportsHolder]] =
       mutable.HashMap.empty
 

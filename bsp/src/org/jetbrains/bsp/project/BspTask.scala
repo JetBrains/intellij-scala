@@ -20,17 +20,19 @@ import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.net.URI
 import java.util.concurrent.CompletableFuture
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 
+// TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
                  targetsToClean: Iterable[BspTarget]
                 )
-    extends Task.Backgroundable(project, BspBundle.message("bsp.task.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+    extends Task.Backgroundable(project, BspBundle.message("bsp.task.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val resultPromise: Promise[BuildMessages] = Promise()

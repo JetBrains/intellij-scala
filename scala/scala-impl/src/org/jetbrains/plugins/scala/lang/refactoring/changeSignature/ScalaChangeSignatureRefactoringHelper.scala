@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.usageView.UsageInfo
 
 import java.util
 
 class ScalaChangeSignatureRefactoringHelper extends RefactoringHelper[Unit] {
-  override def prepareOperation(usages: Array[UsageInfo]): Unit = {
+  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[PsiElement]): Unit = {
     def priority(usageInfo: UsageInfo) = usageInfo match {
       case _: ParameterUsageInfo => 0
       case _: MethodUsageInfo => 1

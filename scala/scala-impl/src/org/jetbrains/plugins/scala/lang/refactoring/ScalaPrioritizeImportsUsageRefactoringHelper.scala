@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
@@ -15,7 +16,7 @@ final class ScalaPrioritizeImportsUsageRefactoringHelper extends RefactoringHelp
    * Move usages inside imports to the beginning of the usages.<br>
    * Scala refactoring code (i.e. "Move" refactoring) relies on the fact that imports are processed first.
    */
-  override def prepareOperation(usages: Array[UsageInfo]): Unit = {
+  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[PsiElement]): Unit = {
     moveImportsToStart(usages)
     ()
   }

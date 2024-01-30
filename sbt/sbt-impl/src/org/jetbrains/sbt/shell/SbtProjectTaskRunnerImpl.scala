@@ -26,6 +26,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
+import scala.annotation.nowarn
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -138,8 +139,9 @@ final class SbtProjectTaskRunnerImpl
 
 }
 
+// TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
 private class CommandTask(project: Project, command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
-  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
 
   import CommandTask._
 
@@ -252,4 +254,3 @@ object CommandTask {
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
 }
-

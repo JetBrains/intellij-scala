@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage.InvalidateIndex
 import org.jetbrains.plugins.scala.compiler.references.task
 
+import scala.annotation.nowarn
+
 private[references] class CompilerReferenceIndexerScheduler(
   project:              Project,
   expectedIndexVersion: Int
@@ -17,7 +19,8 @@ private[references] class CompilerReferenceIndexerScheduler(
   import CompilerReferenceIndexerScheduler._
 
   private[this] val indexer  = new CompilerReferenceIndexer(project, expectedIndexVersion)
-  private[this] val jobQueue = new BackgroundTaskQueue(project, CompilerIntegrationBundle.message("bytecode.indices.progress.title"))
+  // TODO: BackgroundTaskQueue is deprecated. See IJPL-384
+  private[this] val jobQueue = new BackgroundTaskQueue(project, CompilerIntegrationBundle.message("bytecode.indices.progress.title")): @nowarn("cat=deprecation")
 
   override def schedule(job: IndexingStage): Unit = synchronized {
     job match {
