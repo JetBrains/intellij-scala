@@ -143,7 +143,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
       val isModifierKeyDown = if (SystemInfo.isMac) e.isMetaDown else e.isControlDown
       if (isModifierKeyDown) {
         e.consume()
-        val modifierKeyMask = if (SystemInfo.isMac) InputEvent.META_DOWN_MASK else InputEvent.CTRL_DOWN_MASK
+        val modifierKeyMask = if (SystemInfo.isMac) InputEvent.META_DOWN_MASK | InputEvent.BUTTON3_DOWN_MASK else InputEvent.CTRL_DOWN_MASK
         val event = new MouseWheelEvent(e.getSource.asInstanceOf[Component],
           e.getID, e.getWhen, e.getModifiersEx & ~modifierKeyMask,
           e.getX, e.getY, e.getXOnScreen, e.getYOnScreen, e.getClickCount, e.isPopupTrigger,
