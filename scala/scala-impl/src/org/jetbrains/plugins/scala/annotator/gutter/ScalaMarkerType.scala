@@ -177,9 +177,10 @@ object ScalaMarkerType {
                   }
 
                 val renderer = newCellRenderer
-                util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
+                val overridesArray = overrides.toArray
+                util.Arrays.sort(overridesArray, renderer.getComparator)
                 //noinspection ApiStatus,UnstableApiUsage
-                new PsiTargetNavigator(overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray)
+                new PsiTargetNavigator(overridesArray)
                   .tabTitle(findUsagesTitle)
                   .presentationProvider(renderer.computePresentation)
                   .navigate(event, title, member.getProject)
