@@ -114,9 +114,10 @@ class ScalaFileImpl(
 
       val prefixText = this.children.findByType[ScPackaging]
               .map(it => getText.substring(0, it.getTextRange.getStartOffset))
-              .filter(!_.isEmpty)
+              .filter(_.nonEmpty)
 
       try {
+        documentManager.doPostponedOperationsAndUnblockDocument(document)
         stripPackagings(document)
         if (vector.nonEmpty) {
           val packagingsText = {
