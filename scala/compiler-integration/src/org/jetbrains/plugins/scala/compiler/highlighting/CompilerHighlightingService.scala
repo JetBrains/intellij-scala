@@ -288,6 +288,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
     val task = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = {
+        if (project.isDisposed) return
         sessionId = CompilationId.generate().toString
         CompilerLock.get(project).lock(sessionId)
         progressIndicator.set(indicator)
@@ -314,7 +315,9 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         // byte communication stream.
     } finally {
       progressIndicator.set(null)
-      CompilerLock.get(project).unlock(sessionId)
+      if (!project.isDisposed) {
+        CompilerLock.get(project).unlock(sessionId)
+      }
     }
   }
 
