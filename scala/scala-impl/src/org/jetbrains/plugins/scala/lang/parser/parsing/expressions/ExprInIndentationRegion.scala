@@ -43,6 +43,12 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
     if (!builder.isIndent(indentationForExprBlock)) {
       if (builder.isOutdentHere) {
+        // hack! we have an outdent here, but at least *try* to parse an expression
+        // Let's not do that if the next token is `end` as we can expect that it is not part of the current expression
+        if (builder.getTokenText == "end") {
+          return false
+        }
+
         val errorMarker = builder.mark()
         errorMarker.error(ScalaBundle.message("line.is.indented.too.far.to.the.left"))
         val parsed = exprParser()
@@ -184,7 +190,7 @@ object PostfixExprInIndentationRegion extends ExprInIndentationRegion {
 
 object ConstrExprInIndentationRegion extends ExprInIndentationRegion {
   override protected def exprParser: ParsingRule = ConstBlockExpr
-  override protected def exprPartParser: ParsingRule = new ParsingRule {
+  override protected val exprPartParser: ParsingRule = new ParsingRule {
     override def parse(implicit builder: ScalaPsiBuilder): Boolean =
       ConstBlockExpr.parseFirstConstrBlockExpr()
   }
