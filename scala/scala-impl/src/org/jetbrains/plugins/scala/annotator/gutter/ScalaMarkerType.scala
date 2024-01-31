@@ -35,6 +35,21 @@ object ScalaMarkerType {
     case _                         => None
   }
 
+  private[this] def navigate[T <: PsiElement](
+    event: MouseEvent,
+    targets: Array[T],
+    project: Project,
+    @Nls title: String,
+    @Nls tabTitle: String,
+    renderer: PsiElementListCellRenderer[T]
+  ): Unit = {
+    //noinspection ApiStatus,UnstableApiUsage
+    new PsiTargetNavigator(targets)
+      .tabTitle(tabTitle)
+      .presentationProvider(renderer.computePresentation)
+      .navigate(event, title, project)
+  }
+
   private[this] def navigateToSuperMember[T <: NavigatablePsiElement](
     event:                MouseEvent,
     members:              Array[T],
@@ -43,11 +58,7 @@ object ScalaMarkerType {
     @Nls findUsagesTitle: String,
     renderer:             PsiElementListCellRenderer[T] = newCellRenderer.asInstanceOf[PsiElementListCellRenderer[T]]
   ): Unit = {
-    //noinspection ApiStatus,UnstableApiUsage
-    new PsiTargetNavigator(members)
-      .tabTitle(findUsagesTitle)
-      .presentationProvider(renderer.computePresentation)
-      .navigate(event, title, project)
+    navigate(event, members, project, title, findUsagesTitle, renderer)
   }
 
   private[this] def navigateToSuperType[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], project: Project, name: String): Unit = {
@@ -177,13 +188,9 @@ object ScalaMarkerType {
                   }
 
                 val renderer = newCellRenderer
-                val overridesArray = overrides.toArray
+                val overridesArray = overrides.toArray[PsiElement]
                 util.Arrays.sort(overridesArray, renderer.getComparator)
-                //noinspection ApiStatus,UnstableApiUsage
-                new PsiTargetNavigator(overridesArray)
-                  .tabTitle(findUsagesTitle)
-                  .presentationProvider(renderer.computePresentation)
-                  .navigate(event, title, member.getProject)
+                navigate(event, overridesArray, project, title, findUsagesTitle, renderer)
               }
             }
           }
@@ -231,11 +238,7 @@ object ScalaMarkerType {
 
             val renderer = new PsiClassListCellRenderer
             util.Arrays.sort(inheritors, renderer.getComparator)
-            //noinspection ApiStatus,UnstableApiUsage
-            new PsiTargetNavigator(inheritors)
-              .tabTitle(findUsagesTitle)
-              .presentationProvider(renderer.computePresentation)
-              .navigate(event, title, aClass.getProject)
+            navigate(event, inheritors, aClass.getProject, title, findUsagesTitle, renderer)
           }
     }
   )
