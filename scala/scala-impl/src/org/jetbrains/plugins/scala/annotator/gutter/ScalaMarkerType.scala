@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
-import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
+import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
+import com.intellij.codeInsight.navigation.PsiTargetNavigator
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import java.awt.event.MouseEvent
 import java.util
 import java.util.Collections.emptyList
-import javax.swing.{Icon, JComponent, ListCellRenderer}
+import javax.swing.{Icon, JComponent}
 import scala.jdk.CollectionConverters._
 
 object ScalaMarkerType {
@@ -37,30 +38,38 @@ object ScalaMarkerType {
   private[this] def navigateToSuperMember[T <: NavigatablePsiElement](
     event:                MouseEvent,
     members:              Array[T],
+    project:              Project,
     @Nls title:           String,
     @Nls findUsagesTitle: String,
-    renderer:             ListCellRenderer[T] = newCellRenderer.asInstanceOf[ListCellRenderer[T]]
-  ): Unit = PsiElementListNavigator.openTargets(event, members, title, findUsagesTitle, renderer)
-
-  private[this] def navigateToSuperType[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], name: String): Unit = {
-    val title           = ScalaBundle.message("navigation.title.super.types", name)
-    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", name)
-    navigateToSuperMember(event, members, title, findUsagesTitle)
+    renderer:             PsiElementListCellRenderer[T] = newCellRenderer.asInstanceOf[PsiElementListCellRenderer[T]]
+  ): Unit = {
+    //noinspection ApiStatus,UnstableApiUsage
+    new PsiTargetNavigator(members)
+      .tabTitle(findUsagesTitle)
+      .presentationProvider(renderer.computePresentation)
+      .navigate(event, title, project)
   }
 
-  private[this] def navigateToSuperMember[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], name: String): Unit = {
+  private[this] def navigateToSuperType[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], project: Project, name: String): Unit = {
+    val title           = ScalaBundle.message("navigation.title.super.types", name)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", name)
+    navigateToSuperMember(event, members, project, title, findUsagesTitle)
+  }
+
+  private[this] def navigateToSuperMember[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], project: Project, name: String): Unit = {
     val title           = ScalaBundle.message("navigation.title.super.members", name)
     val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.members", name)
-    navigateToSuperMember(event, members, title, findUsagesTitle)
+    navigateToSuperMember(event, members, project, title, findUsagesTitle)
   }
 
   private[this] def navigateToSuperMethod(
     event:       MouseEvent,
     method:      PsiMethod,
+    project:     Project,
     includeSelf: Boolean
   ): Unit = {
     val superMethods = superMethodsOf(method, includeSelf)
-    navigateToSuperMember(event, superMethods, method.name)
+    navigateToSuperMember(event, superMethods, project, method.name)
   }
 
   private def superMethodsOf(method: PsiMethod, includeSelf: Boolean): Array[NavigatablePsiElement] = {
@@ -118,20 +127,20 @@ object ScalaMarkerType {
     },
     (event, element) =>
       namedParent(element).collect {
-        case method: ScFunction => navigateToSuperMethod(event, method, includeSelf = false)
+        case method: ScFunction => navigateToSuperMethod(event, method, method.getProject, includeSelf = false)
         case param: ScClassParameter =>
           val signatures      = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
           val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
-          navigateToSuperMember(event, superMembers, param.name)
+          navigateToSuperMember(event, superMembers, param.getProject, param.name)
         case v: ScValueOrVariable =>
           val bindings        = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures      = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
-          navigateToSuperMember(event, superMembers, element.getText)
+          navigateToSuperMember(event, superMembers, v.getProject, element.getText)
         case ta: ScTypeAlias =>
           val superElements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val navigatables = superElements.filterByType[NavigatablePsiElement].toArray
-          navigateToSuperType(event, navigatables, ta.name)
+          navigateToSuperType(event, navigatables, ta.getProject, ta.name)
     }
   )
 
@@ -169,13 +178,11 @@ object ScalaMarkerType {
 
                 val renderer = newCellRenderer
                 util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
-                PsiElementListNavigator.openTargets(
-                  event,
-                  overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
-                  title,
-                  findUsagesTitle,
-                  renderer.asInstanceOf[ListCellRenderer[NavigatablePsiElement]]
-                )
+                //noinspection ApiStatus,UnstableApiUsage
+                new PsiTargetNavigator(overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray)
+                  .tabTitle(findUsagesTitle)
+                  .presentationProvider(renderer.computePresentation)
+                  .navigate(event, title, member.getProject)
               }
             }
           }
@@ -223,13 +230,11 @@ object ScalaMarkerType {
 
             val renderer = new PsiClassListCellRenderer
             util.Arrays.sort(inheritors, renderer.getComparator)
-            PsiElementListNavigator.openTargets(
-              event,
-              inheritors,
-              title,
-              findUsagesTitle,
-              renderer.asInstanceOf[ListCellRenderer[PsiClass]]
-            )
+            //noinspection ApiStatus,UnstableApiUsage
+            new PsiTargetNavigator(inheritors)
+              .tabTitle(findUsagesTitle)
+              .presentationProvider(renderer.computePresentation)
+              .navigate(event, title, aClass.getProject)
           }
     }
   )
@@ -243,7 +248,7 @@ object ScalaMarkerType {
         false,
         IdeActions.ACTION_GOTO_SUPER)
     }
-    ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true)))
+    ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, aClass.getProject, includeSelf = true)))
   }
 
   private val maxNumberOfElements = 5
