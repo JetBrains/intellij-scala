@@ -8,7 +8,7 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  override protected def testDataRoot: String = super.testDataRoot + "/scala3/"
+  override protected def getTestDataRoot: String = super.getTestDataRoot + "/scala3/"
 
   def testKeepImportsWhenCBHIsEnabled(): Unit = {
     runWithErrorsFromCompiler(getProject) {

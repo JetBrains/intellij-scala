@@ -1,64 +1,19 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaDirectoryService, JavaPsiFacade, PsiClass, PsiDirectory, PsiDocumentManager, PsiPackage}
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.{TestUtils, WriteCommandActionEx}
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.jetbrains.plugins.scala.util.WriteCommandActionEx
+import org.junit.Assert.{assertNotNull, assertTrue}
 
-import java.io.File
-import java.nio.file.Path
-import java.util
-
-abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
-
-  protected def testDataRoot = TestUtils.getTestDataPath + "/refactoring/move/"
-
-  private def root: String = testDataRoot + getTestName(true)
-
-  private def findAndRefreshVFile(path: String) = {
-    val vFile = LocalFileSystem.getInstance.findFileByPath(path.replace(File.separatorChar, '/'))
-    VfsUtil.markDirtyAndRefresh(/*async = */false, /*recursive =*/ true, /*reloadChildren =*/true, vFile)
-    vFile
-  }
-
-  private var rootDirBefore: VirtualFile = _
-  private var rootDirAfter: VirtualFile = _
-
-  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    super.afterSetUpProject(project, module)
-    val rootBefore = root + "/before"
-    val rootAfter  = root + "/after"
-    findAndRefreshVFile(rootBefore)
-
-    //remove existing content entries (default source folders),
-    //otherwise default package (empty one, "") will be detected in this content entry during move refactoring
-    inWriteAction {
-      ModuleRootModificationUtil.modifyModel(module, model => {
-        val contentEntries = model.getContentEntries
-        contentEntries.foreach(model.removeContentEntry)
-        true
-      })
-    }
-
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), true)
-    rootDirAfter = findAndRefreshVFile(rootAfter)
-  }
+abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
 
   protected def doTest(
     classNames: Seq[String],
@@ -72,17 +27,17 @@ abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCa
     try {
       performAction(classNames, newPackageName, mode)
     } finally {
-      PsiTestUtil.removeSourceRoot(getModule, rootDirBefore)
+      PsiTestUtil.removeSourceRoot(getModule, getRootBefore)
     }
     settings.MOVE_COMPANION = moveCompanionOld
 
     PostprocessReformattingAspect.getInstance(getProject).doPostponedFormatting()
-    PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
+    PlatformTestUtil.assertDirectoriesEqual(getRootAfter, getRootBefore)
   } catch {
     case ex: Throwable =>
       //print folders to conveniently navigate to them from failed test console
-      System.err.println(s"Folder before path: $rootDirBefore")
-      System.err.println(s"Folder after path: $rootDirAfter")
+      System.err.println(s"Folder before path: $getRootBefore")
+      System.err.println(s"Folder after path: $getRootAfter")
       throw ex
   }
 

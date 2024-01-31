@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 
 final class ScalaMoveClassTest_Scala213 extends ScalaMoveClassTestBase {
 
-  override protected def testDataRoot: String = super.testDataRoot + "/scala213/"
+  override protected def getTestDataRoot: String = super.getTestDataRoot + "/scala213/"
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_13

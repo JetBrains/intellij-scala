@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 ))
 final class ScalaMoveClassTest_Scala2Common extends ScalaMoveClassTestBase {
 
-  override protected def testDataRoot: String = super.testDataRoot + "/scala2_common/"
+  override protected def getTestDataRoot: String = super.getTestDataRoot + "/scala2_common/"
 
   def testPackageObject(): Unit = {
     doTest(Seq("com.`package`"), "org")
