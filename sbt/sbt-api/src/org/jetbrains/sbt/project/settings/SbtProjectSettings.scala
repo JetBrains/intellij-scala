@@ -71,6 +71,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
   // org.jetbrains.jps.incremental.scala.model.impl.JpsSbtDependenciesEnumerationHandler.shouldProcessDependenciesRecursively
   @BeanProperty
   var insertProjectTransitiveDependencies: Boolean = true
+  @BeanProperty
+  var useSeparateCompilerOutputPaths: Boolean = false
 
   //SBT shell settings
   @BeanProperty var useSbtShellForImport: Boolean = false
@@ -107,6 +109,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.preferScala2 = preferScala2
     result.groupProjectsFromSameBuild = groupProjectsFromSameBuild
     result.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
+    result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     result
   }
 }

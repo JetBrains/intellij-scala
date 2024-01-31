@@ -1,9 +1,11 @@
 package org.jetbrains.sbt
 package project.settings
 
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.PaintAwarePanel
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, PaintAwarePanel}
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
@@ -13,6 +15,7 @@ import com.intellij.util.messages.Topic
 import com.intellij.util.ui.{GridBag, JBUI}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.project.external.SdkUtils
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.awt.{FlowLayout, GridBagConstraints}
 import javax.swing._
@@ -75,7 +78,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
       extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
-      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies
+      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
+      extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -97,6 +101,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
+    extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
   }
 
   override def updateInitialExtraSettings(): Unit = {
@@ -114,18 +119,28 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.groupProjectsFromSameBuild = extraControls.groupProjectsFromSameBuildCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
 
+    val shouldReloadProject =
+      settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
+    settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
+
     val useSbtShellForBuildSettingChanged =
       settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected
+
+    val project = getProject
 
     if (useSbtShellForBuildSettingChanged) {
       val newSetting = extraControls.useSbtShellForBuildCheckBox.isSelected
       settings.useSbtShellForBuild = newSetting
-      val project = getProject
 
       if (project != null) {
         val newMode = if (newSetting) CompilerMode.SBT else CompilerMode.JPS
         project.getMessageBus.syncPublisher(SbtProjectSettingsControl.CompilerModeChangeTopic).onCompilerModeChange(newMode)
       }
+    }
+
+    if (shouldReloadProject) {
+      val builder = new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ExternalSystemUtil.refreshProjects(builder)
     }
   }
 

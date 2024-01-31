@@ -40,7 +40,8 @@ class MaxJvmHeapParameterTest extends TestCase {
       groupProjectsFromSameBuild = true,
       userSetEnvironment = Map.empty,
       passParentEnvironment = true,
-      insertProjectTransitiveDependencies = true
+      insertProjectTransitiveDependencies = true,
+      useSeparateCompilerOutputPaths = false
     )
 
     SbtProcessManager.buildVMParameters(settings, workingDir, List.empty)

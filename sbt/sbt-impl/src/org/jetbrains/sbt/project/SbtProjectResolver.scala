@@ -315,7 +315,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val libraryNodes = Seq.empty[LibraryNode]
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, projects, None))
-    val projectToModule = createModules(buildProjectsGroup, libraryNodes, moduleFilesDirectory, insertProjectTransitiveDependencies = false)
+    val projectToModule = createModules(
+      buildProjectsGroup,
+      libraryNodes,
+      moduleFilesDirectory,
+      insertProjectTransitiveDependencies = false,
+      useSeparateCompilerOutputPaths = false
+    )
 
     val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath, projectTransitiveDependenciesUsed = false)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
@@ -366,7 +372,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] =
       createBuildProjectGroups(projectRootFile.toURI, projects, settings)
-    val projectToModule = createModules(buildProjectsGroups, libraryNodes, moduleFilesDirectory, settings.insertProjectTransitiveDependencies)
+    val projectToModule = createModules(
+      buildProjectsGroups,
+      libraryNodes,
+      moduleFilesDirectory,
+      settings.insertProjectTransitiveDependencies,
+      settings.useSeparateCompilerOutputPaths
+    )
 
     //Sort modules by id to make project imports more reproducible
     //In particular this will easy testing of `org.jetbrains.sbt.project.SbtProjectImportingTest.testSCL13600`
@@ -519,7 +531,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectsGrouped: Seq[BuildProjectsGroup],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean
+    insertProjectTransitiveDependencies: Boolean,
+    useSeparateCompilerOutputPaths: Boolean
   ): Map[ProjectData,ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
 
@@ -539,7 +552,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         if (nameIsUnique) projectName
         else project.id
 
-      val moduleNode = createModule(project, moduleFilesDirectory, moduleName, moduleInternalNameGenerator)
+      val moduleNode = createModule(project, moduleFilesDirectory, moduleName, moduleInternalNameGenerator, useSeparateCompilerOutputPaths)
 
       val moduleGroup: Seq[String] = {
         val groupNameInsideBuild = if (projectsWithSameNameInBuild.size > 1) Seq(projectName) else Nil
@@ -715,7 +728,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     project: sbtStructure.ProjectData,
     moduleFilesDirectory: File,
     moduleName: String,
-    moduleInternalNameRegistry: ModuleUniqueInternalNameGenerator
+    moduleInternalNameRegistry: ModuleUniqueInternalNameGenerator,
+    useSeparateCompilerOutputPaths: Boolean
   ): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
@@ -733,15 +747,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     //Using `setInternalName` because there is no way to pass the internal name via constructor
     moduleInternalNameOpt.foreach(result.setInternalName)
 
-    def setCompileOutputPath(scope: String, sourceType: ExternalSystemSourceType): Unit = {
-      val configuration = project.configurations.find(_.id == scope)
-      configuration.foreach { configuration =>
-        result.setCompileOutputPath(sourceType, configuration.classes.path)
-      }
+    def sbtOutputPath(scope: String): Option[String] =
+      project.configurations
+        .find(_.id == scope)
+        .map(_.classes.path)
+
+    def withIdeaPrefix(path: String): String = {
+      val p = Path.of(path)
+      val name = p.getFileName
+      p.getParent.resolve(s"idea-$name").toString
     }
 
-    setCompileOutputPath(CompileScope, ExternalSystemSourceType.SOURCE)
-    setCompileOutputPath(TestScope, ExternalSystemSourceType.TEST)
+    if (useSeparateCompilerOutputPaths) {
+      sbtOutputPath(CompileScope).map(withIdeaPrefix).foreach(result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, _))
+      sbtOutputPath(TestScope).map(withIdeaPrefix).foreach(result.setCompileOutputPath(ExternalSystemSourceType.TEST, _))
+    } else {
+      sbtOutputPath(CompileScope).foreach(result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, _))
+      sbtOutputPath(TestScope).foreach(result.setCompileOutputPath(ExternalSystemSourceType.TEST, _))
+    }
 
     result
   }
