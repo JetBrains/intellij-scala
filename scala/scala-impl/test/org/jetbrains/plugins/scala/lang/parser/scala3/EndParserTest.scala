@@ -928,5 +928,49 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |""".stripMargin
   )
 
+  def test_dont_parse_missing_expr_before_end(): Unit = checkTree(
+    """
+      |object Test:
+      |  def foo =
+      |end foo
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: foo
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n')
+      |        End: foo
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   // todo: add tests for given
 }
