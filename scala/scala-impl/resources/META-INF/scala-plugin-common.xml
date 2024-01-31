@@ -349,7 +349,7 @@
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher" order="last"/>
         <allOverridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawAllOverridingSearcher" order="last"/>
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
-        <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper"/>
+        <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper" order="first"/> <!-- TODO: should be before Java's JavaMoveDirectoryWithClassesHelper that doesn't have an id yet -->
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.method.ScalaInlineMethodHandler" id="scalaInlineMethodHandler" order="first"/> <!-- TODO: should be before Java's InlineToAnonymousClassHandler that doesn't have an id yet -->
