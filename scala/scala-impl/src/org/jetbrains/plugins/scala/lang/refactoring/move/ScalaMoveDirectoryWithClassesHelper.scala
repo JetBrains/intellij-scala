@@ -61,13 +61,16 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     packageNames.forEach { packageName =>
       val aPackage: PsiPackage = psiFacade.findPackage(packageName)
       if (aPackage != null) {
-        val remainsNothing: Boolean = aPackage.getDirectories.exists(!isUnderRefactoring(_, directoriesToMove))
+        val remainsNothing: Boolean = aPackage.getDirectories.forall(isUnderRefactoring(_, directoriesToMove))
 
         if (remainsNothing) {
           ReferencesSearch.search(aPackage, GlobalSearchScope.projectScope(project)).findAll().forEach { reference =>
             reference.getElement.parentOfType(classOf[ScImportStmt])
-              .map(ImportStatementToRemoveUsage)
-              .foreach(usages.add)
+              .foreach {
+                case stmt if !isUnderRefactoring(stmt, directoriesToMove) =>
+                  usages.add(ImportStatementToRemoveUsage(stmt))
+                case _ =>
+              }
           }
         }
       }
@@ -132,8 +135,8 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     case _ =>
   }
 
-  private def isUnderRefactoring(packageDirectory: PsiDirectory, directoriesToMove: Array[PsiDirectory]): Boolean = {
-    directoriesToMove.exists(PsiTreeUtil.isAncestor(_, packageDirectory, true))
+  private def isUnderRefactoring(element: PsiElement, directoriesToMove: Array[PsiDirectory]): Boolean = {
+    directoriesToMove.exists(PsiTreeUtil.isAncestor(_, element, true))
   }
 
   private def packageName(sf: ScalaFile) = {
