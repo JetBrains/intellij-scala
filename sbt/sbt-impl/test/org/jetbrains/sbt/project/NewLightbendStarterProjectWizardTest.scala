@@ -23,7 +23,7 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
   ): Unit = {
     // The smallest Lightbend template with few dependencies
     val templateName = "Hello, Scala!"
-    val scalaVersion = ScalaVersion.fromString("2.12.10").get
+    val scalaVersion = ScalaVersion.fromString("2.13.12").get
 
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
@@ -38,10 +38,11 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
       }
 
       lazy val scalaTestLibraries = Seq(
-        "sbt: org.scala-lang.modules:scala-xml_2.12:1.2.0:jar",
-        "sbt: org.scala-lang:scala-reflect:2.12.10:jar",
-        "sbt: org.scalactic:scalactic_2.12:3.0.8:jar",
-        "sbt: org.scalatest:scalatest_2.12:3.0.8:jar",
+        "sbt: junit:junit:4.13.2:jar",
+        "sbt: org.hamcrest:hamcrest-core:1.3:jar",
+        "sbt: org.scala-sbt:test-interface:1.0:jar",
+        "sbt: org.scalameta:junit-interface:0.7.29:jar",
+        "sbt: org.scalameta:munit_2.13:0.7.29:jar"
       ).map(new library(_))
 
       // NOTE: actually there are much more libraries in the dependencies but we health-check just a single one
