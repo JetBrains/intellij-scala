@@ -10,4 +10,5 @@ import org.junit.runner.RunWith
 ))
 class ScalaMoveDirectoryWithClassesTest_Scala2 extends ScalaMoveDirectoryWithClassesTestBase {
   def testMovePackage(): Unit = doMovePackageTest()
+  def testMovePackageRemoveUnresolvedImports(): Unit = doMovePackageTest()
 }
