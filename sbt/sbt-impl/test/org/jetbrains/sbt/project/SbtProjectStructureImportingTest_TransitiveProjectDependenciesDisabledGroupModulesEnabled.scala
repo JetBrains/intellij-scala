@@ -7,9 +7,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.PsiManager
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
@@ -18,10 +17,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -30,7 +26,7 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 import java.nio.file.Path
 import scala.annotation.nowarn
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 // IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
 // SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
@@ -715,21 +711,21 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   )
 
   def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
-    new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
+    new project("sameIdsAndNamesWithDifferentCase") {
       modules := Seq(
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
-        new module ("U_MY_MODULE_ID~2", Array("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase", "same module name")),
-        new module ("U_My_Module_Id~1", Array("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase","same module name")),
-        new module ("U_my_module_id", Array("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase","same module name")),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.X_MY_MODULE_ID~2"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.X_My_Module_Id~1"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.X_my_module_id"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Y_MY_MODULE_Name~2"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Y_My_Module_Name~1"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Y_my_module_name"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Z_MY_MODULE_Name~2"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Z_My_Module_Name~1"),
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase.Z_my_module_name"),
+        new module ("sameIdsAndNamesWithDifferentCase"),
+        new module ("U_MY_MODULE_ID~2", Array("sameIdsAndNamesWithDifferentCase", "same module name")),
+        new module ("U_My_Module_Id~1", Array("sameIdsAndNamesWithDifferentCase","same module name")),
+        new module ("U_my_module_id", Array("sameIdsAndNamesWithDifferentCase","same module name")),
+        new module ("sameIdsAndNamesWithDifferentCase.X_MY_MODULE_ID~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.X_My_Module_Id~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.X_my_module_id"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_MY_MODULE_Name~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_My_Module_Name~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_my_module_name"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_MY_MODULE_Name~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_My_Module_Name~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_my_module_name"),
       )
     }
   )

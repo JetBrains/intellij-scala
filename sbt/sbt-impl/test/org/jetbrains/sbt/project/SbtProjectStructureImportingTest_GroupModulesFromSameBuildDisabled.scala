@@ -260,9 +260,9 @@ final class SbtProjectStructureImportingTest_GroupModulesFromSameBuildDisabled e
   )
 
   def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
-    new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
+    new project("sameIdsAndNamesWithDifferentCase") {
       modules := Seq(
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
+        new module ("sameIdsAndNamesWithDifferentCase"),
         new module ("U_MY_MODULE_ID~2", Array("same module name")),
         new module ("U_My_Module_Id~1", Array("same module name")),
         new module ("U_my_module_id", Array("same module name")),
