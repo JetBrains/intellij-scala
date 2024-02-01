@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.icons.ExpUiIcons
+import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
-import com.intellij.openapi.actionSystem.impl.ActionButtonWithText
+import com.intellij.openapi.actionSystem.impl.{ActionButtonWithText, ActionToolbarImpl}
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys, DefaultActionGroup, Presentation, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.ColorKey
@@ -9,7 +11,7 @@ import com.intellij.openapi.editor.markup.InspectionWidgetActionProvider
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.{IconLoader, SystemInfo}
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
@@ -68,6 +70,18 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
           })
         }
 
+        override def updateToolTipText(): Unit = {
+          HelpTooltip.dispose(this)
+          new HelpTooltip()
+            .setTitle(
+              if (ScalaHintsSettings.xRayModePinned) ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.unpin")
+              else ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.pin"))
+            .setLink(ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"), () =>
+              ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
+                (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable]))
+            .installOn(this)
+        }
+
         override def iconTextSpace: Int = JBUI.scale(2)
 
         override def getInsets: Insets = JBUI.insets(2)
@@ -76,14 +90,17 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       }
 
       override def update(e: AnActionEvent): Unit = {
-        e.getPresentation.setDescription((ScalaCodeInsightBundle.message("xray.mode.widget.description")))
+        e.getPresentation.setIcon(
+          if (ScalaHintsSettings.xRayModePinned) ExpUiIcons.General.Pin
+          else IconLoader.getDisabledIcon(ExpUiIcons.General.Pin))
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
-        ShowSettingsUtil.getInstance.showSettingsDialog(
-          e.getProject,
-          classOf[ScalaProjectSettingsConfigurable],
-          (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
+        if (ScalaHintsSettings.xRayModePinned) {
+          ScalaEditorFactoryListener.setXRayModeEnabled(false, e.getData(CommonDataKeys.EDITOR))
+        }
+        ScalaHintsSettings.xRayModePinned = !ScalaHintsSettings.xRayModePinned
+        ActionToolbarImpl.updateAllToolbarsImmediately(false) // Update Pin/Unpin tooltip
       }
     }
 

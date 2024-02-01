@@ -6,10 +6,12 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable.{getInstance => EditorSettingsExternalizable}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener._
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
@@ -153,13 +155,21 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
   }
 
-  private var onTime: Long = _
-
   private def xRayMode: Boolean = ScalaHintsSettings.xRayMode
 
   private def xRayMode_=(enabled: Boolean): Unit = {
     if (ScalaHintsSettings.xRayMode == enabled) return
 
+    if (ScalaHintsSettings.xRayModePinned) return
+
+    setXRayModeEnabled(enabled, keyPressEvent.getSource.asInstanceOf[EditorComponentImpl].getEditor)
+  }
+}
+
+private object ScalaEditorFactoryListener {
+  private var onTime: Long = _
+
+  def setXRayModeEnabled(enabled: Boolean, editor: Editor): Unit = {
     ScalaHintsSettings.xRayMode = enabled
 
     if (enabled) {
@@ -192,19 +202,11 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
         ImplicitHints.enabled = showImplicitHintsSetting
       }
 
-      keyPressEvent.getSource match {
-        case component: EditorComponentImpl =>
-          ScalaActionUsagesCollector.logXRayMode(component.getEditor.getProject, System.currentTimeMillis() - onTime)
-        case _ =>
-      }
+      ScalaActionUsagesCollector.logXRayMode(editor.getProject, System.currentTimeMillis() - onTime)
     }
 
     if (ScalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS || ScalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS) {
-      keyPressEvent.getSource match {
-        case component: EditorComponentImpl =>
-          ParameterHintsPassFactory.forceHintsUpdateOnNextPass(component.getEditor)
-        case _ =>
-      }
+      ParameterHintsPassFactory.forceHintsUpdateOnNextPass(editor)
     }
 
     ImplicitHints.updateInAllEditors()

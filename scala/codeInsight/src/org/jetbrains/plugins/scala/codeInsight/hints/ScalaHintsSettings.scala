@@ -22,6 +22,8 @@ trait ScalaHintsSettings {
 object ScalaHintsSettings {
   var xRayMode = false
 
+  var xRayModePinned = false
+
   def xRayModeShortcut: String = {
     val key = if (SystemInfo.isMac) "Cmd" else "Ctrl"
     if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD) s"double-press and hold $key"
