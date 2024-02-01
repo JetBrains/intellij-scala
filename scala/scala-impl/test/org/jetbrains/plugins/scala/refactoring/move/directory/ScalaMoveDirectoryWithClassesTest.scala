@@ -20,11 +20,9 @@ class ScalaMoveDirectoryWithClassesTest extends ScalaMoveDirectoryWithClassesTes
 
   def testRenamePackageImportsToNestedClasses(): Unit = doRenamePackageTest("pack1.pack2", "pack0.pack2")
 
-  // TODO(SCL-21988): imports are not retargeted
-  def _testRenamePackageWithPackageObject(): Unit = doRenamePackageTest("pack1.pack2", "pack0.pack1.pack2")
+  def testRenamePackageWithPackageObject(): Unit = doRenamePackageTest("pack1.pack2", "pack0.pack1.pack2")
 
-  // TODO(SCL-21988): imports are not retargeted
-  def _testMovePackageWithPackageObject(): Unit = doMovePackageTest("pack1.pack2", "pack3")
+  def testMovePackageWithPackageObject(): Unit = doMovePackageTest("pack1.pack2", "pack3")
 
   def testMultipleClassesInOneFile(): Unit = {
     var fileWasDeleted = false

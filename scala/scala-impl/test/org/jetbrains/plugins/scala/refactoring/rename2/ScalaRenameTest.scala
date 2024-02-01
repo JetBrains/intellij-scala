@@ -475,4 +475,43 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |""".stripMargin
   )
 
+  def testPackageObject(): Unit = doRenameTest("newBar",
+    s"""
+       |package foo {
+       |  package bar {
+       |    class C
+       |  }
+       |
+       |  package object b${CARET}ar {
+       |    def f(): Int = 0
+       |  }
+       |}
+       |
+       |package baz {
+       |  object Usage {
+       |    import foo.bar.f
+       |    println(f())
+       |  }
+       |}
+       |""".stripMargin,
+    """
+      |package foo {
+      |  package newBar {
+      |    class C
+      |  }
+      |
+      |  package object newBar {
+      |    def f(): Int = 0
+      |  }
+      |}
+      |
+      |package baz {
+      |  object Usage {
+      |    import foo.newBar.f
+      |    println(f())
+      |  }
+      |}
+      """.stripMargin
+  )
+
 }

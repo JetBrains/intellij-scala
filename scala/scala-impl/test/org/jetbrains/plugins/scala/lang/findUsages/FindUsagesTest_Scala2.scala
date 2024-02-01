@@ -280,4 +280,25 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |}
        |""".stripMargin
   )
+
+  def testFindUsagesOnPackageObject(): Unit = doTest(
+    s"""
+       |package foo {
+       |  package ${start}bar$end {
+       |    class C
+       |  }
+       |
+       |  package object b${CARET}ar {
+       |    def f(): Int = 0
+       |  }
+       |}
+       |
+       |package baz {
+       |  object Usage {
+       |    import foo.${start}bar$end.f
+       |    println(f())
+       |  }
+       |}
+       |""".stripMargin
+  )
 }

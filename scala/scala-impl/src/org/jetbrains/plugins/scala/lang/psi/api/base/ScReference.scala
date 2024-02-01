@@ -118,6 +118,15 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             }
           case _ =>
         }
+
+        (td, resolved) match {
+          case (obj: ScObject, pkg: PsiPackage)
+            if obj.isPackageObject
+              && obj.getManager == pkg.getManager
+              && obj.qualifiedName == pkg.getQualifiedName =>
+            return true
+          case _ =>
+        }
       case c: PsiClass =>
         resolved match {
           case Constructor(constr) =>
