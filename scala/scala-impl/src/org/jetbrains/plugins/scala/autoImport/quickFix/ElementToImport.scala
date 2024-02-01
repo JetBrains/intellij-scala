@@ -86,6 +86,9 @@ final case class MemberToImport(override val element: PsiNamedElement,
 object MemberToImport {
   def apply(element: PsiNamedElement, owner: PsiClass): MemberToImport =
     MemberToImport(element, GlobalMemberOwner.Class(owner), owner.qualifiedName)
+
+  def apply(element: PsiNamedElement, owner: ScPackaging): MemberToImport =
+    MemberToImport(element, GlobalMemberOwner.Packaging(owner), owner.fqn)
 }
 
 final case class PrefixPackageToImport(override val element: ScPackage) extends ElementToImport {

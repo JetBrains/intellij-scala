@@ -144,6 +144,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         if (!ScalaNamesUtil.equivalent(refName, elem.name))
           throw new IncorrectOperationException(s"named element $elem does not match expected name $refName")
         elem.nameContext match {
+          case TopLevelMember(_, _) =>
+            ScalaNamesUtil.qualifiedName(elem) match {
+              case Some(qualName) =>
+                return tail(qualName) {
+                  ScImportsHolder(this).addImportForPsiNamedElement(elem, this, None)
+                  this
+                }
+              case _ =>
+            }
           case memb: PsiMember =>
             val cClass = containingClass.getOrElse(memb.containingClass)
             if (cClass != null && cClass.qualifiedName != null) {

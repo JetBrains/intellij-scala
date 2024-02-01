@@ -1210,6 +1210,15 @@ package object extensions {
     }
   }
 
+  implicit final class ScalaFileExt(private val file: ScalaFile) extends AnyVal {
+    /** @see [[PsiClassExt.namedElements]] */
+    def namedElements: Seq[PsiNamedElement] = file.members.flatMap {
+      case holder: ScDeclaredElementsHolder => holder.declaredElements
+      case named: ScNamedElement => Seq(named)
+      case _ => Seq.empty
+    }
+  }
+
 //  implicit class NavigationItemExt(private val item: NavigationItem) extends AnyVal {
 //    def name: String = item match {
 //      case scItem: ScNamedElement => scItem.name

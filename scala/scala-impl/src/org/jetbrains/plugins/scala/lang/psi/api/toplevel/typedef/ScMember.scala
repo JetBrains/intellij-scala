@@ -146,9 +146,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
     import PsiModifier._
-    if (name == STATIC)
-      containingClass.isInstanceOf[ScObject]
-    else {
+    if (name == STATIC) {
+      if (this.isInstanceOf[PsiClass]) containingClass.is[ScObject]
+      else ScalaPsiUtil.isStatic(this)
+    } else {
       val modifierList = getModifierList
       name match {
         case PUBLIC =>
@@ -204,7 +205,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
           }
         case _ => this
       }
-    case c: ScTypeDefinition if this.isInstanceOf[ScPrimaryConstructor] => //primary constructor
+    case c: ScTypeDefinition if this.is[ScPrimaryConstructor] => //primary constructor
       val navigationElement = c.getNavigationElement
       navigationElement match {
         case td: ScClass =>

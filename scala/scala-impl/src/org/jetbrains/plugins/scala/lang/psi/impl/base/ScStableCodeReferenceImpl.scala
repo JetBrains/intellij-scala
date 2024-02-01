@@ -232,6 +232,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               }
             }
             else bindToType(ClassToImport(c))
+          case TopLevelMember(ta: ScTypeAlias, packaging) =>
+            bindToType(MemberToImport(ta, packaging))
           case ta: ScTypeAlias =>
             if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
               bindToType(MemberToImport(ta, ta.containingClass))
@@ -241,6 +243,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             }
           case binding: ScBindingPattern =>
             binding.nameContext match {
+              case TopLevelMember(_, packaging) =>
+                bindToType(MemberToImport(binding, packaging))
               case member: ScMember =>
                 val containingClass = member.containingClass
                 val refToClass = bindToElement(containingClass)
@@ -249,6 +253,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             }
           case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
             bindToElement(fun.containingClass)
+          case TopLevelMember(fun: ScFunction, packaging) =>
+            bindToType(MemberToImport(fun, packaging))
           case AuxiliaryConstructor(constr)  =>
             bindToElement(constr.containingClass)
           case JavaConstructor(constr) =>
@@ -263,7 +269,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   private def contextsElementKinds: String = {
-    val contextsFromFile = this.withContexts.takeWhile(!_.isInstanceOf[PsiFile]).toList.reverse
+    val contextsFromFile = this.withContexts.takeWhile(!_.is[PsiFile]).toList.reverse
     val elementTypes = contextsFromFile.map(_.getNode.getElementType.toString)
     elementTypes.zipWithIndex.map {
       case (name, idx) => "  " * idx + name

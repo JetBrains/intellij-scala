@@ -4,7 +4,6 @@ import com.intellij.openapi.util.text.StringUtil.isEmpty
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.EXCLUDE_PREFIX
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator._
 
@@ -52,13 +51,19 @@ object ScalaNamesUtil {
       case pack: PsiPackage => Some(pack.getQualifiedName)
       case ClassQualifiedName(qualifiedName) => Some(qualifiedName)
       case member: PsiMember if !member.hasModifierProperty(PsiModifier.STATIC) => None
-      case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
-        val result = named.name match {
-          case null | "" => qualifiedName
-          case name => qualifiedName + "." + name
-        }
-        Some(result)
+      case ContainingClass(ClassQualifiedName(qualifiedName)) =>
+        ScalaNamesUtil.qualifiedName(named, qualifiedName)
+      case TopLevelMember(_, packaging) =>
+        qualifiedName(named, packaging.fqn)
       case _ => None
+    }
+
+  private def qualifiedName(named: PsiNamedElement, ownerFqn: String): Option[String] =
+    Option.when(ownerFqn.nonEmpty) {
+      named.name match {
+        case null | "" => ownerFqn
+        case name => ownerFqn + "." + name
+      }
     }
 
   object isBacktickedName {
