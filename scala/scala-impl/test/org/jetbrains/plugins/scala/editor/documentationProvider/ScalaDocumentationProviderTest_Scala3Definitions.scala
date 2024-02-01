@@ -613,4 +613,86 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     doGenerateDocDefinitionTest(transparentInline, transparentInlineExpected)
   }
+
+  def testInnerClass(): Unit = {
+    val fileContent =
+      s"""
+         |object Bar:
+         |  class Baz(n: Int):
+         |    case class FooFoo(foo: Int):
+         |      val t: Int = 1
+         |
+         |  val ${|}c = new Baz(0).FooFoo(1)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<a href="psi_element://Bar"><code>Bar</code></a>
+         |
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">c</span>: <span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>#<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testClassInObject(): Unit = {
+    val fileContent =
+      s"""
+         |object Bar:
+         |  class Baz(n: Int)
+         |
+         |val ${|}fff = Bar.Baz(1)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">fff</span>:
+         | <span style="color:#000000;"><a href="psi_element://Bar"><code>Bar</code></a></span>.<span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testInnerClassOfAnInstance(): Unit = {
+    val fileContent =
+      s"""
+         |object Bar:
+         |  class Baz(n: Int):
+         |    case class FooFoo(foo: Int):
+         |      val t: Int = 1
+         |
+         |val fff = Bar.Baz(1)
+         |val ${|}ggg = fff.FooFoo(2)
+         |val hhh = new Bar.Baz(1).FooFoo(2)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">val</span>
+         | <span style="color:#660e7a;font-style:italic;">ggg</span>:
+         | fff.<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testInnerClassOfAnAnonymousInstance(): Unit = {
+    val fileContent =
+      s"""
+         |object Bar:
+         |  class Baz(n: Int):
+         |    case class FooFoo(foo: Int)
+         |
+         |val ${|}hhh = new Bar.Baz(1).FooFoo(2)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<span style="color:#000080;font-weight:bold;">val</span>
+         | <span style="color:#660e7a;font-style:italic;">hhh</span>:
+         | <span style="color:#000000;"><a href="psi_element://Bar"><code>Bar</code></a></span>.<span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>#<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
+         |""".stripMargin.withoutNewLines
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }
