@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
-import com.intellij.icons.ExpUiIcons
+import com.intellij.icons.{AllIcons, ExpUiIcons}
 import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.{ActionButtonWithText, ActionToolbarImpl}
@@ -16,7 +16,8 @@ import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.settings.{ScalaProjectSettingsConfigurable, XRayWidgetMode}
 
 import java.awt.event.{InputEvent, MouseAdapter, MouseEvent}
 import java.awt.{Component, Insets, Toolkit}
@@ -74,8 +75,12 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
           HelpTooltip.dispose(this)
           new HelpTooltip()
             .setTitle(
-              if (ScalaHintsSettings.xRayModePinned) ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.unpin")
-              else ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.pin"))
+              if (ScalaHintsSettings.xRayMode)
+                if (ScalaHintsSettings.xRayModePinned) ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.exit")
+                else ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.pin")
+              else
+                ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.enter"))
+            .setDescription(if (ScalaHintsSettings.xRayMode) null else "(" + ScalaHintsSettings.xRayModeShortcut + ")")
             .setLink(ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"), () =>
               ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
                 (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable]))
@@ -90,17 +95,28 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
       }
 
       override def update(e: AnActionEvent): Unit = {
-        e.getPresentation.setIcon(
-          if (ScalaHintsSettings.xRayModePinned) ExpUiIcons.General.Pin
-          else IconLoader.getDisabledIcon(ExpUiIcons.General.Pin))
+        if (ScalaHintsSettings.xRayMode) {
+          e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.widget.text"))
+          e.getPresentation.setIcon(
+            if (ScalaHintsSettings.xRayModePinned) ExpUiIcons.General.Pin
+            else IconLoader.getDisabledIcon(ExpUiIcons.General.Pin))
+        } else {
+          e.getPresentation.setText(null: String)
+          e.getPresentation.setIcon(IconLoader.getDisabledIcon(AllIcons.Actions.Show))
+        }
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
-        if (ScalaHintsSettings.xRayModePinned) {
-          ScalaEditorFactoryListener.setXRayModeEnabled(false, e.getData(CommonDataKeys.EDITOR))
+        if (ScalaHintsSettings.xRayMode) {
+          if (ScalaHintsSettings.xRayModePinned) {
+            ScalaEditorFactoryListener.setXRayModeEnabled(false, e.getData(CommonDataKeys.EDITOR))
+          }
+          ScalaHintsSettings.xRayModePinned = !ScalaHintsSettings.xRayModePinned
+        } else {
+          ScalaEditorFactoryListener.setXRayModeEnabled(true, e.getData(CommonDataKeys.EDITOR))
+          ScalaHintsSettings.xRayModePinned = true
         }
-        ScalaHintsSettings.xRayModePinned = !ScalaHintsSettings.xRayModePinned
-        ActionToolbarImpl.updateAllToolbarsImmediately(false) // Update Pin/Unpin tooltip
+        ActionToolbarImpl.updateAllToolbarsImmediately(false) // Update the tooltip
       }
     }
 
@@ -111,7 +127,12 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
         def inLibrarySource = Option(CommonDataKeys.EDITOR.getData(e.getDataContext)).exists { editor =>
           Option(editor.getVirtualFile).exists(file => ProjectFileIndex.getInstance(editor.getProject).isInLibrarySource(file))
         }
-        e.getPresentation.setEnabledAndVisible(ScalaHintsSettings.xRayMode && !inLibrarySource)
+        val visible = ScalaApplicationSettings.XRAY_WIDGET_MODE match {
+          case XRayWidgetMode.ALWAYS => !inLibrarySource
+          case XRayWidgetMode.WHEN_ACTIVE => ScalaHintsSettings.xRayMode && !inLibrarySource
+          case XRayWidgetMode.NEVER => false
+        }
+        e.getPresentation.setEnabledAndVisible(visible)
       }
     }
   }
