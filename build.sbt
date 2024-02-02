@@ -405,7 +405,7 @@ lazy val debugger =
   newProject("debugger", file("scala/debugger"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      compilerIntegration
+      compilerIntegration % "test->test;compile->compile"
     )
     .withCompilerPluginIn(scalacPatches)
 
@@ -511,7 +511,7 @@ lazy val testingSupport =
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
-      debugger % "test->test;compile->compile" // these modules share some test setup code, which should be refactored
+      compilerIntegration % "test->test;compile->compile"
     )
     .settings(
       intellijPlugins += "JUnit".toPlugin

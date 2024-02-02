@@ -21,8 +21,8 @@ import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
@@ -40,7 +40,7 @@ import scala.util.{Failure, Try}
 
 @Category(Array(classOf[TestingSupportTests]))
 abstract class ScalaTestingTestCase
-  extends ScalaDebuggerTestCase
+  extends ScalaExecutionTestCase
     with IntegrationTest
     with FileStructureTest
     with ScalaSdkOwner
