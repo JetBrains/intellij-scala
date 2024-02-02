@@ -17,10 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.{WorksheetCompilerExtension, WorksheetUtils}
 
 import java.io._
 
@@ -153,7 +154,7 @@ final class RemoteServerConnector(
   }
 
   override protected def assemblyRuntimeClasspath(): Seq[File] = {
-    val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
+    val extensionCp = BspWorksheetCompilerExtension.worksheetClasspath(module)
     extensionCp.getOrElse {
       // This workaround specifically covers the following edge case.
       // `super.assemblyRuntimeClasspath()` uses platform APIs (OrderEnumerator) to obtain the compilation classpath.

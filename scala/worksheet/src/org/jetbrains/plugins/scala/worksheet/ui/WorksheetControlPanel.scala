@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
+import org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
 
 import java.awt.Dimension
@@ -19,7 +19,7 @@ final class WorksheetControlPanel extends JPanel {
   private val cleanAction = new CleanWorksheetAction()
   private val copyAction = new CopyWorksheetAction()
   private val settingsAction = new ShowWorksheetSettingsAction()
-  private val extraActions = WorksheetCompilerExtension.extraWorksheetActions()
+  private val extraActions = BspWorksheetCompilerExtension.extraWorksheetActions()
 
   private var runEnabled = false
 
