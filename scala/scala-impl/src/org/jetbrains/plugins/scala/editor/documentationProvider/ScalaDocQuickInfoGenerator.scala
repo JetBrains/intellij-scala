@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTuple}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -189,6 +189,15 @@ object ScalaDocQuickInfoGenerator {
       case _ =>
     }
     member.definitionExpr match {
+      case Some(ScTuple(exprs)) =>
+        member
+          .declaredElements
+          .zip(exprs)
+          .collectFirst { case (decl, expr) if decl.name == field.name => expr }
+          .foreach { expr =>
+            buffer.append(" = ")
+            buffer.append(getOneLine(expr.getText))
+          }
       case Some(definition) =>
         buffer.append(" = ")
         buffer.append(getOneLine(definition.getText))
