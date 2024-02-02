@@ -10,7 +10,7 @@ import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSetting
 
 import java.util
 
-class SbtModuleDataService extends DefaultDataService[SbtModuleData, Module](SbtModuleData.Key)
+// empty data services exist to support proper serialization
 
 class SbtTaskDataService extends DefaultDataService[SbtTaskData, Module](SbtTaskData.Key)
 

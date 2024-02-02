@@ -380,7 +380,7 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
-    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
+    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile", workspaceEntities)
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
@@ -410,6 +410,14 @@ lazy val debugger =
       compilerIntegration % "test->test;compile->compile"
     )
     .withCompilerPluginIn(scalacPatches)
+
+lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", Some("sbt/sbt-impl/workspace-entities"))
+  .dependsOn(scalaImpl)
+  .settings(
+    Compile/unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions
+  )
 
 lazy val compileServer =
   newProject("compile-server", file("scala/compile-server"))
