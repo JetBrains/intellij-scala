@@ -1,196 +1,44 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.breakpoints.{Breakpoint, BreakpointManager, JavaLineBreakpointType}
 import com.intellij.debugger.{BreakpointComment, DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.EdtTestUtil
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
-import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
 import java.io._
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
-import java.security.MessageDigest
 import javax.swing.SwingUtilities
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
-import scala.util.{Try, Using}
 
 /**
  * ATTENTION: when updating any paths which might be cached between builds
  * ensure to update org.jetbrains.scalateamcity.common.Caching fields
  */
 @Category(Array(classOf[DebuggerTests]))
-abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
+abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutionTestCase {
 
   import ScalaDebuggerTestCase.ScalaLineBreakpointTypeClassName
 
-  private val Log = Logger.getInstance(getClass)
-
-  protected def testDataDirectoryName: String = "debugger"
-
-  private def testDataDebuggerPath: Path = Path.of(TestUtils.getTestDataPath, testDataDirectoryName)
-
-  private def versionSpecific: Path = Path.of(s"scala-${version.minor}")
-
-  private def testAppPath: Path = testDataDebuggerPath.resolve(getClass.getSimpleName).resolve(versionSpecific)
-
-  private def appOutputPath: Path = Path.of(s"${testAppPath}_out")
-
-  protected def srcPath: Path = testAppPath.resolve("src")
-
-  private def classFilesOutputPath: Path = appOutputPath.resolve("classes")
-
-  private def checksumsPath: Path = appOutputPath.resolve("checksums")
-
-  private def checksumsFilePath: Path = checksumsPath.resolve("checksums.dat")
-
-  private val sourceFiles: mutable.Map[String, String] = mutable.Map.empty
-
   private val javaClasses: mutable.Set[String] = mutable.Set.empty
 
-  override protected def initOutputChecker(): OutputChecker =
-    new OutputChecker(() => getTestAppPath, () => getAppOutputPath) {
-      override def checkValid(jdk: Sdk, sortClassPath: Boolean): Unit = {}
-    }
-
-  override protected def getTestAppPath: String = testAppPath.toString
-
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true),
-    HeavyJDKLoader(testProjectJdkVersion),
-    SourcesLoader(srcPath.toString)
-  ) ++ additionalLibraries
-
-  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
-
-  override protected def getModuleOutputDir: Path = classFilesOutputPath
-
-  override protected def getAppOutputPath: String = getModuleOutputDir.toString
-
-  override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
-
-  override protected def getProjectLanguageLevel: LanguageLevel = testProjectJdkVersion
-
-  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
+  override protected def testDataDirectoryName: String = "debugger"
 
   override protected def initApplication(): Unit = {
     super.initApplication()
     NodeRendererSettings.getInstance().getClassRenderer.SHOW_DECLARED_TYPE = false
-  }
-
-  override protected def setUpModule(): Unit = {
-    super.setUpModule()
-    EdtTestUtil.runInEdtAndWait { () =>
-      setUpLibraries(getModule)
-    }
-  }
-
-  override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
-
-    Files.createDirectories(srcPath)
-    Files.createDirectories(classFilesOutputPath)
-    Files.createDirectories(checksumsPath)
-
-    sourceFiles.foreach { case (filePath, fileContents) =>
-      val path = srcPath.resolve(filePath)
-      if (!path.toFile.exists() || Files.readString(path) != fileContents) {
-        Files.createDirectories(path.getParent)
-        val bytes = fileContents.getBytes(StandardCharsets.UTF_8)
-        Files.write(path, bytes)
-      }
-    }
-
-    super.setUp()
-
-    LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
-    compileProject()
-  }
-
-  override protected def tearDown(): Unit = {
-    try {
-      CompileServerLauncher.stopServerAndWait()
-      EdtTestUtil.runInEdtAndWait { () =>
-        disposeLibraries(getModule)
-      }
-    } finally {
-      super.tearDown()
-    }
-  }
-
-  override protected def compileProject(): Unit = {
-    def loadChecksumsFromDisk(): Map[Path, Array[Byte]] =
-      Using(new ObjectInputStream(new FileInputStream(checksumsFilePath.toFile)))(_.readObject())
-        .map(_.asInstanceOf[Map[String, Array[Byte]]])
-        .map(_.map { case (path, checksum) => (Path.of(path), checksum) })
-        .getOrElse(Map.empty)
-
-    val messageDigest = MessageDigest.getInstance("MD5")
-
-    def calculateSrcCheksums(): Map[Path, Array[Byte]] = {
-      def checksum(file: File): Array[Byte] = {
-        val fileBytes = Files.readAllBytes(file.toPath)
-        messageDigest.digest(fileBytes)
-      }
-
-      def checksumsInDir(dir: File): List[(Path, Array[Byte])] =
-        dir.listFiles().toList.flatMap { f =>
-          if (f.isDirectory) checksumsInDir(f) else List((f.toPath, checksum(f)))
-        }
-
-      checksumsInDir(srcPath.toFile).toMap
-    }
-
-    def shouldCompile(srcChecksums: Map[Path, Array[Byte]], diskChecksums: Map[Path, Array[Byte]]): Boolean = {
-      val checksumsAreSame = srcChecksums.forall { case (srcPath, srcSum) =>
-        diskChecksums.get(srcPath).exists(java.util.Arrays.equals(srcSum, _))
-      }
-      !checksumsAreSame
-    }
-
-    def writeChecksumsToDisk(checksums: Map[Path, Array[Byte]]): Unit = {
-      val strings = checksums.map { case (path, sum) => (path.toString, sum) }
-      Using(new ObjectOutputStream(new FileOutputStream(checksumsFilePath.toFile)))(_.writeObject(strings))
-    }
-
-    val srcChecksums = calculateSrcCheksums()
-
-    val compareChecksums = for {
-      diskChecksums <- Try(loadChecksumsFromDisk())
-    } yield shouldCompile(srcChecksums, diskChecksums)
-
-    val needsCompilation = compareChecksums.getOrElse(true)
-
-    if (needsCompilation) {
-      super.compileProject()
-      writeChecksumsToDisk(srcChecksums)
-    } else {
-      val message = s"Skipping project compilation: checksums are the same ($testAppPath)"
-      Log.info(message)
-      System.out.println(s"##teamcity[message text='$message' status='NORMAL']")
-    }
   }
 
   override protected def createJavaParameters(mainClass: String): JavaParameters = {
@@ -261,10 +109,6 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
     }
   }
 
-  protected def addSourceFile(path: String, contents: String): Unit = {
-    sourceFiles.update(path, contents)
-  }
-
   protected def addJavaSourceFile(path: String, className: String, contents: String): Unit = {
     addSourceFile(path, contents)
     javaClasses += className
@@ -313,14 +157,6 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   private val lambdaOrdinalString: String = "LambdaOrdinal"
 
   protected def lambdaOrdinal(n: Int): String = s"$lambdaOrdinalString($n)"
-
-  protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
-    org.junit.Assert.assertEquals(expected, actual)
-  }
-
-  protected def assertEquals[A, B](message: String, expected: A, actual: B)(implicit ev: A <:< B): Unit = {
-    org.junit.Assert.assertEquals(message, expected, actual)
-  }
 }
 
 private object ScalaDebuggerTestCase {
