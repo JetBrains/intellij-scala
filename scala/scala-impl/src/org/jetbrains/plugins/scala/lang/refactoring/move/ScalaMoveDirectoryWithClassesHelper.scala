@@ -15,7 +15,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.Function
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, ScalaFileExt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -61,10 +61,10 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
 
         if (remainsNothing) {
           ReferencesSearch.search(aPackage, GlobalSearchScope.projectScope(project)).findAll().forEach { reference =>
-            reference.getElement.parentOfType(classOf[ScImportStmt])
+            reference.getElement.parentOfType(classOf[ScImportExpr])
               .foreach {
-                case stmt if !isUnderRefactoring(stmt, directoriesToMove) =>
-                  usages.add(ImportStatementToRemoveUsage(stmt))
+                case expr if !isUnderRefactoring(expr, directoriesToMove) && expr.hasWildcardSelector =>
+                  usages.add(ImportExpressionToRemoveUsage(expr))
                 case _ =>
               }
           }
@@ -141,7 +141,9 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
 
   override def postProcessUsages(usages: Array[UsageInfo], newDirMapper: Function[_ >: PsiDirectory, _ <: PsiDirectory]): Unit = {
     usages.foreach {
-      case ImportStatementToRemoveUsage(impStmt) => impStmt.delete()
+      case ImportExpressionToRemoveUsage(expr) =>
+        // delete with parent statement if it is the only expression
+        expr.deleteExpr()
       case _ =>
     }
   }
@@ -156,9 +158,8 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     case _ =>
   }
 
-  private def isUnderRefactoring(element: PsiElement, directoriesToMove: Array[PsiDirectory]): Boolean = {
-    directoriesToMove.exists(PsiTreeUtil.isAncestor(_, element, true))
-  }
+  private def isUnderRefactoring(element: PsiElement, directoriesToMove: Array[PsiDirectory]): Boolean =
+    directoriesToMove.exists(PsiTreeUtil.isAncestor(_, element, /*strict*/ false))
 
   private def packageName(sf: ScalaFile) = {
     sf.typeDefinitions match {
@@ -232,4 +233,4 @@ object ScalaMoveDirectoryWithClassesHelper {
   }
 }
 
-private case class ImportStatementToRemoveUsage(stmt: ScImportStmt) extends UsageInfo(stmt)
+private case class ImportExpressionToRemoveUsage(expr: ScImportExpr) extends UsageInfo(expr)
