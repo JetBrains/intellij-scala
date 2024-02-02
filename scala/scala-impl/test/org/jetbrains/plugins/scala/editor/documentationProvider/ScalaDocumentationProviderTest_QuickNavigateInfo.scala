@@ -164,7 +164,7 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo extends ScalaDocumentatio
          |  val (field1, ${|}field2) = (42, "hello")
          |}""".stripMargin,
       """<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-        |val field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = (42, "hello")
+        |val field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = "hello"
         |""".stripMargin
     )
 
@@ -184,7 +184,7 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo extends ScalaDocumentatio
          |  var (field1, ${|}field2) = (42, "hello")
          |}""".stripMargin,
       """<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-        |var field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = (42, "hello")
+        |var field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = "hello"
         |""".stripMargin
     )
 
