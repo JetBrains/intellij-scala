@@ -1,10 +1,9 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations.{JavaParameters, ModuleBasedConfiguration, RunConfigurationModule, RunProfile}
+import com.intellij.execution.configurations.{JavaParameters, RunProfile}
 import com.intellij.execution.runners.JavaProgramPatcher
 import com.intellij.openapi.util.UserDataHolderBase
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
 import scala.jdk.CollectionConverters._
 

@@ -1,12 +1,13 @@
-package org.jetbrains.bsp.project.test.environment
+package org.jetbrains.plugins.scala.testingSupport.bsp
 
 import com.intellij.execution.configurations.RunConfiguration
+import org.jetbrains.bsp.project.test.environment.{BspEnvironmentRunnerExtension, ExecutionEnvironmentType}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 
 import scala.jdk.CollectionConverters._
 
-class BspEnvironmentScalaTestRunnerExtension extends BspEnvironmentRunnerExtension {
+private final class BspEnvironmentScalaTestRunnerExtension extends BspEnvironmentRunnerExtension {
   override def runConfigurationSupported(config: RunConfiguration): Boolean =
     config.isInstanceOf[ScalaTestRunConfiguration]
 

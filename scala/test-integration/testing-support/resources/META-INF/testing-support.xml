@@ -28,6 +28,8 @@
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationProducer"/>
+
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.plugins.scala.testingSupport.bsp.BspEnvironmentScalaTestRunnerExtension"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

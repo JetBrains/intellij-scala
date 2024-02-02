@@ -511,6 +511,7 @@ lazy val testingSupport =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      bsp,
       structureView % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     )
@@ -618,7 +619,7 @@ lazy val bsp =
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      testingSupport
+      sbtImpl % "test->test;compile->compile"
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,

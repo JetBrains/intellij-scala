@@ -22,7 +22,6 @@
     </extensions>
     
     <extensions defaultExtensionNs="com.intellij">
-        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>
 
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
