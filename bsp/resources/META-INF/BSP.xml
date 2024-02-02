@@ -16,7 +16,6 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij">
-        <scala.worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
         <scala.sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
         <sbt.buildModuleUriProvider implementation="org.jetbrains.bsp.project.BspSbtBuildModuleUriProvider"/>
         <sbt.sbtVersionProvider implementation="org.jetbrains.bsp.project.BspSbtVersionProvider"/>

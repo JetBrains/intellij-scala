@@ -150,6 +150,7 @@ lazy val uast = newProject(
 lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
+      bsp,
       compilerIntegration % "test->test;compile->compile",
       worksheetReplInterface % "test->test;compile->compile",
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
@@ -617,8 +618,7 @@ lazy val bsp =
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      testingSupport,
-      worksheet % "test->test;compile->compile"
+      testingSupport
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,

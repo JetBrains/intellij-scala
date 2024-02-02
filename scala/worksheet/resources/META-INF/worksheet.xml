@@ -83,6 +83,7 @@
         <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
         <compilerSettingsProfileProvider implementation="org.jetbrains.plugins.scala.worksheet.WorksheetScalaCompilerSettingsProfileProvider"/>
         <worksheetHighlightingCompiler implementation="org.jetbrains.plugins.scala.worksheet.processor.WorksheetHighlightingCompilerImpl"/>
+        <worksheetCompilerExtension implementation="org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension"/>
 
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
