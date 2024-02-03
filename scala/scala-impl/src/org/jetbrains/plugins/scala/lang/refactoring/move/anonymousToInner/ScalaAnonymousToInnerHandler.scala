@@ -46,6 +46,7 @@ object ScalaAnonymousToInnerHandler {
       } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
   }
 
+  @VisibleForTesting
   def containsVarsOutOfScope(extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData]): Boolean =
     variables.exists(v => v.element.isVar && !extendsBlock.isAncestorOf(v.element))
 
@@ -56,6 +57,7 @@ object ScalaAnonymousToInnerHandler {
     (usedVariables, targetContainer)
   }
 
+  @VisibleForTesting
   def performRefactoring(project: Project, className: String, variables: Array[ScalaVariableData], anonClass: ScExtendsBlock, originalElement: ScNewTemplateDefinition, targetContainer: Either[ScFile, ScTemplateDefinition]): Unit =
     CommandProcessor.getInstance.executeCommand(project, () => {
       val action: Runnable = () => {
