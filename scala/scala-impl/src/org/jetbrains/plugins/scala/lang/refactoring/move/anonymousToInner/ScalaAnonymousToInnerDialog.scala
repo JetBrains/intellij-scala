@@ -97,7 +97,7 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
 
   def getClassName: String = classNameField.getEnteredName
 
-  def getVariables: Array[ScalaVariableData] = variables
+  def getVariables: Array[ScalaVariableData] = variables.filter(_.passAsParameter)
 
 
   private def createParametersPanel = {

@@ -6,8 +6,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => Caret}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData
 import org.jetbrains.plugins.scala.lang.refactoring.move.anonymousToInner.ScalaAnonymousToInnerHandler
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -22,7 +25,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testInsideObject(): Unit = {
     val before =
-      s"""object MyClass {
+      s"""object MyObject {
          |
          |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
          |    if (input.hasNext) {
@@ -36,7 +39,43 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
          |}
          |""".stripMargin
     val after =
-      """object MyClass {
+      """object MyObject {
+        |
+        |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+        |    if (input.hasNext) {
+        |      Some(new IntIterator(input, someNum))
+        |    } else
+        |      None
+        |
+        |  class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |    def hasNext = input.hasNext
+        |
+        |    def next = someNum
+        |  }
+        |}""".stripMargin
+
+    val className = "IntIterator"
+
+    doTest(before, after, className)
+  }
+
+  def testInsideClass(): Unit = {
+    val before =
+      s"""class MyClass() {
+         |
+         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+         |    if (input.hasNext) {
+         |      Some(new Ite${Caret}rator[Int] {
+         |        def hasNext = input.hasNext
+         |
+         |        def next = someNum
+         |      })
+         |    } else
+         |      None
+         |}
+         |""".stripMargin
+    val after =
+      """class MyClass() {
         |
         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
         |    if (input.hasNext) {
@@ -208,7 +247,76 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
     doTest(before, after, className)
   }
 
+  def testVarInsideAnonClass(): Unit = {
+    val before =
+      s"""object MyClass {
+         |
+         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+         |    if (input.hasNext) {
+         |      Some(new Ite${Caret}rator[Int] {
+         |        var x = 0
+         |        def hasNext = input.hasNext
+         |
+         |        def next = someNum + x
+         |      })
+         |    } else
+         |      None
+         |}
+         |""".stripMargin
+    val after =
+      """object MyClass {
+        |
+        |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+        |    if (input.hasNext) {
+        |      Some(new IntIterator(input, someNum))
+        |    } else
+        |      None
+        |
+        |  class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |    var x = 0
+        |
+        |    def hasNext = input.hasNext
+        |
+        |    def next = someNum + x
+        |  }
+        |}""".stripMargin
+
+    val className = "IntIterator"
+
+    doTest(before, after, className)
+  }
+
+  def testFailOnVarOutsideAnonClass(): Unit = {
+    val before =
+      s"""object MyClass {
+         |  var x = 0
+         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+         |    if (input.hasNext) {
+         |      Some(new Ite${Caret}rator[Int] {
+         |        def hasNext = input.hasNext
+         |
+         |        def next = someNum + x
+         |      })
+         |    } else
+         |      None
+         |}
+         |""".stripMargin
+
+    val className = "IntIterator"
+    val RefactoringActionResult(_, extendsBlock, variables, _) = doRefactoringAction(before, className)
+
+    Assert.assertTrue(ScalaAnonymousToInnerHandler.containsVarsOutOfScope(extendsBlock, variables))
+  }
+
+
   private def doTest(initialText: String, expectedText: String, className: String): Unit = {
+    val result = doRefactoringAction(initialText, className)
+    Assert.assertEquals(expectedText, result.scalaFile.getText)
+  }
+
+  private case class RefactoringActionResult(scalaFile: ScalaFile, extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData], targetContainer: Either[ScFile, ScTemplateDefinition])
+
+  private def doRefactoringAction(initialText: String, className: String): RefactoringActionResult = {
     scalaFixture.configureFromFileText(initialText)
 
     val editor = CommonDataKeys.EDITOR.getData(DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(5, TimeUnit.SECONDS))
@@ -227,6 +335,6 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
     val (variables, targetContainer) = ScalaAnonymousToInnerHandler.parseInitialExtendsBlock(extendsBlock)
     ScalaAnonymousToInnerHandler.performRefactoring(getProject, className, variables, extendsBlock, newTemplateDefinition, targetContainer)
 
-    Assert.assertEquals(expectedText, scalaFile.getText)
+    RefactoringActionResult(scalaFile, extendsBlock, variables, targetContainer)
   }
 }

@@ -28,7 +28,7 @@ class ScalaMoveAnonymousToInnerDelegate extends MoveHandlerDelegate {
       val canRefactor = canMove(Array(element), null, reference)
       if (canRefactor) {
         val maybeNewTemplateDefinition = findNewTemplateDefinition(element, reference)
-        maybeNewTemplateDefinition.foreach(element => ScalaAnonymousToInnerHandler.invoke(project, element))
+        maybeNewTemplateDefinition.foreach(element => ScalaAnonymousToInnerHandler.invoke(project, editor, element))
         maybeNewTemplateDefinition.isDefined
       } else
         false

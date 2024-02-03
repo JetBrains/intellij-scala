@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.lang.refactoring.move.anonymousToInner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.psi.{PsiComment, PsiElement}
+import com.intellij.psi.PsiElement
+import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -27,19 +29,30 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object ScalaAnonymousToInnerHandler {
   private val LOG = Logger.getInstance(ScalaAnonymousToInnerHandler.getClass)
 
-  def invoke(project: Project, element: ScNewTemplateDefinition): Unit = {
+  private val cantRefactorBecauseOfVar = """Cannot perform refactoring.
+                                           |Extraction of anonymous class with references to vars out of scope is currently unsupported""".stripMargin
+
+  private val helpId = "reafctoring.anonymousToInner"
+
+  def invoke(project: Project, editor: Editor, element: ScNewTemplateDefinition): Unit = {
     val extendsBlock = element.extendsBlock
     val (variables, targetContainer) = parseInitialExtendsBlock(extendsBlock)
 
-    for {
-      DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, variables, targetContainer)
-    } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
+    if (containsVarsOutOfScope(extendsBlock, variables))
+      CommonRefactoringUtil.showErrorHint(project, editor, cantRefactorBecauseOfVar, getRefactoringName, helpId)
+    else
+      for {
+        DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, variables, targetContainer)
+      } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
   }
+
+  def containsVarsOutOfScope(extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData]): Boolean =
+    variables.exists(v => v.element.isVar && !extendsBlock.isAncestorOf(v.element))
 
   @VisibleForTesting
   def parseInitialExtendsBlock(extendsBlock: ScExtendsBlock): (Array[ScalaVariableData], Either[ScFile, ScTemplateDefinition]) = {
     val targetContainer = findTargetContainer(extendsBlock)
-    val usedVariables = collectUsedVariables(extendsBlock, targetContainer)
+    val usedVariables = collectUsedVariables(extendsBlock)
     (usedVariables, targetContainer)
   }
 
@@ -48,12 +61,12 @@ object ScalaAnonymousToInnerHandler {
       val action: Runnable = () => {
         try {
           val innerClassNewTemplate = newTemplateForInnerClass(project, className, variables, originalElement)
-          val (newClassFromAnonymous, maybeWarningComment) = createClass(className, anonClass, variables, project)
-          val containerWithNewInnerClass = targetContainer
+          val newClassFromAnonymous = createClass(className, anonClass, variables, project)
+
+          targetContainer
             .fold(file => file, classOrObject => classOrObject)
             .add(newClassFromAnonymous)
 
-          maybeWarningComment.foreach(comment => containerWithNewInnerClass.addBefore(comment, newClassFromAnonymous))
           originalElement.replace(innerClassNewTemplate)
         }
         catch {
@@ -75,28 +88,28 @@ object ScalaAnonymousToInnerHandler {
     createElementFromText[ScNewTemplateDefinition](text, newTemplate)
   }
 
-  private def collectUsedVariables(anonClass: ScExtendsBlock, targetContainer: Either[ScFile, ScTemplateDefinition]): Array[ScalaVariableData] = {
+  private def collectUsedVariables(anonClass: ScExtendsBlock): Array[ScalaVariableData] = {
     var res: List[ScTypedDefinition] = Nil
     anonClass.accept(new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(expression: ScReferenceExpression) = {
         val refElement = expression.resolve
         refElement match {
           case p: ScParameter =>
-            val containingClass = p.getDeclarationScope
-            if (targetContainer.fold(_ => false, scTemplateDefinition => containingClass != scTemplateDefinition && !containingClass.isAncestorOf(scTemplateDefinition)))
               res = p :: res
           case r: ScReferencePattern =>
-            val containingClass = r.containingClass
-            if (targetContainer.fold(_ => false, scTemplateDefinition => containingClass != scTemplateDefinition && !containingClass.isAncestorOf(scTemplateDefinition) && !findTargetContainer(r).isLeft))
               res = r :: res
           case _ =>
         }
         super.visitReferenceExpression(expression)
       }
     })
-    res.reverse.distinct.map(parameter =>
-      new ScalaVariableData(parameter, true, parameter.`type`().getOrNothing)
-    ).toArray
+
+    res
+      .reverse
+      .filter(!anonClass.isAncestorOf(_))
+      .distinct
+      .map(parameter => new ScalaVariableData(parameter, true, parameter.`type`().getOrNothing))
+      .toArray
 
   }
 
@@ -110,14 +123,8 @@ object ScalaAnonymousToInnerHandler {
       None
   }
 
-  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Array[ScalaVariableData], project: Project): (ScClass, Option[PsiComment]) = {
+  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Array[ScalaVariableData], project: Project): ScClass = {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
-
-    val containsVars = variables.exists(_.element.isVar)
-    val warningComment = if (containsVars)
-      Some(createElementFromText[PsiComment]("// refactor your code or use scala.runtime.ObjectRef", anonClass))
-    else
-      None
 
     val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
     val text = s"class $name($parameters) extends ${anonClass.getText}"
@@ -139,7 +146,7 @@ object ScalaAnonymousToInnerHandler {
       }
     })
 
-    (newClass, warningComment)
+    newClass
   }
 
   private def findTargetContainer(elem: PsiElement): Either[ScFile, ScTemplateDefinition] = {
