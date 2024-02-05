@@ -3,14 +3,14 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.ParameterHintsPassFactory.forceHintsUpdateOnNextPass
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpdateThread, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
-import org.jetbrains.plugins.scala.annotator.hints.{Hint, Corners, Text}
+import org.jetbrains.plugins.scala.annotator.hints.{Corners, Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
 
@@ -89,11 +89,15 @@ private object ScalaTypeHintsPass {
             forceHintsUpdateOnNextPass()
             TypeMismatchHints.refreshIn(e.getProject)
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         },
         new AnAction(ScalaCodeInsightBundle.message("configure.type.hints")) {
           override def actionPerformed(e: AnActionEvent): Unit = {
             ScalaTypeHintsSettingsModel.navigateTo(e.getProject)
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         },
         Separator.getInstance,
         ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
