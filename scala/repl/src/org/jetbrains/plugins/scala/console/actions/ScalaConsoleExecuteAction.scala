@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.DumbAware
@@ -81,6 +81,8 @@ class ScalaConsoleExecuteAction extends AnAction(
       console.textSent(lineWithFeed)
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object ScalaConsoleExecuteAction {
