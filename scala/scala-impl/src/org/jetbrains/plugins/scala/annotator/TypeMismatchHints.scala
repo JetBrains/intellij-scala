@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.TokenSet
@@ -106,6 +106,8 @@ object TypeMismatchHints {
               ScalaBundle.message("scala.project.settings.form.show.type.mismatch.hints")
             )
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         }
       )
     }
