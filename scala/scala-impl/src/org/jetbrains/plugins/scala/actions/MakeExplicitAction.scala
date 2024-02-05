@@ -45,6 +45,8 @@ final class MakeExplicitAction extends AnAction(
       case _ =>
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object MakeExplicitAction {
