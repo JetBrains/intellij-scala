@@ -10,6 +10,7 @@ import com.intellij.refactoring.ui.NameSuggestionsField
 import com.intellij.refactoring.util.{CommonRefactoringUtil, ParameterTablePanel, RefactoringMessageUtil, VariableData}
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.util.ui.FormBuilder
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -96,6 +97,8 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
   }
 
   def getClassName: String = classNameField.getEnteredName
+  @TestOnly
+  def setClassName(name: String): Unit = classNameField.setName(name)
 
   def getVariables: Array[ScalaVariableData] = variables.filter(_.passAsParameter)
 
