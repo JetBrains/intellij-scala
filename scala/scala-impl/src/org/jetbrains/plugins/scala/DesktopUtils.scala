@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
@@ -28,6 +28,8 @@ object DesktopUtils {
             val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
             clipboard.setContents(new StringSelection(url), null)
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         })
         .notify(project)
     }
