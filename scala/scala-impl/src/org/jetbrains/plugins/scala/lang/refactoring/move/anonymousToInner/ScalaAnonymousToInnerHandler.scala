@@ -106,13 +106,13 @@ object ScalaAnonymousToInnerHandler {
       }
     })
 
-    res
+    val definitions: Seq[ScTypedDefinition] = res
       .reverse
       .filter(!anonClass.isAncestorOf(_))
       .distinct
-      .map(parameter => new ScalaVariableData(parameter, true, parameter.`type`().getOrNothing))
+    definitions
+      .map(d => new ScalaVariableData(d, true, d.`type`().getOrNothing))
       .toArray
-
   }
 
   private case class DialogResult(className: String, variables: Array[ScalaVariableData])
@@ -153,11 +153,11 @@ object ScalaAnonymousToInnerHandler {
 
   private def findTargetContainer(elem: PsiElement): Either[ScFile, ScTemplateDefinition] = {
     val container = elem.parents.collectFirst {
-      case obj: ScObject => Right(obj)
-      case enm: ScEnum => Right(enm)
-      case clazz: ScClass => Right(clazz)
-      case trt: ScTrait => Right(trt)
-      case file: ScFile => Left(file) //Scala3 top level definition
+      case o: ScObject => Right(o)
+      case e: ScEnum => Right(e)
+      case c: ScClass => Right(c)
+      case t: ScTrait => Right(t)
+      case f: ScFile => Left(f) //Scala3 top level definition
     }
     container.get //assuming that there is at least "ScFile" parent, so it's safe to call "get"
   }

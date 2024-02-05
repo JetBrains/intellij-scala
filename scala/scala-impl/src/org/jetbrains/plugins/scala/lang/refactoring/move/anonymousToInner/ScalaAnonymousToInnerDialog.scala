@@ -56,7 +56,7 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
         errorString = RefactoringMessageUtil.getIncorrectIdentifierMessage(innerClassName)
       }
       else {
-        val existingClassesAndObjects = target.fold(
+        val existingTemplateDefinitionNames: Set[String] = target.fold(
           file =>
             file.getClassNames.asScala.toSet,
           template =>
@@ -67,7 +67,7 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
               .toSet
         )
 
-        if (existingClassesAndObjects.contains(innerClassName)) {
+        if (existingTemplateDefinitionNames.contains(innerClassName)) {
           errorString = JavaRefactoringBundle.message("inner.class.exists", innerClassName, target.map(_.name).getOrElse("TOP LEVEL DEFINTION"))
         }
       }
@@ -98,7 +98,6 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
   def getClassName: String = classNameField.getEnteredName
 
   def getVariables: Array[ScalaVariableData] = variables.filter(_.passAsParameter)
-
 
   private def createParametersPanel = {
     val panel = new ParameterTablePanel(project, variables.asInstanceOf[Array[VariableData]], extendsBlock) {

@@ -30,7 +30,7 @@ class ScalaMoveAnonymousToInnerDelegate extends MoveHandlerDelegate {
         val maybeNewTemplateDefinition = findNewTemplateDefinition(element, reference)
         maybeNewTemplateDefinition.foreach(element => ScalaAnonymousToInnerHandler.invoke(project, editor, element))
         maybeNewTemplateDefinition.isDefined
-      } else
-        false
+      }
+      else false
     }
 }
