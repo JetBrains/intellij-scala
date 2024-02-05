@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.move.anonymousToInner
 import com.intellij.java.refactoring.JavaRefactoringBundle
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.util.NlsContexts.DialogMessage
 import com.intellij.psi.{PsiManager, PsiNameHelper}
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.ui.NameSuggestionsField
@@ -34,7 +35,6 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
 
   init()
 
-
   private def suggestNewClassNames(): Array[String] =
     extendsBlock.superTypes.head match {
       case pType: ScParameterizedType =>
@@ -47,7 +47,7 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
     }
 
   override protected def doOKAction(): Unit = {
-    var errorString: String = null
+    @DialogMessage var errorString: String = null
     val innerClassName = getClassName
     val manager = PsiManager.getInstance(project)
     if (innerClassName.isEmpty) errorString = JavaRefactoringBundle.message("anonymousToInner.no.inner.class.name")
@@ -74,7 +74,7 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
     }
 
     if (errorString != null) {
-      CommonRefactoringUtil.showErrorMessage(ScalaAnonymousToInnerHandler.getRefactoringName, errorString, HelpID.ANONYMOUS_TO_INNER, project)
+      CommonRefactoringUtil.showErrorMessage(ScalaAnonymousToInnerHandler.RefactoringTitle, errorString, HelpID.ANONYMOUS_TO_INNER, project)
     } else {
       super.doOKAction()
     }

@@ -5,8 +5,9 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.NlsContexts
+import com.intellij.openapi.util.NlsContexts.{DialogMessage, DialogTitle}
 import com.intellij.psi.PsiElement
+import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.VisibleForTesting
@@ -29,17 +30,23 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 object ScalaAnonymousToInnerHandler {
   private val LOG = Logger.getInstance(ScalaAnonymousToInnerHandler.getClass)
 
-  private val cantRefactorBecauseOfVar = """Cannot perform refactoring.
-                                           |Extraction of anonymous class with references to vars out of scope is currently unsupported""".stripMargin
-
   private val helpId = "reafctoring.anonymousToInner"
+
+  @DialogTitle
+  def RefactoringTitle: String = ScalaBundle.message("move.anonymousToInner.name")
+
+  //muted inspection because concatenation with "\n" is not handled by the inspection
+  //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
+  @DialogMessage
+  private def RefactoringErrorMessage = RefactoringBundle.message("cannot.perform.refactoring") + "\n" +
+    ScalaBundle.message("extraction.of.anonymous.class.with.vars.refs.unsupported")
 
   def invoke(project: Project, editor: Editor, element: ScNewTemplateDefinition): Unit = {
     val extendsBlock = element.extendsBlock
     val (variables, targetContainer) = parseInitialExtendsBlock(extendsBlock)
 
     if (containsVarsOutOfScope(extendsBlock, variables))
-      CommonRefactoringUtil.showErrorHint(project, editor, cantRefactorBecauseOfVar, getRefactoringName, helpId)
+      CommonRefactoringUtil.showErrorHint(project, editor, RefactoringErrorMessage, RefactoringTitle, helpId)
     else
       for {
         DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, variables, targetContainer)
@@ -79,7 +86,7 @@ object ScalaAnonymousToInnerHandler {
       }
       ApplicationManager.getApplication.runWriteAction(action)
 
-    }, getRefactoringName, null)
+    }, RefactoringTitle, null)
 
   private def newTemplateForInnerClass(project: Project, name: String, variables: Array[ScalaVariableData], newTemplate: ScNewTemplateDefinition) = {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
@@ -93,7 +100,7 @@ object ScalaAnonymousToInnerHandler {
   private def collectUsedVariables(anonClass: ScExtendsBlock): Array[ScalaVariableData] = {
     var res: List[ScTypedDefinition] = Nil
     anonClass.accept(new ScalaRecursiveElementVisitor() {
-      override def visitReferenceExpression(expression: ScReferenceExpression) = {
+      override def visitReferenceExpression(expression: ScReferenceExpression): Unit = {
         val refElement = expression.resolve
         refElement match {
           case p: ScParameter =>
@@ -135,7 +142,7 @@ object ScalaAnonymousToInnerHandler {
 
     val parameterOldNameToNewName = variables.map(v => v.variable.getName -> v.name).toMap
     newClass.accept(new ScalaRecursiveElementVisitor() {
-      override def visitReferenceExpression(expression: ScReferenceExpression) = {
+      override def visitReferenceExpression(expression: ScReferenceExpression): Unit = {
         val refElement = expression.resolve
         refElement match {
           case p: ScParameter =>
@@ -161,6 +168,4 @@ object ScalaAnonymousToInnerHandler {
     }
     container.get //assuming that there is at least "ScFile" parent, so it's safe to call "get"
   }
-
-  @NlsContexts.DialogTitle def getRefactoringName = ScalaBundle.message("move.anonymousToInner.name")
 }
