@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package implicits
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, ToggleAction}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, ToggleAction}
 
 class ExpandImplicitHintsAction extends ToggleAction(
   ScalaCodeInsightBundle.message("expand.implicit.hints.action.text"),
@@ -36,6 +36,8 @@ class ExpandImplicitHintsAction extends ToggleAction(
       MouseHandler.removeEscKeyListeners()
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 }
 
 object ExpandImplicitHintsAction {
