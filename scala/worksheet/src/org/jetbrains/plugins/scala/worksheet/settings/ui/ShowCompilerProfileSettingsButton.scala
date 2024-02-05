@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.ShowSettingsUtilImpl
 import com.intellij.ide.ui.search.SearchUtil
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.options.ConfigurableWithId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
@@ -29,6 +29,8 @@ private final class ShowCompilerProfileSettingsButton(
       profilesUpdatedListener()
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   def getActionButton: ActionButton =
     new ActionButton(this, getTemplatePresentation, ActionPlaces.UNKNOWN, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE)
