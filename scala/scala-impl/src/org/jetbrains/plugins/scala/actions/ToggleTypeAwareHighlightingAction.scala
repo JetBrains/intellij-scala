@@ -26,6 +26,8 @@ final class ToggleTypeAwareHighlightingAction extends AnAction(
       case _ =>
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object ToggleTypeAwareHighlightingAction {
