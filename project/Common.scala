@@ -60,6 +60,7 @@ object Common {
     (Compile / unmanagedResourceDirectories) := Seq(baseDirectory.value / "resources"),
     (Test / unmanagedResourceDirectories) := Seq(baseDirectory.value / "testResources"),
     updateOptions := updateOptions.value.withCachedResolution(true),
+    instrumentThreadingAnnotations := true
   )
 
   def newPlainScalaProject(projectName: String, base: File): Project =
