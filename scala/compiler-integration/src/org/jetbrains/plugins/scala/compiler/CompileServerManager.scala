@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.extensions.LoadingOrder
@@ -160,6 +160,8 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
 
     override def actionPerformed(e: AnActionEvent): Unit =
       executeOnPooledThread(launcher.ensureServerRunning(project))
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   private object Stop extends AnAction(CompilerIntegrationBundle.message("action.stop"), CompilerIntegrationBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
@@ -168,11 +170,15 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
 
     override def actionPerformed(e: AnActionEvent): Unit =
       executeOnPooledThread(launcher.stopServerAndWaitFor(Duration.Zero))
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   private object Configure extends AnAction(CompilerIntegrationBundle.message("action.configure"), CompilerIntegrationBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
     override def actionPerformed(e: AnActionEvent): Unit =
       showCompileServerSettingsDialog(project)
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   private val errorsBuffer: java.lang.StringBuilder = new java.lang.StringBuilder()
