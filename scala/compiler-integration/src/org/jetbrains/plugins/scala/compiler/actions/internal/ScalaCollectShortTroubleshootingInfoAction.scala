@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.actions.internal
 
 import com.intellij.ide.nls.NlsMessages
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationNamesInfo}
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -15,7 +15,6 @@ import com.intellij.ui.awt.RelativePoint
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
-import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.text.SimpleDateFormat
 
@@ -35,6 +34,8 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
     CopyPasteManager.getInstance.setContents(new StringSelection(summary))
     showNotification(summary, e)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def collectSummary(e: AnActionEvent): String = {
     val appInfo = ApplicationInfo.getInstance()
