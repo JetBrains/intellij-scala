@@ -5,7 +5,7 @@ import com.intellij.codeInsight.hints.InlayParameterHintsExtension.{INSTANCE => 
 import com.intellij.codeInsight.hints.settings.ParameterNameHintsSettings.{getInstance => ParameterNameHintsSettings}
 import com.intellij.codeInsight.hints.{HintInfo, HintInfoFilter, InlayParameterHintsProvider, MethodInfoExcludeListFilter}
 import com.intellij.lang.Language
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpdateThread, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.containers.ContainerUtil
@@ -80,11 +80,15 @@ object ScalaInlayParameterHintsPass {
           ScalaCodeInsightSettings.getInstance.showParameterNames = false
           ImplicitHints.updateInAllEditors()
         }
+
+        override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
       },
       new AnAction(ScalaCodeInsightBundle.message("configure.parameter.name.hints")) {
         override def actionPerformed(e: AnActionEvent): Unit = {
           ScalaParameterHintsSettingsModel.navigateTo(e.getProject)
         }
+
+        override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
       },
       Separator.getInstance,
       ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
