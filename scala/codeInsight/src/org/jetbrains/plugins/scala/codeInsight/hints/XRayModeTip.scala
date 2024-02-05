@@ -66,6 +66,8 @@ class XRayModeTip extends StartupActivity.DumbAware {
         disable()
         notification.hideBalloon()
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     })
 
     notification.addAction(new AnAction(ScalaCodeInsightBundle.message("xray.mode.tip.action.configure")) {
@@ -78,6 +80,8 @@ class XRayModeTip extends StartupActivity.DumbAware {
           classOf[ScalaProjectSettingsConfigurable],
           (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     })
 
     Notifications.Bus.notify(notification)
