@@ -23,6 +23,8 @@ class ShowImplicitHintsAction extends ToggleAction(
       MouseHandler.removeEscKeyListeners()
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 }
 
 private object ShowImplicitHintsAction {
