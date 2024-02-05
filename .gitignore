@@ -8,6 +8,7 @@
 .idea/scopes/
 
 .idea/*.xml
+!.idea/kotlinc.xml
 !.idea/vcs.xml
 !.idea/uiDesigner.xml
 
