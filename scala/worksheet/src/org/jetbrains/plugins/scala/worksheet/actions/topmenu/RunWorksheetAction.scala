@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionPlaces, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor

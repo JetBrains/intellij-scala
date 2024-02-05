@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent, Presentation}
+import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, ActionUpdateThread, AnAction, AnActionEvent, Presentation}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import org.jetbrains.annotations.Nls
@@ -26,6 +26,8 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
   override def update(e: AnActionEvent): Unit = {
     updatePresentationEnabled(e)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def setEnabled(flag: Boolean): Unit = actionButton.setEnabled(flag)
 
