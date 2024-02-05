@@ -284,23 +284,28 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
     doTest(before, after, className)
   }
 
-  def testFailOnVarOutsideAnonClass(): Unit = {
+  def testVarOutsideAnonClass(): Unit = {
     val before =
       s"""object MyClass {
-         |  var x = 0
-         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] =
+         |  var myVarName1 = 1
+         |  def parse(input: Iterator[Byte], someNum: Int): Option[Iterator[Int]] = {
+         |    var myVarName2 = 2
          |    if (input.hasNext) {
          |      Some(new Ite${Caret}rator[Int] {
          |        def hasNext = input.hasNext
          |
-         |        def next = someNum + x
+         |        def next = someNum + myVarName1 + myVarName2
          |      })
          |    }
          |    else None
+         |  }
          |}
          |""".stripMargin
 
-    val expectedErrorMessage = "Cannot perform refactoring.\nExtraction of anonymous class with references to vars out of scope is currently unsupported"
+    val expectedErrorMessage =
+      """Cannot perform refactoring.
+        |Extraction of anonymous class with references to vars out of scope is currently unsupported
+        |Variable names: myVarName1, myVarName2""".stripMargin
     Try {
       scalaFixture.configureFromFileText(before)
       invokeMoveRefactoring()
