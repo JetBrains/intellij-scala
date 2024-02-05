@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
@@ -25,4 +25,6 @@ class ImplicitArgumentsPopup extends AnAction(
       case _ =>
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
