@@ -26,7 +26,16 @@ import scala.jdk.CollectionConverters._
 /**
  * @note original implementation was inspired by [[com.intellij.refactoring.anonymousToInner.AnonymousToInnerDialog]]
  */
-class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData], target: Either[ScFile, ScTemplateDefinition]) extends DialogWrapper(project) {
+class ScalaAnonymousToInnerDialog(
+  project: Project,
+  extendsBlock: ScExtendsBlock,
+  _variables: Seq[ScalaVariableData],
+  target: Either[ScFile, ScTemplateDefinition]
+) extends DialogWrapper(project) {
+
+  //This modifiable array is modified directly by `ParameterTablePanel`
+  //NOTE: it's not covered by tests, because it implies some UI interaction
+  private val variablesModifiableModel: Array[ScalaVariableData] = _variables.toArray
 
   setTitle(ScalaBundle.message("move.anonymousToInner.dialog.title"))
 
@@ -100,10 +109,11 @@ class ScalaAnonymousToInnerDialog(project: Project, extendsBlock: ScExtendsBlock
   @TestOnly
   def setClassName(name: String): Unit = classNameField.setName(name)
 
-  def getVariables: Array[ScalaVariableData] = variables.filter(_.passAsParameter)
+  def getVariables: Seq[ScalaVariableData] =
+    variablesModifiableModel.filter(_.passAsParameter).toSeq
 
-  private def createParametersPanel = {
-    val panel = new ParameterTablePanel(project, variables.asInstanceOf[Array[VariableData]], extendsBlock) {
+  private def createParametersPanel: ParameterTablePanel = {
+    val panel = new ParameterTablePanel(project, variablesModifiableModel.asInstanceOf[Array[VariableData]], extendsBlock) {
       override protected def updateSignature(): Unit = {
       }
 

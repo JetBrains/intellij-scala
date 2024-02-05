@@ -42,29 +42,24 @@ object ScalaAnonymousToInnerHandler {
 
   def invoke(project: Project, editor: Editor, element: ScNewTemplateDefinition): Unit = {
     val extendsBlock = element.extendsBlock
-    val (variables, targetContainer) = parseInitialExtendsBlock(extendsBlock)
 
-    if (containsVarsOutOfScope(extendsBlock, variables))
-      CommonRefactoringUtil.showErrorHint(project, editor, RefactoringErrorMessage, RefactoringTitle, helpId)
-    else
-      for {
-        DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, variables, targetContainer)
-      } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
-  }
-
-  private def containsVarsOutOfScope(extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData]): Boolean =
-    variables.exists(v => v.element.isVar && !extendsBlock.isAncestorOf(v.element))
-
-  private def parseInitialExtendsBlock(extendsBlock: ScExtendsBlock): (Array[ScalaVariableData], Either[ScFile, ScTemplateDefinition]) = {
     val targetContainer = findTargetContainer(extendsBlock)
     val usedVariables = collectUsedVariables(extendsBlock)
-    (usedVariables, targetContainer)
+
+    val varsOutOfScope = usedVariables.filter(v => v.element.isVar && !extendsBlock.isAncestorOf(v.element))
+    if (varsOutOfScope.isEmpty) {
+      for {
+        DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, usedVariables, targetContainer)
+      } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
+    } else {
+      CommonRefactoringUtil.showErrorHint(project, editor, RefactoringErrorMessage, RefactoringTitle, helpId)
+    }
   }
 
   private def performRefactoring(
     project: Project,
     className: String,
-    variables: Array[ScalaVariableData],
+    variables: Seq[ScalaVariableData],
     anonClass: ScExtendsBlock,
     originalElement: ScNewTemplateDefinition,
     targetContainer: Either[ScFile, ScTemplateDefinition]
@@ -91,7 +86,7 @@ object ScalaAnonymousToInnerHandler {
 
     }, RefactoringTitle, null)
 
-  private def newTemplateForInnerClass(project: Project, name: String, variables: Array[ScalaVariableData], newTemplate: ScNewTemplateDefinition) = {
+  private def newTemplateForInnerClass(project: Project, name: String, variables: Seq[ScalaVariableData], newTemplate: ScNewTemplateDefinition) = {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
 
     val args = variables.map(_.variable.getName).mkString(", ")
@@ -100,7 +95,7 @@ object ScalaAnonymousToInnerHandler {
     createElementFromText[ScNewTemplateDefinition](text, newTemplate)
   }
 
-  private def collectUsedVariables(anonClass: ScExtendsBlock): Array[ScalaVariableData] = {
+  private def collectUsedVariables(anonClass: ScExtendsBlock): Seq[ScalaVariableData] = {
     var res: List[ScTypedDefinition] = Nil
     anonClass.accept(new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(expression: ScReferenceExpression): Unit = {
@@ -122,12 +117,16 @@ object ScalaAnonymousToInnerHandler {
       .distinct
     definitions
       .map(d => new ScalaVariableData(d, true, d.`type`().getOrNothing))
-      .toArray
   }
 
-  private case class DialogResult(className: String, variables: Array[ScalaVariableData])
+  private case class DialogResult(className: String, variables: Seq[ScalaVariableData])
 
-  private def showRefactoringDialog(project: Project, extendsBlock: ScExtendsBlock, usedVariables: Array[ScalaVariableData], target: Either[ScFile, ScTemplateDefinition]) = {
+  private def showRefactoringDialog(
+    project: Project,
+    extendsBlock: ScExtendsBlock,
+    usedVariables: Seq[ScalaVariableData],
+    target: Either[ScFile, ScTemplateDefinition]
+  ): Option[DialogResult] = {
     val dialog = new ScalaAnonymousToInnerDialog(project, extendsBlock, usedVariables, target)
     //NOTE: we could use `showAndGet` method, but unfortunately it doesn't work well in tests -
     // it throws an exception because HeadlessDialog.isModal returns false and UiInterceptors are not checked there
@@ -138,7 +137,7 @@ object ScalaAnonymousToInnerHandler {
       None
   }
 
-  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Array[ScalaVariableData], project: Project): ScClass = {
+  private def createClass(name: String, anonClass: ScExtendsBlock, variables: Seq[ScalaVariableData], project: Project): ScClass = {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
 
     val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
