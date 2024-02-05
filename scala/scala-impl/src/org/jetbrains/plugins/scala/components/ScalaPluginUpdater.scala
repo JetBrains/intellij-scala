@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.components
 import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
@@ -289,6 +289,8 @@ object ScalaPluginUpdater {
           doUpdatePluginHostsAndCheck(pluginBranch)
           notification.expire()
         }
+
+        override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
       }
 
       notification
