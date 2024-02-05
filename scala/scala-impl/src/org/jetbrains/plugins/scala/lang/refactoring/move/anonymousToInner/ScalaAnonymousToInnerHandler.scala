@@ -144,7 +144,7 @@ object ScalaAnonymousToInnerHandler {
     implicit val projectContext: ProjectContext = new ProjectContext(project)
 
     val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
-    val text = s"class $name($parameters) extends ${anonClass.getText}"
+    val text = s"private class $name($parameters) extends ${anonClass.getText}"
 
     val newClass = createElementFromText[ScClass](text, anonClass)
 
