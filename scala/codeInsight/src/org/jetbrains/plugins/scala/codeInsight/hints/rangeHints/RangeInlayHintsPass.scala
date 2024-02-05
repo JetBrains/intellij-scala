@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
 import com.intellij.codeInsight.hints.presentation.{PresentationFactory, RecursivelyUpdatingRootPresentation}
 import com.intellij.codeInsight.hints.{HorizontalConstrainedPresentation, HorizontalConstraints}
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, Separator}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpdateThread, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, InlayModel}
 import com.intellij.openapi.project.Project
@@ -11,8 +11,8 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsConfigurable}
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass._
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsConfigurable}
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPartsHintRenderer}
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions._
@@ -173,11 +173,15 @@ object RangeInlayHintsPass {
             setSettings(ScalaCodeInsightSettings.getInstance())
             ImplicitHints.updateInAllEditors()
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         },
         new AnAction(ScalaCodeInsightBundle.message("configure.range.hints")) {
           override def actionPerformed(e: AnActionEvent): Unit = {
             navigate(e.getProject)
           }
+
+          override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
         },
         Separator.getInstance,
         ActionManager.getInstance.getAction(ScalaTypeHintsConfigurable.XRayModeTipAction.Id)
