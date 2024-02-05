@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.importing.setup
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ide.CopyPasteManager
@@ -68,6 +68,8 @@ class FastpassConfigSetupEmpty(bspWorkspace: Path) extends BspConfigSetup {
       override def actionPerformed(e: AnActionEvent): Unit = {
         CopyPasteManager.getInstance().setContents(new StringSelection(realPath))
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     })
     notification.setImportant(true)
     ApplicationManager.getApplication.invokeLater(new Runnable {
