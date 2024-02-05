@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.actions.repl
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CustomShortcutSet}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CustomShortcutSet}
 import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
@@ -19,6 +19,8 @@ final class WorksheetReplRunAction extends AnAction with WorksheetAction {
       RunWorksheetAction.runCompilerForEditor(editor, psiFile, auto = false)
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override protected def isActionEnabledForFile(file: WorksheetFile): Boolean =
     WorksheetFileSettings(file).isRepl
