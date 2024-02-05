@@ -45,7 +45,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |    } else
         |      None
         |
-        |  class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |  private class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
         |    def hasNext = input.hasNext
         |
         |    def next = someNum
@@ -81,7 +81,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |    } else
         |      None
         |
-        |  class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |  private class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
         |    def hasNext = input.hasNext
         |
         |    def next = someNum
@@ -117,7 +117,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |      None
         |    }
         |
-        |  class IntIterator(input: Iterator[Int], num: Int) extends Iterator[Int] {
+        |  private class IntIterator(input: Iterator[Int], num: Int) extends Iterator[Int] {
         |    def hasNext = input.hasNext
         |
         |    def next = num
@@ -157,7 +157,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |      None
         |    }
         |
-        |  class IntIterator(input: Iterator[Int], num: Int) extends Iterator[Int] {
+        |  private class IntIterator(input: Iterator[Int], num: Int) extends Iterator[Int] {
         |    def hasNext = input.hasNext
         |
         |    def next = num
@@ -189,7 +189,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |  } else
         |    None
         |
-        |class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |private class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
         |  def hasNext = input.hasNext
         |
         |  def next = someNum
@@ -233,7 +233,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |    None
         |  }
         |
-        |class IntIterator(sliceSize: Int) extends Iterator[Int] {
+        |private class IntIterator(sliceSize: Int) extends Iterator[Int] {
         |
         |  override def hasNext: Boolean = true
         |
@@ -270,7 +270,7 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |    } else
         |      None
         |
-        |  class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
+        |  private class IntIterator(input: Iterator[Byte], someNum: Int) extends Iterator[Int] {
         |    var x = 0
         |
         |    def hasNext = input.hasNext
