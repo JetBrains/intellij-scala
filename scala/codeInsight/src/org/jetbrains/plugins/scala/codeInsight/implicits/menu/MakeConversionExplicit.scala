@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.editor.Inlay
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
@@ -24,7 +23,7 @@ class MakeConversionExplicit extends AnAction(
     new MakeImplicitConversionExplicit().invoke(e.getData(CommonDataKeys.PROJECT), editor, element)
 
     val prefixAndSuffixInlays =
-      if(inlay == null) Seq()
+      if (inlay == null) Seq()
       else {
         val startOffset = inlay.getOffset
         val endOffset = {
@@ -37,4 +36,6 @@ class MakeConversionExplicit extends AnAction(
 
     prefixAndSuffixInlays.foreach(_.dispose())
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
