@@ -13,7 +13,7 @@ import java.io.File
 import java.net.URI
 import java.nio.file._
 import java.util.concurrent.TimeUnit
-import scala.collection.mutable
+import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -32,7 +32,7 @@ class BspCommunicationService extends Disposable {
   private val timeout = 10.minutes
   private val cleanerPause = 10.seconds
 
-  private val comms = mutable.Map[(URI, BspServerConfig), BspCommunication]()
+  private val comms: TrieMap[(URI, BspServerConfig), BspCommunication] = TrieMap.empty
 
   private val executorService = AppExecutorUtil.getAppScheduledExecutorService
 
@@ -62,7 +62,7 @@ class BspCommunicationService extends Disposable {
   def listOpenComms: Iterable[(URI, BspServerConfig)] = comms.keys
 
   def isAlive(base: URI, config: BspServerConfig): Boolean =
-    comms.get((base,config)).exists(_.alive)
+    comms.get((base, config)).exists(_.alive)
 
   /** Close BSP connection if there is an open one associated with `base`. */
   def closeCommunication(base: URI, config: BspServerConfig): Future[Unit] = {

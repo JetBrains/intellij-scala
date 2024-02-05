@@ -2,7 +2,7 @@ package org.jetbrains.bsp
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -39,9 +39,9 @@ private final class BspServerWidget extends StatusBarWidget
   override def dispose(): Unit = {
     connection.dispose()
   }
-  
+
   override def getPresentation: StatusBarWidget.WidgetPresentation = this
-  
+
   override def getIcon: Icon =
     if (connectionsActive) BspServerWidgetProvider.IconRunning
     else BspServerWidgetProvider.IconStopped
@@ -49,7 +49,7 @@ private final class BspServerWidget extends StatusBarWidget
   override def getTooltipText: String = BspBundle.message("bsp.widget.bsp.connection")
 
   override def getClickConsumer: Consumer[MouseEvent] = this
-  
+
   override def consume(e: MouseEvent): Unit = {
     val openCom = BspCommunicationService.getInstance.listOpenComms
     val connectionClosers =
@@ -91,8 +91,10 @@ private final class BspServerWidget extends StatusBarWidget
     override def actionPerformed(e: AnActionEvent): Unit = {
       BspCommunicationService.getInstance.closeCommunication(uri, config)
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
-  
+
   private final class CloseAllSessions extends AnAction(BspBundle.message("bsp.widget.stop.all.bsp.connections"), BspBundle.message("bsp.widget.stop.all.bsp.connections"), AllIcons.Actions.Suspend) with DumbAware {
 
     override def update(e: AnActionEvent): Unit = {
@@ -102,6 +104,8 @@ private final class BspServerWidget extends StatusBarWidget
     override def actionPerformed(e: AnActionEvent): Unit = {
       BspCommunicationService.getInstance.closeAll
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   private final class TerminateServer(uri: URI, config: BspServerConfig) extends AnAction(BspBundle.message("bsp.widget.bsp.terminate.server", uri), BspBundle.message("bsp.widget.bsp.terminate.server", uri), AllIcons.Actions.Exit) with DumbAware {
@@ -141,5 +145,7 @@ private final class BspServerWidget extends StatusBarWidget
     } catch {
       case e: Throwable => BspServerWidgetProvider.logger.error(e)
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 }
