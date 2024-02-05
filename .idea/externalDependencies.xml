@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalDependencies">
+    <plugin id="AntSupport" />
+    <plugin id="JUnit" />
+    <plugin id="com.intellij.configurationScript" />
+    <plugin id="com.intellij.copyright" />
+    <plugin id="com.intellij.properties" />
+    <plugin id="com.intellij.uiDesigner" />
+    <plugin id="com.jetbrains.intellij.api.watcher" />
+    <plugin id="org.intellij.scala" />
+    <plugin id="org.jetbrains.kotlin" />
+  </component>
+</project>
