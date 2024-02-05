@@ -10,7 +10,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -53,19 +52,23 @@ object ScalaAnonymousToInnerHandler {
       } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
   }
 
-  @VisibleForTesting
-  def containsVarsOutOfScope(extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData]): Boolean =
+  private def containsVarsOutOfScope(extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData]): Boolean =
     variables.exists(v => v.element.isVar && !extendsBlock.isAncestorOf(v.element))
 
-  @VisibleForTesting
-  def parseInitialExtendsBlock(extendsBlock: ScExtendsBlock): (Array[ScalaVariableData], Either[ScFile, ScTemplateDefinition]) = {
+  private def parseInitialExtendsBlock(extendsBlock: ScExtendsBlock): (Array[ScalaVariableData], Either[ScFile, ScTemplateDefinition]) = {
     val targetContainer = findTargetContainer(extendsBlock)
     val usedVariables = collectUsedVariables(extendsBlock)
     (usedVariables, targetContainer)
   }
 
-  @VisibleForTesting
-  def performRefactoring(project: Project, className: String, variables: Array[ScalaVariableData], anonClass: ScExtendsBlock, originalElement: ScNewTemplateDefinition, targetContainer: Either[ScFile, ScTemplateDefinition]): Unit =
+  private def performRefactoring(
+    project: Project,
+    className: String,
+    variables: Array[ScalaVariableData],
+    anonClass: ScExtendsBlock,
+    originalElement: ScNewTemplateDefinition,
+    targetContainer: Either[ScFile, ScTemplateDefinition]
+  ): Unit =
     CommandProcessor.getInstance.executeCommand(project, () => {
       val action: Runnable = () => {
         try {
@@ -126,7 +129,10 @@ object ScalaAnonymousToInnerHandler {
 
   private def showRefactoringDialog(project: Project, extendsBlock: ScExtendsBlock, usedVariables: Array[ScalaVariableData], target: Either[ScFile, ScTemplateDefinition]) = {
     val dialog = new ScalaAnonymousToInnerDialog(project, extendsBlock, usedVariables, target)
-    if (dialog.showAndGet())
+    //NOTE: we could use `showAndGet` method, but unfortunately it doesn't work well in tests -
+    // it throws an exception because HeadlessDialog.isModal returns false and UiInterceptors are not checked there
+    dialog.show()
+    if (dialog.isOK)
       Some(DialogResult(dialog.getClassName, dialog.getVariables))
     else
       None

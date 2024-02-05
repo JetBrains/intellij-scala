@@ -1,21 +1,19 @@
 package org.jetbrains.plugins.scala.lang.refactoring.anonymousToInner
 
-import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.util.Disposer
+import com.intellij.refactoring.move.MoveHandler
+import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => Caret}
+import com.intellij.ui.UiInterceptors
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData
-import org.jetbrains.plugins.scala.lang.refactoring.move.anonymousToInner.ScalaAnonymousToInnerHandler
+import org.jetbrains.plugins.scala.lang.refactoring.move.anonymousToInner.ScalaAnonymousToInnerDialog
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.Assert.{assertEquals, fail}
 
-import java.util.concurrent.TimeUnit
+import scala.util.{Failure, Try}
 
 class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
 
@@ -297,44 +295,51 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
          |
          |        def next = someNum + x
          |      })
-         |    } else
-         |      None
+         |    }
+         |    else None
          |}
          |""".stripMargin
 
-    val className = "IntIterator"
-    val RefactoringActionResult(_, extendsBlock, variables, _) = doRefactoringAction(before, className)
-
-    Assert.assertTrue(ScalaAnonymousToInnerHandler.containsVarsOutOfScope(extendsBlock, variables))
+    val expectedErrorMessage = "Cannot perform refactoring.\nExtraction of anonymous class with references to vars out of scope is currently unsupported"
+    Try {
+      scalaFixture.configureFromFileText(before)
+      invokeMoveRefactoring()
+    } match {
+      case Failure(re: RefactoringErrorHintException) =>
+        assertEquals(
+          expectedErrorMessage,
+          re.getMessage
+        )
+      case Failure(e) =>
+        throw e
+      case _ =>
+        fail(s"Refactoring succeeded but expected to fail with message: $expectedErrorMessage")
+    }
   }
-
 
   private def doTest(initialText: String, expectedText: String, className: String): Unit = {
-    val result = doRefactoringAction(initialText, className)
-    Assert.assertEquals(expectedText, result.scalaFile.getText)
+    doRefactoringAction(initialText, className)
+    Assert.assertEquals(expectedText, getFile.getText)
   }
 
-  private case class RefactoringActionResult(scalaFile: ScalaFile, extendsBlock: ScExtendsBlock, variables: Array[ScalaVariableData], targetContainer: Either[ScFile, ScTemplateDefinition])
+  private def doRefactoringAction(
+    fileText: String,
+    className: String,
+  ): Unit = {
+    scalaFixture.configureFromFileText(fileText)
 
-  private def doRefactoringAction(initialText: String, className: String): RefactoringActionResult = {
-    scalaFixture.configureFromFileText(initialText)
+    UiInterceptors.register(new UiInterceptors.UiInterceptor[ScalaAnonymousToInnerDialog](classOf[ScalaAnonymousToInnerDialog]) {
+      override protected def doIntercept(dialog: ScalaAnonymousToInnerDialog): Unit = {
+        Disposer.register(getTestRootDisposable, dialog.getDisposable)
+        dialog.setClassName(className)
+        dialog.performOKAction()
+      }
+    })
 
-    val editor = CommonDataKeys.EDITOR.getData(DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(5, TimeUnit.SECONDS))
-    val caretModel = editor.getCaretModel
-    assert(caretModel.getCaretCount == 1, "Expected exactly one caret.")
-    assert(caretModel.getOffset > 0, s"Not specified caret marker in test case. Use <caret> in scala file for this.")
+    invokeMoveRefactoring()
+  }
 
-    val scalaFile = getFile.asInstanceOf[ScalaFile]
-
-    val element = scalaFile.findElementAt(caretModel.getOffset)
-    val newTemplateDefinition = Option(PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])).getOrElse(
-      throw new Exception("expected to find the `new` keyword before the anonymous type")
-    )
-
-    val extendsBlock = newTemplateDefinition.extendsBlock
-    val (variables, targetContainer) = ScalaAnonymousToInnerHandler.parseInitialExtendsBlock(extendsBlock)
-    ScalaAnonymousToInnerHandler.performRefactoring(getProject, className, variables, extendsBlock, newTemplateDefinition, targetContainer)
-
-    RefactoringActionResult(scalaFile, extendsBlock, variables, targetContainer)
+  private def invokeMoveRefactoring(): Unit = {
+    new MoveHandler().invoke(getProject, getEditor, getFile, DataContext.EMPTY_CONTEXT)
   }
 }
