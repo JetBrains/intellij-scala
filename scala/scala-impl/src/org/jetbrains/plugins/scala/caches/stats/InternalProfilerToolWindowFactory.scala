@@ -181,6 +181,8 @@ object InternalProfilerToolWindowFactory {
       dataSource.clear()
       tableModel.clear()
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   class CacheContentClearAction(project: Project) extends AnAction with DumbAware {
@@ -225,5 +227,7 @@ object InternalProfilerToolWindowFactory {
         NotificationType.INFORMATION
       ).notify(project)
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 }
