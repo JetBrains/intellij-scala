@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.caches.stats
 import com.intellij.concurrency.JobScheduler
 import com.intellij.icons.AllIcons
 import com.intellij.notification.{NotificationGroup, NotificationType}
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ActionManager, ActionUpdateThread, AnAction, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
@@ -170,6 +170,8 @@ object InternalProfilerToolWindowFactory {
       if (dataSource.isActive) dataSource.stop()
       else dataSource.resume()
     }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
   }
 
   class ClearAction(dataSource: DataSource[_], tableModel: DataByIdTableModel[_]) extends AnAction with DumbAware {
