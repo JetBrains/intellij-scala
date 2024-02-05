@@ -87,6 +87,8 @@ object ScalaTypeHintsConfigurable {
         classOf[ScalaProjectSettingsConfigurable],
         (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
       )
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   object XRayModeTipAction {
