@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
@@ -23,4 +23,6 @@ class MakeArgumentsExplicit extends AnAction {
 
     inlay.dispose()
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
