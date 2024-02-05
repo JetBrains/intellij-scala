@@ -37,8 +37,10 @@ object ScalaAnonymousToInnerHandler {
   //muted inspection because concatenation with "\n" is not handled by the inspection
   //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
   @DialogMessage
-  private def RefactoringErrorMessage = RefactoringBundle.message("cannot.perform.refactoring") + "\n" +
-    ScalaBundle.message("extraction.of.anonymous.class.with.vars.refs.unsupported")
+  private def RefactoringErrorMessage(varNames: Seq[String]) =
+    s"""${RefactoringBundle.message("cannot.perform.refactoring")}
+       |${ScalaBundle.message("extraction.of.anonymous.class.with.vars.refs.unsupported")}
+       |${ScalaBundle.message("variable.names", varNames.mkString(", "))}""".stripMargin
 
   def invoke(project: Project, editor: Editor, element: ScNewTemplateDefinition): Unit = {
     val extendsBlock = element.extendsBlock
@@ -52,7 +54,8 @@ object ScalaAnonymousToInnerHandler {
         DialogResult(className, renamedVariables) <- showRefactoringDialog(project, extendsBlock, usedVariables, targetContainer)
       } yield performRefactoring(project, className, renamedVariables, extendsBlock, element, targetContainer)
     } else {
-      CommonRefactoringUtil.showErrorHint(project, editor, RefactoringErrorMessage, RefactoringTitle, helpId)
+      val message = RefactoringErrorMessage(varsOutOfScope.map(_.name))
+      CommonRefactoringUtil.showErrorHint(project, editor, message, RefactoringTitle, helpId)
     }
   }
 
