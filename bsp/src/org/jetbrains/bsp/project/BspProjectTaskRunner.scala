@@ -18,7 +18,6 @@ import org.jetbrains.bsp.{BSP, BspBundle, BspUtil}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.util.ExternalSystemVfsUtil
 
 import java.nio.file.Paths
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -82,10 +81,6 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     val bspTask = new BspTask(project, targets, targetsToClean)
 
-    bspTask.resultFuture.foreach { _ =>
-      refreshRoots(project)
-    }
-
     bspTask.resultFuture.onComplete { messages =>
 
       val session = new CompilerTask(project, BspBundle.message("bsp.runner.hack.notify.completed.bsp.build"), false, false, false, false)
@@ -112,9 +107,5 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     ProgressManager.getInstance().run(bspTask)
 
     promiseResult
-  }
-
-  private def refreshRoots(project: Project): Unit = {
-    ExternalSystemVfsUtil.refreshRoots(project, BSP.ProjectSystemId)
   }
 }
