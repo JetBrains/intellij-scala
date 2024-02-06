@@ -83,8 +83,8 @@ object ReferencePassedToNlsInspection {
         val caseClassParam = originalCaseClassParameter(unapply, args.indexOf(pattern))
         !caseClassParam.exists(isAnnotatedWithNlsOrNlsSafe)
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
-      case pd: ScPatternDefinition => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))
-      case func: ScFunctionDefinition => func.returnUsages.exists(evaluatesNotToNls(_, found))
+      case pd: ScPatternDefinition if pd.isEffectivelyFinal => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))
+      case func: ScFunctionDefinition if func.isEffectivelyFinal => func.returnUsages.exists(evaluatesNotToNls(_, found))
       case _ => true
     }
 }

@@ -287,12 +287,31 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |""".stripMargin
   )
 
-  def test_overridable_definition(): Unit = checkTextHasError(
+  def test_inheritable_definition(): Unit = checkTextHasError(
     s"""
        |class A {
        |  def ref = nls
-       |
        |  def test = toNls(${START}ref$END)
+       |}
+       |
+       |trait B {
+       |  def ref: String
+       |  def test = toNls(${START}ref$END)
+       |}
+       |
+       |class C {
+       |  final def ref = nls
+       |  def test = toNls(ref)
+       |}
+       |
+       |final class D {
+       |  def ref = nls
+       |  def test = toNls(ref)
+       |}
+       |
+       |object E {
+       |  def ref = nls
+       |  def test = toNls(ref)
        |}
        |""".stripMargin
   )
