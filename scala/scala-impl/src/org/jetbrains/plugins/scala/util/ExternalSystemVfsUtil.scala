@@ -28,7 +28,7 @@ object ExternalSystemVfsUtil {
    *       function is to avoid bugs by forgetting to update the code in two places. Apart from that, it has limited
    *       functionality.
    */
-  // remove this if/when external system handles this refresh on its own
+  // re-evaluate this utility function when the platform changes how run configuration classpaths are constructed, IDEA-343184
   def refreshRoots(project: Project, id: ProjectSystemId, indicator: ProgressIndicator): Unit = {
     indicator.setText(ScalaBundle.message("refresh.roots.synchronizing.output.directories"))
     try {
