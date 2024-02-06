@@ -1581,7 +1581,7 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def isImplicit(namedElement: PsiNamedElement): Boolean =
+  def isImplicit(@Nullable namedElement: PsiNamedElement): Boolean =
     namedElement match {
       case _: ScGiven         => true
       case _: ScGivenPattern  => true

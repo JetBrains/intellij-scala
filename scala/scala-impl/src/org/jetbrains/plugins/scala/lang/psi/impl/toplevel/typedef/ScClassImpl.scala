@@ -82,7 +82,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       case _ =>
         for (p <- parameters) {
           ProgressManager.checkCanceled()
-          if (processor.isInstanceOf[BaseProcessor]) {
+          if (processor.is[BaseProcessor]) {
             // don't expose class parameters to Java.
             if (!processor.execute(p, state))
               return false

@@ -84,7 +84,7 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
     if (ccontainingClass eq originalClass) return this
-    if (!originalClass.isInstanceOf[ScClass]) return this
+    if (!originalClass.is[ScClass]) return this
     val c = originalClass.asInstanceOf[ScClass]
     val iterator = c.parameters.iterator
     while (iterator.hasNext) {

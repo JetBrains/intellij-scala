@@ -32,7 +32,7 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
       val name = getGreenStub.getName
       val id = createIdentifier(name)
       if (id == null) {
-        assert(assertion = false, s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
+        throw new AssertionError(s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
       }
       id.getPsi
     case n => n

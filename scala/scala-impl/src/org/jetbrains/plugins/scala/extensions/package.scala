@@ -360,7 +360,7 @@ package object extensions {
     }
   }
 
-  implicit class ToNullSafe[+A >: Null](private val a: A) extends AnyVal {
+  implicit class ToNullSafe[+A >: Null](@Nullable private val a: A) extends AnyVal {
     def nullSafe: NullSafe[A] = NullSafe(a)
   }
 
@@ -370,7 +370,7 @@ package object extensions {
     def toNullSafe: NullSafe[A] = NullSafe(a.orNull)
   }
 
-  implicit class ObjectExt[T](private val v: T) extends AnyVal {
+  implicit class ObjectExt[T](@Nullable private val v: T) extends AnyVal {
     def toOption: Option[T] = Option(v)
 
     def ifNot(predicate: T => Boolean): Option[T] =
@@ -777,7 +777,7 @@ package object extensions {
 
     def startsFromNewLine(ignoreComments: Boolean = true): Boolean = {
       @tailrec
-      def inner(el: PsiElement): Boolean = el match {
+      def inner(@Nullable el: PsiElement): Boolean = el match {
         case null => true
         case ws: PsiWhiteSpace =>
           if (ws.textContains('\n')) true
@@ -799,7 +799,7 @@ package object extensions {
 
     def followedByNewLine(ignoreComments: Boolean, treatEofAsNewLine: Boolean): Boolean = {
       @tailrec
-      def inner(el: PsiElement): Boolean = el match {
+      def inner(@Nullable el: PsiElement): Boolean = el match {
         case null => treatEofAsNewLine
         case ws: PsiWhiteSpace =>
           if (ws.textContains('\n')) true

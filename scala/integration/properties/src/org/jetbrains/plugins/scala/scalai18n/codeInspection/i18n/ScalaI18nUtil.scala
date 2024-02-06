@@ -40,7 +40,7 @@ object ScalaI18nUtil {
     def checkPsiAnnotationOwner(owner: PsiAnnotationOwner): Boolean
   }
 
-  sealed abstract class PassedToAnnotatedChecker(protected val annotations: Seq[String]) extends AnnotationChecker {
+  private sealed abstract class PassedToAnnotatedChecker(protected val annotations: Seq[String]) extends AnnotationChecker {
     private val annotationsSet: java.util.Set[String] = annotations match {
       case Seq(one) => Collections.singleton(one)
       case multiple => ContainerUtil.newHashSet(multiple.asJava)
@@ -102,7 +102,7 @@ object ScalaI18nUtil {
       override def checkPsiAnnotationOwner(owner: PsiAnnotationOwner): Boolean =
         addToAnnotationAttributeValues(owner.findAnnotation(annFqn))
 
-      private def addToAnnotationAttributeValues(annotation: PsiAnnotation): Boolean = {
+      private def addToAnnotationAttributeValues(@Nullable annotation: PsiAnnotation): Boolean = {
         if (annotation == null) {
           false
         } else {

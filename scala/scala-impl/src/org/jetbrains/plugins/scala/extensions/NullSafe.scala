@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.extensions
 
+import org.jetbrains.annotations.Nullable
+
 /** This type is handy for working with possible null values.
   * It has no overhead of converting to Option, and allows to chain several nullable functions in a safe way
   * using `map` and `collect` methods.
   */
-final class NullSafe[+A >: Null] private(val get: A) extends AnyVal {
+final class NullSafe[+A >: Null] private(@Nullable val get: A) extends AnyVal {
 
   import NullSafe.empty
 
@@ -63,7 +65,7 @@ final class NullSafe[+A >: Null] private(val get: A) extends AnyVal {
 
 object NullSafe {
 
-  def apply[A >: Null](a: A) = new NullSafe(a)
+  def apply[A >: Null](@Nullable a: A) = new NullSafe(a)
 
   def empty: NullSafe[Null] = new NullSafe(null)
 }
