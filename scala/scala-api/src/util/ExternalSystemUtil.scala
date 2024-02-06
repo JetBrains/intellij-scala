@@ -31,7 +31,7 @@ object ExternalSystemUtil {
     val dataManager = ProjectDataManager.getInstance()
     // TODO - instead of project.getBasePath, proper rootProjectPath should be passed to #getExternalProjectInfoAndData.
     //  Otherwise, for multiple separate projects imported via e.g. with "Module from existing sources" or "Link project"
-    //  this will lead to incorrect values (see how it is done in #getModuleData)
+    //  this will lead to incorrect values (see how it is done in #getModuleData). See more info in #SCL-22087
     val (_, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, Option(project.getBasePath)) match {
       case Right(value) => value
       case Left(error) =>
