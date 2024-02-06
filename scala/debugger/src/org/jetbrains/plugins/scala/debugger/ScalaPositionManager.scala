@@ -938,17 +938,21 @@ object ScalaPositionManager {
 
     private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
-      else inReadAction {
-        elem match {
-          case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
-          case _ =>
-            val parts = elem.withParentsInFile.flatMap(partsFor)
-            parts.toSeq.reverse
-        }
+      else {
+        ReadAction.nonBlocking(() => {
+          elem match {
+            case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
+            case _ =>
+              val parts = elem.withParentsInFile.flatMap(partsFor)
+              parts.toSeq.reverse
+          }
+        }).expireWhen(() => !elem.isValid).executeSynchronously()
       }
     }
 
+    @RequiresReadLock
     private def partsFor(elem: PsiElement): Seq[String] = {
+      ProgressManager.checkCanceled()
       elem match {
         case o: ScObject if o.isPackageObject => Seq(PackageObjectSingletonClassName)
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
@@ -958,7 +962,9 @@ object ScalaPositionManager {
       }
     }
 
+    @RequiresReadLock
     private def partsForAnonfun(elem: PsiElement): Seq[String] = {
+      ProgressManager.checkCanceled()
       val anonfunCount = ScalaEvaluatorBuilderUtil.anonClassCount(elem)
       val lastParts = Seq.fill(anonfunCount - 1)(Seq("$apply", "$anonfun")).flatten
       val containingClass = findGeneratingClassOrMethodParent(elem.getParent)
