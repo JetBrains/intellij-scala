@@ -289,9 +289,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val file = position.getFile
     throwIfNotScalaFile(file)
 
-    val possiblePositions = inReadAction {
-      positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
-    }
+    val onLine = positionsOnLine(file, position.getLine)
+    val possiblePositions =
+      ReadAction.nonBlocking(() => {
+        onLine.map { e =>
+          ProgressManager.checkCanceled()
+          SourcePosition.createFromElement(e)
+        }
+      })
+      .executeSynchronously()
 
     possiblePositions.flatMap(createPrepareRequests).asJava
   }
