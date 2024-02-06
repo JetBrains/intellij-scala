@@ -25,7 +25,7 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
        moduleNode@(_n: ModuleNode) <- Option(groupNode.getParent)
        esModuleData <- Option(moduleNode.getData)
        // note: rootProjectPath calculation based on moduleFileDirectoryPath is kind of naive, but because moduleFileDirectoryPath is created from project's root file
-       // and ".idea/modules" suffix (in SbtProjectResolver#convert) is should work in most cases.
+       // and ".idea/modules" suffix (in SbtProjectResolver#convert) and it should work in most cases.
        // Determination of rootProjectPath is necessary to get proper ExternalProjectInfo in org.jetbrains.plugins.scala.util.ExternalSystemUtil.getExternalProjectInfoAndData
        // It is particularly noticeable with many separate imported projects.
        rootProjectPath = esModuleData.getModuleFileDirectoryPath.stripSuffix(Sbt.ModulesDirectory)
