@@ -9,9 +9,11 @@ import com.intellij.debugger.jdi.{StackFrameProxyImpl, VirtualMachineProxyImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, SourcePosition}
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
@@ -19,6 +21,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.ThreeState
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.ConcurrentIntObjectMap
 import com.intellij.xdebugger.frame.XStackFrame
 import com.sun.jdi._
@@ -43,6 +46,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
@@ -434,8 +438,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     if (refType == null) return null
     if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
+    @RequiresReadLock
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
+        ProgressManager.checkCanceled()
         val dollarTestSuffix = "$Test" //See SCL-9340
         if (originalQName.endsWith(dollarTestSuffix)) Some(originalQName)
         else if (originalQName.contains(dollarTestSuffix + "$")) {
@@ -445,14 +451,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else None
       }
       def topLevelClassName(originalQName: String): String = {
+        ProgressManager.checkCanceled()
         if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)) originalQName
         else originalQName.replace(PackageObjectSingletonClassPackageSuffix, ".").takeWhile(_ != '$')
       }
-      def tryToFindClass(name: String) = {
+      def tryToFindClass(name: String): Option[PsiClass] = {
+        ProgressManager.checkCanceled()
         val classes = findClassesByQName(name, debugProcessScope, fallbackToProjectScope = true)
-
-        classes.find(!_.isInstanceOf[ScObject])
-          .orElse(classes.headOption)
+        classes.find(!_.is[ScObject]).orElse(classes.headOption)
       }
 
       val originalQName = NameTransformer.decode(nonLambdaName(refType))
@@ -468,7 +474,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    val file = inReadAction(findFile())
+    val file = ReadAction.nonBlocking(() => findFile()).executeSynchronously()
+
     if (file != null && refType.methods().asScala.exists(isIndyLambda)) {
       isCompiledWithIndyLambdasCache.put(file, true)
     }
