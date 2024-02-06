@@ -414,7 +414,7 @@ lazy val debugger =
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", Some("sbt/sbt-impl/workspace-entities"))
   .dependsOn(scalaImpl)
   .settings(
-    Compile/unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
+    Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions
   )
